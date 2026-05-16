@@ -1806,15 +1806,6 @@ const SUBJ_LABELS = {
 const ITEM_TYPE_LABELS = {
   quiz: 'Quiz', test: 'Test', midterm: 'Midterm', final: 'Final', assignment: 'Assignment'
 };
-</script>
-  
-  <script type="text/javascript">
-    aclib.runAutoTag({
-        zoneId: 'yl6zj3dvic',
-    });
-</script>
-
-<script>
 
 function renderFilters() {
   const subjects = [...new Set(db.cats.map(c => c.subject).filter(Boolean))];
