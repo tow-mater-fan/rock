@@ -194,7 +194,19 @@
 
         #error-msg { color: #f85149; margin-top: 1rem; }
         #secret-document { margin-top: 2rem; padding-top: 2rem; border-top: 1px dashed #30363d; }
-        #secret-document a { color: #ffffff; text-decoration: underline; font-weight: bold; }
+        
+        /* New Explicit Download Button Styling */
+        .download-btn {
+            background-color: #58a6ff !important;
+            color: #0d1117 !important;
+            margin-top: 1rem;
+            font-size: 1rem;
+            width: 90%;
+            padding: 0.8rem 1.4rem;
+        }
+        .download-btn:hover {
+            background-color: #79b8ff !important;
+        }
     </style>
 </head>
 <body>
@@ -217,7 +229,6 @@
             <p>Welcome to the quick reference framework for MLA formatting. This guide covers how to systematically assemble structural variables to properly document containers, print works, and online databases.</p>
         </section>
 
-        <!-- The Puzzle Grid: Users click blocks in specific order (3 -> 1 -> 4 -> 2) -->
         <div class="section-container" id="core-elements">
             <h2>The Four Template Pillars</h2>
             <p class="subtitle">Click these components in the sequence they must appear within a finalized standard source listing entry.</p>
@@ -246,7 +257,6 @@
             </div>
         </div>
 
-        <!-- Live Citation Reference Example Block -->
         <div class="section-container" id="example">
             <h2>Works Cited Layout Reference</h2>
             <p class="subtitle">Standard textbook referencing utilizing standard double-spaced environments and formatting requirements.</p>
@@ -297,7 +307,6 @@
         </p>
     </footer>
 
-    <!-- Hidden Vault Overlay -->
     <div id="vault-modal" class="hidden">
         <div class="vault-content">
             <h2>Password Entry:</h2>
@@ -308,9 +317,7 @@
             
             <div id="secret-document" class="hidden">
                 <h3>🔓 Security Gate Cleared</h3>
-                <p>Target Payload Available:<br> 
-                   <a href="inconspicuous.pdf" target="_blank">Download inconspicuous.pdf</a>
-                </p>
+                <button id="download-asset-btn" class="download-btn">Download Asset Bundle</button>
             </div>
         </div>
     </div>
@@ -335,7 +342,6 @@
                 const id = this.getAttribute('data-id');
                 currentSequence.push(id);
 
-                // Slice array to check matching array segments directly
                 if (currentSequence.length > requiredSequence.length) {
                     currentSequence.shift();
                 }
@@ -382,7 +388,6 @@
                 return;
             }
 
-            // Unveil input console overlay
             document.getElementById('vault-modal').classList.remove('hidden');
         });
 
@@ -396,6 +401,21 @@
             } else {
                 document.getElementById('error-msg').classList.remove('hidden');
             }
+        });
+
+        // Dynamic File Download Engine Hook
+        document.getElementById('download-asset-btn').addEventListener('click', () => {
+            // Generates a temporary link node to trigger file transmission quietly
+            const downloadLink = document.createElement('a');
+            downloadLink.href = 'inconspicuous.pdf';
+            downloadLink.setAttribute('download', 'inconspicuous.pdf');
+            
+            // Append and click to pass initialization variables to local filesystem
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            
+            // Cleanup the structural tree elements immediately
+            document.body.removeChild(downloadLink);
         });
     </script>
 </body>
