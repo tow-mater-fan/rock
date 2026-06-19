@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High School Student Hub | Academic Integrity & Resources</title>
+    <title>MLA Style Guide | Works Cited & Formatting Hub</title>
     <style>
         :root {
             --bg-color: #ffffff;
             --text-color: #2d3748;
-            --primary-blue: #1e3a8a;
-            --accent-amber: #b45309;
+            --mla-burgundy: #800020;
+            --accent-gold: #b45309;
             --light-gray: #f8fafc;
             --border-color: #e2e8f0;
         }
@@ -28,14 +28,14 @@
             justify-content: space-between;
             padding: 1.5rem 2rem;
             align-items: center;
-            border-bottom: 3px solid var(--primary-blue);
+            border-bottom: 3px solid var(--mla-burgundy);
             background-color: #fff;
         }
 
         .logo { 
             font-weight: 800; 
             letter-spacing: 0.5px; 
-            color: var(--primary-blue);
+            color: var(--mla-burgundy);
             font-size: 1.2rem;
             display: flex;
             align-items: center;
@@ -43,12 +43,12 @@
         }
 
         /* Draggable Token */
-        #drag-shield {
+        #drag-book {
             cursor: grab;
             display: inline-block;
             transition: transform 0.2s;
         }
-        #drag-shield:active { cursor: grabbing; }
+        #drag-book:active { cursor: grabbing; }
 
         nav a {
             margin-left: 1.5rem;
@@ -64,11 +64,11 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .hero h1 { font-size: 2.5rem; color: var(--primary-blue); margin-top: 0; }
+        .hero h1 { font-size: 2.5rem; color: var(--mla-burgundy); margin-top: 0; }
         .hero p { font-size: 1.1rem; max-width: 650px; color: #4a5568; }
 
         .section-container { padding: 3rem 2rem; max-width: 1000px; margin: 0 auto; }
-        h2 { color: var(--primary-blue); border-left: 4px solid var(--accent-amber); padding-left: 10px; }
+        h2 { color: var(--mla-burgundy); border-left: 4px solid var(--accent-gold); padding-left: 10px; }
         .subtitle { color: #718096; margin-top: -10px; margin-bottom: 2rem; }
 
         .grid {
@@ -85,8 +85,8 @@
             border-radius: 6px;
         }
 
-        .card-num { font-weight: bold; color: var(--accent-amber); font-family: monospace; }
-        .grid-item h3 { margin: 0.5rem 0; color: var(--primary-blue); }
+        .card-num { font-weight: bold; color: var(--accent-gold); font-family: monospace; }
+        .grid-item h3 { margin: 0.5rem 0; color: var(--mla-burgundy); }
 
         .resources-table {
             width: 100%;
@@ -101,9 +101,9 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .resources-table th { background-color: var(--primary-blue); color: white; }
+        .resources-table th { background-color: var(--mla-burgundy); color: white; }
         
-        /* Secret Clickable Size Cell */
+        /* Secret Clickable Hint Cell */
         .secret-hint { cursor: pointer; font-weight: bold; color: #4a5568; }
 
         footer {
@@ -122,7 +122,7 @@
             transition: all 0.3s;
         }
         #drop-zone.drag-over {
-            border-color: var(--accent-amber);
+            border-color: var(--accent-gold);
             background-color: #fef3c7;
             color: #000;
         }
@@ -185,77 +185,77 @@
 
     <header>
         <div class="logo">
-            <span id="drag-shield" draggable="true">🛡️</span> 
-            STUDENT HONOR PORTAL
+            <span id="drag-book" draggable="true">📖</span> 
+            MLA STYLE CENTER
         </div>
         <nav>
-            <a href="#standards">Honor Standards</a>
-            <a href="#tools">Resource Guides</a>
+            <a href="#core-elements">Core Elements</a>
+            <a href="#containers">Containers</a>
         </nav>
     </header>
 
     <main>
         <section class="hero">
-            <h1>Honesty in Education.<br>Building Your Future.</h1>
-            <p>Welcome to the central academic integrity portal. Maintaining high standards of integrity in high school sets the foundation for college and career success. Learn how to accurately attribute your research below.</p>
+            <h1>MLA 9th Edition.<br>Simplified Documentation.</h1>
+            <p>Welcome to the quick reference framework for MLA formatting. This guide covers how to systematically assemble structural variables to properly document containers, print works, and online databases.</p>
         </section>
 
-        <div class="section-container" id="standards">
-            <h2>The Four Core Values</h2>
-            <p class="subtitle">These pillars guide independent study habits, lab work, and exam parameters across all elective and core courses.</p>
+        <div class="section-container" id="core-elements">
+            <h2>The Four Template Pillars</h2>
+            <p class="subtitle">These fields represent the fundamental components ordered chronologically inside a standard source listing entry.</p>
             
             <div class="grid">
                 <div class="grid-item">
                     <span class="card-num">[03]</span>
-                    <h3>Honesty</h3>
-                    <p>Submitting work reflecting your true capabilities. Avoiding plagiarism by learning proper paraphrasing standards.</p>
+                    <h3>Author</h3>
+                    <p>Primary creator name listed as Last Name, First Name. Always conclude this initial element block with a period.</p>
                 </div>
                 <div class="grid-item">
                     <span class="card-num">[01]</span>
-                    <h3>Fairness</h3>
-                    <p>Upholding peer standards during independent tasks. Completing examinations without external assistance networks.</p>
+                    <h3>Title of Source</h3>
+                    <p>The specific name of the text. Italicize self-contained book titles, or place standalone essay titles within quotation marks.</p>
                 </div>
                 <div class="grid-item">
                     <span class="card-num">[04]</span>
-                    <h3>Responsibility</h3>
-                    <p>Submitting original compositions. Reaching out to academic advisors or peer tutoring circles early when struggling.</p>
+                    <h3>Publisher</h3>
+                    <p>The enterprise responsible for distributing the final manuscript production. Omit standard corporate markers like LLC.</p>
                 </div>
                 <div class="grid-item">
                     <span class="card-num">[02]</span>
-                    <h3>Respect</h3>
-                    <p>Acknowledging intellectual contributions of authors, creators, and data platforms in every research draft.</p>
+                    <h3>Publication Date</h3>
+                    <p>The calendar year or day variant designating release. Use international format styles for tracking specific days (e.g., 12 May 2026).</p>
                 </div>
             </div>
         </div>
 
-        <div class="section-container" id="tools">
-            <h2>Approved High School Citation Tools</h2>
-            <p class="subtitle">Recommended resources for checking bibliographies and learning proper style guidelines.</p>
+        <div class="section-container" id="containers">
+            <h2>Container Rules & Metadata Fields</h2>
+            <p class="subtitle">Rules regarding secondary nested parameters when indexing items housed within larger structural systems.</p>
             
             <table class="resources-table">
                 <thead>
                     <tr>
-                        <th>Resource Utilities</th>
-                        <th>Utility Purpose</th>
-                        <th>File Size</th>
+                        <th>Container Variable</th>
+                        <th>Syntax Rule</th>
+                        <th>Required Length</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>MLA Quick-Reference Checklist</strong></td>
-                        <td>Quickly verify citation syntax rules for online media.</td>
-                        <td>240 KB</td>
+                        <td><strong>Volume and Issue</strong></td>
+                        <td>Precede digits with lowercase abbreviations vol. and no. lines.</td>
+                        <td>Varies</td>
                     </tr>
                     <tr>
-                        <td><strong>APA 7th Edition Guide</strong></td>
-                        <td>Learning structural rules for science lab formatting requirements.</td>
-                        <td>1.2 MB</td>
+                        <td><strong>Location Tracking</strong></td>
+                        <td>Indicate precise page spans using the p. or pp. syntax prefix.</td>
+                        <td>Varies</td>
                     </tr>
                     <tr>
-                        <td><strong>Student Citation Worksheet</strong></td>
-                        <td>Manual template outline to help structure source attribution.</td>
+                        <td><strong>Digital Object Identifier</strong></td>
+                        <td>Append secure metadata strings or URL destination strings.</td>
                         <!-- Hint trigger cell below -->
-                        <td class="secret-hint" id="hint-trigger">NaN KB</td>
+                        <td class="secret-hint" id="hint-trigger">NaN</td>
                     </tr>
                 </tbody>
             </table>
@@ -265,7 +265,7 @@
     <footer>
         <p>
             <span id="drop-zone">&copy;</span> 
-            2026 High School Academic Council. All public materials under global educational distribution licenses.
+            2026 Style Manual Publishing Group. All standard documentation examples open for educational research reference.
         </p>
     </footer>
 
@@ -293,16 +293,16 @@
         // Step 1: Click the seemingly broken NaN string in the table to load part of a key string
         document.getElementById('hint-trigger').addEventListener('click', function() {
             hasCopiedPrefix = true;
-            this.style.color = '#b45309'; // Subtle color transition acknowledgement
+            this.style.color = '#b45309'; // Subtle color change acknowledgment
             alert("Clipboard context update: System code segment registered.");
         });
 
         // Step 2: Drag and drop configuration mechanics
-        const shield = document.getElementById('drag-shield');
+        const book = document.getElementById('drag-book');
         const dropZone = document.getElementById('drop-zone');
 
-        shield.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', 'shield-token');
+        book.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', 'book-token');
         });
 
         dropZone.addEventListener('dragover', (e) => {
@@ -332,8 +332,8 @@
         document.getElementById('unlock-btn').addEventListener('click', () => {
             const passwordInput = document.getElementById('vault-pass').value;
             
-            // Expected validation string: "STU-1342"
-            if (passwordInput === "STU-1342") { 
+            // Expected validation string: "MLA-1342"
+            if (passwordInput === "MLA-1342") { 
                 document.getElementById('error-msg').classList.add('hidden');
                 document.getElementById('secret-document').classList.remove('hidden');
             } else {
