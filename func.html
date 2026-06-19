@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High School Student Hub | Academic Integrity & Resources</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #2d3748;
+            --primary-blue: #1e3a8a;
+            --accent-amber: #b45309;
+            --light-gray: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            user-select: none;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            align-items: center;
+            border-bottom: 3px solid var(--primary-blue);
+            background-color: #fff;
+        }
+
+        .logo { 
+            font-weight: 800; 
+            letter-spacing: 0.5px; 
+            color: var(--primary-blue);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Draggable Token */
+        #drag-shield {
+            cursor: grab;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        #drag-shield:active { cursor: grabbing; }
+
+        nav a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .hero {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero h1 { font-size: 2.5rem; color: var(--primary-blue); margin-top: 0; }
+        .hero p { font-size: 1.1rem; max-width: 650px; color: #4a5568; }
+
+        .section-container { padding: 3rem 2rem; max-width: 1000px; margin: 0 auto; }
+        h2 { color: var(--primary-blue); border-left: 4px solid var(--accent-amber); padding-left: 10px; }
+        .subtitle { color: #718096; margin-top: -10px; margin-bottom: 2rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .grid-item {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .card-num { font-weight: bold; color: var(--accent-amber); font-family: monospace; }
+        .grid-item h3 { margin: 0.5rem 0; color: var(--primary-blue); }
+
+        .resources-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #fff;
+        }
+
+        .resources-table th, .resources-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .resources-table th { background-color: var(--primary-blue); color: white; }
+        
+        /* Secret Clickable Size Cell */
+        .secret-hint { cursor: pointer; font-weight: bold; color: #4a5568; }
+
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            border-top: 1px solid var(--border-color);
+            color: #718096;
+            font-size: 0.85rem;
+            background-color: #f8fafc;
+        }
+
+        /* Drop Target area */
+        #drop-zone {
+            padding: 5px;
+            border: 1px dashed transparent;
+            transition: all 0.3s;
+        }
+        #drop-zone.drag-over {
+            border-color: var(--accent-amber);
+            background-color: #fef3c7;
+            color: #000;
+        }
+
+        /* Terminal Overlays */
+        .hidden { display: none !important; }
+
+        #vault-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #0d1117;
+            color: #58a6ff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .vault-content {
+            text-align: center;
+            border: 1px solid #30363d;
+            background-color: #161b22;
+            padding: 3rem;
+            border-radius: 6px;
+            max-width: 400px;
+        }
+
+        .vault-content input {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #58a6ff;
+            padding: 0.6rem;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            width: 80%;
+            border-radius: 4px;
+        }
+
+        .vault-content button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        #error-msg { color: #f85149; margin-top: 1rem; }
+        #secret-document { margin-top: 2rem; padding-top: 2rem; border-top: 1px dashed #30363d; }
+        #secret-document a { color: #ffffff; text-decoration: underline; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span id="drag-shield" draggable="true">🛡️</span> 
+            STUDENT HONOR PORTAL
+        </div>
+        <nav>
+            <a href="#standards">Honor Standards</a>
+            <a href="#tools">Resource Guides</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Honesty in Education.<br>Building Your Future.</h1>
+            <p>Welcome to the central academic integrity portal. Maintaining high standards of integrity in high school sets the foundation for college and career success. Learn how to accurately attribute your research below.</p>
+        </section>
+
+        <div class="section-container" id="standards">
+            <h2>The Four Core Values</h2>
+            <p class="subtitle">These pillars guide independent study habits, lab work, and exam parameters across all elective and core courses.</p>
+            
+            <div class="grid">
+                <div class="grid-item">
+                    <span class="card-num">[03]</span>
+                    <h3>Honesty</h3>
+                    <p>Submitting work reflecting your true capabilities. Avoiding plagiarism by learning proper paraphrasing standards.</p>
+                </div>
+                <div class="grid-item">
+                    <span class="card-num">[01]</span>
+                    <h3>Fairness</h3>
+                    <p>Upholding peer standards during independent tasks. Completing examinations without external assistance networks.</p>
+                </div>
+                <div class="grid-item">
+                    <span class="card-num">[04]</span>
+                    <h3>Responsibility</h3>
+                    <p>Submitting original compositions. Reaching out to academic advisors or peer tutoring circles early when struggling.</p>
+                </div>
+                <div class="grid-item">
+                    <span class="card-num">[02]</span>
+                    <h3>Respect</h3>
+                    <p>Acknowledging intellectual contributions of authors, creators, and data platforms in every research draft.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-container" id="tools">
+            <h2>Approved High School Citation Tools</h2>
+            <p class="subtitle">Recommended resources for checking bibliographies and learning proper style guidelines.</p>
+            
+            <table class="resources-table">
+                <thead>
+                    <tr>
+                        <th>Resource Utilities</th>
+                        <th>Utility Purpose</th>
+                        <th>File Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MLA Quick-Reference Checklist</strong></td>
+                        <td>Quickly verify citation syntax rules for online media.</td>
+                        <td>240 KB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>APA 7th Edition Guide</strong></td>
+                        <td>Learning structural rules for science lab formatting requirements.</td>
+                        <td>1.2 MB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Student Citation Worksheet</strong></td>
+                        <td>Manual template outline to help structure source attribution.</td>
+                        <!-- Hint trigger cell below -->
+                        <td class="secret-hint" id="hint-trigger">NaN KB</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>
+            <span id="drop-zone">&copy;</span> 
+            2026 High School Academic Council. All public materials under global educational distribution licenses.
+        </p>
+    </footer>
+
+    <!-- Hidden Vault Overlay -->
+    <div id="vault-modal" class="hidden">
+        <div class="vault-content">
+            <h2>System Override Mode</h2>
+            <p id="vault-instructions">Input primary authentication credentials:</p>
+            <input type="password" id="vault-pass" placeholder="••••••••">
+            <button id="unlock-btn">Validate</button>
+            <p id="error-msg" class="hidden">Authentication Failed.</p>
+            
+            <div id="secret-document" class="hidden">
+                <h3>🔓 Security Gate Cleared</h3>
+                <p>Target Payload Available:<br> 
+                   <a href="inconspicuous.pdf" target="_blank">Download inconspicuous.pdf</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let hasCopiedPrefix = false;
+
+        // Step 1: Click the seemingly broken NaN string in the table to load part of a key string
+        document.getElementById('hint-trigger').addEventListener('click', function() {
+            hasCopiedPrefix = true;
+            this.style.color = '#b45309'; // Subtle color transition acknowledgement
+            alert("Clipboard context update: System code segment registered.");
+        });
+
+        // Step 2: Drag and drop configuration mechanics
+        const shield = document.getElementById('drag-shield');
+        const dropZone = document.getElementById('drop-zone');
+
+        shield.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', 'shield-token');
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            
+            // Check condition paths
+            if (!hasCopiedPrefix) {
+                alert("Action rejected: Required prerequisite data markers not loaded from table.");
+                return;
+            }
+
+            // Step 3: Trigger the modal screen activation
+            document.getElementById('vault-modal').classList.remove('hidden');
+        });
+
+        // Step 4: Password verification routine
+        document.getElementById('unlock-btn').addEventListener('click', () => {
+            const passwordInput = document.getElementById('vault-pass').value;
+            
+            // Expected validation string: "STU-1342"
+            if (passwordInput === "STU-1342") { 
+                document.getElementById('error-msg').classList.add('hidden');
+                document.getElementById('secret-document').classList.remove('hidden');
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
