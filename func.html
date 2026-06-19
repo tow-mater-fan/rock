@@ -391,11 +391,11 @@
             document.getElementById('vault-modal').classList.remove('hidden');
         });
 
-        // Step 4: Secret verification string matches against: "MLA-1342"
+        // Step 4: Secret verification string matches against: "password"
         document.getElementById('unlock-btn').addEventListener('click', () => {
             const passwordInput = document.getElementById('vault-pass').value;
             
-            if (passwordInput === "MLA-1342") { 
+            if (passwordInput === "Geology41") { 
                 document.getElementById('error-msg').classList.add('hidden');
                 document.getElementById('secret-document').classList.remove('hidden');
             } else {
