@@ -42,7 +42,6 @@
             gap: 10px;
         }
 
-        /* Draggable Token */
         #drag-book {
             cursor: grab;
             display: inline-block;
@@ -83,10 +82,32 @@
             border: 1px solid var(--border-color);
             padding: 1.5rem;
             border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .grid-item:hover {
+            border-color: var(--mla-burgundy);
+            background-color: #fffafb;
         }
 
         .card-num { font-weight: bold; color: var(--accent-gold); font-family: monospace; }
         .grid-item h3 { margin: 0.5rem 0; color: var(--mla-burgundy); }
+
+        /* Citation Block Engine Styles */
+        .citation-box {
+            background-color: var(--light-gray);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 6px;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            color: #1a202c;
+        }
+        .hanging-indent {
+            padding-left: 2rem;
+            text-indent: -2rem;
+        }
 
         .resources-table {
             width: 100%;
@@ -100,10 +121,7 @@
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
-
         .resources-table th { background-color: var(--mla-burgundy); color: white; }
-        
-        /* Secret Clickable Hint Cell */
         .secret-hint { cursor: pointer; font-weight: bold; color: #4a5568; }
 
         footer {
@@ -115,7 +133,6 @@
             background-color: #f8fafc;
         }
 
-        /* Drop Target area */
         #drop-zone {
             padding: 5px;
             border: 1px dashed transparent;
@@ -127,7 +144,6 @@
             color: #000;
         }
 
-        /* Terminal Overlays */
         .hidden { display: none !important; }
 
         #vault-modal {
@@ -190,6 +206,7 @@
         </div>
         <nav>
             <a href="#core-elements">Core Elements</a>
+            <a href="#example">Live Example</a>
             <a href="#containers">Containers</a>
         </nav>
     </header>
@@ -200,30 +217,42 @@
             <p>Welcome to the quick reference framework for MLA formatting. This guide covers how to systematically assemble structural variables to properly document containers, print works, and online databases.</p>
         </section>
 
+        <!-- The Puzzle Grid: Users click blocks in specific order (3 -> 1 -> 4 -> 2) -->
         <div class="section-container" id="core-elements">
             <h2>The Four Template Pillars</h2>
-            <p class="subtitle">These fields represent the fundamental components ordered chronologically inside a standard source listing entry.</p>
+            <p class="subtitle">Click these components in the sequence they must appear within a finalized standard source listing entry.</p>
             
             <div class="grid">
-                <div class="grid-item">
+                <div class="grid-item" data-id="3">
                     <span class="card-num">[03]</span>
                     <h3>Author</h3>
                     <p>Primary creator name listed as Last Name, First Name. Always conclude this initial element block with a period.</p>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" data-id="1">
                     <span class="card-num">[01]</span>
                     <h3>Title of Source</h3>
                     <p>The specific name of the text. Italicize self-contained book titles, or place standalone essay titles within quotation marks.</p>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" data-id="4">
                     <span class="card-num">[04]</span>
                     <h3>Publisher</h3>
                     <p>The enterprise responsible for distributing the final manuscript production. Omit standard corporate markers like LLC.</p>
                 </div>
-                <div class="grid-item">
+                <div class="grid-item" data-id="2">
                     <span class="card-num">[02]</span>
                     <h3>Publication Date</h3>
                     <p>The calendar year or day variant designating release. Use international format styles for tracking specific days (e.g., 12 May 2026).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Citation Reference Example Block -->
+        <div class="section-container" id="example">
+            <h2>Works Cited Layout Reference</h2>
+            <p class="subtitle">Standard textbook referencing utilizing standard double-spaced environments and formatting requirements.</p>
+            <div class="citation-box">
+                <div class="hanging-indent">
+                    Clearview, Samantha. <em>Foundations of Digital Structural Layouts</em>. Academic Formatting Press, 2024.
                 </div>
             </div>
         </div>
@@ -254,7 +283,6 @@
                     <tr>
                         <td><strong>Digital Object Identifier</strong></td>
                         <td>Append secure metadata strings or URL destination strings.</td>
-                        <!-- Hint trigger cell below -->
                         <td class="secret-hint" id="hint-trigger">NaN</td>
                     </tr>
                 </tbody>
@@ -289,15 +317,41 @@
 
     <script>
         let hasCopiedPrefix = false;
+        let buttonSequenceComplete = false;
+        
+        const requiredSequence = ['3', '1', '4', '2'];
+        let currentSequence = [];
 
-        // Step 1: Click the seemingly broken NaN string in the table to load part of a key string
+        // Step 1: Click the NaN field to register the prefix flag
         document.getElementById('hint-trigger').addEventListener('click', function() {
             hasCopiedPrefix = true;
-            this.style.color = '#b45309'; // Subtle color change acknowledgment
+            this.style.color = '#b45309';
             alert("Clipboard context update: System code segment registered.");
         });
 
-        // Step 2: Drag and drop configuration mechanics
+        // Step 2: Track sequential item clicks (Author -> Title -> Publisher -> Date)
+        document.querySelectorAll('.grid-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                currentSequence.push(id);
+
+                // Slice array to check matching array segments directly
+                if (currentSequence.length > requiredSequence.length) {
+                    currentSequence.shift();
+                }
+
+                const isMatch = currentSequence.length === requiredSequence.length && 
+                                currentSequence.every((val, index) => val === requiredSequence[index]);
+
+                if (isMatch) {
+                    buttonSequenceComplete = true;
+                    document.getElementById('core-elements').querySelector('h2').style.color = '#238636';
+                    alert("Sequence Check: Order sequence verified.");
+                }
+            });
+        });
+
+        // Step 3: Drag and drop validation handling mechanics
         const book = document.getElementById('drag-book');
         const dropZone = document.getElementById('drop-zone');
 
@@ -318,21 +372,24 @@
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             
-            // Check condition paths
             if (!hasCopiedPrefix) {
                 alert("Action rejected: Required prerequisite data markers not loaded from table.");
                 return;
             }
 
-            // Step 3: Trigger the modal screen activation
+            if (!buttonSequenceComplete) {
+                alert("Action rejected: Logic sequence incomplete. Pillars must be addressed sequentially.");
+                return;
+            }
+
+            // Unveil input console overlay
             document.getElementById('vault-modal').classList.remove('hidden');
         });
 
-        // Step 4: Password verification routine
+        // Step 4: Secret verification string matches against: "MLA-1342"
         document.getElementById('unlock-btn').addEventListener('click', () => {
             const passwordInput = document.getElementById('vault-pass').value;
             
-            // Expected validation string: "MLA-1342"
             if (passwordInput === "MLA-1342") { 
                 document.getElementById('error-msg').classList.add('hidden');
                 document.getElementById('secret-document').classList.remove('hidden');
