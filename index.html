@@ -331,6 +331,22 @@
     margin-top:.35rem; letter-spacing:.04em; }
   .slot-clear-btn { font-family:'DM Mono',monospace; font-size:.63rem; color:var(--rust); background:none;
     border:none; cursor:pointer; padding:.2rem 0; text-decoration:underline; letter-spacing:.04em; margin-top:.25rem; display:none; }
+  .slot-password-row { margin-top:.6rem; padding-top:.6rem; border-top:1px dashed rgba(100,80,60,.2); }
+  .slot-password-row label { display:block; font-family:'DM Mono',monospace; font-size:.62rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--granite); margin-bottom:.3rem; }
+  .slot-password-row input[type=text] { width:100%; padding:.5rem .7rem; border:1.5px solid rgba(100,80,60,.25);
+    border-radius:3px; background:var(--cream); font-family:'DM Mono',monospace; font-size:.78rem;
+    color:var(--stone); outline:none; }
+  .slot-password-row input[type=text]:focus { border-color:var(--rust); }
+  .slot-password-status { font-family:'DM Mono',monospace; font-size:.62rem; letter-spacing:.06em;
+    margin-top:.35rem; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+  .slot-password-status .has-pw { color:var(--rust); }
+  .slot-password-status .no-pw  { color:var(--slate); opacity:.65; }
+  .slot-pw-remove-btn { font-family:'DM Mono',monospace; font-size:.6rem; color:var(--rust); background:none;
+    border:none; cursor:pointer; text-decoration:underline; padding:0; letter-spacing:.04em; }
+  /* ── FILE LOCK BADGE / UNLOCK ── */
+  .file-link-btn.locked { opacity:.85; }
+  .file-lock-icon { font-size:.85em; margin-right:.1em; }
   /* ── ARCHIVE PAGE ── */
   #archive-page { display:none; min-height:100vh; flex-direction:column; background:var(--cream); }
   #archive-page.visible { display:flex; }
@@ -1479,6 +1495,22 @@
   </div>
 </div>
 
+<!-- File Unlock Modal -->
+<div class="modal-overlay" id="unlock-overlay">
+  <div class="modal" style="max-width:380px">
+    <button class="modal-close" id="unlock-close">✕</button>
+    <div class="modal-eyebrow">Protected File</div>
+    <h2>Enter Password</h2>
+    <p id="unlock-desc">This file is password protected.</p>
+    <div class="form-group">
+      <label for="unlock-password">Password</label>
+      <input type="password" id="unlock-password" placeholder="••••••••" autocomplete="off">
+    </div>
+    <button class="modal-btn" id="unlock-confirm-btn">Unlock File</button>
+    <div class="modal-error" id="unlock-error"></div>
+  </div>
+</div>
+
 <!-- ═══════════════ ARCHIVE PAGE ═══════════════ -->
 <div id="archive-page">
   <div class="archive-header">
@@ -1655,6 +1687,14 @@ let dbLoaded      = false;
 let archiveOpen   = false;
 let pendingSlots  = { pdf: null, orig: null, key: null, assign: null };
 let editingTestId = null;
+let unlockedFiles = new Set(); // session-only: "testId:slotKey" once unlocked
+
+// ── Password hashing helper (SHA-256, client-side) ──
+async function hashPassword(plain) {
+  const enc = new TextEncoder().encode(plain);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 async function loadDB() {
   try {
@@ -1703,7 +1743,7 @@ loadDB();
 
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-['login-overlay','cat-overlay','test-overlay','del-overlay'].forEach(id => {
+['login-overlay','cat-overlay','test-overlay','del-overlay','unlock-overlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target.id === id) closeModal(id);
   });
@@ -1712,6 +1752,7 @@ document.getElementById('login-close').onclick  = () => closeModal('login-overla
 document.getElementById('cat-close').onclick    = () => closeModal('cat-overlay');
 document.getElementById('test-close').onclick   = () => closeModal('test-overlay');
 document.getElementById('del-cancel').onclick   = () => closeModal('del-overlay');
+document.getElementById('unlock-close').onclick = () => closeModal('unlock-overlay');
 
 let clicks = 0, clickTimer = null;
 document.getElementById('secret-trigger').addEventListener('click', e => {
@@ -2035,6 +2076,7 @@ function renderCourses() {
   cont.querySelectorAll('[data-del-cat]').forEach(btn   => btn.onclick = () => confirmDelCat(btn.dataset.delCat));
   cont.querySelectorAll('[data-del-test]').forEach(btn  => btn.onclick = () => confirmDelTest(btn.dataset.delTest));
   cont.querySelectorAll('[data-edit-test]').forEach(btn => btn.onclick = () => openEditTest(btn.dataset.editTest));
+  cont.querySelectorAll('[data-locked-file]').forEach(btn => btn.onclick = (e) => { e.preventDefault(); openUnlockPrompt(btn.dataset.testId, btn.dataset.slotKey); });
   if (isAdmin) {
     cont.querySelectorAll('.editable-cat-name').forEach(el => {
       el.style.cursor = 'text';
@@ -2070,6 +2112,10 @@ function groupByUnit(tests) {
 }
 function hasAnyUnits(tests) { return tests.some(t => t.unit && t.unit.trim()); }
 
+// ── File slot lock helpers ──
+function slotIsLocked(slot) { return !!(slot && slot.passwordHash); }
+function fileSlotUnlocked(testId, slotKey) { return unlockedFiles.has(testId + ':' + slotKey); }
+
 function buildTestItem(t) {
   const slots = t.files || {};
   const isAssignment = t.type === 'assignment';
@@ -2077,16 +2123,26 @@ function buildTestItem(t) {
   const hasAnyFile = slots.pdf || slots.orig || slots.key || (isAssignment && slots.assign);
   if (isAdmin || hasAnyFile) {
     let links = '';
-    if (slots.pdf?.url) links += `<a class="file-link-btn pdf" href="${esc(slots.pdf.url)}" target="_blank" rel="noopener">📄 PDF Version</a>`;
-    else if (isAdmin) links += `<button class="file-link-btn add" data-slot-add="pdf" data-test-id="${t.id}">+ PDF Version</button>`;
-    if (slots.orig?.url) links += `<a class="file-link-btn orig" href="${esc(slots.orig.url)}" target="_blank" rel="noopener">📁 Original</a>`;
-    else if (isAdmin) links += `<button class="file-link-btn add" data-slot-add="orig" data-test-id="${t.id}">+ Original</button>`;
-    if (slots.key?.url) links += `<a class="file-link-btn key" href="${esc(slots.key.url)}" target="_blank" rel="noopener">🔑 Answer Key</a>`;
-    else if (isAdmin) links += `<button class="file-link-btn add" data-slot-add="key" data-test-id="${t.id}">+ Answer Key</button>`;
-    if (isAssignment) {
-      if (slots.assign?.url) links += `<a class="file-link-btn assign" href="${esc(slots.assign.url)}" target="_blank" rel="noopener">📝 Assignment</a>`;
-      else if (isAdmin) links += `<button class="file-link-btn add" data-slot-add="assign" data-test-id="${t.id}">+ Assignment</button>`;
-    }
+    const slotDefs = [
+      ['pdf', 'pdf', '📄 PDF Version'],
+      ['orig', 'orig', '📁 Original'],
+      ['key', 'key', '🔑 Answer Key'],
+    ];
+    if (isAssignment) slotDefs.push(['assign', 'assign', '📝 Assignment']);
+    slotDefs.forEach(([slotKey, cls, label]) => {
+      const slot = slots[slotKey];
+      if (slot && slot.url) {
+        const locked = slotIsLocked(slot) && !(isAdmin) && !fileSlotUnlocked(t.id, slotKey);
+        if (locked) {
+          links += `<button class="file-link-btn ${cls} locked" data-locked-file="1" data-test-id="${t.id}" data-slot-key="${slotKey}"><span class="file-lock-icon">🔒</span>${label}</button>`;
+        } else {
+          const lockNote = slotIsLocked(slot) && isAdmin ? '<span class="file-lock-icon">🔒</span>' : '';
+          links += `<a class="file-link-btn ${cls}" href="${esc(slot.url)}" target="_blank" rel="noopener">${lockNote}${label}</a>`;
+        }
+      } else if (isAdmin) {
+        links += `<button class="file-link-btn add" data-slot-add="${slotKey}" data-test-id="${t.id}">+ ${label.replace(/^\S+\s/, '')}</button>`;
+      }
+    });
     if (links) fileLinksHtml = `<div class="test-files-row">${links}</div>`;
   }
   const dragHandle = isAdmin ? `<div class="drag-handle" draggable="false" title="Drag to reorder">⠿</div>` : '';
@@ -2134,6 +2190,46 @@ function buildTestItem(t) {
     ${fileLinksHtml}
   </div>`;
 }
+
+// ── Unlock modal logic (student-facing) ──
+let unlockCtx = null; // { testId, slotKey }
+function openUnlockPrompt(testId, slotKey) {
+  unlockCtx = { testId, slotKey };
+  document.getElementById('unlock-password').value = '';
+  document.getElementById('unlock-error').textContent = '';
+  const cfg = { pdf: 'PDF Version', orig: 'Original File', key: 'Answer Key', assign: 'Assignment' };
+  document.getElementById('unlock-desc').textContent = `This ${cfg[slotKey] || 'file'} is password protected.`;
+  openModal('unlock-overlay');
+  setTimeout(() => document.getElementById('unlock-password').focus(), 50);
+}
+async function attemptUnlock() {
+  if (!unlockCtx) return;
+  const { testId, slotKey } = unlockCtx;
+  const test = db.tests.find(t => t.id === testId);
+  const slot = test && test.files && test.files[slotKey];
+  const errEl = document.getElementById('unlock-error');
+  const btn = document.getElementById('unlock-confirm-btn');
+  const entered = document.getElementById('unlock-password').value;
+  if (!entered) { errEl.textContent = 'Enter a password.'; return; }
+  if (!slot) { errEl.textContent = 'File not found.'; return; }
+  btn.textContent = 'Checking…'; btn.disabled = true;
+  try {
+    const hash = await hashPassword(entered);
+    if (hash === slot.passwordHash) {
+      unlockedFiles.add(testId + ':' + slotKey);
+      closeModal('unlock-overlay');
+      renderAll();
+      // open the file right away since the click intent was to view it
+      window.open(slot.url, '_blank', 'noopener');
+    } else {
+      errEl.textContent = 'Incorrect password.';
+    }
+  } finally {
+    btn.textContent = 'Unlock File'; btn.disabled = false;
+  }
+}
+document.getElementById('unlock-confirm-btn').onclick = attemptUnlock;
+document.getElementById('unlock-password').addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
 
 function startCatRename(el, field) {
   const catId = el.dataset.catId;
@@ -2316,10 +2412,11 @@ function buildFileSlotsUI(existingFiles = {}, focusSlot = null, itemType = '') {
   const slotsToRender = isAssignment ? ['pdf', 'orig', 'key', 'assign'] : ['pdf', 'orig', 'key'];
   slotsToRender.forEach(slotKey => {
     const cfg=SLOT_CONFIG[slotKey]; const existing=existingFiles[slotKey];
+    const hasPw = !!(existing && existing.passwordHash);
     const slotEl=document.createElement('div'); slotEl.className='file-slot';
     slotEl.innerHTML=`
       <div class="file-slot-header" data-slot-key="${slotKey}">
-        <div class="file-slot-label"><span class="slot-icon">${cfg.icon}</span>${cfg.label}</div>
+        <div class="file-slot-label"><span class="slot-icon">${cfg.icon}</span>${cfg.label}${hasPw?' <span class="file-lock-icon" title="Password protected">🔒</span>':''}</div>
         <div class="file-slot-status ${existing?'slot-status-has':'slot-status-none'}">${existing?'✓ '+esc(existing.name||'File attached'):'No file'}</div>
       </div>
       <div class="file-slot-body ${focusSlot===slotKey?'open':''}">
@@ -2330,6 +2427,14 @@ function buildFileSlotsUI(existingFiles = {}, focusSlot = null, itemType = '') {
         </div>
         <div class="file-slot-selected" data-slot-selected="${slotKey}"></div>
         ${existing?`<button class="slot-clear-btn" data-slot-clear="${slotKey}" style="display:block;">Remove this file</button>`:''}
+        <div class="slot-password-row">
+          <label>${existing ? (hasPw ? 'Change password' : 'Set password') : 'Password (optional, applies once a file is attached)'}</label>
+          <input type="text" placeholder="${hasPw ? 'Leave blank to keep current password' : 'Leave blank for no password'}" data-slot-password="${slotKey}" autocomplete="off">
+          <div class="slot-password-status">
+            <span class="${hasPw ? 'has-pw' : 'no-pw'}" data-slot-pw-indicator="${slotKey}">${hasPw ? '🔒 Password set' : 'No password'}</span>
+            ${hasPw ? `<button class="slot-pw-remove-btn" data-slot-pw-remove="${slotKey}">Remove password</button>` : ''}
+          </div>
+        </div>
       </div>`;
     container.appendChild(slotEl);
     slotEl.querySelector('.file-slot-header').addEventListener('click',()=>slotEl.querySelector('.file-slot-body').classList.toggle('open'));
@@ -2340,17 +2445,41 @@ function buildFileSlotsUI(existingFiles = {}, focusSlot = null, itemType = '') {
     dropZone.addEventListener('click',()=>fileInput.click());
     fileInput.addEventListener('change',()=>{
       const f=fileInput.files[0];
-      if(f){pendingSlots[slotKey]={file:f};selLabel.textContent='✓ '+f.name;statusEl.textContent='✓ Ready to upload';statusEl.className='file-slot-status slot-status-ready';}
+      if(f){
+        pendingSlots[slotKey] = Object.assign({}, pendingSlots[slotKey], { file: f });
+        selLabel.textContent='✓ '+f.name;statusEl.textContent='✓ Ready to upload';statusEl.className='file-slot-status slot-status-ready';
+      }
     });
     dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover');});
     dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
     dropZone.addEventListener('drop',e=>{
       e.preventDefault();dropZone.classList.remove('dragover');
       const f=e.dataTransfer.files[0];
-      if(f){pendingSlots[slotKey]={file:f};selLabel.textContent='✓ '+f.name;statusEl.textContent='✓ Ready to upload';statusEl.className='file-slot-status slot-status-ready';}
+      if(f){
+        pendingSlots[slotKey] = Object.assign({}, pendingSlots[slotKey], { file: f });
+        selLabel.textContent='✓ '+f.name;statusEl.textContent='✓ Ready to upload';statusEl.className='file-slot-status slot-status-ready';
+      }
     });
     const clearBtn=slotEl.querySelector(`[data-slot-clear="${slotKey}"]`);
     if(clearBtn){clearBtn.addEventListener('click',()=>{pendingSlots[slotKey]={clear:true};selLabel.textContent='(will be removed on save)';statusEl.textContent='✗ Marked for removal';statusEl.className='file-slot-status slot-status-none';clearBtn.style.display='none';});}
+    // Password input — staged, only applied on Save
+    const pwInput = slotEl.querySelector(`[data-slot-password="${slotKey}"]`);
+    pwInput.addEventListener('input', () => {
+      const val = pwInput.value;
+      pendingSlots[slotKey] = Object.assign({}, pendingSlots[slotKey], { newPassword: val });
+    });
+    const pwRemoveBtn = slotEl.querySelector(`[data-slot-pw-remove="${slotKey}"]`);
+    if (pwRemoveBtn) {
+      pwRemoveBtn.addEventListener('click', () => {
+        pendingSlots[slotKey] = Object.assign({}, pendingSlots[slotKey], { removePassword: true });
+        pwInput.value = '';
+        pwInput.placeholder = 'Leave blank for no password';
+        const indicator = slotEl.querySelector(`[data-slot-pw-indicator="${slotKey}"]`);
+        indicator.textContent = 'No password (will be removed on save)';
+        indicator.className = 'no-pw';
+        pwRemoveBtn.remove();
+      });
+    }
   });
 }
 
@@ -2434,13 +2563,26 @@ async function saveTest() {
       for(const [slotKey,pending] of Object.entries(pendingSlots)){
         if(!pending) continue;
         if(slotKey==='assign'&&type!=='assignment') continue;
-        if(pending.clear){delete test.files[slotKey];}
-        else if(pending.file){
+        if(pending.clear){
+          delete test.files[slotKey];
+          continue;
+        }
+        if(pending.file){
           btn.textContent=`Uploading ${SLOT_CONFIG[slotKey].label}…`;
           const fileRef=ref(storage,`archive_files/${Date.now()}_${pending.file.name}`);
           const snapshot=await uploadBytes(fileRef,pending.file);
           const url=await getDownloadURL(snapshot.ref);
+          const prevHash = test.files[slotKey] && test.files[slotKey].passwordHash;
           test.files[slotKey]={url,name:pending.file.name};
+          if (prevHash && !pending.removePassword && !pending.newPassword) test.files[slotKey].passwordHash = prevHash;
+        }
+        // Apply password changes (works whether or not a new file was uploaded this save)
+        if (test.files[slotKey]) {
+          if (pending.removePassword) {
+            delete test.files[slotKey].passwordHash;
+          } else if (pending.newPassword) {
+            test.files[slotKey].passwordHash = await hashPassword(pending.newPassword);
+          }
         }
       }
     } else {
@@ -2453,6 +2595,7 @@ async function saveTest() {
         const snapshot=await uploadBytes(fileRef,pending.file);
         const url=await getDownloadURL(snapshot.ref);
         entry.files[slotKey]={url,name:pending.file.name};
+        if (pending.newPassword) entry.files[slotKey].passwordHash = await hashPassword(pending.newPassword);
       }
       db.tests.push(entry);
     }
