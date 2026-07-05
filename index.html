@@ -514,15 +514,25 @@ async function getStudentAccessToken(){
   return studentAccessToken;
 }
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  accessToken: async () => {
-    // Google-signed-in students: use the exchanged Supabase JWT.
-    if(firebaseUser) return await getStudentAccessToken();
-    // Everyone else (educators, legacy email/password students): normal Supabase session.
-    const { data } = await sb.auth.getSession();
-    return data.session?.access_token ?? null;
-  },
+// sbAuth: the "normal" client. Used for ALL sb.auth.* calls (educator sign-in,
+// legacy student email/password sign-in, sign-out, getSession) and for data
+// queries whenever an educator or legacy student is the active user.
+const sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// sbStudent: a second client configured with the accessToken option. Once a
+// client is given accessToken, its own sb.auth.* methods stop working (the
+// library assumes you're bypassing Supabase Auth entirely) - which is exactly
+// why this has to be a SEPARATE client from sbAuth rather than the same one.
+// This client is only ever used for data queries (.from / .storage) once a
+// student has signed in with Google.
+const sbStudent = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  accessToken: async () => await getStudentAccessToken(),
 });
+
+// `db` is whichever client should service the current data queries. Every
+// `.from(...)` / `.storage` call in the app should go through `db`, not
+// sbAuth/sbStudent directly. Auth actions always use sbAuth directly.
+let db = sbAuth;
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
@@ -579,9 +589,9 @@ let currentCourseId=null, currentUnitId=null;
 
 async function loadCatalog(){
   const [{data:cData,error:cErr}, {data:uData,error:uErr}, {data:iData,error:iErr}] = await Promise.all([
-    sb.from('courses').select('*').order('code'),
-    sb.from('units').select('*').order('position'),
-    sb.from('items').select('*'),
+    db.from('courses').select('*').order('code'),
+    db.from('units').select('*').order('position'),
+    db.from('items').select('*'),
   ]);
   if(cErr) console.error('courses load error', cErr);
   if(uErr) console.error('units load error', uErr);
@@ -594,7 +604,7 @@ async function loadCatalog(){
 async function loadResponses(){
   studentResponses = {};
   if(!currentUser) return;
-  const { data, error } = await sb.from('responses').select('*').eq('student_id', currentUser.id);
+  const { data, error } = await db.from('responses').select('*').eq('student_id', currentUser.id);
   if(error){ console.error('responses load error', error); return; }
   (data||[]).forEach(r=>{ studentResponses[r.item_id] = { answers:r.answers||{}, score:r.score, total:r.total, submitted:r.submitted }; });
 }
@@ -692,7 +702,7 @@ document.getElementById('course-save-btn').onclick = async ()=>{
   const subject = document.getElementById('course-subject-input').value;
   const stream = document.getElementById('course-stream-input').value;
   if(!code || !name){ document.getElementById('course-error').textContent='Course code and name are required.'; return; }
-  const { data, error } = await sb.from('courses').insert({ code, name, grade, subject, stream }).select().single();
+  const { data, error } = await db.from('courses').insert({ code, name, grade, subject, stream }).select().single();
   if(error){ document.getElementById('course-error').textContent = error.message; return; }
   courses.push({ id:data.id, code:data.code, name:data.name, grade:data.grade, subject:data.subject, stream:data.stream });
   closeModal('course-overlay'); renderHome();
@@ -823,7 +833,7 @@ document.getElementById('unit-save-btn').onclick = async ()=>{
   const name = document.getElementById('unit-name-input').value.trim();
   if(!name){ document.getElementById('unit-error').textContent='Unit name is required.'; return; }
   const position = units.filter(u=>u.courseId===currentCourseId).length;
-  const { data, error } = await sb.from('units').insert({ course_id: currentCourseId, name, position }).select().single();
+  const { data, error } = await db.from('units').insert({ course_id: currentCourseId, name, position }).select().single();
   if(error){ document.getElementById('unit-error').textContent = error.message; return; }
   const nu = { id:data.id, courseId:data.course_id, name:data.name };
   units.push(nu); closeModal('unit-overlay'); selectUnit(nu.id);
@@ -890,7 +900,7 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
   });
   const submitBtn = document.getElementById('tp-submit-btn');
   submitBtn.disabled = true;
-  const { error } = await sb.from('responses').upsert({
+  const { error } = await db.from('responses').upsert({
     student_id: currentUser.id, item_id: currentItemId,
     answers, score: mcCorrect, total: mcTotal, submitted: true, submitted_at: new Date().toISOString()
   }, { onConflict: 'student_id,item_id' });
@@ -910,12 +920,13 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('educator-email').value.trim();
   const password = document.getElementById('educator-pass').value;
   if(!email || !password){ document.getElementById('educator-error').textContent='Email and password are required.'; return; }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
   if(error){ document.getElementById('educator-error').textContent = error.message; return; }
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+  db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
+  const { data: profile } = await db.from('profiles').select('*').eq('id', data.user.id).single();
   if(!profile || profile.role !== 'educator'){
     document.getElementById('educator-error').textContent = "This account isn't set up as an educator.";
-    await sb.auth.signOut();
+    await sbAuth.auth.signOut();
     return;
   }
   currentUser = data.user; currentProfile = profile; isEducator = true;
@@ -943,14 +954,15 @@ document.getElementById('student-google-btn').onclick = async ()=>{
   try {
     const result = await firebaseAuth.signInWithPopup(googleProvider);
     firebaseUser = result.user;
+    db = sbStudent;
     // Prime the exchanged token cache before any query fires.
     await getStudentAccessToken();
     // Make sure a profile row exists for this student (first login only inserts).
-    await sb.from('profiles').upsert(
+    await db.from('profiles').upsert(
       { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null },
       { onConflict: 'id', ignoreDuplicates: true }
     );
-    const { data: profile, error: profileErr } = await sb.from('profiles').select('*').eq('id', firebaseUser.uid).single();
+    const { data: profile, error: profileErr } = await db.from('profiles').select('*').eq('id', firebaseUser.uid).single();
     if(profileErr){ document.getElementById('student-error').textContent = profileErr.message; return; }
     currentUser = { id: firebaseUser.uid, email: firebaseUser.email };
     currentProfile = profile; isEducator = false;
@@ -966,22 +978,23 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('student-email-input').value.trim();
   const password = document.getElementById('student-password-input').value;
   if(!email || !password){ document.getElementById('student-error').textContent='Email and password are required.'; return; }
+  db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
   let user;
   if(studentModalMode==='signup'){
-    const { data, error } = await sb.auth.signUp({ email, password });
+    const { data, error } = await sbAuth.auth.signUp({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
     if(!data.session){
       document.getElementById('student-error').textContent = 'Check your email to confirm your account, then sign in.';
       return;
     }
     user = data.user;
-    await sb.from('profiles').insert({ id: user.id, role: 'student' });
+    await db.from('profiles').insert({ id: user.id, role: 'student' });
   } else {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
     user = data.user;
   }
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  const { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
   currentUser = user; currentProfile = profile; isEducator = false;
   document.getElementById('student-email-input').value=''; document.getElementById('student-password-input').value='';
   closeModal('student-overlay');
@@ -995,7 +1008,7 @@ document.getElementById('account-signout-btn').onclick = async ()=>{
     await firebaseAuth.signOut();
     firebaseUser=null; studentAccessToken=null; studentAccessTokenExpiresAt=0;
   } else {
-    await sb.auth.signOut();
+    await sbAuth.auth.signOut();
   }
   currentUser=null; currentProfile=null; isEducator=false; studentResponses={};
   updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
@@ -1092,9 +1105,9 @@ document.getElementById('test-save-btn').onclick = async ()=>{
     if(f.file){
       const safeName = f.file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
       const path = `items/${uid()}-${safeName}`;
-      const { error: upErr } = await sb.storage.from(FILES_BUCKET).upload(path, f.file);
+      const { error: upErr } = await db.storage.from(FILES_BUCKET).upload(path, f.file);
       if(upErr){ document.getElementById('test-error').textContent = upErr.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
-      const { data: urlData } = sb.storage.from(FILES_BUCKET).getPublicUrl(path);
+      const { data: urlData } = db.storage.from(FILES_BUCKET).getPublicUrl(path);
       finalFiles.push({ label: f.label || f.file.name, path, fileName: f.file.name, dataUrl: urlData.publicUrl });
     } else if(f.existingPath){
       finalFiles.push({ label: f.label, path: f.existingPath, fileName: f.fileName, dataUrl: f.dataUrl });
@@ -1102,12 +1115,12 @@ document.getElementById('test-save-btn').onclick = async ()=>{
   }
 
   if(editingItemId){
-    const { error } = await sb.from('items').update({ title, type, questions: cleanQuestions, files: finalFiles }).eq('id', editingItemId);
+    const { error } = await db.from('items').update({ title, type, questions: cleanQuestions, files: finalFiles }).eq('id', editingItemId);
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
     const it = items.find(i=>i.id===editingItemId);
     it.title=title; it.type=type; it.questions=cleanQuestions; it.files=finalFiles;
   } else {
-    const { data, error } = await sb.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, title, type, questions: cleanQuestions, files: finalFiles }).select().single();
+    const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, title, type, questions: cleanQuestions, files: finalFiles }).select().single();
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
     items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, files:data.files });
   }
@@ -1126,14 +1139,14 @@ document.getElementById('del-cancel-btn').onclick = ()=>closeModal('del-overlay'
 document.getElementById('del-confirm-btn').onclick = async ()=>{
   if(!pendingDelete) return;
   if(pendingDelete.kind==='unit'){
-    const { error } = await sb.from('units').delete().eq('id', pendingDelete.id);
+    const { error } = await db.from('units').delete().eq('id', pendingDelete.id);
     if(error){ console.error(error); closeModal('del-overlay'); pendingDelete=null; return; }
     units = units.filter(u=>u.id!==pendingDelete.id);
     items = items.filter(i=>i.unitId!==pendingDelete.id);
     const remaining = units.filter(u=>u.courseId===currentCourseId);
     currentUnitId = remaining.length ? remaining[0].id : null;
   } else {
-    const { error } = await sb.from('items').delete().eq('id', pendingDelete.id);
+    const { error } = await db.from('items').delete().eq('id', pendingDelete.id);
     if(error){ console.error(error); closeModal('del-overlay'); pendingDelete=null; return; }
     items = items.filter(i=>i.id!==pendingDelete.id);
   }
@@ -1151,21 +1164,22 @@ function waitForFirebaseUser(){
 
 (async function init(){
   const [{ data: { session } }, fbUser] = await Promise.all([
-    sb.auth.getSession(),
+    sbAuth.auth.getSession(),
     waitForFirebaseUser(),
   ]);
 
   if(fbUser){
     // Firebase-authenticated student takes priority if somehow both are present.
     firebaseUser = fbUser;
+    db = sbStudent;
     await getStudentAccessToken();
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', fbUser.uid).single();
+    const { data: profile } = await db.from('profiles').select('*').eq('id', fbUser.uid).single();
     currentUser = { id: fbUser.uid, email: fbUser.email };
     currentProfile = profile;
     isEducator = false;
   } else if(session){
     currentUser = session.user;
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
     currentProfile = profile;
     isEducator = !!profile && profile.role === 'educator';
   }
