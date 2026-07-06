@@ -204,6 +204,25 @@
   .qb-opt-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem; }
   .qb-opt-row input[type=text] { flex:1; }
   .qb-add-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.1rem; }
+  .lb-img-preview { max-width:100%; max-height:160px; border-radius:8px; margin-top:.4rem; display:block; }
+  .lb-move-btns { display:flex; gap:.25rem; }
+  .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1; }
+  .lb-move-btns button:hover { border-color:var(--blue); color:var(--blue); }
+  /* ── Lesson player ── */
+  .lp-progress-track { height:6px; background:var(--paper-2); border-radius:4px; overflow:hidden; margin-bottom:1.6rem; }
+  .lp-progress-fill { height:100%; background:var(--blue); border-radius:4px; transition:width .25s; }
+  .lp-block { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.6rem 1.7rem; margin-bottom:0; }
+  .lp-text { font-size:1.02rem; line-height:1.65; }
+  .lp-image { max-width:100%; border-radius:10px; display:block; margin-bottom:.6rem; }
+  .lp-caption { font-size:.8rem; color:var(--ink-faint); text-align:center; }
+  .lp-check-q { font-size:1.05rem; font-weight:700; font-family:'Nunito',sans-serif; margin-bottom:1rem; }
+  .lp-feedback { margin-top:1rem; padding:.75rem 1rem; border-radius:10px; font-size:.87rem; font-weight:600; }
+  .lp-feedback.correct { background:var(--green-bg); color:var(--green-dark); }
+  .lp-feedback.incorrect { background:var(--red-bg); color:var(--red); }
+  .lp-slider-row { display:flex; align-items:center; gap:1rem; margin:1rem 0; }
+  .lp-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
+  .lp-slider-val { font-family:'IBM Plex Mono',monospace; font-weight:600; min-width:2.5rem; text-align:right; }
+  .lp-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; }
   .file-version-list { display:flex; flex-direction:column; gap:.55rem; margin-bottom:.65rem; }
   .file-version-row { display:flex; align-items:center; gap:.6rem; border:1px solid var(--rule); border-radius:10px; padding:.6rem .75rem; background:var(--paper); flex-wrap:wrap; }
   .file-version-row input[type=text] { width:110px; flex-shrink:0; }
@@ -326,9 +345,17 @@
   </div>
   <div class="tp-body">
     <div id="tp-questions"></div>
-    <div class="tp-submit-row">
+    <div class="tp-submit-row" id="tp-submit-row">
       <button class="modal-btn" style="width:auto;" id="tp-submit-btn">Check answers</button>
       <span class="tp-score" id="tp-score"></span>
+    </div>
+    <div id="lp-player" style="display:none;">
+      <div class="lp-progress-track"><div class="lp-progress-fill" id="lp-progress-fill"></div></div>
+      <div id="lp-block-slot"></div>
+      <div class="lp-nav-row">
+        <button class="btn-sm" id="lp-prev-btn">← Back</button>
+        <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
+      </div>
     </div>
   </div>
 </div>
@@ -418,16 +445,27 @@
           <option value="quiz">Quiz</option>
           <option value="worksheet">Worksheet</option>
           <option value="unittest">Unit Test</option>
+          <option value="lesson">Lesson (interactive)</option>
         </select>
       </div>
     </div>
-    <div class="form-group" style="margin-top:.4rem;">
+    <div class="form-group" style="margin-top:.4rem;" id="questions-builder-group">
       <label>Questions</label>
       <div class="qb-list" id="qb-list"></div>
       <div class="qb-add-row">
         <button class="btn-sm" id="qb-add-mc">+ Multiple choice</button>
         <button class="btn-sm" id="qb-add-short">+ Short answer</button>
         <button class="btn-sm" id="qb-add-long">+ Long answer</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:.4rem; display:none;" id="lesson-builder-group">
+      <label>Lesson Blocks <span style="font-weight:400; text-transform:none; opacity:.7;">(students step through these one at a time)</span></label>
+      <div class="qb-list" id="lesson-block-list"></div>
+      <div class="qb-add-row">
+        <button class="btn-sm" id="lb-add-text">+ Text</button>
+        <button class="btn-sm" id="lb-add-image">+ Image</button>
+        <button class="btn-sm" id="lb-add-check">+ Check (multiple choice)</button>
+        <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
       </div>
     </div>
     <div class="form-group">
@@ -598,7 +636,7 @@ async function loadCatalog(){
   if(iErr) console.error('items load error', iErr);
   courses = (cData||[]).map(c=>({ id:c.id, code:c.code, name:c.name, grade:c.grade, subject:c.subject, stream:c.stream }));
   units = (uData||[]).map(u=>({ id:u.id, courseId:u.course_id, name:u.name }));
-  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[] }));
+  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[] }));
 }
 
 async function loadResponses(){
@@ -624,7 +662,7 @@ function updateAccountUI(){
 
 const SUBJECT_LABELS = { science:'Science', math:'Mathematics', social:'Social Science / History', english:'English', business:'Business', other:'Other' };
 const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var(--purple)', english:'var(--gold)', business:'#e5484d', other:'var(--ink-faint)' };
-const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test' };
+const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test', lesson:'Lesson' };
 
 function itemMastery(response){
   if(!response || !response.submitted) return { label:'Not started', cls:'ms-none' };
@@ -778,7 +816,7 @@ function renderUnitContent(){
       <div>
         <div class="upnext-label">Up next</div>
         <div class="upnext-title">${esc(upnext.title)}</div>
-        <div class="upnext-sub">${TYPE_LABELS[upnext.type]} · ${upnext.questions.length} question${upnext.questions.length===1?'':'s'}</div>
+        <div class="upnext-sub">${upnext.type==='lesson' ? `${TYPE_LABELS[upnext.type]} · ${upnext.content.length} block${upnext.content.length===1?'':'s'}` : `${TYPE_LABELS[upnext.type]} · ${upnext.questions.length} question${upnext.questions.length===1?'':'s'}`}</div>
       </div>
       <button class="btn" data-go="${upnext.id}">Start</button>
     </div>`;
@@ -814,7 +852,7 @@ function renderUnitContent(){
       <div class="status-icon ${ms.cls}">${icon}</div>
       <div class="lesson-row-text">
         <div class="lesson-row-title">${esc(it.title)}</div>
-        <div class="lesson-row-meta">${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}</div>
+        <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}</div>
         ${filePills}
       </div>
       <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
@@ -855,6 +893,19 @@ function openTest(itemId){
   document.getElementById('tp-code').textContent = c ? c.code : '';
   document.getElementById('tp-title').textContent = it.title;
   const prior = studentResponses[itemId] || {};
+
+  if(it.type==='lesson'){
+    document.getElementById('tp-questions').style.display='none';
+    document.getElementById('tp-submit-row').style.display='none';
+    document.getElementById('lp-player').style.display='';
+    openLessonPlayer(it, prior);
+    window.scrollTo(0,0);
+    return;
+  }
+  document.getElementById('tp-questions').style.display='';
+  document.getElementById('tp-submit-row').style.display='';
+  document.getElementById('lp-player').style.display='none';
+
   document.getElementById('tp-questions').innerHTML = it.questions.map((q,qi)=>{
     if(q.type==='mc'){
       const priorAns = prior.answers ? prior.answers[qi] : undefined;
@@ -911,6 +962,115 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
   document.getElementById('tp-score').textContent = mcTotal
     ? `Score: ${mcCorrect}/${mcTotal} — ${ms.label} · short/long answers saved for self-review`
     : `Responses saved for self-review.`;
+};
+
+/* ── Lesson player (interactive, Brilliant-style) ── */
+let lpItem = null, lpIndex = 0, lpAnswered = [];
+
+function openLessonPlayer(it, prior){
+  lpItem = it;
+  lpIndex = 0;
+  lpAnswered = new Array(it.content.length).fill(false);
+  renderLpBlock();
+}
+
+function lpSetContinueEnabled(enabled){
+  document.getElementById('lp-next-btn').disabled = !enabled;
+  document.getElementById('lp-next-btn').style.opacity = enabled ? '1' : '.45';
+  document.getElementById('lp-next-btn').style.cursor = enabled ? 'pointer' : 'not-allowed';
+}
+
+function renderLpBlock(){
+  const total = lpItem.content.length;
+  const block = lpItem.content[lpIndex];
+  document.getElementById('lp-progress-fill').style.width = `${((lpIndex+1)/total)*100}%`;
+  document.getElementById('lp-prev-btn').style.visibility = lpIndex===0 ? 'hidden' : 'visible';
+  document.getElementById('lp-next-btn').textContent = lpIndex===total-1 ? 'Finish lesson' : 'Continue';
+
+  const slot = document.getElementById('lp-block-slot');
+  const alreadyAnswered = lpAnswered[lpIndex];
+
+  if(block.type==='text'){
+    slot.innerHTML = `<div class="lp-block"><div class="lp-text">${esc(block.text).replace(/\n/g,'<br>')}</div></div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='image'){
+    slot.innerHTML = `<div class="lp-block">
+      ${block.url ? `<img class="lp-image" src="${esc(block.url)}">` : ''}
+      ${block.caption ? `<div class="lp-caption">${esc(block.caption)}</div>` : ''}
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='check'){
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.text)}</div>
+      <div class="tp-options" id="lp-check-options">${block.options.map((o,oi)=>`<label class="tp-option" data-oi="${oi}"><input type="radio" name="lp-check" value="${oi}"><span>${esc(o)}</span></label>`).join('')}</div>
+      <div id="lp-check-feedback"></div>
+    </div>`;
+    lpSetContinueEnabled(alreadyAnswered);
+    document.querySelectorAll('#lp-check-options .tp-option').forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(lpAnswered[lpIndex]) return; // lock after first answer, like Brilliant
+        const chosen = parseInt(opt.dataset.oi,10);
+        document.querySelectorAll('#lp-check-options .tp-option').forEach((o,oi)=>{
+          o.querySelector('input').checked = oi===chosen;
+          o.classList.remove('correct','incorrect');
+          if(oi===block.correct) o.classList.add('correct'); else if(oi===chosen) o.classList.add('incorrect');
+        });
+        const correct = chosen===block.correct;
+        const fb = document.getElementById('lp-check-feedback');
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        lpAnswered[lpIndex] = true;
+        lpSetContinueEnabled(true);
+      });
+    });
+    return;
+  }
+  // slider
+  const startVal = Math.round((block.min + block.max) / 2);
+  slot.innerHTML = `<div class="lp-block">
+    <div class="lp-check-q">${esc(block.prompt)}</div>
+    <div class="lp-slider-row">
+      <input type="range" id="lp-slider" min="${block.min}" max="${block.max}" value="${startVal}" ${alreadyAnswered?'disabled':''}>
+      <span class="lp-slider-val mono" id="lp-slider-val">${startVal}</span>
+    </div>
+    <button class="btn-sm" id="lp-slider-check" ${alreadyAnswered?'style="display:none;"':''}>Check</button>
+    <div id="lp-slider-feedback"></div>
+  </div>`;
+  lpSetContinueEnabled(alreadyAnswered);
+  const slider = document.getElementById('lp-slider');
+  slider.addEventListener('input', ()=>{ document.getElementById('lp-slider-val').textContent = slider.value; });
+  document.getElementById('lp-slider-check').addEventListener('click', ()=>{
+    const val = Number(slider.value);
+    const correct = Math.abs(val - block.target) <= (block.tolerance||0);
+    const fb = document.getElementById('lp-slider-feedback');
+    fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target was ${block.target}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+    slider.disabled = true;
+    document.getElementById('lp-slider-check').style.display='none';
+    lpAnswered[lpIndex] = true;
+    lpSetContinueEnabled(true);
+  });
+}
+
+document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
+document.getElementById('lp-next-btn').onclick = async ()=>{
+  if(lpIndex < lpItem.content.length-1){
+    lpIndex++; renderLpBlock(); window.scrollTo(0,0);
+    return;
+  }
+  // Finished the last block — mark the lesson complete.
+  const btn = document.getElementById('lp-next-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await db.from('responses').upsert({
+    student_id: currentUser.id, item_id: currentItemId,
+    answers: {}, score: null, total: null, submitted: true, submitted_at: new Date().toISOString()
+  }, { onConflict: 'student_id,item_id' });
+  if(error){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
+  studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
+  document.getElementById('test-page').classList.remove('visible');
+  if(currentCourseId) openCourseDetail(currentCourseId);
 };
 
 /* ── Educator sign-in (real account, created by site owner in Supabase) ── */
@@ -1017,8 +1177,16 @@ document.getElementById('account-signout-btn').onclick = async ()=>{
 /* ── Question builder ── */
 let qbQuestions = [];
 let qbFiles = [];
+let lessonBlocks = [];
 let editingItemId = null;
 let addToUnitId = null;
+
+function toggleBuilderSections(){
+  const isLesson = document.getElementById('test-type-input').value === 'lesson';
+  document.getElementById('questions-builder-group').style.display = isLesson ? 'none' : '';
+  document.getElementById('lesson-builder-group').style.display = isLesson ? '' : 'none';
+}
+document.getElementById('test-type-input').addEventListener('change', toggleBuilderSections);
 
 function openTestModal(itemId, unitId){
   editingItemId = itemId;
@@ -1032,15 +1200,19 @@ function openTestModal(itemId, unitId){
     document.getElementById('test-name-input').value = it.title;
     document.getElementById('test-type-input').value = it.type;
     qbQuestions = JSON.parse(JSON.stringify(it.questions));
+    lessonBlocks = JSON.parse(JSON.stringify(it.content||[]));
     qbFiles = (it.files||[]).map(f=>({ label:f.label, file:null, existingPath:f.path, fileName:f.fileName, dataUrl:f.dataUrl }));
   } else {
     document.getElementById('test-name-input').value = '';
     document.getElementById('test-type-input').value = 'practice';
     qbQuestions = [];
+    lessonBlocks = [];
     qbFiles = [];
   }
   renderQbList();
+  renderLessonBlockList();
   renderFileVersionList();
+  toggleBuilderSections();
   openModal('test-overlay');
 }
 document.getElementById('test-close').onclick = ()=>closeModal('test-overlay');
@@ -1089,12 +1261,87 @@ document.getElementById('qb-add-mc').onclick = ()=>{ qbQuestions.push({type:'mc'
 document.getElementById('qb-add-short').onclick = ()=>{ qbQuestions.push({type:'short', text:''}); renderQbList(); };
 document.getElementById('qb-add-long').onclick = ()=>{ qbQuestions.push({type:'long', text:''}); renderQbList(); };
 
+/* ── Lesson block builder ── */
+function moveBlock(i, dir){
+  const j = i + dir;
+  if(j < 0 || j >= lessonBlocks.length) return;
+  [lessonBlocks[i], lessonBlocks[j]] = [lessonBlocks[j], lessonBlocks[i]];
+  renderLessonBlockList();
+}
+function renderLessonBlockList(){
+  const list = document.getElementById('lesson-block-list');
+  if(!lessonBlocks.length){ list.innerHTML = `<div class="empty-note" style="padding:1rem;">No blocks yet — add text, images, or interactive checks below.</div>`; return; }
+  list.innerHTML = lessonBlocks.map((b,bi)=>{
+    const moveBtns = `<div class="lb-move-btns">
+      <button data-lb-up="${bi}" type="button" title="Move up">↑</button>
+      <button data-lb-down="${bi}" type="button" title="Move down">↓</button>
+    </div>`;
+    if(b.type==='text'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Text</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><textarea class="tp-textarea" style="min-height:70px;" data-lb-field="${bi}:text" placeholder="Explain the concept...">${esc(b.text)}</textarea></div>
+      </div>`;
+    }
+    if(b.type==='image'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Image</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="Image URL (https://...)" value="${esc(b.url)}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:caption" placeholder="Caption (optional)" value="${esc(b.caption)}"></div>
+        ${b.url ? `<img class="lb-img-preview" src="${esc(b.url)}">` : ''}
+      </div>`;
+    }
+    if(b.type==='check'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Check · Multiple choice</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:text" placeholder="Question text" value="${esc(b.text)}"></div>
+        ${b.options.map((o,oi)=>`<div class="qb-opt-row">
+          <input type="radio" name="lb-correct-${bi}" ${b.correct===oi?'checked':''} data-lb-correct="${bi}:${oi}">
+          <input type="text" data-lb-opt="${bi}:${oi}" placeholder="Option ${oi+1}" value="${esc(o)}"></div>`).join('')}
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
+    // slider
+    return `<div class="qb-item" data-bi="${bi}">
+      <div class="qb-item-head"><span class="qb-type-tag mono">Check · Slider</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+      <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt e.g. Drag to the boiling point of water (°C)" value="${esc(b.prompt)}"></div>
+      <div style="display:flex;gap:.6rem;">
+        <div class="form-group"><label style="font-size:.65rem;">Min</label><input type="number" data-lb-field="${bi}:min" value="${b.min}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Max</label><input type="number" data-lb-field="${bi}:max" value="${b.max}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Target</label><input type="number" data-lb-field="${bi}:target" value="${b.target}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+      </div>
+      <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
+  list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
+  list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.lbField.split(':');
+    const numeric = ['min','max','target','tolerance'].includes(field);
+    lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
+  }));
+  list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
+  list.querySelectorAll('[data-lb-correct]').forEach(inp=>inp.addEventListener('change',()=>{ const [bi,oi]=inp.dataset.lbCorrect.split(':').map(Number); lessonBlocks[bi].correct=oi; }));
+}
+document.getElementById('lb-add-text').onclick = ()=>{ lessonBlocks.push({type:'text', text:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-image').onclick = ()=>{ lessonBlocks.push({type:'image', url:'', caption:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:'check', text:'', options:['','','',''], correct:0, explanation:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
+
 document.getElementById('test-save-btn').onclick = async ()=>{
   const title = document.getElementById('test-name-input').value.trim();
   const type = document.getElementById('test-type-input').value;
   if(!title){ document.getElementById('test-error').textContent='Title is required.'; return; }
-  if(!qbQuestions.length){ document.getElementById('test-error').textContent='Add at least one question.'; return; }
+  if(type==='lesson'){
+    if(!lessonBlocks.length){ document.getElementById('test-error').textContent='Add at least one block.'; return; }
+  } else {
+    if(!qbQuestions.length){ document.getElementById('test-error').textContent='Add at least one question.'; return; }
+  }
   const cleanQuestions = qbQuestions.map(q=> q.type==='mc' ? {type:'mc', text:q.text, options:q.options, correct:q.correct||0} : {type:q.type, text:q.text});
+  const cleanContent = lessonBlocks.map(b=> b.type==='check'
+    ? {type:'check', text:b.text, options:b.options, correct:b.correct||0, explanation:b.explanation||''}
+    : { ...b });
 
   const saveBtn = document.getElementById('test-save-btn');
   saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
@@ -1114,15 +1361,19 @@ document.getElementById('test-save-btn').onclick = async ()=>{
     }
   }
 
+  const payload = type==='lesson'
+    ? { title, type, questions: [], content: cleanContent, files: finalFiles }
+    : { title, type, questions: cleanQuestions, content: [], files: finalFiles };
+
   if(editingItemId){
-    const { error } = await db.from('items').update({ title, type, questions: cleanQuestions, files: finalFiles }).eq('id', editingItemId);
+    const { error } = await db.from('items').update(payload).eq('id', editingItemId);
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
     const it = items.find(i=>i.id===editingItemId);
-    it.title=title; it.type=type; it.questions=cleanQuestions; it.files=finalFiles;
+    Object.assign(it, { title, type, questions: payload.questions, content: payload.content, files: finalFiles });
   } else {
-    const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, title, type, questions: cleanQuestions, files: finalFiles }).select().single();
+    const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, ...payload }).select().single();
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
-    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, files:data.files });
+    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, content:data.content||[], files:data.files });
   }
   saveBtn.disabled = false; saveBtn.textContent = 'Save Item';
   closeModal('test-overlay'); renderUnitNav(); renderUnitContent();
