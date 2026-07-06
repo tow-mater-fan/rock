@@ -204,6 +204,25 @@
   .qb-opt-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem; }
   .qb-opt-row input[type=text] { flex:1; }
   .qb-add-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.1rem; }
+  .lb-img-preview { max-width:100%; max-height:160px; border-radius:8px; margin-top:.4rem; display:block; }
+  .lb-move-btns { display:flex; gap:.25rem; }
+  .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1; }
+  .lb-move-btns button:hover { border-color:var(--blue); color:var(--blue); }
+  /* ── Lesson player ── */
+  .lp-progress-track { height:6px; background:var(--paper-2); border-radius:4px; overflow:hidden; margin-bottom:1.6rem; }
+  .lp-progress-fill { height:100%; background:var(--blue); border-radius:4px; transition:width .25s; }
+  .lp-block { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.6rem 1.7rem; margin-bottom:0; }
+  .lp-text { font-size:1.02rem; line-height:1.65; }
+  .lp-image { max-width:100%; border-radius:10px; display:block; margin-bottom:.6rem; }
+  .lp-caption { font-size:.8rem; color:var(--ink-faint); text-align:center; }
+  .lp-check-q { font-size:1.05rem; font-weight:700; font-family:'Nunito',sans-serif; margin-bottom:1rem; }
+  .lp-feedback { margin-top:1rem; padding:.75rem 1rem; border-radius:10px; font-size:.87rem; font-weight:600; }
+  .lp-feedback.correct { background:var(--green-bg); color:var(--green-dark); }
+  .lp-feedback.incorrect { background:var(--red-bg); color:var(--red); }
+  .lp-slider-row { display:flex; align-items:center; gap:1rem; margin:1rem 0; }
+  .lp-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
+  .lp-slider-val { font-family:'IBM Plex Mono',monospace; font-weight:600; min-width:2.5rem; text-align:right; }
+  .lp-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; }
   .file-version-list { display:flex; flex-direction:column; gap:.55rem; margin-bottom:.65rem; }
   .file-version-row { display:flex; align-items:center; gap:.6rem; border:1px solid var(--rule); border-radius:10px; padding:.6rem .75rem; background:var(--paper); flex-wrap:wrap; }
   .file-version-row input[type=text] { width:110px; flex-shrink:0; }
@@ -219,29 +238,6 @@
   footer { background:var(--board); padding:2.25rem 2.5rem 1.5rem; }
   .footer-inner { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; max-width:1200px; margin:0 auto; }
   .footer-copy { font-family:'Nunito',sans-serif; font-weight:600; font-size:.72rem; color:rgba(246,244,239,.4); }
-
-  /* ── Lesson item styling ── */
-  .lesson-row.lesson-item { border:1.5px solid var(--green); background:var(--green-bg); }
-
-  /* ── Content block (teaching card) ── */
-  .content-block { background:linear-gradient(135deg, var(--blue-bg), #f3f7ff); border:1px solid var(--blue-bg); border-radius:14px; padding:1.4rem 1.6rem; margin-bottom:1.1rem; }
-  .content-block h3 { font-size:1.05rem; color:var(--blue-dark); margin-bottom:.6rem; }
-  .content-block-body { font-family:'Inter',sans-serif; font-size:.92rem; line-height:1.7; color:var(--ink); white-space:pre-wrap; }
-
-  /* ── Drag & drop sort ── */
-  .dragsort-card { background:var(--white); border:1.5px solid var(--rule); border-radius:10px; padding:.65rem .9rem;
-    font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--ink); cursor:grab; touch-action:none; user-select:none;
-    box-shadow:0 2px 6px rgba(15,48,96,.06); transition:box-shadow .15s, border-color .15s; }
-  .dragsort-card:active { cursor:grabbing; }
-  .dragsort-card.dragging { box-shadow:0 12px 30px rgba(15,48,96,.25); opacity:.95; }
-  .dragsort-card.correct { border-color:var(--green); background:var(--green-bg); }
-  .dragsort-card.incorrect { border-color:var(--red); background:var(--red-bg); }
-  .dragsort-pool { display:flex; flex-wrap:wrap; gap:.6rem; padding:1rem; border:1.5px dashed var(--rule); border-radius:12px; margin-bottom:1rem; min-height:56px; background:var(--paper); }
-  .dragsort-bins { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.9rem; }
-  .dragsort-bin { border:1.5px dashed var(--rule); border-radius:12px; padding:.85rem; background:var(--white); transition:border-color .15s, background .15s; }
-  .dragsort-bin.drag-over { border-color:var(--blue); background:var(--blue-bg); }
-  .dragsort-bin-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); margin-bottom:.6rem; text-align:center; }
-  .dragsort-bin-body { display:flex; flex-direction:column; gap:.5rem; min-height:60px; }
 
   @media(max-width:900px){
     .cd-layout { grid-template-columns:1fr; }
@@ -349,9 +345,17 @@
   </div>
   <div class="tp-body">
     <div id="tp-questions"></div>
-    <div class="tp-submit-row">
+    <div class="tp-submit-row" id="tp-submit-row">
       <button class="modal-btn" style="width:auto;" id="tp-submit-btn">Check answers</button>
       <span class="tp-score" id="tp-score"></span>
+    </div>
+    <div id="lp-player" style="display:none;">
+      <div class="lp-progress-track"><div class="lp-progress-fill" id="lp-progress-fill"></div></div>
+      <div id="lp-block-slot"></div>
+      <div class="lp-nav-row">
+        <button class="btn-sm" id="lp-prev-btn">← Back</button>
+        <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
+      </div>
     </div>
   </div>
 </div>
@@ -437,25 +441,32 @@
       <div class="form-group"><label>Title</label><input type="text" id="test-name-input" placeholder="e.g. Ionic vs Covalent Bonds"></div>
       <div class="form-group"><label>Type</label>
         <select id="test-type-input">
-          <option value="lesson">Lesson</option>
           <option value="practice">Practice</option>
           <option value="quiz">Quiz</option>
           <option value="worksheet">Worksheet</option>
           <option value="unittest">Unit Test</option>
+          <option value="lesson">Lesson (interactive)</option>
         </select>
       </div>
     </div>
-    <div class="form-group" style="margin-top:.4rem;">
-      <label>Questions & Content</label>
+    <div class="form-group" style="margin-top:.4rem;" id="questions-builder-group">
+      <label>Questions</label>
       <div class="qb-list" id="qb-list"></div>
       <div class="qb-add-row">
-        <button class="btn-sm" id="qb-add-content">+ Content block</button>
-        <button class="btn-sm" id="qb-add-dragsort">+ Drag &amp; drop sort</button>
         <button class="btn-sm" id="qb-add-mc">+ Multiple choice</button>
         <button class="btn-sm" id="qb-add-short">+ Short answer</button>
         <button class="btn-sm" id="qb-add-long">+ Long answer</button>
       </div>
-      <button class="btn-sm" id="qb-load-example" type="button" style="margin-top:.5rem; border-color:var(--green); color:var(--green-dark);">✨ Load example: "What Is a Function?"</button>
+    </div>
+    <div class="form-group" style="margin-top:.4rem; display:none;" id="lesson-builder-group">
+      <label>Lesson Blocks <span style="font-weight:400; text-transform:none; opacity:.7;">(students step through these one at a time)</span></label>
+      <div class="qb-list" id="lesson-block-list"></div>
+      <div class="qb-add-row">
+        <button class="btn-sm" id="lb-add-text">+ Text</button>
+        <button class="btn-sm" id="lb-add-image">+ Image</button>
+        <button class="btn-sm" id="lb-add-check">+ Check (multiple choice)</button>
+        <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
+      </div>
     </div>
     <div class="form-group">
       <label>Printable Files <span style="font-weight:400; text-transform:none; opacity:.7;">(optional — PDFs students can download/print, e.g. different versions)</span></label>
@@ -541,15 +552,25 @@ async function getStudentAccessToken(){
   return studentAccessToken;
 }
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  accessToken: async () => {
-    // Google-signed-in students: use the exchanged Supabase JWT.
-    if(firebaseUser) return await getStudentAccessToken();
-    // Everyone else (educators, legacy email/password students): normal Supabase session.
-    const { data } = await sb.auth.getSession();
-    return data.session?.access_token ?? null;
-  },
+// sbAuth: the "normal" client. Used for ALL sb.auth.* calls (educator sign-in,
+// legacy student email/password sign-in, sign-out, getSession) and for data
+// queries whenever an educator or legacy student is the active user.
+const sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// sbStudent: a second client configured with the accessToken option. Once a
+// client is given accessToken, its own sb.auth.* methods stop working (the
+// library assumes you're bypassing Supabase Auth entirely) - which is exactly
+// why this has to be a SEPARATE client from sbAuth rather than the same one.
+// This client is only ever used for data queries (.from / .storage) once a
+// student has signed in with Google.
+const sbStudent = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  accessToken: async () => await getStudentAccessToken(),
 });
+
+// `db` is whichever client should service the current data queries. Every
+// `.from(...)` / `.storage` call in the app should go through `db`, not
+// sbAuth/sbStudent directly. Auth actions always use sbAuth directly.
+let db = sbAuth;
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
@@ -606,22 +627,22 @@ let currentCourseId=null, currentUnitId=null;
 
 async function loadCatalog(){
   const [{data:cData,error:cErr}, {data:uData,error:uErr}, {data:iData,error:iErr}] = await Promise.all([
-    sb.from('courses').select('*').order('code'),
-    sb.from('units').select('*').order('position'),
-    sb.from('items').select('*'),
+    db.from('courses').select('*').order('code'),
+    db.from('units').select('*').order('position'),
+    db.from('items').select('*'),
   ]);
   if(cErr) console.error('courses load error', cErr);
   if(uErr) console.error('units load error', uErr);
   if(iErr) console.error('items load error', iErr);
   courses = (cData||[]).map(c=>({ id:c.id, code:c.code, name:c.name, grade:c.grade, subject:c.subject, stream:c.stream }));
   units = (uData||[]).map(u=>({ id:u.id, courseId:u.course_id, name:u.name }));
-  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[] }));
+  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[] }));
 }
 
 async function loadResponses(){
   studentResponses = {};
   if(!currentUser) return;
-  const { data, error } = await sb.from('responses').select('*').eq('student_id', currentUser.id);
+  const { data, error } = await db.from('responses').select('*').eq('student_id', currentUser.id);
   if(error){ console.error('responses load error', error); return; }
   (data||[]).forEach(r=>{ studentResponses[r.item_id] = { answers:r.answers||{}, score:r.score, total:r.total, submitted:r.submitted }; });
 }
@@ -641,31 +662,7 @@ function updateAccountUI(){
 
 const SUBJECT_LABELS = { science:'Science', math:'Mathematics', social:'Social Science / History', english:'English', business:'Business', other:'Other' };
 const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var(--purple)', english:'var(--gold)', business:'#e5484d', other:'var(--ink-faint)' };
-const TYPE_LABELS = { lesson:'Lesson', practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test' };
-const ITEM_ORDER = { lesson:0, practice:1, worksheet:2, quiz:3, unittest:4 };
-
-/* ── Pre-built example lesson: MCR3U Unit 1 — Functions & Transformations ── */
-const EXAMPLE_FUNCTION_LESSON = [
-  { type:'content', heading:'What is a function?',
-    text:'A relation is any set of ordered pairs (x, y) that connects inputs to outputs. A function is a special kind of relation — one where every input (x-value) is matched to exactly one output (y-value).\n\nA quick way to check: the Vertical Line Test. If you can draw a vertical line anywhere on the graph and it only ever touches the curve once, it\'s a function. If a vertical line could hit the curve twice, one input would have two outputs — so it isn\'t a function.\n\nTry sorting the relations below into "Function" or "Not a Function" before moving on.' },
-  { type:'dragsort',
-    text:'Sort each relation into the correct bin.',
-    categories:['Function','Not a Function'],
-    cards:[
-      { id:'f1', label:'{(1,2), (2,4), (3,6)}', correct:0 },
-      { id:'f2', label:'{(1,2), (1,5), (3,6)}', correct:1 },
-      { id:'f3', label:'{(2,3), (4,3), (6,3)}', correct:0 },
-      { id:'f4', label:'{(0,1), (0,-1), (2,4)}', correct:1 },
-      { id:'f5', label:'y = x²', correct:0 },
-      { id:'f6', label:'x = y²', correct:1 },
-      { id:'f7', label:'Vertical line: x = 3', correct:1 },
-      { id:'f8', label:'Circle: x² + y² = 9', correct:1 },
-    ]},
-  { type:'content', heading:'Why it matters',
-    text:'Repeated y-values are totally fine for a function — {(2,3), (4,3), (6,3)} is still a function, since every x only shows up once. What breaks it is the same x showing up twice with two different y-values, like {(1,2), (1,5), ...}. That\'s the one thing to watch for.' },
-  { type:'long', text:'In your own words, explain why a relation must pass the vertical line test to be considered a function. Use one of the examples above to support your answer.' },
-];
-
+const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test', lesson:'Lesson' };
 
 function itemMastery(response){
   if(!response || !response.submitted) return { label:'Not started', cls:'ms-none' };
@@ -743,7 +740,7 @@ document.getElementById('course-save-btn').onclick = async ()=>{
   const subject = document.getElementById('course-subject-input').value;
   const stream = document.getElementById('course-stream-input').value;
   if(!code || !name){ document.getElementById('course-error').textContent='Course code and name are required.'; return; }
-  const { data, error } = await sb.from('courses').insert({ code, name, grade, subject, stream }).select().single();
+  const { data, error } = await db.from('courses').insert({ code, name, grade, subject, stream }).select().single();
   if(error){ document.getElementById('course-error').textContent = error.message; return; }
   courses.push({ id:data.id, code:data.code, name:data.name, grade:data.grade, subject:data.subject, stream:data.stream });
   closeModal('course-overlay'); renderHome();
@@ -793,7 +790,7 @@ function renderUnitNav(){
 }
 
 function findUpNext(unitId){
-  const unitItems = items.filter(i=>i.unitId===unitId).sort((a,b)=> ITEM_ORDER[a.type]-ITEM_ORDER[b.type]);
+  const unitItems = items.filter(i=>i.unitId===unitId).sort((a,b)=> (a.type==='unittest')-(b.type==='unittest'));
   return unitItems.find(i=>{ const r=studentResponses[i.id]; return !r || !r.submitted; }) || null;
 }
 
@@ -819,7 +816,7 @@ function renderUnitContent(){
       <div>
         <div class="upnext-label">Up next</div>
         <div class="upnext-title">${esc(upnext.title)}</div>
-        <div class="upnext-sub">${TYPE_LABELS[upnext.type]} · ${upnext.questions.length} question${upnext.questions.length===1?'':'s'}</div>
+        <div class="upnext-sub">${upnext.type==='lesson' ? `${TYPE_LABELS[upnext.type]} · ${upnext.content.length} block${upnext.content.length===1?'':'s'}` : `${TYPE_LABELS[upnext.type]} · ${upnext.questions.length} question${upnext.questions.length===1?'':'s'}`}</div>
       </div>
       <button class="btn" data-go="${upnext.id}">Start</button>
     </div>`;
@@ -835,7 +832,7 @@ function renderUnitContent(){
     upnextBox.innerHTML = '';
   }
 
-  const unitItems = items.filter(i=>i.unitId===currentUnitId).sort((a,b)=> ITEM_ORDER[a.type]-ITEM_ORDER[b.type]);
+  const unitItems = items.filter(i=>i.unitId===currentUnitId).sort((a,b)=> (a.type==='unittest')-(b.type==='unittest'));
   const list = document.getElementById('lesson-list');
   if(!unitItems.length){
     list.innerHTML = `<div class="empty-note">${isEducator?'No items yet — use "Add item to this unit" below.':'Nothing published in this unit yet.'}</div>`;
@@ -845,18 +842,17 @@ function renderUnitContent(){
     const r = studentResponses[it.id];
     const ms = itemMastery(r);
     const isTest = it.type==='unittest';
-    const isLesson = it.type==='lesson';
     const badgeMap = { 'ms-none':'lb-none','ms-familiar':'lb-familiar','ms-proficient':'lb-proficient','ms-mastered':'lb-mastered','ms-practiced':'lb-practiced' };
     const icon = ms.cls==='ms-mastered' ? '✓' : ms.cls==='ms-none' ? '' : '●';
     const adminBtns = isEducator ? `<button class="btn-sm" data-edit-item="${it.id}" onclick="event.stopPropagation()">Edit</button><button class="btn-sm danger" data-del-item="${it.id}" onclick="event.stopPropagation()">Delete</button>` : '';
     const filePills = (it.files && it.files.length) ? `<div class="lesson-row-files">${it.files.map(f=>
       `<a class="file-pill" href="${f.dataUrl}" download="${esc(f.fileName||f.label+'.pdf')}" onclick="event.stopPropagation()">📄 ${esc(f.label)}</a>`
     ).join('')}</div>` : '';
-    return `<div class="lesson-row ${isTest?'unit-test':''} ${isLesson?'lesson-item':''}" data-open-item="${it.id}">
+    return `<div class="lesson-row ${isTest?'unit-test':''}" data-open-item="${it.id}">
       <div class="status-icon ${ms.cls}">${icon}</div>
       <div class="lesson-row-text">
         <div class="lesson-row-title">${esc(it.title)}</div>
-        <div class="lesson-row-meta">${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}</div>
+        <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}</div>
         ${filePills}
       </div>
       <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
@@ -875,7 +871,7 @@ document.getElementById('unit-save-btn').onclick = async ()=>{
   const name = document.getElementById('unit-name-input').value.trim();
   if(!name){ document.getElementById('unit-error').textContent='Unit name is required.'; return; }
   const position = units.filter(u=>u.courseId===currentCourseId).length;
-  const { data, error } = await sb.from('units').insert({ course_id: currentCourseId, name, position }).select().single();
+  const { data, error } = await db.from('units').insert({ course_id: currentCourseId, name, position }).select().single();
   if(error){ document.getElementById('unit-error').textContent = error.message; return; }
   const nu = { id:data.id, courseId:data.course_id, name:data.name };
   units.push(nu); closeModal('unit-overlay'); selectUnit(nu.id);
@@ -897,13 +893,20 @@ function openTest(itemId){
   document.getElementById('tp-code').textContent = c ? c.code : '';
   document.getElementById('tp-title').textContent = it.title;
   const prior = studentResponses[itemId] || {};
+
+  if(it.type==='lesson'){
+    document.getElementById('tp-questions').style.display='none';
+    document.getElementById('tp-submit-row').style.display='none';
+    document.getElementById('lp-player').style.display='';
+    openLessonPlayer(it, prior);
+    window.scrollTo(0,0);
+    return;
+  }
+  document.getElementById('tp-questions').style.display='';
+  document.getElementById('tp-submit-row').style.display='';
+  document.getElementById('lp-player').style.display='none';
+
   document.getElementById('tp-questions').innerHTML = it.questions.map((q,qi)=>{
-    if(q.type==='content'){
-      return `<div class="content-block" data-qi="${qi}">
-        ${q.heading ? `<h3>${esc(q.heading)}</h3>` : ''}
-        <div class="content-block-body">${esc(q.text)}</div>
-      </div>`;
-    }
     if(q.type==='mc'){
       const priorAns = prior.answers ? prior.answers[qi] : undefined;
       return `<div class="tp-question" data-qi="${qi}">
@@ -912,93 +915,20 @@ function openTest(itemId){
         <div class="tp-options">${q.options.map((o,oi)=>`<label class="tp-option" data-oi="${oi}">
           <input type="radio" name="q${qi}" value="${oi}" ${priorAns===oi?'checked':''}><span>${esc(o)}</span></label>`).join('')}</div>
       </div>`;
-    }
-    if(q.type==='dragsort'){
-      const binsHtml = q.categories.map((cat,ci)=>`
-        <div class="dragsort-bin" data-bin="${ci}">
-          <div class="dragsort-bin-label">${esc(cat)}</div>
-          <div class="dragsort-bin-body" data-bin-body="${ci}"></div>
-        </div>`).join('');
-      return `<div class="tp-question dragsort-wrap" data-qi="${qi}">
-        <div class="tp-q-num mono">Question ${qi+1} · Drag &amp; drop</div>
+    } else {
+      const priorText = prior.answers ? (prior.answers[qi]||'') : '';
+      return `<div class="tp-question" data-qi="${qi}">
+        <div class="tp-q-num mono">Question ${qi+1} · ${q.type==='short'?'Short answer':'Long answer'}</div>
         <div class="tp-q-text">${esc(q.text)}</div>
-        <div class="dragsort-pool" data-pool></div>
-        <div class="dragsort-bins">${binsHtml}</div>
+        <textarea class="tp-textarea" data-qi-text="${qi}">${esc(priorText)}</textarea>
       </div>`;
     }
-    const priorText = prior.answers ? (prior.answers[qi]||'') : '';
-    return `<div class="tp-question" data-qi="${qi}">
-      <div class="tp-q-num mono">Question ${qi+1} · ${q.type==='short'?'Short answer':'Long answer'}</div>
-      <div class="tp-q-text">${esc(q.text)}</div>
-      <textarea class="tp-textarea" data-qi-text="${qi}">${esc(priorText)}</textarea>
-    </div>`;
   }).join('');
   document.getElementById('tp-score').textContent = prior.submitted && prior.total ? `Last score: ${prior.score}/${prior.total}` : '';
   document.querySelectorAll('.tp-option').forEach(opt=>{
     opt.addEventListener('click', ()=>{ opt.closest('.tp-question').querySelectorAll('.tp-option input').forEach(i=>i.checked=false); opt.querySelector('input').checked = true; });
   });
-  it.questions.forEach((q,qi)=>{
-    if(q.type!=='dragsort') return;
-    const wrap = document.querySelector(`.dragsort-wrap[data-qi="${qi}"]`);
-    const pool = wrap.querySelector('[data-pool]');
-    const priorPlacements = (prior.answers && prior.answers[qi]) ? prior.answers[qi] : {};
-    q.cards.forEach(c=>{
-      const card = document.createElement('div');
-      card.className = 'dragsort-card';
-      card.textContent = c.label;
-      card.dataset.cardId = c.id;
-      const savedBin = priorPlacements[c.id];
-      const dest = (savedBin !== undefined && savedBin !== null)
-        ? wrap.querySelector(`[data-bin-body="${savedBin}"]`)
-        : pool;
-      (dest || pool).appendChild(card);
-      attachDragSortHandlers(card, wrap, pool);
-    });
-  });
   window.scrollTo(0,0);
-}
-
-/* Custom pointer-based drag & drop — works with mouse, touch, and pen alike. */
-function attachDragSortHandlers(card, wrap, pool){
-  card.addEventListener('pointerdown', e=>{
-    if(e.button !== undefined && e.button !== 0) return;
-    e.preventDefault();
-    const rect = card.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left, offsetY = e.clientY - rect.top;
-    try{ card.setPointerCapture(e.pointerId); }catch(err){}
-    card.classList.add('dragging');
-    card.style.width = rect.width+'px';
-    document.body.appendChild(card);
-    card.style.position='fixed'; card.style.left=rect.left+'px'; card.style.top=rect.top+'px'; card.style.zIndex=1000;
-
-    function move(ev){
-      card.style.left = (ev.clientX-offsetX)+'px';
-      card.style.top = (ev.clientY-offsetY)+'px';
-      wrap.querySelectorAll('.dragsort-bin').forEach(b=>b.classList.remove('drag-over'));
-      card.style.visibility='hidden';
-      const target = document.elementFromPoint(ev.clientX, ev.clientY);
-      card.style.visibility='';
-      const bin = target && target.closest && target.closest('.dragsort-bin');
-      if(bin) bin.classList.add('drag-over');
-    }
-    function up(ev){
-      card.removeEventListener('pointermove', move);
-      card.removeEventListener('pointerup', up);
-      card.removeEventListener('pointercancel', up);
-      wrap.querySelectorAll('.dragsort-bin').forEach(b=>b.classList.remove('drag-over'));
-      card.style.visibility='hidden';
-      const target = document.elementFromPoint(ev.clientX, ev.clientY);
-      card.style.visibility='';
-      const bin = target && target.closest && target.closest('.dragsort-bin');
-      card.classList.remove('dragging');
-      card.style.position=''; card.style.left=''; card.style.top=''; card.style.zIndex=''; card.style.width='';
-      const dest = bin ? bin.querySelector('[data-bin-body]') : pool;
-      dest.appendChild(card);
-    }
-    card.addEventListener('pointermove', move);
-    card.addEventListener('pointerup', up);
-    card.addEventListener('pointercancel', up);
-  });
 }
 document.getElementById('tp-back-btn').onclick = ()=>{ document.getElementById('test-page').classList.remove('visible'); if(currentCourseId) openCourseDetail(currentCourseId); };
 document.getElementById('tp-submit-btn').onclick = async ()=>{
@@ -1006,7 +936,6 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
   if(!it || !currentUser) return;
   const answers = {}; let mcCorrect=0, mcTotal=0;
   it.questions.forEach((q,qi)=>{
-    if(q.type==='content') return;
     const qEl = document.querySelector(`.tp-question[data-qi="${qi}"]`);
     if(q.type==='mc'){
       mcTotal++;
@@ -1018,28 +947,11 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
         if(oi===q.correct) o.classList.add('correct'); else if(oi===chosen) o.classList.add('incorrect');
       });
       if(chosen===q.correct) mcCorrect++;
-    } else if(q.type==='dragsort'){
-      const placements = {};
-      qEl.querySelectorAll('.dragsort-bin').forEach(bin=>{
-        const ci = parseInt(bin.dataset.bin,10);
-        bin.querySelectorAll('.dragsort-card').forEach(cardEl=>{
-          cardEl.classList.remove('correct','incorrect');
-          placements[cardEl.dataset.cardId] = ci;
-        });
-      });
-      answers[qi] = placements;
-      q.cards.forEach(c=>{
-        mcTotal++;
-        const cardEl = qEl.querySelector(`.dragsort-card[data-card-id="${c.id}"]`);
-        const placedIn = placements[c.id];
-        if(placedIn === c.correct){ mcCorrect++; if(cardEl) cardEl.classList.add('correct'); }
-        else if(cardEl){ cardEl.classList.add('incorrect'); }
-      });
     } else { answers[qi] = qEl.querySelector('textarea').value; }
   });
   const submitBtn = document.getElementById('tp-submit-btn');
   submitBtn.disabled = true;
-  const { error } = await sb.from('responses').upsert({
+  const { error } = await db.from('responses').upsert({
     student_id: currentUser.id, item_id: currentItemId,
     answers, score: mcCorrect, total: mcTotal, submitted: true, submitted_at: new Date().toISOString()
   }, { onConflict: 'student_id,item_id' });
@@ -1052,6 +964,115 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
     : `Responses saved for self-review.`;
 };
 
+/* ── Lesson player (interactive, Brilliant-style) ── */
+let lpItem = null, lpIndex = 0, lpAnswered = [];
+
+function openLessonPlayer(it, prior){
+  lpItem = it;
+  lpIndex = 0;
+  lpAnswered = new Array(it.content.length).fill(false);
+  renderLpBlock();
+}
+
+function lpSetContinueEnabled(enabled){
+  document.getElementById('lp-next-btn').disabled = !enabled;
+  document.getElementById('lp-next-btn').style.opacity = enabled ? '1' : '.45';
+  document.getElementById('lp-next-btn').style.cursor = enabled ? 'pointer' : 'not-allowed';
+}
+
+function renderLpBlock(){
+  const total = lpItem.content.length;
+  const block = lpItem.content[lpIndex];
+  document.getElementById('lp-progress-fill').style.width = `${((lpIndex+1)/total)*100}%`;
+  document.getElementById('lp-prev-btn').style.visibility = lpIndex===0 ? 'hidden' : 'visible';
+  document.getElementById('lp-next-btn').textContent = lpIndex===total-1 ? 'Finish lesson' : 'Continue';
+
+  const slot = document.getElementById('lp-block-slot');
+  const alreadyAnswered = lpAnswered[lpIndex];
+
+  if(block.type==='text'){
+    slot.innerHTML = `<div class="lp-block"><div class="lp-text">${esc(block.text).replace(/\n/g,'<br>')}</div></div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='image'){
+    slot.innerHTML = `<div class="lp-block">
+      ${block.url ? `<img class="lp-image" src="${esc(block.url)}">` : ''}
+      ${block.caption ? `<div class="lp-caption">${esc(block.caption)}</div>` : ''}
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='check'){
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.text)}</div>
+      <div class="tp-options" id="lp-check-options">${block.options.map((o,oi)=>`<label class="tp-option" data-oi="${oi}"><input type="radio" name="lp-check" value="${oi}"><span>${esc(o)}</span></label>`).join('')}</div>
+      <div id="lp-check-feedback"></div>
+    </div>`;
+    lpSetContinueEnabled(alreadyAnswered);
+    document.querySelectorAll('#lp-check-options .tp-option').forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(lpAnswered[lpIndex]) return; // lock after first answer, like Brilliant
+        const chosen = parseInt(opt.dataset.oi,10);
+        document.querySelectorAll('#lp-check-options .tp-option').forEach((o,oi)=>{
+          o.querySelector('input').checked = oi===chosen;
+          o.classList.remove('correct','incorrect');
+          if(oi===block.correct) o.classList.add('correct'); else if(oi===chosen) o.classList.add('incorrect');
+        });
+        const correct = chosen===block.correct;
+        const fb = document.getElementById('lp-check-feedback');
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        lpAnswered[lpIndex] = true;
+        lpSetContinueEnabled(true);
+      });
+    });
+    return;
+  }
+  // slider
+  const startVal = Math.round((block.min + block.max) / 2);
+  slot.innerHTML = `<div class="lp-block">
+    <div class="lp-check-q">${esc(block.prompt)}</div>
+    <div class="lp-slider-row">
+      <input type="range" id="lp-slider" min="${block.min}" max="${block.max}" value="${startVal}" ${alreadyAnswered?'disabled':''}>
+      <span class="lp-slider-val mono" id="lp-slider-val">${startVal}</span>
+    </div>
+    <button class="btn-sm" id="lp-slider-check" ${alreadyAnswered?'style="display:none;"':''}>Check</button>
+    <div id="lp-slider-feedback"></div>
+  </div>`;
+  lpSetContinueEnabled(alreadyAnswered);
+  const slider = document.getElementById('lp-slider');
+  slider.addEventListener('input', ()=>{ document.getElementById('lp-slider-val').textContent = slider.value; });
+  document.getElementById('lp-slider-check').addEventListener('click', ()=>{
+    const val = Number(slider.value);
+    const correct = Math.abs(val - block.target) <= (block.tolerance||0);
+    const fb = document.getElementById('lp-slider-feedback');
+    fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target was ${block.target}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+    slider.disabled = true;
+    document.getElementById('lp-slider-check').style.display='none';
+    lpAnswered[lpIndex] = true;
+    lpSetContinueEnabled(true);
+  });
+}
+
+document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
+document.getElementById('lp-next-btn').onclick = async ()=>{
+  if(lpIndex < lpItem.content.length-1){
+    lpIndex++; renderLpBlock(); window.scrollTo(0,0);
+    return;
+  }
+  // Finished the last block — mark the lesson complete.
+  const btn = document.getElementById('lp-next-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await db.from('responses').upsert({
+    student_id: currentUser.id, item_id: currentItemId,
+    answers: {}, score: null, total: null, submitted: true, submitted_at: new Date().toISOString()
+  }, { onConflict: 'student_id,item_id' });
+  if(error){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
+  studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
+  document.getElementById('test-page').classList.remove('visible');
+  if(currentCourseId) openCourseDetail(currentCourseId);
+};
+
 /* ── Educator sign-in (real account, created by site owner in Supabase) ── */
 document.getElementById('educator-signin-btn').onclick = ()=>{ document.getElementById('educator-error').textContent=''; openModal('educator-overlay'); };
 document.getElementById('educator-close').onclick = ()=>closeModal('educator-overlay');
@@ -1059,12 +1080,13 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('educator-email').value.trim();
   const password = document.getElementById('educator-pass').value;
   if(!email || !password){ document.getElementById('educator-error').textContent='Email and password are required.'; return; }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
   if(error){ document.getElementById('educator-error').textContent = error.message; return; }
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+  db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
+  const { data: profile } = await db.from('profiles').select('*').eq('id', data.user.id).single();
   if(!profile || profile.role !== 'educator'){
     document.getElementById('educator-error').textContent = "This account isn't set up as an educator.";
-    await sb.auth.signOut();
+    await sbAuth.auth.signOut();
     return;
   }
   currentUser = data.user; currentProfile = profile; isEducator = true;
@@ -1092,14 +1114,15 @@ document.getElementById('student-google-btn').onclick = async ()=>{
   try {
     const result = await firebaseAuth.signInWithPopup(googleProvider);
     firebaseUser = result.user;
+    db = sbStudent;
     // Prime the exchanged token cache before any query fires.
     await getStudentAccessToken();
     // Make sure a profile row exists for this student (first login only inserts).
-    await sb.from('profiles').upsert(
+    await db.from('profiles').upsert(
       { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null },
       { onConflict: 'id', ignoreDuplicates: true }
     );
-    const { data: profile, error: profileErr } = await sb.from('profiles').select('*').eq('id', firebaseUser.uid).single();
+    const { data: profile, error: profileErr } = await db.from('profiles').select('*').eq('id', firebaseUser.uid).single();
     if(profileErr){ document.getElementById('student-error').textContent = profileErr.message; return; }
     currentUser = { id: firebaseUser.uid, email: firebaseUser.email };
     currentProfile = profile; isEducator = false;
@@ -1115,22 +1138,23 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('student-email-input').value.trim();
   const password = document.getElementById('student-password-input').value;
   if(!email || !password){ document.getElementById('student-error').textContent='Email and password are required.'; return; }
+  db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
   let user;
   if(studentModalMode==='signup'){
-    const { data, error } = await sb.auth.signUp({ email, password });
+    const { data, error } = await sbAuth.auth.signUp({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
     if(!data.session){
       document.getElementById('student-error').textContent = 'Check your email to confirm your account, then sign in.';
       return;
     }
     user = data.user;
-    await sb.from('profiles').insert({ id: user.id, role: 'student' });
+    await db.from('profiles').insert({ id: user.id, role: 'student' });
   } else {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
     user = data.user;
   }
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  const { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
   currentUser = user; currentProfile = profile; isEducator = false;
   document.getElementById('student-email-input').value=''; document.getElementById('student-password-input').value='';
   closeModal('student-overlay');
@@ -1144,7 +1168,7 @@ document.getElementById('account-signout-btn').onclick = async ()=>{
     await firebaseAuth.signOut();
     firebaseUser=null; studentAccessToken=null; studentAccessTokenExpiresAt=0;
   } else {
-    await sb.auth.signOut();
+    await sbAuth.auth.signOut();
   }
   currentUser=null; currentProfile=null; isEducator=false; studentResponses={};
   updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
@@ -1153,8 +1177,16 @@ document.getElementById('account-signout-btn').onclick = async ()=>{
 /* ── Question builder ── */
 let qbQuestions = [];
 let qbFiles = [];
+let lessonBlocks = [];
 let editingItemId = null;
 let addToUnitId = null;
+
+function toggleBuilderSections(){
+  const isLesson = document.getElementById('test-type-input').value === 'lesson';
+  document.getElementById('questions-builder-group').style.display = isLesson ? 'none' : '';
+  document.getElementById('lesson-builder-group').style.display = isLesson ? '' : 'none';
+}
+document.getElementById('test-type-input').addEventListener('change', toggleBuilderSections);
 
 function openTestModal(itemId, unitId){
   editingItemId = itemId;
@@ -1168,15 +1200,19 @@ function openTestModal(itemId, unitId){
     document.getElementById('test-name-input').value = it.title;
     document.getElementById('test-type-input').value = it.type;
     qbQuestions = JSON.parse(JSON.stringify(it.questions));
+    lessonBlocks = JSON.parse(JSON.stringify(it.content||[]));
     qbFiles = (it.files||[]).map(f=>({ label:f.label, file:null, existingPath:f.path, fileName:f.fileName, dataUrl:f.dataUrl }));
   } else {
     document.getElementById('test-name-input').value = '';
     document.getElementById('test-type-input').value = 'practice';
     qbQuestions = [];
+    lessonBlocks = [];
     qbFiles = [];
   }
   renderQbList();
+  renderLessonBlockList();
   renderFileVersionList();
+  toggleBuilderSections();
   openModal('test-overlay');
 }
 document.getElementById('test-close').onclick = ()=>closeModal('test-overlay');
@@ -1198,36 +1234,8 @@ document.getElementById('qb-add-version').onclick = ()=>{ qbFiles.push({ label:'
 
 function renderQbList(){
   const list = document.getElementById('qb-list');
-  if(!qbQuestions.length){ list.innerHTML = `<div class="empty-note" style="padding:1rem;">No questions yet — add one below, or load the example.</div>`; return; }
+  if(!qbQuestions.length){ list.innerHTML = `<div class="empty-note" style="padding:1rem;">No questions yet — add one below.</div>`; return; }
   list.innerHTML = qbQuestions.map((q,qi)=>{
-    if(q.type==='content'){
-      return `<div class="qb-item" data-qi="${qi}">
-        <div class="qb-item-head"><span class="qb-type-tag mono">Content block</span><button class="qb-remove" data-qb-remove="${qi}">✕</button></div>
-        <div class="form-group"><input type="text" data-qb-heading="${qi}" placeholder="Heading (optional)" value="${esc(q.heading||'')}"></div>
-        <div class="form-group"><textarea data-qb-text="${qi}" rows="4" placeholder="Explanation text students will read">${esc(q.text)}</textarea></div>
-      </div>`;
-    }
-    if(q.type==='dragsort'){
-      return `<div class="qb-item" data-qi="${qi}">
-        <div class="qb-item-head"><span class="qb-type-tag mono">Drag &amp; drop sort</span><button class="qb-remove" data-qb-remove="${qi}">✕</button></div>
-        <div class="form-group"><input type="text" data-qb-text="${qi}" placeholder="Instructions, e.g. 'Sort each relation into the correct bin.'" value="${esc(q.text)}"></div>
-        <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;margin:.5rem 0 .3rem;">Categories (bins)</div>
-        ${q.categories.map((cat,ci)=>`<div class="qb-opt-row">
-          <input type="text" data-qb-cat="${qi}:${ci}" placeholder="Category ${ci+1}" value="${esc(cat)}">
-          <button class="qb-remove" data-qb-cat-remove="${qi}:${ci}" type="button">✕</button>
-        </div>`).join('')}
-        <button class="btn-sm" data-qb-cat-add="${qi}" type="button" style="margin-bottom:.7rem;">+ Category</button>
-        <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;margin:.5rem 0 .3rem;">Cards to sort</div>
-        ${q.cards.map((c,ki)=>`<div class="qb-opt-row">
-          <input type="text" data-qb-card-label="${qi}:${ki}" placeholder="Card text" value="${esc(c.label)}">
-          <select data-qb-card-correct="${qi}:${ki}">
-            ${q.categories.map((cat,ci)=>`<option value="${ci}" ${c.correct===ci?'selected':''}>${esc(cat)}</option>`).join('')}
-          </select>
-          <button class="qb-remove" data-qb-card-remove="${qi}:${ki}" type="button">✕</button>
-        </div>`).join('')}
-        <button class="btn-sm" data-qb-card-add="${qi}" type="button">+ Card</button>
-      </div>`;
-    }
     if(q.type==='mc'){
       return `<div class="qb-item" data-qi="${qi}">
         <div class="qb-item-head"><span class="qb-type-tag mono">Multiple choice</span><button class="qb-remove" data-qb-remove="${qi}">✕</button></div>
@@ -1237,62 +1245,103 @@ function renderQbList(){
           <input type="text" data-qb-opt="${qi}:${oi}" placeholder="Option ${oi+1}" value="${esc(o)}"></div>`).join('')}
         <div style="font-family:'IBM Plex Mono',monospace; font-size:.6rem; color:var(--ink-faint); margin-top:.3rem;">Select the radio button next to the correct option.</div>
       </div>`;
+    } else {
+      return `<div class="qb-item" data-qi="${qi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">${q.type==='short'?'Short answer':'Long answer'}</span><button class="qb-remove" data-qb-remove="${qi}">✕</button></div>
+        <div class="form-group"><input type="text" data-qb-text="${qi}" placeholder="Question text" value="${esc(q.text)}"></div>
+      </div>`;
     }
-    return `<div class="qb-item" data-qi="${qi}">
-      <div class="qb-item-head"><span class="qb-type-tag mono">${q.type==='short'?'Short answer':'Long answer'}</span><button class="qb-remove" data-qb-remove="${qi}">✕</button></div>
-      <div class="form-group"><input type="text" data-qb-text="${qi}" placeholder="Question text" value="${esc(q.text)}"></div>
-    </div>`;
   }).join('');
   list.querySelectorAll('[data-qb-remove]').forEach(b=>b.onclick=()=>{ qbQuestions.splice(parseInt(b.dataset.qbRemove,10),1); renderQbList(); });
   list.querySelectorAll('[data-qb-text]').forEach(inp=>inp.addEventListener('input',()=>{ qbQuestions[parseInt(inp.dataset.qbText,10)].text = inp.value; }));
-  list.querySelectorAll('[data-qb-heading]').forEach(inp=>inp.addEventListener('input',()=>{ qbQuestions[parseInt(inp.dataset.qbHeading,10)].heading = inp.value; }));
   list.querySelectorAll('[data-qb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [qi,oi]=inp.dataset.qbOpt.split(':').map(Number); qbQuestions[qi].options[oi]=inp.value; }));
   list.querySelectorAll('[data-qb-correct]').forEach(inp=>inp.addEventListener('change',()=>{ const [qi,oi]=inp.dataset.qbCorrect.split(':').map(Number); qbQuestions[qi].correct=oi; }));
-  list.querySelectorAll('[data-qb-cat]').forEach(inp=>inp.addEventListener('input',()=>{ const [qi,ci]=inp.dataset.qbCat.split(':').map(Number); qbQuestions[qi].categories[ci]=inp.value; }));
-  list.querySelectorAll('[data-qb-cat-add]').forEach(b=>b.onclick=()=>{ const qi=parseInt(b.dataset.qbCatAdd,10); qbQuestions[qi].categories.push('New category'); renderQbList(); });
-  list.querySelectorAll('[data-qb-cat-remove]').forEach(b=>b.onclick=()=>{
-    const [qi,ci]=b.dataset.qbCatRemove.split(':').map(Number);
-    const q = qbQuestions[qi];
-    if(q.categories.length<=2){ return; } // always keep at least 2 bins
-    q.categories.splice(ci,1);
-    q.cards.forEach(c=>{ if(c.correct===ci) c.correct=0; else if(c.correct>ci) c.correct--; });
-    renderQbList();
-  });
-  list.querySelectorAll('[data-qb-card-label]').forEach(inp=>inp.addEventListener('input',()=>{ const [qi,ki]=inp.dataset.qbCardLabel.split(':').map(Number); qbQuestions[qi].cards[ki].label=inp.value; }));
-  list.querySelectorAll('[data-qb-card-correct]').forEach(sel=>sel.addEventListener('change',()=>{ const [qi,ki]=sel.dataset.qbCardCorrect.split(':').map(Number); qbQuestions[qi].cards[ki].correct=parseInt(sel.value,10); }));
-  list.querySelectorAll('[data-qb-card-add]').forEach(b=>b.onclick=()=>{ const qi=parseInt(b.dataset.qbCardAdd,10); qbQuestions[qi].cards.push({id:uid(), label:'', correct:0}); renderQbList(); });
-  list.querySelectorAll('[data-qb-card-remove]').forEach(b=>b.onclick=()=>{ const [qi,ki]=b.dataset.qbCardRemove.split(':').map(Number); qbQuestions[qi].cards.splice(ki,1); renderQbList(); });
 }
-document.getElementById('qb-add-content').onclick = ()=>{ qbQuestions.push({type:'content', heading:'', text:''}); renderQbList(); };
-document.getElementById('qb-add-dragsort').onclick = ()=>{ qbQuestions.push({type:'dragsort', text:'Sort each item into the correct category.', categories:['Category A','Category B'], cards:[{id:uid(), label:'', correct:0}]}); renderQbList(); };
 document.getElementById('qb-add-mc').onclick = ()=>{ qbQuestions.push({type:'mc', text:'', options:['','','',''], correct:0}); renderQbList(); };
 document.getElementById('qb-add-short').onclick = ()=>{ qbQuestions.push({type:'short', text:''}); renderQbList(); };
 document.getElementById('qb-add-long').onclick = ()=>{ qbQuestions.push({type:'long', text:''}); renderQbList(); };
 
-document.getElementById('qb-load-example').onclick = ()=>{
-  document.getElementById('test-name-input').value = 'What Is a Function?';
-  document.getElementById('test-type-input').value = 'lesson';
-  qbQuestions = JSON.parse(JSON.stringify(EXAMPLE_FUNCTION_LESSON));
-  renderQbList();
-};
+/* ── Lesson block builder ── */
+function moveBlock(i, dir){
+  const j = i + dir;
+  if(j < 0 || j >= lessonBlocks.length) return;
+  [lessonBlocks[i], lessonBlocks[j]] = [lessonBlocks[j], lessonBlocks[i]];
+  renderLessonBlockList();
+}
+function renderLessonBlockList(){
+  const list = document.getElementById('lesson-block-list');
+  if(!lessonBlocks.length){ list.innerHTML = `<div class="empty-note" style="padding:1rem;">No blocks yet — add text, images, or interactive checks below.</div>`; return; }
+  list.innerHTML = lessonBlocks.map((b,bi)=>{
+    const moveBtns = `<div class="lb-move-btns">
+      <button data-lb-up="${bi}" type="button" title="Move up">↑</button>
+      <button data-lb-down="${bi}" type="button" title="Move down">↓</button>
+    </div>`;
+    if(b.type==='text'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Text</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><textarea class="tp-textarea" style="min-height:70px;" data-lb-field="${bi}:text" placeholder="Explain the concept...">${esc(b.text)}</textarea></div>
+      </div>`;
+    }
+    if(b.type==='image'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Image</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="Image URL (https://...)" value="${esc(b.url)}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:caption" placeholder="Caption (optional)" value="${esc(b.caption)}"></div>
+        ${b.url ? `<img class="lb-img-preview" src="${esc(b.url)}">` : ''}
+      </div>`;
+    }
+    if(b.type==='check'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Check · Multiple choice</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:text" placeholder="Question text" value="${esc(b.text)}"></div>
+        ${b.options.map((o,oi)=>`<div class="qb-opt-row">
+          <input type="radio" name="lb-correct-${bi}" ${b.correct===oi?'checked':''} data-lb-correct="${bi}:${oi}">
+          <input type="text" data-lb-opt="${bi}:${oi}" placeholder="Option ${oi+1}" value="${esc(o)}"></div>`).join('')}
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
+    // slider
+    return `<div class="qb-item" data-bi="${bi}">
+      <div class="qb-item-head"><span class="qb-type-tag mono">Check · Slider</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+      <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt e.g. Drag to the boiling point of water (°C)" value="${esc(b.prompt)}"></div>
+      <div style="display:flex;gap:.6rem;">
+        <div class="form-group"><label style="font-size:.65rem;">Min</label><input type="number" data-lb-field="${bi}:min" value="${b.min}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Max</label><input type="number" data-lb-field="${bi}:max" value="${b.max}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Target</label><input type="number" data-lb-field="${bi}:target" value="${b.target}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+      </div>
+      <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
+  list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
+  list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.lbField.split(':');
+    const numeric = ['min','max','target','tolerance'].includes(field);
+    lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
+  }));
+  list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
+  list.querySelectorAll('[data-lb-correct]').forEach(inp=>inp.addEventListener('change',()=>{ const [bi,oi]=inp.dataset.lbCorrect.split(':').map(Number); lessonBlocks[bi].correct=oi; }));
+}
+document.getElementById('lb-add-text').onclick = ()=>{ lessonBlocks.push({type:'text', text:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-image').onclick = ()=>{ lessonBlocks.push({type:'image', url:'', caption:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:'check', text:'', options:['','','',''], correct:0, explanation:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
   const title = document.getElementById('test-name-input').value.trim();
   const type = document.getElementById('test-type-input').value;
   if(!title){ document.getElementById('test-error').textContent='Title is required.'; return; }
-  if(!qbQuestions.length){ document.getElementById('test-error').textContent='Add at least one question.'; return; }
-  for(const q of qbQuestions){
-    if(q.type==='dragsort' && (q.categories.length<2 || !q.cards.length)){
-      document.getElementById('test-error').textContent = 'Drag & drop questions need at least 2 categories and 1 card.';
-      return;
-    }
+  if(type==='lesson'){
+    if(!lessonBlocks.length){ document.getElementById('test-error').textContent='Add at least one block.'; return; }
+  } else {
+    if(!qbQuestions.length){ document.getElementById('test-error').textContent='Add at least one question.'; return; }
   }
-  const cleanQuestions = qbQuestions.map(q=>{
-    if(q.type==='mc') return { type:'mc', text:q.text, options:q.options, correct:q.correct||0 };
-    if(q.type==='content') return { type:'content', heading:q.heading||'', text:q.text||'' };
-    if(q.type==='dragsort') return { type:'dragsort', text:q.text||'', categories:q.categories.slice(), cards:q.cards.map(c=>({id:c.id, label:c.label, correct:c.correct||0})) };
-    return { type:q.type, text:q.text };
-  });
+  const cleanQuestions = qbQuestions.map(q=> q.type==='mc' ? {type:'mc', text:q.text, options:q.options, correct:q.correct||0} : {type:q.type, text:q.text});
+  const cleanContent = lessonBlocks.map(b=> b.type==='check'
+    ? {type:'check', text:b.text, options:b.options, correct:b.correct||0, explanation:b.explanation||''}
+    : { ...b });
 
   const saveBtn = document.getElementById('test-save-btn');
   saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
@@ -1303,24 +1352,28 @@ document.getElementById('test-save-btn').onclick = async ()=>{
     if(f.file){
       const safeName = f.file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
       const path = `items/${uid()}-${safeName}`;
-      const { error: upErr } = await sb.storage.from(FILES_BUCKET).upload(path, f.file);
+      const { error: upErr } = await db.storage.from(FILES_BUCKET).upload(path, f.file);
       if(upErr){ document.getElementById('test-error').textContent = upErr.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
-      const { data: urlData } = sb.storage.from(FILES_BUCKET).getPublicUrl(path);
+      const { data: urlData } = db.storage.from(FILES_BUCKET).getPublicUrl(path);
       finalFiles.push({ label: f.label || f.file.name, path, fileName: f.file.name, dataUrl: urlData.publicUrl });
     } else if(f.existingPath){
       finalFiles.push({ label: f.label, path: f.existingPath, fileName: f.fileName, dataUrl: f.dataUrl });
     }
   }
 
+  const payload = type==='lesson'
+    ? { title, type, questions: [], content: cleanContent, files: finalFiles }
+    : { title, type, questions: cleanQuestions, content: [], files: finalFiles };
+
   if(editingItemId){
-    const { error } = await sb.from('items').update({ title, type, questions: cleanQuestions, files: finalFiles }).eq('id', editingItemId);
+    const { error } = await db.from('items').update(payload).eq('id', editingItemId);
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
     const it = items.find(i=>i.id===editingItemId);
-    it.title=title; it.type=type; it.questions=cleanQuestions; it.files=finalFiles;
+    Object.assign(it, { title, type, questions: payload.questions, content: payload.content, files: finalFiles });
   } else {
-    const { data, error } = await sb.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, title, type, questions: cleanQuestions, files: finalFiles }).select().single();
+    const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, ...payload }).select().single();
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
-    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, files:data.files });
+    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, content:data.content||[], files:data.files });
   }
   saveBtn.disabled = false; saveBtn.textContent = 'Save Item';
   closeModal('test-overlay'); renderUnitNav(); renderUnitContent();
@@ -1337,14 +1390,14 @@ document.getElementById('del-cancel-btn').onclick = ()=>closeModal('del-overlay'
 document.getElementById('del-confirm-btn').onclick = async ()=>{
   if(!pendingDelete) return;
   if(pendingDelete.kind==='unit'){
-    const { error } = await sb.from('units').delete().eq('id', pendingDelete.id);
+    const { error } = await db.from('units').delete().eq('id', pendingDelete.id);
     if(error){ console.error(error); closeModal('del-overlay'); pendingDelete=null; return; }
     units = units.filter(u=>u.id!==pendingDelete.id);
     items = items.filter(i=>i.unitId!==pendingDelete.id);
     const remaining = units.filter(u=>u.courseId===currentCourseId);
     currentUnitId = remaining.length ? remaining[0].id : null;
   } else {
-    const { error } = await sb.from('items').delete().eq('id', pendingDelete.id);
+    const { error } = await db.from('items').delete().eq('id', pendingDelete.id);
     if(error){ console.error(error); closeModal('del-overlay'); pendingDelete=null; return; }
     items = items.filter(i=>i.id!==pendingDelete.id);
   }
@@ -1362,21 +1415,22 @@ function waitForFirebaseUser(){
 
 (async function init(){
   const [{ data: { session } }, fbUser] = await Promise.all([
-    sb.auth.getSession(),
+    sbAuth.auth.getSession(),
     waitForFirebaseUser(),
   ]);
 
   if(fbUser){
     // Firebase-authenticated student takes priority if somehow both are present.
     firebaseUser = fbUser;
+    db = sbStudent;
     await getStudentAccessToken();
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', fbUser.uid).single();
+    const { data: profile } = await db.from('profiles').select('*').eq('id', fbUser.uid).single();
     currentUser = { id: fbUser.uid, email: fbUser.email };
     currentProfile = profile;
     isEducator = false;
   } else if(session){
     currentUser = session.user;
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
     currentProfile = profile;
     isEducator = !!profile && profile.role === 'educator';
   }
