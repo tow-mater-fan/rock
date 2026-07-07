@@ -338,6 +338,10 @@
     display:flex; align-items:center; gap:.3rem; transition:transform .2s; }
   .nav-streak.bump, .nav-xp.bump { animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
   .nav-xp span, .nav-streak span { color:var(--gold); }
+  .nav-sound-btn { background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:50%;
+    width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; transition:transform .15s, background .15s; }
+  .nav-sound-btn:hover { background:rgba(246,244,239,.16); }
+  .nav-sound-btn:active { transform:scale(.9); }
 
   .xp-toast { position:fixed; top:70px; right:1.5rem; z-index:950; display:flex; flex-direction:column; gap:.5rem; pointer-events:none; }
   .xp-toast-item { background:var(--board); color:var(--paper); font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem;
@@ -400,6 +404,7 @@
   <div class="nav-progress" id="nav-progress" style="display:none;">
     <span class="nav-streak" id="nav-streak-chip" title="Daily streak">🔥 <span id="nav-streak-count">0</span></span>
     <span class="nav-xp" id="nav-xp-chip" title="Total XP">⚡ <span id="nav-xp-count">0</span> XP</span>
+    <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()">🔊</button>
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
@@ -729,6 +734,61 @@ let db = sbAuth;
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
 
+/* ── Sound effects (synthesized via WebAudio — no files to host/load) ── */
+let audioCtx = null;
+let soundsOn = (localStorage.getItem('modilix-sound') !== 'off');
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+// Plays a short sequence of tones. notes: [{freq, start, dur, type, gain}]
+function playTones(notes){
+  if(!soundsOn) return;
+  try{
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    notes.forEach(n=>{
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = n.type || 'sine';
+      osc.frequency.value = n.freq;
+      const t0 = now + (n.start||0);
+      const dur = n.dur || 0.15;
+      const peak = n.gain != null ? n.gain : 0.12;
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(peak, t0 + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t0); osc.stop(t0 + dur + 0.02);
+    });
+  } catch(e){ /* audio unsupported/blocked — fail silently */ }
+}
+const sfx = {
+  correct: ()=>playTones([{freq:660,start:0,dur:.1,type:'sine'},{freq:880,start:.09,dur:.16,type:'sine'}]),
+  incorrect: ()=>playTones([{freq:220,start:0,dur:.18,type:'sawtooth',gain:.08}]),
+  click: ()=>playTones([{freq:440,start:0,dur:.05,type:'sine',gain:.05}]),
+  xp: ()=>playTones([{freq:784,start:0,dur:.09,type:'triangle',gain:.09}]),
+  lessonComplete: ()=>playTones([
+    {freq:523,start:0,dur:.13,type:'sine'},{freq:659,start:.1,dur:.13,type:'sine'},
+    {freq:784,start:.2,dur:.13,type:'sine'},{freq:1047,start:.3,dur:.28,type:'sine'}
+  ]),
+  streak: ()=>playTones([
+    {freq:392,start:0,dur:.11,type:'triangle'},{freq:494,start:.09,dur:.11,type:'triangle'},
+    {freq:588,start:.18,dur:.11,type:'triangle'},{freq:784,start:.27,dur:.3,type:'triangle'}
+  ]),
+};
+function toggleSound(){
+  soundsOn = !soundsOn;
+  localStorage.setItem('modilix-sound', soundsOn ? 'on' : 'off');
+  renderSoundToggle();
+  if(soundsOn) sfx.click();
+}
+function renderSoundToggle(){
+  const btn = document.getElementById('nav-sound-toggle');
+  if(btn) btn.textContent = soundsOn ? '🔊' : '🔇';
+}
+
 /* ── Mastery ring SVG ── */
 function ringSVG(pct, size, stroke, color, bg){
   const r = (size - stroke) / 2;
@@ -935,10 +995,10 @@ async function awardXp(amount){
   if(error){ console.error('award_progress error', error); return; }
   studentProgress = { xp:data.xp, current_streak:data.current_streak, longest_streak:data.longest_streak, last_active_date:data.last_active_date };
   renderNavProgress();
-  bumpChip('nav-xp-chip'); showXpToast(amount);
+  bumpChip('nav-xp-chip'); showXpToast(amount); sfx.xp();
   const today = new Date().toISOString().slice(0,10);
   if(priorDate !== today && studentProgress.current_streak > priorStreak){
-    bumpChip('nav-streak-chip');
+    bumpChip('nav-streak-chip'); sfx.streak();
     document.getElementById('streak-modal-num').textContent = studentProgress.current_streak;
     document.getElementById('streak-modal-overlay').classList.add('open');
   }
@@ -1289,7 +1349,7 @@ function openTest(itemId){
   }).join('');
   document.getElementById('tp-score').textContent = prior.submitted && prior.total ? `Last score: ${prior.score}/${prior.total}` : '';
   document.querySelectorAll('.tp-option').forEach(opt=>{
-    opt.addEventListener('click', ()=>{ opt.closest('.tp-question').querySelectorAll('.tp-option input').forEach(i=>i.checked=false); opt.querySelector('input').checked = true; });
+    opt.addEventListener('click', ()=>{ opt.closest('.tp-question').querySelectorAll('.tp-option input').forEach(i=>i.checked=false); opt.querySelector('input').checked = true; sfx.click(); });
   });
   window.scrollTo(0,0);
 }
@@ -1386,6 +1446,7 @@ function renderLpBlock(){
         });
         const correct = chosen===block.correct;
         const fb = document.getElementById('lp-check-feedback');
+        sfx[correct?'correct':'incorrect']();
         fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
         lpAnswered[lpIndex] = true;
         lpSetContinueEnabled(true);
@@ -1411,6 +1472,7 @@ function renderLpBlock(){
       const val = Number(slider.value);
       const correct = Math.abs(val - block.target) <= (block.tolerance||0);
       const fb = document.getElementById('lp-slider-feedback');
+      sfx[correct?'correct':'incorrect']();
       fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target was ${block.target}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
       slider.disabled = true;
       document.getElementById('lp-slider-check').style.display='none';
@@ -1470,6 +1532,7 @@ function renderLpBlock(){
         const tol = block.tolerance || 0.25;
         const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
         const fb = document.getElementById('fx-graph-feedback');
+        sfx[correct?'correct':'incorrect']();
         fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Graphs match!':'✗ Not quite — keep adjusting the sliders.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
         if(correct){ lpAnswered[lpIndex] = true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>document.getElementById('fx-'+p).disabled=true); }
       });
@@ -1520,6 +1583,7 @@ function renderLpBlock(){
       checked = true;
       renderPoints();
       const fb = document.getElementById('fx-points-feedback');
+      sfx[correct?'correct':'incorrect']();
       fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target point is now shown in gold.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
       document.getElementById('fx-points-check').style.display='none';
       lpAnswered[lpIndex] = true;
@@ -1616,6 +1680,7 @@ function renderLpBlock(){
         const correct = loOk && hiOk;
         const correctText = `${block.loInf?'(':(block.loIncl?'[':'(')}${block.loInf?'−∞':fmt(block.lo)}, ${block.hiInf?'∞':fmt(block.hi)}${block.hiInf?')':(block.hiIncl?']':')')}`;
         const fb = document.getElementById('nl-feedback');
+        sfx[correct?'correct':'incorrect']();
         fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the correct answer is ${correctText}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
         document.getElementById('nl-check').style.display='none';
         document.querySelectorAll('.nl-inf-row input').forEach(i=>i.disabled=true);
@@ -1683,6 +1748,7 @@ function renderLpBlock(){
           if(!(Number.isFinite(target) && Number.isFinite(got) && Math.abs(target-got)<=(block.tolerance||0.01))) { allOk=false; break; }
         }
         const fb = document.getElementById('mach-feedback');
+        sfx[allOk?'correct':'incorrect']();
         fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ Your rule matches the machine!':'✗ Not quite — test a few inputs by hand and compare to the examples above.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
         if(allOk){
           lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
@@ -1743,6 +1809,7 @@ function renderLpBlock(){
         if(!ok) allOk=false;
       });
       const fb = document.getElementById('pw-feedback');
+      sfx[allOk?'correct':'incorrect']();
       fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ All domain restrictions correct!':'✗ One or more pieces are off — double check the endpoints and open/closed brackets.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
       document.getElementById('pw-check').style.display='none';
       document.querySelectorAll('#pw-rows-slot input, #pw-rows-slot button').forEach(el=>el.disabled=true);
@@ -1780,6 +1847,7 @@ function renderLpBlock(){
       const tol = block.tolerance || 0.2;
       const correct = target!==null && Number.isFinite(val) && Math.abs(val-target)<=tol;
       const fb = document.getElementById('roc-feedback');
+      sfx[correct?'correct':'incorrect']();
       fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the average rate of change is ${target!==null?Math.round(target*100)/100:'undefined'}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
       document.getElementById('roc-answer').disabled = true;
       document.getElementById('roc-check').style.display='none';
@@ -1818,6 +1886,7 @@ function renderLpBlock(){
       if(!ok) allCorrect = false;
     });
     const fb = document.getElementById('fx-table-feedback');
+    sfx[allCorrect?'correct':'incorrect']();
     fb.innerHTML = `<div class="lp-feedback ${allCorrect?'correct':'incorrect'}">${allCorrect?'✓ All correct!':'✗ A few values are off — correct ones are highlighted in green.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
     document.getElementById('fx-table-check').style.display='none';
     lpAnswered[lpIndex] = true;
@@ -1855,7 +1924,7 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   }, { onConflict: 'student_id,item_id' });
   if(error){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
   studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
-  fireConfetti();
+  fireConfetti(); sfx.lessonComplete();
   await awardXp(20);
   document.getElementById('test-page').classList.remove('visible');
   if(currentCourseId) openCourseDetail(currentCourseId);
@@ -2557,6 +2626,7 @@ function waitForFirebaseUser(){
   await loadResponses();
   await loadProgress();
   updateAccountUI();
+  renderSoundToggle();
   renderHome();
 })();
 </script>
