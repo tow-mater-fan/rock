@@ -634,19 +634,39 @@ const FX_PARENTS = {
   reciprocal:  { label:'Reciprocal — f(x) = 1/x',      fn:x=>1/x,                domain:x=>Math.abs(x)>0.05 },
   exponential: { label:'Exponential — f(x) = 2ˣ',      fn:x=>Math.pow(2,x),      domain:x=>true },
 };
-function fxEval(parentKey, a, h, k, x){
+// Full Ontario MCR3U/MHF4U transformation form: y = a · f( k(x − d) ) + c
+//   a = vertical stretch/compression, and reflection in the x-axis when a<0
+//   k = horizontal stretch/compression, and reflection in the y-axis when k<0
+//   d = horizontal translation, c = vertical translation
+function fxEval(parentKey, a, k, d, c, x){
   const p = FX_PARENTS[parentKey] || FX_PARENTS.linear;
-  const xin = x - h;
+  const kk = (k===0) ? 0.0001 : k; // guard against a degenerate 0 horizontal-scale slider
+  const xin = kk * (x - d);
   if(!p.domain(xin)) return null;
-  const v = a * p.fn(xin) + k;
+  const v = a * p.fn(xin) + c;
   return Number.isFinite(v) ? v : null;
 }
-function fxEquationStr(parentKey, a, h, k){
+function fxEquationStr(parentKey, a, k, d, c){
   const base = { linear:'x', quadratic:'x²', absolute:'|x|', cubic:'x³', sqrt:'√x', reciprocal:'1/x', exponential:'2ˣ' }[parentKey] || 'x';
-  const inner = h===0 ? base : base.replace('x', `(x ${h>0?'−':'+'} ${Math.abs(h)})`);
+  let argStr;
+  if(d===0){
+    argStr = k===1 ? 'x' : (k===-1 ? '−x' : `${k}x`);
+  } else {
+    const dPart = `x ${d>0?'−':'+'} ${Math.abs(d)}`;
+    argStr = k===1 ? dPart : (k===-1 ? `−(${dPart})` : `${k}(${dPart})`);
+  }
+  const inner = base.replace('x', argStr);
   const aPart = a===1 ? '' : (a===-1 ? '−' : `${a}·`);
-  const kPart = k===0 ? '' : ` ${k>0?'+':'−'} ${Math.abs(k)}`;
-  return `y = ${aPart}${inner}${kPart}`;
+  const cPart = c===0 ? '' : ` ${c>0?'+':'−'} ${Math.abs(c)}`;
+  return `y = ${aPart}${inner}${cPart}`;
+}
+// Mapping-rule form the unit plan also tests directly: (x,y) → (x/k + d, a·y + c)
+function fxMappingRuleStr(k, d, a, c){
+  const xPart = (k===1) ? 'x' : `x/${k}`;
+  const xFull = d===0 ? xPart : `${xPart} ${d>0?'+':'−'} ${Math.abs(d)}`;
+  const yPart = (a===1) ? 'y' : `${a}y`;
+  const yFull = c===0 ? yPart : `${yPart} ${c>0?'+':'−'} ${Math.abs(c)}`;
+  return `(x, y) → (${xFull}, ${yFull})`;
 }
 // Build an SVG plot (axes + one or two curves) over [-range,range] on both axes.
 function fxBuildSVG(id, range, curves, points){
@@ -1155,31 +1175,40 @@ function renderLpBlock(){
 
   if(block.type==='graph'){
     const range = block.range || 10;
-    let cur = { a:block.a, h:block.h, k:block.k };
+    // Support both the new {a,k,d,c} shape and legacy saved blocks that still use {a,h,k}.
+    const gLegacy = !('d' in block);
+    let cur = { a:block.a, k: gLegacy ? 1 : (block.k!==undefined?block.k:1), d: gLegacy ? (block.h||0) : (block.d||0), c: gLegacy ? (block.k||0) : (block.c||0) };
+    const target = block.target ? (gLegacy
+      ? { a:block.target.a, k:1, d:block.target.h||0, c:block.target.k||0 }
+      : { a:block.target.a, k:block.target.k!==undefined?block.target.k:1, d:block.target.d||0, c:block.target.c||0 }) : null;
     const isMatch = block.mode==='match';
     const renderGraph = ()=>{
-      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.h, cur.k, x) }];
-      if(isMatch) curves.push({ fn:x=>fxEval(block.parent, block.target.a, block.target.h, block.target.k, x), dashed:true });
+      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.k, cur.d, cur.c, x) }];
+      if(isMatch && target) curves.push({ fn:x=>fxEval(block.parent, target.a, target.k, target.d, target.c, x), dashed:true });
       document.getElementById('fx-graph-svg-slot').innerHTML = fxBuildSVG('fx-graph-svg', range, curves, []);
-      document.getElementById('fx-graph-eq').textContent = fxEquationStr(block.parent, cur.a, cur.h, cur.k);
+      document.getElementById('fx-graph-eq').textContent = fxEquationStr(block.parent, cur.a, cur.k, cur.d, cur.c);
+      document.getElementById('fx-graph-mapping').textContent = fxMappingRuleStr(cur.k, cur.d, cur.a, cur.c);
     };
     slot.innerHTML = `<div class="lp-block">
       <div class="lp-check-q">${esc(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="fx-eq" id="fx-graph-eq"></div>
+        <div class="fx-eq" id="fx-graph-mapping" style="background:var(--blue-bg); color:var(--blue); margin-left:.4rem;"></div>
         <div id="fx-graph-svg-slot"></div>
         <div class="fx-controls">
           <div class="fx-control-row"><span class="fx-control-label">a</span><input type="range" id="fx-a" min="-4" max="4" step="0.25" value="${cur.a}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-a-val">${cur.a}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">h</span><input type="range" id="fx-h" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.h}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-h-val">${cur.h}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="fx-k" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.k}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-k-val">${cur.k}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="fx-k" min="-3" max="3" step="0.25" value="${cur.k}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-k-val">${cur.k}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">d</span><input type="range" id="fx-d" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.d}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-d-val">${cur.d}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="fx-c" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.c}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-c-val">${cur.c}</span></div>
         </div>
+        <div class="fx-hint">a: vertical stretch/reflect · k: horizontal stretch/reflect · d: horizontal shift · c: vertical shift</div>
         ${isMatch ? `<div class="fx-hint">Blue = your graph &nbsp;·&nbsp; Gold dashed = target</div>` : ''}
       </div>
       ${isMatch ? `<button class="btn-sm" id="fx-graph-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>` : ''}
       <div id="fx-graph-feedback"></div>
     </div>`;
     renderGraph();
-    ['a','h','k'].forEach(p=>{
+    ['a','k','d','c'].forEach(p=>{
       const inp = document.getElementById('fx-'+p);
       inp.addEventListener('input', ()=>{
         cur[p] = Number(inp.value);
@@ -1187,15 +1216,15 @@ function renderLpBlock(){
         renderGraph();
       });
     });
-    if(isMatch){
+    if(isMatch && target){
       lpSetContinueEnabled(alreadyAnswered);
       const checkBtn = document.getElementById('fx-graph-check');
       if(checkBtn) checkBtn.addEventListener('click', ()=>{
         const tol = block.tolerance || 0.25;
-        const correct = Math.abs(cur.a-block.target.a)<=tol && Math.abs(cur.h-block.target.h)<=tol && Math.abs(cur.k-block.target.k)<=tol;
+        const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
         const fb = document.getElementById('fx-graph-feedback');
         fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Graphs match!':'✗ Not quite — keep adjusting the sliders.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
-        if(correct){ lpAnswered[lpIndex] = true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','h','k'].forEach(p=>document.getElementById('fx-'+p).disabled=true); }
+        if(correct){ lpAnswered[lpIndex] = true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>document.getElementById('fx-'+p).disabled=true); }
       });
     } else {
       lpSetContinueEnabled(true);
@@ -1205,10 +1234,14 @@ function renderLpBlock(){
 
   if(block.type==='points'){
     const range = block.range || 10;
+    const isLegacy = !('d' in block); // old blocks stored {a,h,k} meaning shift+vertical-shift only
+    const bk = isLegacy ? 1 : (block.k!==undefined ? block.k : 1);
+    const bd = isLegacy ? (block.h||0) : (block.d||0);
+    const bc = isLegacy ? (block.k||0) : (block.c||0);
     let picked = null;
     let checked = alreadyAnswered;
     const renderPoints = ()=>{
-      const curves = block.showCurve ? [{ fn:x=>fxEval(block.parent, block.a, block.h, block.k, x) }] : [];
+      const curves = block.showCurve ? [{ fn:x=>fxEval(block.parent, block.a, bk, bd, bc, x) }] : [];
       const pts = [];
       if(picked) pts.push({ x:picked.x, y:picked.y, i:0 });
       if(checked) pts.push({ x:block.target.x, y:block.target.y, target:true });
@@ -1250,6 +1283,10 @@ function renderLpBlock(){
 
   // table
   const xVals = block.xValues || [];
+  const tIsLegacy = !('d' in block);
+  const tk = tIsLegacy ? 1 : (block.k!==undefined ? block.k : 1);
+  const td = tIsLegacy ? (block.h||0) : (block.d||0);
+  const tc = tIsLegacy ? (block.k||0) : (block.c||0);
   slot.innerHTML = `<div class="lp-block">
     <div class="lp-check-q">${esc(block.prompt)}</div>
     <table class="fx-table">
@@ -1266,7 +1303,7 @@ function renderLpBlock(){
     xVals.forEach((x,xi)=>{
       const cell = document.querySelector(`[data-fx-cell="${xi}"]`);
       const val = parseFloat(cell.value);
-      const expected = fxEval(block.parent, block.a, block.h, block.k, x);
+      const expected = fxEval(block.parent, block.a, tk, td, tc, x);
       const ok = Number.isFinite(val) && expected!==null && Math.abs(val-expected)<=tol;
       cell.classList.remove('correct','incorrect');
       cell.classList.add(ok?'correct':'incorrect');
@@ -1427,7 +1464,7 @@ function openTestModal(itemId, unitId){
     document.getElementById('test-name-input').value = it.title;
     document.getElementById('test-type-input').value = it.type;
     qbQuestions = JSON.parse(JSON.stringify(it.questions));
-    lessonBlocks = JSON.parse(JSON.stringify(it.content||[]));
+    lessonBlocks = JSON.parse(JSON.stringify(it.content||[])).map(migrateLessonBlock);
     qbFiles = (it.files||[]).map(f=>({ label:f.label, file:null, existingPath:f.path, fileName:f.fileName, dataUrl:f.dataUrl }));
   } else {
     document.getElementById('test-name-input').value = '';
@@ -1489,6 +1526,19 @@ document.getElementById('qb-add-short').onclick = ()=>{ qbQuestions.push({type:'
 document.getElementById('qb-add-long').onclick = ()=>{ qbQuestions.push({type:'long', text:''}); renderQbList(); };
 
 /* ── Lesson block builder ── */
+// Upgrades a graph/points/table block saved under the old {a,h,k} shape
+// (vertical stretch, horizontal shift, vertical shift — no horizontal scale)
+// into the current {a,k,d,c} shape: y = a·f(k(x-d))+c.
+function migrateLessonBlock(b){
+  if(b.type==='graph' && !('d' in b)){
+    return { ...b, a:b.a, k:1, d:b.h||0, c:b.k||0,
+      target: b.target ? { a:b.target.a, k:1, d:b.target.h||0, c:b.target.k||0 } : b.target };
+  }
+  if((b.type==='points' || b.type==='table') && !('d' in b)){
+    return { ...b, a:b.a, k:1, d:b.h||0, c:b.k||0 };
+  }
+  return b;
+}
 function moveBlock(i, dir){
   const j = i + dir;
   if(j < 0 || j >= lessonBlocks.length) return;
@@ -1556,20 +1606,23 @@ function renderLessonBlockList(){
         </div>
         <div style="display:flex;gap:.6rem;">
           <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">Start a</label><input type="number" step="0.5" data-lb-field="${bi}:a" value="${b.a}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">Start h</label><input type="number" step="0.5" data-lb-field="${bi}:h" value="${b.h}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">Start k</label><input type="number" step="0.5" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Start a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Start k</label><input type="number" step="0.25" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Start d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Start c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
         </div>
         ${b.mode==='match' ? `
         <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Target the student needs to match (shown as the gold dashed graph):</div>
         <div style="display:flex;gap:.6rem;">
-          <div class="form-group"><label style="font-size:.65rem;">Target a</label><input type="number" step="0.5" data-lb-target="${bi}:a" value="${b.target.a}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">Target h</label><input type="number" step="0.5" data-lb-target="${bi}:h" value="${b.target.h}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">Target k</label><input type="number" step="0.5" data-lb-target="${bi}:k" value="${b.target.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target a</label><input type="number" step="0.25" data-lb-target="${bi}:a" value="${b.target.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target k</label><input type="number" step="0.25" data-lb-target="${bi}:k" value="${b.target.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target d</label><input type="number" step="0.5" data-lb-target="${bi}:d" value="${b.target.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target c</label><input type="number" step="0.5" data-lb-target="${bi}:c" value="${b.target.c}"></div>
           <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.1" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
-        </div>` : ''}
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--purple);margin-bottom:.5rem;">Target equation: ${esc(fxEquationStr(b.parent, Number(b.target.a), Number(b.target.k), Number(b.target.d), Number(b.target.c)))}</div>` : ''}
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Students drag a/h/k sliders and watch y = a·f(x−h)+k redraw live, using the transformation form for ${esc((FX_PARENTS[b.parent]||FX_PARENTS.linear).label.split(' — ')[0])}.</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Students drag a/k/d/c sliders and watch y = a·f(k(x−d))+c redraw live for ${esc((FX_PARENTS[b.parent]||FX_PARENTS.linear).label.split(' — ')[0])}. a = vertical stretch/reflection, k = horizontal stretch/reflection, d = horizontal shift, c = vertical shift.</div>
       </div>`;
     }
     if(b.type==='points'){
@@ -1587,10 +1640,12 @@ function renderLessonBlockList(){
         </div>
         <div style="display:flex;gap:.6rem;">
           <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.5" data-lb-field="${bi}:a" value="${b.a}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">h</label><input type="number" step="0.5" data-lb-field="${bi}:h" value="${b.h}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.5" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
         </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--ink-faint);">Curve equation: ${esc(fxEquationStr(b.parent, Number(b.a), Number(b.k), Number(b.d), Number(b.c)))}</div>
         <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Point the student must click (e.g. vertex, intercept):</div>
         <div style="display:flex;gap:.6rem;">
           <div class="form-group"><label style="font-size:.65rem;">Target x</label><input type="number" step="0.5" data-lb-targetpt="${bi}:x" value="${b.target.x}"></div>
@@ -1609,13 +1664,14 @@ function renderLessonBlockList(){
           <div class="form-group"><label style="font-size:.65rem;">x-values (comma separated)</label><input type="text" data-lb-xvals="${bi}" value="${(b.xValues||[]).join(', ')}"></div>
         </div>
         <div style="display:flex;gap:.6rem;">
-          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.5" data-lb-field="${bi}:a" value="${b.a}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">h</label><input type="number" step="0.5" data-lb-field="${bi}:h" value="${b.h}"></div>
-          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.5" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
           <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.05" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
         </div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Equation used: ${esc(fxEquationStr(b.parent,Number(b.a),Number(b.h),Number(b.k)))}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Equation used: ${esc(fxEquationStr(b.parent,Number(b.a),Number(b.k),Number(b.d),Number(b.c)))}</div>
       </div>`;
     }
   }).join('');
@@ -1624,7 +1680,7 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
   list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbField.split(':');
-    const numeric = ['min','max','target','tolerance','range','a','h','k'].includes(field);
+    const numeric = ['min','max','target','tolerance','range','a','k','d','c'].includes(field);
     lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
   }));
   list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
@@ -1655,18 +1711,18 @@ document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type
 document.getElementById('lb-add-graph').onclick = ()=>{ lessonBlocks.push({
   type:'graph', mode:'match', parent:'quadratic', range:10,
   prompt:'Drag the sliders so the blue graph lines up with the gold target graph.',
-  a:1, h:0, k:0, target:{ a:2, h:-2, k:1 }, tolerance:0.25, explanation:''
+  a:1, k:1, d:0, c:0, target:{ a:2, k:-1, d:-2, c:1 }, tolerance:0.25, explanation:''
 }); renderLessonBlockList(); };
 document.getElementById('lb-add-points').onclick = ()=>{ lessonBlocks.push({
   type:'points', range:10,
   prompt:'Click on the grid to plot the vertex of the graph shown.',
-  parent:'quadratic', a:1, h:2, k:-3,
+  parent:'quadratic', a:1, k:1, d:2, c:-3,
   showCurve:true, target:{ x:2, y:-3 }, tolerance:0.6, explanation:''
 }); renderLessonBlockList(); };
 document.getElementById('lb-add-table').onclick = ()=>{ lessonBlocks.push({
   type:'table',
   prompt:'Complete the table of values.',
-  parent:'linear', a:2, h:0, k:-1,
+  parent:'linear', a:2, k:1, d:0, c:-1,
   xValues:[-2,-1,0,1,2], tolerance:0.1, explanation:''
 }); renderLessonBlockList(); };
 
