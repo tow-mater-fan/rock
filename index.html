@@ -18,10 +18,39 @@
     --white: #ffffff;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
   body { font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); overflow-x:hidden; }
   h1,h2,h3,h4 { font-family:'Nunito',sans-serif; font-weight:800; }
   code, .mono { font-family:'IBM Plex Mono',monospace; }
   button { font-family:inherit; }
+
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes popIn { 0% { opacity:0; transform:scale(.85); } 60% { opacity:1; transform:scale(1.04); } 100% { transform:scale(1); } }
+  @keyframes shimmer { 0% { background-position:-300px 0; } 100% { background-position:300px 0; } }
+  @keyframes confettiFall { 0% { transform:translateY(-10px) rotate(0deg); opacity:1; } 100% { transform:translateY(280px) rotate(540deg); opacity:0; } }
+  @keyframes pulseRing { 0%,100% { box-shadow:0 0 0 0 rgba(24,101,242,.28); } 50% { box-shadow:0 0 0 8px rgba(24,101,242,0); } }
+  @keyframes checkPop { 0% { transform:scale(.6); opacity:0; } 60% { transform:scale(1.08); opacity:1; } 100% { transform:scale(1); } }
+
+  .page-fade { animation:fadeIn .35s ease both; }
+  .stagger-in { animation:fadeInUp .45s cubic-bezier(.22,1,.36,1) both; }
+
+  .ring-progress { transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+
+  .btn:active, .btn-sm:active, .course-tile:active { transform:scale(.96); }
+  .btn, .btn-sm { will-change:transform; }
+  .btn-primary { box-shadow:0 1px 0 rgba(0,0,0,.05); }
+  .btn-primary:hover { box-shadow:0 6px 16px rgba(24,101,242,.28); transform:translateY(-1px); }
+  .btn-primary:active { transform:translateY(0) scale(.97); box-shadow:none; }
+
+  nav { transition:box-shadow .25s ease, background .25s ease; }
+  nav.scrolled { box-shadow:0 4px 20px rgba(0,0,0,.22); }
+
+  .lp-block { animation:fadeInUp .4s cubic-bezier(.22,1,.36,1) both; }
+  .lp-feedback { animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .tp-option.correct, .tp-option.incorrect { animation:popIn .3s ease both; }
+
+  .confetti-piece { position:fixed; top:0; width:9px; height:14px; z-index:900; pointer-events:none; animation:confettiFall 1.6s ease-in forwards; border-radius:2px; }
 
   /* ── NAV ── */
   nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
@@ -647,9 +676,18 @@ function ringSVG(pct, size, stroke, color, bg){
   const offset = c * (1 - pct/100);
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
     <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${bg}" stroke-width="${stroke}"/>
-    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
-      stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+    <circle class="ring-progress" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+      stroke-dasharray="${c}" stroke-dashoffset="${c}" data-final-offset="${offset}" stroke-linecap="round"/>
   </svg>`;
+}
+// Rings render at 0% (fully hidden) then animate to their true value — call after
+// inserting any HTML that contains ringSVG() output.
+function animateRingsIn(container){
+  if(!container) return;
+  const circles = container.querySelectorAll('.ring-progress');
+  requestAnimationFrame(()=>{
+    circles.forEach(c=>{ c.style.strokeDashoffset = c.dataset.finalOffset; });
+  });
 }
 function ringColorFor(pct){
   if(pct>=90) return 'var(--green)';
@@ -755,14 +793,23 @@ function showPage(page){
   document.getElementById('about-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
-  if(page==='home'){ document.getElementById('home-page').style.display='block'; renderHome(); }
-  if(page==='about') document.getElementById('about-page').style.display='block';
+  if(page==='home'){
+    const el = document.getElementById('home-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderHome();
+  }
+  if(page==='about'){
+    const el = document.getElementById('about-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+  }
   window.scrollTo(0,0);
 }
 const navToggle=document.getElementById('nav-toggle'), navLinks=document.getElementById('nav-links');
 navToggle.addEventListener('click',()=>{navToggle.classList.toggle('open');navLinks.classList.toggle('open');});
 function closeNav(){navToggle.classList.remove('open');navLinks.classList.remove('open');}
 document.addEventListener('click',e=>{if(!navToggle.contains(e.target)&&!navLinks.contains(e.target))closeNav();});
+const mainNavEl = document.querySelector('nav');
+window.addEventListener('scroll', ()=>{ mainNavEl.classList.toggle('scrolled', window.scrollY > 8); }, { passive:true });
 
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -857,9 +904,9 @@ function renderHome(){
   if(!subjects.length){ cont.innerHTML = `<div class="empty-note">No courses yet.</div>`; return; }
   cont.innerHTML = subjects.map(subj=>{
     const subjCourses = courses.filter(c=>c.subject===subj);
-    const tiles = subjCourses.map(c=>{
+    const tiles = subjCourses.map((c,ci)=>{
       const pct = courseMasteryPct(c.id);
-      return `<div class="course-tile" data-course="${c.id}">
+      return `<div class="course-tile stagger-in" style="animation-delay:${ci*0.05}s" data-course="${c.id}">
         <div class="ring-wrap">${ringSVG(pct,52,5,ringColorFor(pct),'#e4e9f4')}<span class="ring-pct">${pct}%</span></div>
         <div class="course-tile-text">
           <div class="course-tile-code mono">${esc(c.code)}</div>
@@ -876,6 +923,7 @@ function renderHome(){
     </div>`;
   }).join('');
   cont.querySelectorAll('.course-tile').forEach(t=>t.addEventListener('click',()=>openCourseDetail(t.dataset.course)));
+  animateRingsIn(cont);
 }
 
 document.getElementById('btn-new-course').onclick = ()=>{
@@ -912,11 +960,13 @@ function openCourseDetail(courseId){
   document.getElementById('about-page').style.display='none';
   document.getElementById('test-page').classList.remove('visible');
   document.getElementById('course-detail-page').classList.add('visible');
+  document.getElementById('course-detail-page').classList.remove('page-fade'); void document.getElementById('course-detail-page').offsetWidth; document.getElementById('course-detail-page').classList.add('page-fade');
   document.getElementById('cd-code').textContent = c.code;
   document.getElementById('cd-title').textContent = c.name;
   document.getElementById('cd-sub').textContent = `${SUBJECT_LABELS[c.subject]} · Grade ${c.grade} · Stream ${c.stream}`;
   const pct = courseMasteryPct(courseId);
   document.getElementById('cd-ring-wrap').innerHTML = ringSVG(pct,64,6,'var(--gold)','rgba(255,255,255,.15)') + `<span class="cd-ring-pct">${pct}%</span>`;
+  animateRingsIn(document.getElementById('cd-ring-wrap'));
   document.getElementById('btn-new-unit').style.display = isEducator ? 'block' : 'none';
   const courseUnits = units.filter(u=>u.courseId===courseId);
   if(courseUnits.length) selectUnit(courseUnits[0].id);
@@ -931,10 +981,10 @@ function renderUnitNav(){
   const courseUnits = units.filter(u=>u.courseId===currentCourseId);
   const list = document.getElementById('unit-nav-list');
   if(!courseUnits.length){ list.innerHTML = `<div class="empty-note" style="padding:1.5rem;">No units yet.</div>`; return; }
-  list.innerHTML = courseUnits.map(u=>{
+  list.innerHTML = courseUnits.map((u,ui)=>{
     const pct = unitMasteryPct(u.id);
     const count = items.filter(i=>i.unitId===u.id).length;
-    return `<div class="unit-nav-item ${u.id===currentUnitId?'active':''}" data-unit="${u.id}">
+    return `<div class="unit-nav-item stagger-in ${u.id===currentUnitId?'active':''}" style="animation-delay:${ui*0.04}s" data-unit="${u.id}">
       <div class="unit-nav-ring">${ringSVG(pct,28,3,ringColorFor(pct),'#e4e9f4')}</div>
       <div>
         <div class="unit-nav-name">${esc(u.name)}</div>
@@ -943,6 +993,7 @@ function renderUnitNav(){
     </div>`;
   }).join('');
   list.querySelectorAll('.unit-nav-item').forEach(el=>el.addEventListener('click',()=>selectUnit(el.dataset.unit)));
+  animateRingsIn(list);
 }
 
 function findUpNext(unitId){
@@ -1617,6 +1668,21 @@ function renderLpBlock(){
 }
 
 document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
+// Small celebratory confetti burst — used when a student finishes a lesson.
+function fireConfetti(){
+  const colors = ['#ffb100','#1865f2','#14b06e','#8c4fe0','#e5484d'];
+  for(let i=0;i<28;i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (45 + Math.random()*10) + 'vw';
+    piece.style.top = (30 + Math.random()*10) + 'vh';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = (Math.random()*0.25) + 's';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(piece);
+    setTimeout(()=>piece.remove(), 2000);
+  }
+}
 document.getElementById('lp-next-btn').onclick = async ()=>{
   if(lpIndex < lpItem.content.length-1){
     lpIndex++; renderLpBlock(); window.scrollTo(0,0);
@@ -1631,6 +1697,7 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   }, { onConflict: 'student_id,item_id' });
   if(error){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
   studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
+  fireConfetti();
   document.getElementById('test-page').classList.remove('visible');
   if(currentCourseId) openCourseDetail(currentCourseId);
 };
