@@ -357,7 +357,42 @@
   .streak-modal-label { font-family:'Nunito',sans-serif; font-weight:700; color:var(--ink); margin-bottom:.5rem; }
   .streak-modal-sub { color:var(--ink-soft); font-size:.85rem; margin-bottom:1.25rem; }
 
-  /* ── LESSON PATH (Brilliant-style winding node list) ── */
+  /* ── DASHBOARD (Home) ── */
+  .dash-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:340px 1fr; gap:1.5rem; align-items:start; }
+  .dash-col-left { display:flex; flex-direction:column; gap:1.25rem; }
+  .dash-card { background:var(--white); border:1px solid var(--rule); border-radius:18px; padding:1.5rem; }
+  .dash-streak-head { display:flex; align-items:center; gap:.4rem; }
+  .dash-streak-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:2.4rem; color:var(--ink); }
+  .dash-streak-flame { font-size:1.8rem; filter:grayscale(1); opacity:.35; }
+  .dash-streak-flame.lit { filter:none; opacity:1; }
+  .dash-streak-sub { font-family:'Nunito',sans-serif; font-weight:700; font-size:.85rem; color:var(--ink-soft); margin:.35rem 0 1.25rem; }
+  .dash-week-row { display:flex; justify-content:space-between; gap:.4rem; }
+  .dash-day { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+  .dash-day-ring { width:38px; height:38px; border-radius:50%; border:2px solid var(--rule); display:flex; align-items:center; justify-content:center; font-size:.85rem; color:var(--ink-faint); }
+  .dash-day.active .dash-day-ring { border-color:var(--gold); background:var(--gold-bg); color:#946200; }
+  .dash-day.today .dash-day-ring { border-width:3px; border-color:var(--blue); }
+  .dash-day-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:.68rem; color:var(--ink-faint); }
+  .dash-league-card { display:flex; align-items:center; gap:1rem; }
+  .dash-league-icon { font-size:1.8rem; }
+  .dash-league-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:.9rem; color:var(--ink); }
+  .dash-league-sub { font-family:'Nunito',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); margin-top:.1rem; }
+  .dash-cta-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:.95rem; color:var(--ink); }
+  .dash-cta-sub { font-size:.82rem; color:var(--ink-soft); margin-top:.25rem; line-height:1.5; }
+
+  .dash-recommend-card { background:var(--board); border-radius:22px; padding:2.5rem 2.5rem 2rem; min-height:420px; display:flex; flex-direction:column; }
+  .dash-rec-eyebrow { font-family:'Nunito',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--blue); background:var(--blue-bg); display:inline-block; padding:.35rem .8rem; border-radius:100px; margin:0 auto 1rem; }
+  .dash-rec-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:1.9rem; color:var(--paper); text-align:center; }
+  .dash-rec-sub { font-family:'Nunito',sans-serif; font-weight:700; font-size:.85rem; color:var(--gold); text-align:center; letter-spacing:.03em; text-transform:uppercase; margin-top:.4rem; }
+  .dash-rec-visual { flex:1; display:flex; align-items:center; justify-content:center; font-size:5rem; margin:1.5rem 0; }
+  .dash-rec-meta { display:flex; align-items:center; gap:.75rem; color:var(--paper); font-family:'Nunito',sans-serif; font-weight:700; font-size:.9rem; margin-bottom:1.25rem; }
+  .dash-rec-meta-dot { width:10px; height:10px; border-radius:50%; }
+  .dash-rec-empty { color:rgba(246,244,239,.7); text-align:center; margin:auto; font-family:'Nunito',sans-serif; font-weight:700; }
+
+  @media(max-width:900px){
+    .dash-grid { grid-template-columns:1fr; }
+    #dashboard-page { padding:5.5rem 1.25rem 2rem !important; }
+  }
   .lesson-path { position:relative; margin:1rem auto 2rem; }
   .path-svg { position:absolute; top:0; left:0; z-index:0; }
   .path-node-wrap { position:absolute; display:flex; flex-direction:column; align-items:center; z-index:1; transform:translate(-50%,-50%); }
@@ -413,8 +448,9 @@
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
-    <li><a onclick="showPage('home');closeNav()">Courses</a></li>
-    <li><a onclick="showPage('about');closeNav()">About</a></li>
+    <li><a data-page="home" onclick="showPage('home');closeNav()">Home</a></li>
+    <li><a data-page="courses" onclick="showPage('courses');closeNav()">Courses</a></li>
+    <li><a data-page="about" onclick="showPage('about');closeNav()">About</a></li>
   </ul>
 </nav>
 <div class="xp-toast" id="xp-toast"></div>
@@ -428,8 +464,38 @@
   </div>
 </div>
 
-<!-- ═══════ HOME ═══════ -->
-<div id="home-page">
+<!-- ═══════ DASHBOARD (Home) ═══════ -->
+<div id="dashboard-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+  <div class="dash-grid">
+    <div class="dash-col-left">
+      <div class="dash-card">
+        <div class="dash-streak-head">
+          <span class="dash-streak-num" id="dash-streak-num">0</span><span class="dash-streak-flame">🔥</span>
+        </div>
+        <div class="dash-streak-sub" id="dash-streak-sub">Solve a lesson to start a streak</div>
+        <div class="dash-week-row" id="dash-week-row"></div>
+      </div>
+      <div class="dash-card dash-league-card">
+        <div class="dash-league-icon">🏅</div>
+        <div>
+          <div class="dash-league-title">XP progress</div>
+          <div class="dash-league-sub" id="dash-xp-sub">0 XP earned</div>
+        </div>
+      </div>
+      <div class="dash-card dash-cta-card">
+        <div class="dash-cta-title">Browse all courses</div>
+        <div class="dash-cta-sub">Find your next unit test, worksheet, or lesson.</div>
+        <button class="btn btn-primary" style="width:100%; margin-top:.75rem;" onclick="showPage('courses')">View courses</button>
+      </div>
+    </div>
+    <div class="dash-col-right">
+      <div class="dash-recommend-card" id="dash-recommend-card"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ COURSES ═══════ -->
+<div id="courses-page">
   <section class="hero">
     <div class="hero-inner">
       <div class="eyebrow">Ontario Secondary Curriculum</div>
@@ -914,20 +980,40 @@ function fxClientToCoord(svgEl, clientX, clientY, range){
 
 /* ── Nav ── */
 function showPage(page){
-  document.getElementById('home-page').style.display='none';
+  document.getElementById('dashboard-page').style.display='none';
+  document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
+  updateNavActive(page);
   if(page==='home'){
-    const el = document.getElementById('home-page');
+    // Students (signed in, non-educator) land on the personal dashboard.
+    // Everyone else (logged out, or educators) lands on the course catalog.
+    if(currentUser && !isEducator){
+      const el = document.getElementById('dashboard-page');
+      el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+      renderDashboard();
+    } else {
+      const el = document.getElementById('courses-page');
+      el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+      renderCourses();
+    }
+  }
+  if(page==='courses'){
+    const el = document.getElementById('courses-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
-    renderHome();
+    renderCourses();
   }
   if(page==='about'){
     const el = document.getElementById('about-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
   }
   window.scrollTo(0,0);
+}
+function updateNavActive(page){
+  document.querySelectorAll('.nav-links a[data-page]').forEach(a=>{
+    a.classList.toggle('active', a.dataset.page===page);
+  });
 }
 const navToggle=document.getElementById('nav-toggle'), navLinks=document.getElementById('nav-links');
 navToggle.addEventListener('click',()=>{navToggle.classList.toggle('open');navLinks.classList.toggle('open');});
@@ -1080,7 +1166,74 @@ function courseMasteryPct(courseId){
 }
 
 /* ── HOME: subject-grouped course rows ── */
-function renderHome(){
+/* ── DASHBOARD (Home): personal streak/XP + recommended next item ── */
+function findRecommendedItem(){
+  for(const c of courses){
+    const courseUnits = units.filter(u=>u.courseId===c.id);
+    for(const u of courseUnits){
+      const upnext = findUpNext(u.id);
+      if(upnext) return { item:upnext, course:c, unit:u };
+    }
+  }
+  return null;
+}
+
+function renderDashboardWeek(){
+  const row = document.getElementById('dash-week-row');
+  const labels = ['S','M','T','W','T','F','S'];
+  const today = new Date();
+  const lastActive = studentProgress.last_active_date ? new Date(studentProgress.last_active_date+'T00:00:00') : null;
+  const streak = studentProgress.current_streak || 0;
+  let html = '';
+  for(let i=6;i>=0;i--){
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    d.setHours(0,0,0,0);
+    let active = false;
+    if(lastActive && streak>0){
+      const daysBack = Math.round((lastActive - d) / 86400000);
+      active = daysBack>=0 && daysBack < streak;
+    }
+    const isToday = i===0;
+    html += `<div class="dash-day ${active?'active':''} ${isToday?'today':''}">
+      <div class="dash-day-ring">${active?'⚡':''}</div>
+      <div class="dash-day-label">${labels[d.getDay()]}</div>
+    </div>`;
+  }
+  row.innerHTML = html;
+}
+
+function renderDashboard(){
+  document.getElementById('dash-streak-num').textContent = studentProgress.current_streak || 0;
+  document.querySelector('.dash-streak-flame').classList.toggle('lit', (studentProgress.current_streak||0) > 0);
+  document.getElementById('dash-streak-sub').textContent = (studentProgress.current_streak||0) > 0
+    ? `${studentProgress.current_streak}-day streak — keep it going!`
+    : 'Finish a lesson today to start a streak';
+  renderDashboardWeek();
+  document.getElementById('dash-xp-sub').textContent = `${studentProgress.xp||0} XP earned · longest streak ${studentProgress.longest_streak||0} days`;
+
+  const rec = findRecommendedItem();
+  const card = document.getElementById('dash-recommend-card');
+  if(!rec){
+    card.innerHTML = `<div class="dash-rec-empty">No courses published yet — check back soon, or browse the course catalog.</div>`;
+    return;
+  }
+  const { item, course } = rec;
+  const meta = item.type==='lesson' ? `${TYPE_LABELS[item.type]} · ${item.content.length} block${item.content.length===1?'':'s'}` : `${TYPE_LABELS[item.type]} · ${item.questions.length} question${item.questions.length===1?'':'s'}`;
+  card.innerHTML = `
+    <div class="dash-rec-eyebrow" style="align-self:center;">Recommended</div>
+    <div class="dash-rec-title">${esc(item.title)}</div>
+    <div class="dash-rec-sub">${esc(course.code)} · ${SUBJECT_LABELS[course.subject]||course.subject}</div>
+    <div class="dash-rec-visual">${item.type==='lesson'?'📘':item.type==='unittest'?'🏆':'📝'}</div>
+    <div class="dash-rec-meta"><span class="dash-rec-meta-dot" style="background:${SUBJECT_COLORS[course.subject]||'var(--ink-faint)'}"></span>${meta}</div>
+    <button class="btn btn-primary" id="dash-rec-start" style="width:100%; padding:.9rem;">Start</button>
+  `;
+  document.getElementById('dash-rec-start').onclick = ()=>{
+    currentCourseId = course.id; currentUnitId = rec.unit.id;
+    openTest(item.id);
+  };
+}
+
+function renderCourses(){
   updateAccountUI();
   document.getElementById('btn-new-course').style.display = isEducator ? 'block' : 'none';
   const subjects = [...new Set(courses.map(c=>c.subject))];
@@ -1131,7 +1284,7 @@ document.getElementById('course-save-btn').onclick = async ()=>{
   const { data, error } = await db.from('courses').insert({ code, name, grade, subject, stream }).select().single();
   if(error){ document.getElementById('course-error').textContent = error.message; return; }
   courses.push({ id:data.id, code:data.code, name:data.name, grade:data.grade, subject:data.subject, stream:data.stream });
-  closeModal('course-overlay'); renderHome();
+  closeModal('course-overlay'); renderCourses();
 };
 
 /* ── COURSE DETAIL ── */
@@ -1140,7 +1293,7 @@ function openCourseDetail(courseId){
   currentUnitId = null;
   const c = courses.find(x=>x.id===courseId);
   if(!c) return;
-  document.getElementById('home-page').style.display='none';
+  document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
   document.getElementById('test-page').classList.remove('visible');
   document.getElementById('course-detail-page').classList.add('visible');
@@ -1157,7 +1310,7 @@ function openCourseDetail(courseId){
   else { currentUnitId=null; renderUnitNav(); renderUnitContent(); }
   window.scrollTo(0,0);
 }
-document.getElementById('cd-back-btn').onclick = ()=>{ document.getElementById('course-detail-page').classList.remove('visible'); showPage('home'); };
+document.getElementById('cd-back-btn').onclick = ()=>{ document.getElementById('course-detail-page').classList.remove('visible'); showPage('courses'); };
 
 function selectUnit(unitId){ currentUnitId = unitId; renderUnitNav(); renderUnitContent(); }
 
@@ -1998,7 +2151,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   closeModal('educator-overlay');
   await loadResponses();
   await loadProgress();
-  updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
+  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
 };
 document.getElementById('educator-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('educator-confirm-btn').click(); });
 
@@ -2034,7 +2187,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     closeModal('student-overlay');
     await loadResponses();
   await loadProgress();
-    updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
+    updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
   } catch(err){
     console.error(err);
     document.getElementById('student-error').textContent = err.message || 'Google sign-in failed.';
@@ -2066,7 +2219,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   closeModal('student-overlay');
   await loadResponses();
   await loadProgress();
-  updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
+  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
 };
 
 /* ── Shared sign-out ── */
@@ -2078,7 +2231,7 @@ document.getElementById('account-signout-btn').onclick = async ()=>{
     await sbAuth.auth.signOut();
   }
   currentUser=null; currentProfile=null; isEducator=false; studentResponses={};
-  updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
+  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
 };
 
 /* ── Question builder ── */
@@ -2674,7 +2827,7 @@ function waitForFirebaseUser(){
   await loadProgress();
   updateAccountUI();
   renderSoundToggle();
-  renderHome();
+  showPage('home');
 })();
 </script>
 </body>
