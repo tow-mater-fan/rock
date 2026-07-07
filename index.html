@@ -331,7 +331,53 @@
     .unit-sidebar { position:static; }
     .form-row { grid-template-columns:1fr; }
   }
+  /* ── STREAK / XP ── */
+  .nav-progress { display:flex; align-items:center; gap:.6rem; }
+  .nav-streak, .nav-xp { font-family:'Nunito',sans-serif; font-weight:800; font-size:.82rem; color:var(--paper);
+    background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:100px; padding:.35rem .75rem;
+    display:flex; align-items:center; gap:.3rem; transition:transform .2s; }
+  .nav-streak.bump, .nav-xp.bump { animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .nav-xp span, .nav-streak span { color:var(--gold); }
+
+  .xp-toast { position:fixed; top:70px; right:1.5rem; z-index:950; display:flex; flex-direction:column; gap:.5rem; pointer-events:none; }
+  .xp-toast-item { background:var(--board); color:var(--paper); font-family:'Nunito',sans-serif; font-weight:800; font-size:.85rem;
+    padding:.6rem 1.1rem; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.25); animation:xpToastIn .3s ease both, xpToastOut .4s ease 1.8s forwards; }
+  @keyframes xpToastIn { from{opacity:0; transform:translateX(30px);} to{opacity:1; transform:translateX(0);} }
+  @keyframes xpToastOut { to{opacity:0; transform:translateX(30px);} }
+
+  .streak-modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,48,96,.55); z-index:1000; align-items:center; justify-content:center; }
+  .streak-modal-overlay.open { display:flex; animation:fadeIn .2s ease; }
+  .streak-modal { background:var(--white); border-radius:20px; padding:2.5rem 2.5rem 2rem; text-align:center; max-width:280px; animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both; }
+  .streak-modal-flame { font-size:3rem; animation:pulseRing 1.4s ease infinite; }
+  .streak-modal-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:2.4rem; color:var(--gold); margin-top:.25rem; }
+  .streak-modal-label { font-family:'Nunito',sans-serif; font-weight:700; color:var(--ink); margin-bottom:.5rem; }
+  .streak-modal-sub { color:var(--ink-soft); font-size:.85rem; margin-bottom:1.25rem; }
+
+  /* ── LESSON PATH (Brilliant-style winding node list) ── */
+  .lesson-path { position:relative; display:flex; flex-direction:column; align-items:center; gap:0; padding:1rem 0 2rem; }
+  .path-node-wrap { position:relative; display:flex; flex-direction:column; align-items:center; z-index:1; }
+  .path-node-wrap:not(:last-child)::after {
+    content:''; position:absolute; top:64px; left:50%; width:4px; height:2.75rem; background:var(--rule); transform:translateX(-50%); z-index:-1;
+  }
+  .path-node-wrap.done:not(:last-child)::after { background:var(--green); }
+  .path-node {
+    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; font-weight:800; cursor:pointer; border:4px solid var(--rule); background:var(--white);
+    color:var(--ink-faint); transition:transform .15s, box-shadow .15s; position:relative;
+  }
+  .path-node:hover { transform:scale(1.06); }
+  .path-node:active { transform:scale(.96); }
+  .path-node.done { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
+  .path-node.current { border-color:var(--blue); background:var(--blue-bg); color:var(--blue); animation:pulseRing 1.8s ease infinite; }
+  .path-node.locked { cursor:default; opacity:.55; }
+  .path-node.test { border-radius:16px; background:var(--gold-bg); border-color:var(--gold); color:#946200; }
+  .path-node-label { margin-top:.4rem; margin-bottom:1.6rem; font-family:'Nunito',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); text-align:center; max-width:150px; }
+  .path-node-star { position:absolute; top:-6px; right:-6px; font-size:1rem; }
+  .path-toggle-row { display:flex; justify-content:flex-end; margin-bottom:.5rem; }
+
   @media(max-width:768px){
+    .nav-progress { gap:.35rem; }
+    .nav-streak, .nav-xp { font-size:.7rem; padding:.3rem .5rem; }
     nav { padding:0 1.25rem; }
     .nav-links { display:none; position:fixed; top:60px; left:0; right:0; background:var(--board); flex-direction:column; gap:0; padding:.5rem 0; z-index:99; }
     .nav-links.open { display:flex; }
@@ -351,12 +397,26 @@
 
 <nav>
   <div class="nav-logo" onclick="showPage('home')">Modilix<span class="mark">.</span></div>
+  <div class="nav-progress" id="nav-progress" style="display:none;">
+    <span class="nav-streak" id="nav-streak-chip" title="Daily streak">🔥 <span id="nav-streak-count">0</span></span>
+    <span class="nav-xp" id="nav-xp-chip" title="Total XP">⚡ <span id="nav-xp-count">0</span> XP</span>
+  </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
     <li><a onclick="showPage('home');closeNav()">Courses</a></li>
     <li><a onclick="showPage('about');closeNav()">About</a></li>
   </ul>
 </nav>
+<div class="xp-toast" id="xp-toast"></div>
+<div class="streak-modal-overlay" id="streak-modal-overlay">
+  <div class="streak-modal">
+    <div class="streak-modal-flame">🔥</div>
+    <div class="streak-modal-num" id="streak-modal-num">1</div>
+    <div class="streak-modal-label">day streak!</div>
+    <p class="streak-modal-sub">Come back tomorrow to keep it going.</p>
+    <button class="modal-btn" id="streak-modal-close" style="width:auto;">Nice!</button>
+  </div>
+</div>
 
 <!-- ═══════ HOME ═══════ -->
 <div id="home-page">
@@ -828,6 +888,63 @@ let currentProfile = null;  // {id, role, display_name}
 let isEducator=false;
 let currentCourseId=null, currentUnitId=null;
 
+/* ── Streak / XP state (see streaks_xp_schema.sql) ── */
+let studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null };
+let usePathView = true; // toggled per-course by the little switch above the unit content
+
+async function loadProgress(){
+  if(!currentUser || isEducator) return;
+  const { data, error } = await db.from('student_progress').select('*').eq('student_id', currentUser.id).single();
+  if(!error && data){
+    studentProgress = { xp:data.xp||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date };
+  }
+  renderNavProgress();
+}
+
+function renderNavProgress(){
+  const wrap = document.getElementById('nav-progress');
+  if(!currentUser || isEducator){ wrap.style.display='none'; return; }
+  wrap.style.display='flex';
+  document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
+  document.getElementById('nav-xp-count').textContent = studentProgress.xp;
+}
+
+function showXpToast(amount){
+  const host = document.getElementById('xp-toast');
+  const el = document.createElement('div');
+  el.className = 'xp-toast-item';
+  el.textContent = `⚡ +${amount} XP`;
+  host.appendChild(el);
+  setTimeout(()=>el.remove(), 2200);
+}
+
+function bumpChip(id){
+  const el = document.getElementById(id);
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+}
+
+/* Call this any time a student earns XP: a correct interactive check (~5xp),
+   or finishing a whole lesson/quiz (~20xp). Awards XP + rolls the daily
+   streak forward server-side via the award_progress() RPC, so the logic
+   can't be spoofed from the client and works even across devices. */
+async function awardXp(amount){
+  if(!currentUser || isEducator || !amount) return;
+  const priorStreak = studentProgress.current_streak;
+  const priorDate = studentProgress.last_active_date;
+  const { data, error } = await db.rpc('award_progress', { p_student_id: currentUser.id, p_xp: amount });
+  if(error){ console.error('award_progress error', error); return; }
+  studentProgress = { xp:data.xp, current_streak:data.current_streak, longest_streak:data.longest_streak, last_active_date:data.last_active_date };
+  renderNavProgress();
+  bumpChip('nav-xp-chip'); showXpToast(amount);
+  const today = new Date().toISOString().slice(0,10);
+  if(priorDate !== today && studentProgress.current_streak > priorStreak){
+    bumpChip('nav-streak-chip');
+    document.getElementById('streak-modal-num').textContent = studentProgress.current_streak;
+    document.getElementById('streak-modal-overlay').classList.add('open');
+  }
+}
+document.getElementById('streak-modal-close').onclick = ()=>document.getElementById('streak-modal-overlay').classList.remove('open');
+
 async function loadCatalog(){
   const [{data:cData,error:cErr}, {data:uData,error:uErr}, {data:iData,error:iErr}] = await Promise.all([
     db.from('courses').select('*').order('code'),
@@ -861,6 +978,8 @@ function updateAccountUI(){
   }
   document.getElementById('student-auth-btn').style.display = currentUser ? 'none' : 'inline-block';
   document.getElementById('educator-signin-btn').style.display = currentUser ? 'none' : 'inline-block';
+  if(!currentUser){ studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null }; }
+  renderNavProgress();
 }
 
 const SUBJECT_LABELS = { science:'Science', math:'Mathematics', social:'Social Science / History', english:'English', business:'Business', other:'Other' };
@@ -1041,34 +1160,71 @@ function renderUnitContent(){
 
   const unitItems = items.filter(i=>i.unitId===currentUnitId).sort((a,b)=> (a.type==='unittest')-(b.type==='unittest'));
   const list = document.getElementById('lesson-list');
+
+  // Educators always get the classic editable list (they need inline Edit/Delete).
+  // Students get the winding "path" view by default, with a toggle back to list.
+  const toggleRow = !isEducator && unitItems.length
+    ? `<div class="path-toggle-row"><button class="btn-sm" id="path-view-toggle">${usePathView?'☰ List view':'🧭 Path view'}</button></div>` : '';
+
   if(!unitItems.length){
-    list.innerHTML = `<div class="empty-note">${isEducator?'No items yet — use "Add item to this unit" below.':'Nothing published in this unit yet.'}</div>`;
+    list.innerHTML = toggleRow + `<div class="empty-note">${isEducator?'No items yet — use "Add item to this unit" below.':'Nothing published in this unit yet.'}</div>`;
     return;
   }
-  list.innerHTML = unitItems.map(it=>{
+
+  if(!isEducator && usePathView){
+    list.innerHTML = toggleRow + renderPathHTML(unitItems);
+    list.querySelectorAll('[data-open-item]').forEach(el=>el.addEventListener('click',()=>{ if(!el.classList.contains('locked')) openTest(el.dataset.openItem); }));
+  } else {
+    list.innerHTML = toggleRow + unitItems.map(it=>{
+      const r = studentResponses[it.id];
+      const ms = itemMastery(r);
+      const isTest = it.type==='unittest';
+      const badgeMap = { 'ms-none':'lb-none','ms-familiar':'lb-familiar','ms-proficient':'lb-proficient','ms-mastered':'lb-mastered','ms-practiced':'lb-practiced' };
+      const icon = ms.cls==='ms-mastered' ? '✓' : ms.cls==='ms-none' ? '' : '●';
+      const adminBtns = isEducator ? `<button class="btn-sm" data-edit-item="${it.id}" onclick="event.stopPropagation()">Edit</button><button class="btn-sm danger" data-del-item="${it.id}" onclick="event.stopPropagation()">Delete</button>` : '';
+      const filePills = (it.files && it.files.length) ? `<div class="lesson-row-files">${it.files.map(f=>
+        `<a class="file-pill" href="${f.dataUrl}" download="${esc(f.fileName||f.label+'.pdf')}" onclick="event.stopPropagation()">📄 ${esc(f.label)}</a>`
+      ).join('')}</div>` : '';
+      return `<div class="lesson-row ${isTest?'unit-test':''}" data-open-item="${it.id}">
+        <div class="status-icon ${ms.cls}">${icon}</div>
+        <div class="lesson-row-text">
+          <div class="lesson-row-title">${esc(it.title)}</div>
+          <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}</div>
+          ${filePills}
+        </div>
+        <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
+        ${adminBtns}
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-open-item]').forEach(el=>el.addEventListener('click',()=>openTest(el.dataset.openItem)));
+    list.querySelectorAll('[data-edit-item]').forEach(el=>el.addEventListener('click',()=>openTestModal(el.dataset.editItem)));
+    list.querySelectorAll('[data-del-item]').forEach(el=>el.addEventListener('click',()=>confirmDelete('item', el.dataset.delItem)));
+  }
+  const toggleBtn = list.querySelector('#path-view-toggle');
+  if(toggleBtn) toggleBtn.onclick = ()=>{ usePathView = !usePathView; renderUnitContent(); };
+}
+
+/* Builds the winding node-path markup for a unit's items. Nodes unlock in
+   order: the first not-yet-submitted item is "current" (glowing), everything
+   after it is locked, everything before/including a completed item is "done". */
+function renderPathHTML(unitItems){
+  let reachedCurrent = false;
+  return `<div class="lesson-path">` + unitItems.map((it,idx)=>{
     const r = studentResponses[it.id];
+    const submitted = r && r.submitted;
     const ms = itemMastery(r);
     const isTest = it.type==='unittest';
-    const badgeMap = { 'ms-none':'lb-none','ms-familiar':'lb-familiar','ms-proficient':'lb-proficient','ms-mastered':'lb-mastered','ms-practiced':'lb-practiced' };
-    const icon = ms.cls==='ms-mastered' ? '✓' : ms.cls==='ms-none' ? '' : '●';
-    const adminBtns = isEducator ? `<button class="btn-sm" data-edit-item="${it.id}" onclick="event.stopPropagation()">Edit</button><button class="btn-sm danger" data-del-item="${it.id}" onclick="event.stopPropagation()">Delete</button>` : '';
-    const filePills = (it.files && it.files.length) ? `<div class="lesson-row-files">${it.files.map(f=>
-      `<a class="file-pill" href="${f.dataUrl}" download="${esc(f.fileName||f.label+'.pdf')}" onclick="event.stopPropagation()">📄 ${esc(f.label)}</a>`
-    ).join('')}</div>` : '';
-    return `<div class="lesson-row ${isTest?'unit-test':''}" data-open-item="${it.id}">
-      <div class="status-icon ${ms.cls}">${icon}</div>
-      <div class="lesson-row-text">
-        <div class="lesson-row-title">${esc(it.title)}</div>
-        <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}</div>
-        ${filePills}
-      </div>
-      <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
-      ${adminBtns}
+    let state;
+    if(submitted) state = 'done';
+    else if(!reachedCurrent){ state = 'current'; reachedCurrent = true; }
+    else state = 'locked';
+    const icon = isTest ? '🏆' : state==='done' ? '✓' : state==='locked' ? '🔒' : (idx+1);
+    const star = ms.cls==='ms-mastered' ? `<span class="path-node-star">⭐</span>` : '';
+    return `<div class="path-node-wrap ${state}">
+      <div class="path-node ${state} ${isTest?'test':''}" data-open-item="${it.id}" ${state==='locked'?'':''}>${icon}${star}</div>
+      <div class="path-node-label">${esc(it.title)}</div>
     </div>`;
-  }).join('');
-  list.querySelectorAll('[data-open-item]').forEach(el=>el.addEventListener('click',()=>openTest(el.dataset.openItem)));
-  list.querySelectorAll('[data-edit-item]').forEach(el=>el.addEventListener('click',()=>openTestModal(el.dataset.editItem)));
-  list.querySelectorAll('[data-del-item]').forEach(el=>el.addEventListener('click',()=>confirmDelete('item', el.dataset.delItem)));
+  }).join('') + `</div>`;
 }
 
 /* ── New unit ── */
@@ -1169,6 +1325,8 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
   document.getElementById('tp-score').textContent = mcTotal
     ? `Score: ${mcCorrect}/${mcTotal} — ${ms.label} · short/long answers saved for self-review`
     : `Responses saved for self-review.`;
+  // XP: 5 per correct MC answer, plus a flat completion bonus.
+  await awardXp(mcCorrect*5 + 10);
 };
 
 /* ── Lesson player (interactive, Brilliant-style) ── */
@@ -1698,6 +1856,7 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   if(error){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
   studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
   fireConfetti();
+  await awardXp(20);
   document.getElementById('test-page').classList.remove('visible');
   if(currentCourseId) openCourseDetail(currentCourseId);
 };
@@ -1722,6 +1881,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   document.getElementById('educator-pass').value='';
   closeModal('educator-overlay');
   await loadResponses();
+  await loadProgress();
   updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
 };
 document.getElementById('educator-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('educator-confirm-btn').click(); });
@@ -1757,6 +1917,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     currentProfile = profile; isEducator = false;
     closeModal('student-overlay');
     await loadResponses();
+  await loadProgress();
     updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
   } catch(err){
     console.error(err);
@@ -1788,6 +1949,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   document.getElementById('student-email-input').value=''; document.getElementById('student-password-input').value='';
   closeModal('student-overlay');
   await loadResponses();
+  await loadProgress();
   updateAccountUI(); renderHome(); if(currentCourseId) openCourseDetail(currentCourseId);
 };
 
@@ -2393,6 +2555,7 @@ function waitForFirebaseUser(){
 
   await loadCatalog();
   await loadResponses();
+  await loadProgress();
   updateAccountUI();
   renderHome();
 })();
