@@ -231,6 +231,40 @@
   .fx-table input { width:64px; text-align:center; border:1.5px solid var(--rule); border-radius:8px; padding:.35rem; font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:var(--white); }
   .fx-table input.correct { border-color:var(--green); background:var(--green-bg); }
   .fx-table input.incorrect { border-color:var(--red); background:var(--red-bg); }
+
+  /* ── New interactive block types ── */
+  .nl-wrap { padding:1.5rem .5rem .5rem; }
+  .nl-track { position:relative; height:6px; background:var(--rule); border-radius:4px; margin:2.4rem .5rem 1.2rem; }
+  .nl-fill { position:absolute; top:0; bottom:0; background:var(--purple); border-radius:4px; }
+  .nl-handle { position:absolute; top:50%; width:22px; height:22px; border-radius:50%; background:var(--white); border:3px solid var(--purple);
+    transform:translate(-50%,-50%); cursor:grab; box-shadow:0 2px 6px rgba(15,48,96,.18); touch-action:none; }
+  .nl-handle:active { cursor:grabbing; }
+  .nl-handle.open { background:var(--white); }
+  .nl-handle.closed { background:var(--purple); }
+  .nl-label { position:absolute; top:-1.9rem; transform:translateX(-50%); font-family:'IBM Plex Mono',monospace; font-size:.72rem;
+    background:var(--paper-2); color:var(--ink); padding:.15rem .45rem; border-radius:6px; white-space:nowrap; }
+  .nl-ticks { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:.65rem; color:var(--ink-faint); margin:0 .5rem; }
+  .nl-interval { font-family:'IBM Plex Mono',monospace; font-size:1rem; text-align:center; color:var(--purple); font-weight:600; margin-bottom:.5rem; }
+  .nl-inf-row { display:flex; gap:1.25rem; justify-content:center; margin-top:.75rem; font-family:'Nunito',sans-serif; font-weight:600; font-size:.78rem; color:var(--ink-soft); }
+  .nl-inf-row label { display:flex; align-items:center; gap:.4rem; cursor:pointer; }
+
+  .mach-diagram { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin:.6rem 0 1.1rem; font-family:'IBM Plex Mono',monospace; font-size:.85rem; }
+  .mach-box { background:var(--white); border:1.5px solid var(--rule); border-radius:10px; padding:.5rem .8rem; }
+  .mach-arrow { color:var(--ink-faint); }
+  .mach-step-row { display:flex; align-items:center; gap:.5rem; background:var(--white); border:1.5px solid var(--rule); border-radius:10px; padding:.5rem .7rem; margin-bottom:.5rem; }
+  .mach-step-row select { font-family:'IBM Plex Mono',monospace; font-size:.82rem; border:1px solid var(--rule); border-radius:6px; padding:.3rem .4rem; }
+  .mach-step-row input[type=number] { width:70px; font-family:'IBM Plex Mono',monospace; font-size:.82rem; border:1px solid var(--rule); border-radius:6px; padding:.3rem .4rem; }
+  .mach-step-remove { margin-left:auto; background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:.9rem; }
+  .mach-step-remove:hover { color:var(--red); }
+  .mach-examples { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .mach-example { background:var(--paper-2); border-radius:10px; padding:.5rem .85rem; font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--ink-soft); }
+
+  .pw-piece-row { border:1.5px solid var(--rule); border-radius:10px; padding:.7rem .85rem; margin-bottom:.6rem; background:var(--white); }
+  .pw-piece-label { font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--purple); margin-bottom:.4rem; }
+  .pw-piece-inputs { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+  .pw-piece-inputs input[type=number] { width:72px; }
+  .pw-incl-btn { font-family:'IBM Plex Mono',monospace; font-size:.85rem; width:32px; height:32px; border-radius:8px; border:1.5px solid var(--rule); background:var(--white); cursor:pointer; }
+  .pw-incl-btn.active { border-color:var(--purple); color:var(--purple); background:var(--purple-bg); }
   .fx-select-row { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:.6rem; }
   /* ── Lesson player ── */
   .lp-progress-track { height:6px; background:var(--paper-2); border-radius:4px; overflow:hidden; margin-bottom:1.6rem; }
@@ -493,6 +527,10 @@
         <button class="btn-sm" id="lb-add-graph" style="border-color:var(--purple);color:var(--purple);">+ Function grapher</button>
         <button class="btn-sm" id="lb-add-points" style="border-color:var(--purple);color:var(--purple);">+ Point plotter</button>
         <button class="btn-sm" id="lb-add-table" style="border-color:var(--purple);color:var(--purple);">+ Table of values</button>
+        <button class="btn-sm" id="lb-add-domainrange" style="border-color:var(--green-dark);color:var(--green-dark);">+ Domain &amp; range</button>
+        <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
+        <button class="btn-sm" id="lb-add-piecewise" style="border-color:var(--green-dark);color:var(--green-dark);">+ Piecewise builder</button>
+        <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
       </div>
     </div>
     <div class="form-group">
@@ -1281,6 +1319,266 @@ function renderLpBlock(){
     return;
   }
 
+  if(block.type==='domainrange'){
+    const range = block.range || 10;
+    let st = { lo:-range/2, hi:range/2, loInf:false, hiInf:false, loIncl:true, hiIncl:true };
+    const fmt = v => Math.round(v*10)/10;
+    const intervalText = ()=>{
+      const lb = st.loInf ? '(' : (st.loIncl ? '[' : '(');
+      const loTxt = st.loInf ? '−∞' : fmt(st.lo);
+      const rb = st.hiInf ? ')' : (st.hiIncl ? ']' : ')');
+      const hiTxt = st.hiInf ? '∞' : fmt(st.hi);
+      return `${block.askFor==='domain'?'Domain: ':'Range: '}${lb}${loTxt}, ${hiTxt}${rb}`;
+    };
+    const paintTrack = ()=>{
+      const pct = v => ((v-(-range))/(2*range))*100;
+      const loPct = st.loInf ? 0 : pct(st.lo);
+      const hiPct = st.hiInf ? 100 : pct(st.hi);
+      const fill = document.getElementById('nl-fill');
+      fill.style.left = loPct+'%'; fill.style.width = Math.max(0,hiPct-loPct)+'%';
+      const loH = document.getElementById('nl-lo-handle'), hiH = document.getElementById('nl-hi-handle');
+      loH.style.display = st.loInf ? 'none':'block'; loH.style.left = loPct+'%';
+      loH.className = 'nl-handle ' + (st.loIncl?'closed':'open');
+      loH.querySelector('.nl-label').textContent = fmt(st.lo);
+      hiH.style.display = st.hiInf ? 'none':'block'; hiH.style.left = hiPct+'%';
+      hiH.className = 'nl-handle ' + (st.hiIncl?'closed':'open');
+      hiH.querySelector('.nl-label').textContent = fmt(st.hi);
+      document.getElementById('nl-interval-text').textContent = intervalText();
+    };
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="fx-wrap"><div id="fx-dr-svg-slot"></div></div>
+      <div class="nl-wrap">
+        <div class="nl-interval" id="nl-interval-text"></div>
+        <div class="nl-track" id="nl-track">
+          <div class="nl-fill" id="nl-fill"></div>
+          <div class="nl-handle" id="nl-lo-handle"><span class="nl-label"></span></div>
+          <div class="nl-handle" id="nl-hi-handle"><span class="nl-label"></span></div>
+        </div>
+        <div class="nl-ticks"><span>${-range}</span><span>0</span><span>${range}</span></div>
+        <div class="nl-inf-row">
+          <label><input type="checkbox" id="nl-lo-incl" checked> lower included</label>
+          <label><input type="checkbox" id="nl-lo-inf"> extends to −∞</label>
+          <label><input type="checkbox" id="nl-hi-incl" checked> upper included</label>
+          <label><input type="checkbox" id="nl-hi-inf"> extends to +∞</label>
+        </div>
+      </div>
+      <button class="btn-sm" id="nl-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      <div id="nl-feedback"></div>
+    </div>`;
+    const curves = [{ fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x) }];
+    document.getElementById('fx-dr-svg-slot').innerHTML = fxBuildSVG('fx-dr-svg', range, curves, []);
+    paintTrack();
+    lpSetContinueEnabled(alreadyAnswered);
+    if(alreadyAnswered){
+      document.querySelectorAll('.nl-inf-row input').forEach(i=>i.disabled=true);
+    } else {
+      const track = document.getElementById('nl-track');
+      const dragHandle = (handleEl, which)=>{
+        handleEl.addEventListener('pointerdown', e=>{
+          if(st[which+'Inf']) return;
+          e.preventDefault();
+          const move = ev=>{
+            const rect = track.getBoundingClientRect();
+            let pct = (ev.clientX - rect.left) / rect.width;
+            pct = Math.max(0, Math.min(1, pct));
+            let val = -range + pct*2*range;
+            val = Math.round(val*2)/2;
+            if(which==='lo') val = Math.min(val, st.hiInf ? range : st.hi);
+            else val = Math.max(val, st.loInf ? -range : st.lo);
+            st[which] = val;
+            paintTrack();
+          };
+          const up = ()=>{ document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); };
+          document.addEventListener('pointermove', move);
+          document.addEventListener('pointerup', up);
+        });
+      };
+      dragHandle(document.getElementById('nl-lo-handle'), 'lo');
+      dragHandle(document.getElementById('nl-hi-handle'), 'hi');
+      document.getElementById('nl-lo-incl').addEventListener('change', e=>{ st.loIncl = e.target.checked; paintTrack(); });
+      document.getElementById('nl-hi-incl').addEventListener('change', e=>{ st.hiIncl = e.target.checked; paintTrack(); });
+      document.getElementById('nl-lo-inf').addEventListener('change', e=>{ st.loInf = e.target.checked; paintTrack(); });
+      document.getElementById('nl-hi-inf').addEventListener('change', e=>{ st.hiInf = e.target.checked; paintTrack(); });
+      document.getElementById('nl-check').addEventListener('click', ()=>{
+        const tol = block.tolerance || 0.3;
+        const loOk = block.loInf ? st.loInf : (!st.loInf && Math.abs(st.lo-block.lo)<=tol && st.loIncl===block.loIncl);
+        const hiOk = block.hiInf ? st.hiInf : (!st.hiInf && Math.abs(st.hi-block.hi)<=tol && st.hiIncl===block.hiIncl);
+        const correct = loOk && hiOk;
+        const correctText = `${block.loInf?'(':(block.loIncl?'[':'(')}${block.loInf?'−∞':fmt(block.lo)}, ${block.hiInf?'∞':fmt(block.hi)}${block.hiInf?')':(block.hiIncl?']':')')}`;
+        const fb = document.getElementById('nl-feedback');
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the correct answer is ${correctText}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        document.getElementById('nl-check').style.display='none';
+        document.querySelectorAll('.nl-inf-row input').forEach(i=>i.disabled=true);
+        lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
+      });
+    }
+    return;
+  }
+
+  if(block.type==='machine'){
+    const opLabel = {add:'+', subtract:'−', multiply:'×', divide:'÷', square:'square', sqrt:'√'};
+    const applySteps = (steps, x)=>{
+      let v = x;
+      for(const s of steps){
+        if(s.op==='add') v = v + s.val;
+        else if(s.op==='subtract') v = v - s.val;
+        else if(s.op==='multiply') v = v * s.val;
+        else if(s.op==='divide') v = (!s.val) ? NaN : v / s.val;
+        else if(s.op==='square') v = v*v;
+        else if(s.op==='sqrt') v = v<0 ? NaN : Math.sqrt(v);
+      }
+      return v;
+    };
+    const exampleXs = [2,3,5];
+    let studentSteps = [];
+    const renderExamples = ()=> exampleXs.map(x=>{
+      const y = applySteps(block.steps, x);
+      return `<div class="mach-example">${x} → ${Number.isFinite(y)? (Math.round(y*100)/100) : '?'}</div>`;
+    }).join('');
+    const renderStudentSteps = ()=> studentSteps.map((s,si)=>`<div class="mach-step-row">
+      <span class="mono" style="font-size:.72rem;color:var(--ink-faint);">Step ${si+1}</span>
+      <select data-st-op="${si}">${Object.entries(opLabel).map(([k,v])=>`<option value="${k}" ${s.op===k?'selected':''}>${v}</option>`).join('')}</select>
+      ${(s.op==='square'||s.op==='sqrt') ? '' : `<input type="number" step="0.5" data-st-val="${si}" value="${s.val}">`}
+      <button type="button" class="mach-step-remove" data-st-remove="${si}">✕</button>
+    </div>`).join('');
+    const paint = ()=>{
+      document.getElementById('mach-examples-slot').innerHTML = renderExamples();
+      document.getElementById('mach-steps-slot').innerHTML = renderStudentSteps() || '<div class="empty-note" style="padding:.75rem;">No steps yet — add one below.</div>';
+      document.querySelectorAll('[data-st-op]').forEach(sel=>sel.addEventListener('change',()=>{ studentSteps[+sel.dataset.stOp].op = sel.value; paint(); }));
+      document.querySelectorAll('[data-st-val]').forEach(inp=>inp.addEventListener('input',()=>{ studentSteps[+inp.dataset.stVal].val = Number(inp.value); }));
+      document.querySelectorAll('[data-st-remove]').forEach(btn=>btn.onclick=()=>{ studentSteps.splice(+btn.dataset.stRemove,1); paint(); });
+    };
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;color:var(--ink-soft);margin-bottom:.4rem;">The machine turns each input into an output. Study the examples:</div>
+      <div class="mach-examples" id="mach-examples-slot"></div>
+      <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;color:var(--ink-soft);margin-bottom:.4rem;">Build the machine's rule:</div>
+      <div id="mach-steps-slot"></div>
+      <button class="btn-sm" type="button" id="mach-addstep" style="${alreadyAnswered?'display:none;':''}">+ Add step</button>
+      <button class="btn-sm" id="mach-check" style="margin-top:.85rem;margin-left:.5rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      <div id="mach-feedback"></div>
+    </div>`;
+    paint();
+    lpSetContinueEnabled(alreadyAnswered);
+    if(alreadyAnswered){
+      document.querySelectorAll('#mach-steps-slot select,#mach-steps-slot input,#mach-steps-slot button').forEach(el=>el.disabled=true);
+    } else {
+      document.getElementById('mach-addstep').onclick = ()=>{ studentSteps.push({op:'add', val:1}); paint(); };
+      document.getElementById('mach-check').onclick = ()=>{
+        const testXs = [1,4,7];
+        let allOk = studentSteps.length>0;
+        for(const x of testXs){
+          const target = applySteps(block.steps, x);
+          const got = applySteps(studentSteps, x);
+          if(!(Number.isFinite(target) && Number.isFinite(got) && Math.abs(target-got)<=(block.tolerance||0.01))) { allOk=false; break; }
+        }
+        const fb = document.getElementById('mach-feedback');
+        fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ Your rule matches the machine!':'✗ Not quite — test a few inputs by hand and compare to the examples above.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        if(allOk){
+          lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
+          document.getElementById('mach-addstep').style.display='none';
+          document.getElementById('mach-check').style.display='none';
+          document.querySelectorAll('#mach-steps-slot select,#mach-steps-slot input,#mach-steps-slot button').forEach(el=>el.disabled=true);
+        }
+      };
+    }
+    return;
+  }
+
+  if(block.type==='piecewise'){
+    const range = block.range || 10;
+    const curves = block.pieces.map(p=>({ fn:x=> (x>=p.from && x<=p.to) ? fxEval(p.parent, Number(p.a), Number(p.k), Number(p.d), Number(p.c), x) : null }));
+    let studentPieces = block.pieces.map(()=>({from:'', to:'', fromIncl:false, toIncl:false}));
+    const renderRows = ()=> block.pieces.map((p,pi)=>{
+      const sp = studentPieces[pi];
+      return `<div class="pw-piece-row">
+        <div class="pw-piece-label">${esc(p.label)}</div>
+        <div class="pw-piece-inputs">
+          <button type="button" class="pw-incl-btn ${sp.fromIncl?'active':''}" data-spw-toggle="${pi}:fromIncl" ${alreadyAnswered?'disabled':''}>[</button>
+          <input type="number" step="0.5" data-spw-num="${pi}:from" value="${sp.from}" ${alreadyAnswered?'disabled':''} placeholder="from">
+          <span>,</span>
+          <input type="number" step="0.5" data-spw-num="${pi}:to" value="${sp.to}" ${alreadyAnswered?'disabled':''} placeholder="to">
+          <button type="button" class="pw-incl-btn ${sp.toIncl?'active':''}" data-spw-toggle="${pi}:toIncl" ${alreadyAnswered?'disabled':''}>]</button>
+        </div>
+      </div>`;
+    }).join('');
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="fx-wrap"><div id="fx-pw-svg-slot"></div></div>
+      <div id="pw-rows-slot" style="margin-top:1rem;">${renderRows()}</div>
+      <button class="btn-sm" id="pw-check" style="margin-top:.6rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      <div id="pw-feedback"></div>
+    </div>`;
+    document.getElementById('fx-pw-svg-slot').innerHTML = fxBuildSVG('fx-pw-svg', range, curves, []);
+    const wireRows = ()=>{
+      document.querySelectorAll('[data-spw-num]').forEach(inp=>inp.addEventListener('input',()=>{
+        const [pi, field] = inp.dataset.spwNum.split(':');
+        studentPieces[+pi][field] = inp.value===''? '' : Number(inp.value);
+      }));
+      document.querySelectorAll('[data-spw-toggle]').forEach(btn=>btn.onclick=()=>{
+        const [pi, field] = btn.dataset.spwToggle.split(':');
+        studentPieces[+pi][field] = !studentPieces[+pi][field];
+        document.getElementById('pw-rows-slot').innerHTML = renderRows();
+        wireRows();
+      });
+    };
+    wireRows();
+    lpSetContinueEnabled(alreadyAnswered);
+    document.getElementById('pw-check').addEventListener('click', ()=>{
+      const tol = block.tolerance || 0.3;
+      let allOk = true;
+      studentPieces.forEach((sp,pi)=>{
+        const p = block.pieces[pi];
+        const ok = sp.from!=='' && sp.to!=='' && Math.abs(sp.from-p.from)<=tol && Math.abs(sp.to-p.to)<=tol && !!sp.fromIncl===!!p.fromIncl && !!sp.toIncl===!!p.toIncl;
+        if(!ok) allOk=false;
+      });
+      const fb = document.getElementById('pw-feedback');
+      fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ All domain restrictions correct!':'✗ One or more pieces are off — double check the endpoints and open/closed brackets.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      document.getElementById('pw-check').style.display='none';
+      document.querySelectorAll('#pw-rows-slot input, #pw-rows-slot button').forEach(el=>el.disabled=true);
+      lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
+    });
+    return;
+  }
+
+  if(block.type==='rateofchange'){
+    const range = block.range || 10;
+    const y1 = fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), Number(block.x1));
+    const y2 = fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), Number(block.x2));
+    const target = (y1!==null && y2!==null && Number(block.x2)!==Number(block.x1)) ? (y2-y1)/(Number(block.x2)-Number(block.x1)) : null;
+    const curves = [
+      { fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x) },
+      { fn:x=> (target!==null) ? y1 + target*(x-Number(block.x1)) : null, dashed:true }
+    ];
+    const pts = [];
+    if(y1!==null) pts.push({x:Number(block.x1), y:y1, target:true});
+    if(y2!==null) pts.push({x:Number(block.x2), y:y2, target:true});
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="fx-wrap"><div id="fx-roc-svg-slot"></div><div class="fx-hint">Gold dashed line = the secant line through your two points</div></div>
+      <div class="lp-slider-row" style="margin-top:1rem;align-items:center;gap:.6rem;">
+        <span class="mono" style="font-size:.85rem;">Average rate of change =</span>
+        <input type="text" inputmode="decimal" id="roc-answer" style="width:100px;text-align:center;border:1.5px solid var(--rule);border-radius:8px;padding:.4rem;font-family:'IBM Plex Mono',monospace;" ${alreadyAnswered?'disabled':''}>
+      </div>
+      <button class="btn-sm" id="roc-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      <div id="roc-feedback"></div>
+    </div>`;
+    document.getElementById('fx-roc-svg-slot').innerHTML = fxBuildSVG('fx-roc-svg', range, curves, pts);
+    lpSetContinueEnabled(alreadyAnswered);
+    document.getElementById('roc-check').addEventListener('click', ()=>{
+      const val = parseFloat(document.getElementById('roc-answer').value);
+      const tol = block.tolerance || 0.2;
+      const correct = target!==null && Number.isFinite(val) && Math.abs(val-target)<=tol;
+      const fb = document.getElementById('roc-feedback');
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the average rate of change is ${target!==null?Math.round(target*100)/100:'undefined'}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      document.getElementById('roc-answer').disabled = true;
+      document.getElementById('roc-check').style.display='none';
+      lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
+    });
+    return;
+  }
+
   // table
   const xVals = block.xValues || [];
   const tIsLegacy = !('d' in block);
@@ -1674,13 +1972,123 @@ function renderLessonBlockList(){
         <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Equation used: ${esc(fxEquationStr(b.parent,Number(b.a),Number(b.k),Number(b.d),Number(b.c)))}</div>
       </div>`;
     }
+    if(b.type==='domainrange'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Domain &amp; range picker</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt e.g. State the domain of the function" value="${esc(b.prompt)}"></div>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">Ask for</label>
+            <select data-lb-select="${bi}:askFor">
+              <option value="domain" ${b.askFor==='domain'?'selected':''}>Domain</option>
+              <option value="range" ${b.askFor==='range'?'selected':''}>Range</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Correct interval (leave lo/hi as-is when the matching ∞ box below is checked):</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;">
+          <div class="form-group"><label style="font-size:.65rem;">Lower bound</label><input type="number" step="0.5" data-lb-field="${bi}:lo" value="${b.lo}" ${b.loInf?'disabled':''}></div>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;"><input type="checkbox" data-lb-check="${bi}:loInf" ${b.loInf?'checked':''}> −∞</label>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;"><input type="checkbox" data-lb-check="${bi}:loIncl" ${b.loIncl?'checked':''}> lower is included [</label>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;">
+          <div class="form-group"><label style="font-size:.65rem;">Upper bound</label><input type="number" step="0.5" data-lb-field="${bi}:hi" value="${b.hi}" ${b.hiInf?'disabled':''}></div>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;"><input type="checkbox" data-lb-check="${bi}:hiInf" ${b.hiInf?'checked':''}> +∞</label>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;"><input type="checkbox" data-lb-check="${bi}:hiIncl" ${b.hiIncl?'checked':''}> upper is included ]</label>
+        </div>
+        <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.1" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
+    if(b.type==='machine'){
+      const opLabel = {add:'+', subtract:'−', multiply:'×', divide:'÷', square:'square', sqrt:'√'};
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Function machine</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin-bottom:.4rem;">Correct rule, applied in order (this is what the student must reverse-engineer):</div>
+        ${b.steps.map((s,si)=>`<div class="mach-step-row">
+          <span class="mono" style="font-size:.72rem;color:var(--ink-faint);">Step ${si+1}</span>
+          <select data-mach-op="${bi}:${si}">${Object.entries(opLabel).map(([k,v])=>`<option value="${k}" ${s.op===k?'selected':''}>${v}</option>`).join('')}</select>
+          ${(s.op==='square'||s.op==='sqrt') ? '' : `<input type="number" step="0.5" data-mach-val="${bi}:${si}" value="${s.val}">`}
+          <button type="button" class="mach-step-remove" data-mach-remove="${bi}:${si}">✕ remove</button>
+        </div>`).join('')}
+        <button class="btn-sm" type="button" data-mach-addstep="${bi}" style="margin:.3rem 0 .8rem;">+ Add step</button>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--purple);margin-bottom:.6rem;">Rule preview: x ${b.steps.map(s=>s.op==='square'?'→ x²':s.op==='sqrt'?'→ √x':`${opLabel[s.op]} ${s.val}`).join(' ')}</div>
+        <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.01" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
+    if(b.type==='piecewise'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Piecewise builder</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+        ${b.pieces.map((p,pi)=>`<div class="pw-piece-row">
+          <div class="pw-piece-label">Piece ${pi+1}</div>
+          <div class="form-group"><input type="text" data-pw-label="${bi}:${pi}" placeholder="Rule shown to student, e.g. y = x + 2" value="${esc(p.label)}"></div>
+          <div class="form-row">
+            <div class="form-group"><label style="font-size:.65rem;">Shape</label><select data-pw-select="${bi}:${pi}:parent">${parentOptions}</select></div>
+            <div class="form-group"><label style="font-size:.65rem;">a / k / d / c</label>
+              <div style="display:flex;gap:.4rem;">
+                <input type="number" step="0.25" style="width:56px;" data-pw-num="${bi}:${pi}:a" value="${p.a}">
+                <input type="number" step="0.25" style="width:56px;" data-pw-num="${bi}:${pi}:k" value="${p.k}">
+                <input type="number" step="0.5" style="width:56px;" data-pw-num="${bi}:${pi}:d" value="${p.d}">
+                <input type="number" step="0.5" style="width:56px;" data-pw-num="${bi}:${pi}:c" value="${p.c}">
+              </div>
+            </div>
+          </div>
+          <div class="pw-piece-inputs">
+            <span class="mono" style="font-size:.7rem;color:var(--ink-faint);">Domain</span>
+            <button type="button" class="pw-incl-btn ${p.fromIncl?'active':''}" data-pw-toggle="${bi}:${pi}:fromIncl" title="Included at start">[</button>
+            <input type="number" step="0.5" data-pw-num="${bi}:${pi}:from" value="${p.from}">
+            <span>,</span>
+            <input type="number" step="0.5" data-pw-num="${bi}:${pi}:to" value="${p.to}">
+            <button type="button" class="pw-incl-btn ${p.toIncl?'active':''}" data-pw-toggle="${bi}:${pi}:toIncl" title="Included at end">]</button>
+            <button type="button" class="btn-sm danger" data-pw-remove="${bi}:${pi}" style="margin-left:auto;">Remove piece</button>
+          </div>
+        </div>`).join('')}
+        <button class="btn-sm" type="button" data-pw-addpiece="${bi}" style="margin-bottom:.8rem;">+ Add piece</button>
+        <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.1" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
+    if(b.type==='rateofchange'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Rate of change</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-lb-field="${bi}:k" value="${b.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
+        </div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">Point A: x =</label><input type="number" step="0.5" data-lb-field="${bi}:x1" value="${b.x1}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Point B: x =</label><input type="number" step="0.5" data-lb-field="${bi}:x2" value="${b.x2}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.05" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--ink-faint);">Correct average rate of change: ${(()=>{ const y1=fxEval(b.parent,Number(b.a),Number(b.k),Number(b.d),Number(b.c),Number(b.x1)); const y2=fxEval(b.parent,Number(b.a),Number(b.k),Number(b.d),Number(b.c),Number(b.x2)); return (y1!==null&&y2!==null&&Number(b.x2)!==Number(b.x1)) ? ((y2-y1)/(Number(b.x2)-Number(b.x1))).toFixed(2) : '—'; })()}</div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
   }).join('');
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
   list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
   list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbField.split(':');
-    const numeric = ['min','max','target','tolerance','range','a','k','d','c'].includes(field);
+    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2'].includes(field);
     lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
   }));
   list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
@@ -1703,6 +2111,60 @@ function renderLessonBlockList(){
     const bi = inp.dataset.lbXvals;
     lessonBlocks[+bi].xValues = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
   }));
+  // Domain/range checkboxes (∞ toggles, inclusive toggles)
+  list.querySelectorAll('[data-lb-check]').forEach(inp=>inp.addEventListener('change',()=>{
+    const [bi, field] = inp.dataset.lbCheck.split(':');
+    lessonBlocks[+bi][field] = inp.checked;
+    renderLessonBlockList();
+  }));
+  // Function machine: step op/value/remove/add
+  list.querySelectorAll('[data-mach-op]').forEach(sel=>sel.addEventListener('change',()=>{
+    const [bi, si] = sel.dataset.machOp.split(':').map(Number);
+    lessonBlocks[bi].steps[si].op = sel.value;
+    renderLessonBlockList();
+  }));
+  list.querySelectorAll('[data-mach-val]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, si] = inp.dataset.machVal.split(':').map(Number);
+    lessonBlocks[bi].steps[si].val = Number(inp.value);
+  }));
+  list.querySelectorAll('[data-mach-remove]').forEach(btn=>btn.onclick=()=>{
+    const [bi, si] = btn.dataset.machRemove.split(':').map(Number);
+    lessonBlocks[bi].steps.splice(si,1);
+    renderLessonBlockList();
+  });
+  list.querySelectorAll('[data-mach-addstep]').forEach(btn=>btn.onclick=()=>{
+    const bi = +btn.dataset.machAddstep;
+    lessonBlocks[bi].steps.push({op:'add', val:1});
+    renderLessonBlockList();
+  });
+  // Piecewise: label/parent/numbers/inclusive-toggle/remove/add
+  list.querySelectorAll('[data-pw-label]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, pi] = inp.dataset.pwLabel.split(':').map(Number);
+    lessonBlocks[bi].pieces[pi].label = inp.value;
+  }));
+  list.querySelectorAll('[data-pw-select]').forEach(sel=>sel.addEventListener('change',()=>{
+    const [bi, pi, field] = sel.dataset.pwSelect.split(':');
+    lessonBlocks[+bi].pieces[+pi][field] = sel.value;
+  }));
+  list.querySelectorAll('[data-pw-num]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, pi, field] = inp.dataset.pwNum.split(':');
+    lessonBlocks[+bi].pieces[+pi][field] = Number(inp.value);
+  }));
+  list.querySelectorAll('[data-pw-toggle]').forEach(btn=>btn.onclick=()=>{
+    const [bi, pi, field] = btn.dataset.pwToggle.split(':');
+    lessonBlocks[+bi].pieces[+pi][field] = !lessonBlocks[+bi].pieces[+pi][field];
+    renderLessonBlockList();
+  });
+  list.querySelectorAll('[data-pw-remove]').forEach(btn=>btn.onclick=()=>{
+    const [bi, pi] = btn.dataset.pwRemove.split(':').map(Number);
+    lessonBlocks[bi].pieces.splice(pi,1);
+    renderLessonBlockList();
+  });
+  list.querySelectorAll('[data-pw-addpiece]').forEach(btn=>btn.onclick=()=>{
+    const bi = +btn.dataset.pwAddpiece;
+    lessonBlocks[bi].pieces.push({ label:'y = x', parent:'linear', a:1,k:1,d:0,c:0, from:0, to:5, fromIncl:true, toIncl:true });
+    renderLessonBlockList();
+  });
 }
 document.getElementById('lb-add-text').onclick = ()=>{ lessonBlocks.push({type:'text', text:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-image').onclick = ()=>{ lessonBlocks.push({type:'image', url:'', caption:''}); renderLessonBlockList(); };
@@ -1724,6 +2186,36 @@ document.getElementById('lb-add-table').onclick = ()=>{ lessonBlocks.push({
   prompt:'Complete the table of values.',
   parent:'linear', a:2, k:1, d:0, c:-1,
   xValues:[-2,-1,0,1,2], tolerance:0.1, explanation:''
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-domainrange').onclick = ()=>{ lessonBlocks.push({
+  type:'domainrange',
+  prompt:'State the domain of the function.',
+  askFor:'domain', parent:'sqrt', a:1, k:1, d:0, c:0, range:10,
+  lo:0, hi:10, loInf:false, hiInf:true, loIncl:true, hiIncl:false,
+  tolerance:0.3, explanation:''
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-machine').onclick = ()=>{ lessonBlocks.push({
+  type:'machine',
+  prompt:'Figure out the rule, then build it using the same operations.',
+  steps:[{op:'multiply', val:3},{op:'add', val:1}],
+  tolerance:0.01, explanation:''
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-piecewise').onclick = ()=>{ lessonBlocks.push({
+  type:'piecewise',
+  prompt:'Fill in the domain restriction for each piece of the function shown.',
+  range:10,
+  pieces:[
+    { label:'y = −x − 1', parent:'linear', a:-1, k:1, d:0, c:-1, from:-10, to:-1, fromIncl:true, toIncl:false },
+    { label:'y = x²',      parent:'quadratic', a:1, k:1, d:0, c:0, from:-1, to:2, fromIncl:true, toIncl:true },
+    { label:'y = 2',       parent:'linear', a:0, k:1, d:0, c:2, from:2, to:10, fromIncl:false, toIncl:true }
+  ],
+  tolerance:0.3, explanation:''
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-rate').onclick = ()=>{ lessonBlocks.push({
+  type:'rateofchange',
+  prompt:'Find the average rate of change between the two marked points.',
+  parent:'quadratic', a:1, k:1, d:0, c:0, range:10,
+  x1:-2, x2:2, tolerance:0.2, explanation:''
 }); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
