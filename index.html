@@ -1140,6 +1140,11 @@ function fxBuildSVG(id, range, curves, points){
   let asymptoteLines = [];
   const addVAsymptote = x => { if(!asymptoteLines.some(a=>a.type==='v' && Math.abs(a.at-x)<range*0.03)) asymptoteLines.push({type:'v', at:x}); };
   const addHAsymptote = y => { if(!asymptoteLines.some(a=>a.type==='h' && Math.abs(a.at-y)<range*0.03)) asymptoteLines.push({type:'h', at:y}); };
+  // The visible canvas maps data-y = ±range to the inner margins (pixel 24 / H-24);
+  // anything a bit past that is still inside the white card. Clamp blow-up points to
+  // just inside the true canvas edge (~1.15x) so the curve — and its arrowhead —
+  // actually reach a visible point, instead of landing off-canvas and disappearing.
+  const boundY = range * 1.1;
   (curves||[]).forEach(c=>{
     const N=240;
     // Build the curve as separate continuous segments (a new segment starts
@@ -1149,25 +1154,31 @@ function fxBuildSVG(id, range, curves, points){
     // or a vertical asymptote.
     let segments = [], cur = [];
     let curStartReason = 'edge'; // why this segment began: 'edge' (window's x-boundary), 'blowup' (unbounded y), or 'null' (real finite domain boundary)
-    let rawPrev = null;
+    let nullRunStartX = null; // tracks a run of null (undefined) samples, to detect a narrow interior gap = true asymptote
     for(let i=0;i<=N;i++){
       const x = -range + (2*range*i/N);
       const y = c.fn(x);
-      const blownUp = y!==null && Math.abs(y)>range*1.6;
-      if(blownUp && rawPrev && rawPrev.state==='valid' && x>-range+range*0.03 && x<range-range*0.03){
-        // Transitioned from a finite value to a blow-up mid-plot — a vertical asymptote,
-        // not just a domain edge (sqrt-style boundaries land as y===null, handled separately).
-        addVAsymptote(x);
+      const blownUp = y!==null && Math.abs(y)>boundY;
+      if(y===null){
+        if(nullRunStartX===null) nullRunStartX = x;
+      } else if(nullRunStartX!==null){
+        // A null run just ended. If it never touched either window edge, it's a real
+        // undefined point mid-domain (a vertical asymptote) rather than a domain
+        // boundary like sqrt's edge at x=0 — those runs always extend to the edge.
+        const runEndX = x - (2*range/N);
+        if(nullRunStartX > -range + 1e-6 && runEndX < range - 1e-6){
+          addVAsymptote((nullRunStartX + runEndX)/2);
+        }
+        nullRunStartX = null;
       }
       if(y===null || blownUp){
+        if(blownUp) cur.push({ x, y: Math.sign(y)*boundY }); // clamp to the visible edge so the segment (and its arrow) stays on-canvas
         if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason: blownUp?'blowup':'null' });
-        cur = [];
+        cur = blownUp ? [{ x, y: Math.sign(y)*boundY }] : []; // seed the next segment at the same clamped edge point for visual continuity
         curStartReason = blownUp ? 'blowup' : 'null';
-        rawPrev = { x, state: blownUp?'blowup':'null' };
         continue;
       }
       cur.push({x,y});
-      rawPrev = { x, state:'valid' };
     }
     if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason:'edge' });
     // Horizontal asymptote: if the curve is still running near an edge of the window
@@ -1194,10 +1205,9 @@ function fxBuildSVG(id, range, curves, points){
     const cls = c.dashed ? 'fx-curve-target' : 'fx-curve';
     const arrowMarker = c.dashed ? `${id}-arrow-target` : `${id}-arrow`;
     segments.forEach(({pts:seg, startReason, endReason})=>{
-      const first = seg[0], last = seg[seg.length-1];
       // Arrow any end that's genuinely unbounded — either it runs off the left/right
       // edge of the window, or it shoots off the top/bottom (still infinite, just
-      // clipped by our viewing window). Never arrow a real finite domain boundary
+      // clamped to stay on-canvas). Never arrow a real finite domain boundary
       // (e.g. sqrt's edge at x=0), which is recorded as 'null'.
       const startArrow = c.showArrows!==false && startReason!=='null';
       const endArrow = c.showArrows!==false && endReason!=='null';
@@ -1237,7 +1247,7 @@ document.addEventListener('mousemove', (e)=>{
   tooltip.style.display = 'block';
   tooltip.style.left = (e.clientX + 14) + 'px';
   tooltip.style.top = (e.clientY + 14) + 'px';
-  tooltip.textContent = `(${Math.round(c.x*10)/10}, ${Math.round(c.y*10)/10})`;
+  tooltip.textContent = `(${Math.round(c.x)}, ${Math.round(c.y)})`;
 });
 document.addEventListener('mouseleave', ()=>{
   const tooltip = document.getElementById('fx-coord-tooltip');
