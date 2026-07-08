@@ -1148,7 +1148,8 @@ function fxBuildSVG(id, range, curves, points){
     // unbounded continuation, never to a break caused by a restricted domain
     // or a vertical asymptote.
     let segments = [], cur = [];
-    let rawPrev = null; // {x, y|null|'blowup'} of the previous sample, for asymptote detection
+    let curStartReason = 'edge'; // why this segment began: 'edge' (window's x-boundary), 'blowup' (unbounded y), or 'null' (real finite domain boundary)
+    let rawPrev = null;
     for(let i=0;i<=N;i++){
       const x = -range + (2*range*i/N);
       const y = c.fn(x);
@@ -1159,19 +1160,20 @@ function fxBuildSVG(id, range, curves, points){
         addVAsymptote(x);
       }
       if(y===null || blownUp){
-        if(cur.length>1) segments.push(cur);
+        if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason: blownUp?'blowup':'null' });
         cur = [];
+        curStartReason = blownUp ? 'blowup' : 'null';
         rawPrev = { x, state: blownUp?'blowup':'null' };
         continue;
       }
       cur.push({x,y});
       rawPrev = { x, state:'valid' };
     }
-    if(cur.length>1) segments.push(cur);
+    if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason:'edge' });
     // Horizontal asymptote: if the curve is still running near an edge of the window
     // (an arrow-worthy end) and its y-value has nearly flattened out approaching that
     // edge, the flat value it's approaching is a horizontal asymptote.
-    segments.forEach(seg=>{
+    segments.forEach(({pts:seg})=>{
       if(seg.length<9) return;
       const checkFlatten = (a,b,mid)=>{
         const d1 = Math.abs(b.y-mid.y), d2 = Math.abs(mid.y-a.y);
@@ -1191,13 +1193,14 @@ function fxBuildSVG(id, range, curves, points){
     });
     const cls = c.dashed ? 'fx-curve-target' : 'fx-curve';
     const arrowMarker = c.dashed ? `${id}-arrow-target` : `${id}-arrow`;
-    segments.forEach(seg=>{
+    segments.forEach(({pts:seg, startReason, endReason})=>{
       const first = seg[0], last = seg[seg.length-1];
-      // Only arrow an end that lands right at the plotted x-range boundary —
-      // that's the signal it's a mathematical continuation, not a stopping point
-      // (e.g. sqrt's domain edge at x=0, or a break next to an asymptote).
-      const startArrow = c.showArrows!==false && first.x <= -range + 1e-6;
-      const endArrow = c.showArrows!==false && last.x >= range - 1e-6;
+      // Arrow any end that's genuinely unbounded — either it runs off the left/right
+      // edge of the window, or it shoots off the top/bottom (still infinite, just
+      // clipped by our viewing window). Never arrow a real finite domain boundary
+      // (e.g. sqrt's edge at x=0), which is recorded as 'null'.
+      const startArrow = c.showArrows!==false && startReason!=='null';
+      const endArrow = c.showArrows!==false && endReason!=='null';
       const d = seg.map((p,i)=> (i===0?'M':'L')+sx(p.x)+' '+sy(p.y)).join(' ');
       const markerAttrs = `${startArrow?`marker-start="url(#${arrowMarker})"`:''} ${endArrow?`marker-end="url(#${arrowMarker})"`:''}`;
       curvePaths += `<path class="${cls}" d="${d}" ${markerAttrs}/>`;
