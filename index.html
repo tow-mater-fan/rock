@@ -96,18 +96,47 @@
   .subject-head h2 { font-size:1.4rem; color:var(--ink); display:flex; align-items:center; gap:.6rem; }
   .subject-dot { width:12px; height:12px; border-radius:50%; display:inline-block; }
   .subject-new-course-btn { display:none; }
-  .course-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:1rem; }
-  .course-tile { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.1rem 1.2rem; cursor:pointer;
-    display:flex; align-items:center; gap:1rem; transition:box-shadow .18s, transform .18s; }
-  .course-tile:hover { box-shadow:0 8px 24px rgba(15,48,96,.1); transform:translateY(-2px); }
+  .course-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.15rem; }
+
+  /* ── course tile v2 (Brilliant-style) ── */
+  .course-tile {
+    position:relative; background:var(--white); border:1px solid var(--rule); border-radius:20px;
+    padding:0; cursor:pointer; overflow:hidden; display:flex; flex-direction:column;
+    transition:box-shadow .22s cubic-bezier(.22,1,.36,1), transform .22s cubic-bezier(.22,1,.36,1), border-color .22s;
+  }
+  .course-tile:hover { box-shadow:0 16px 36px -12px rgba(15,48,96,.22), 0 4px 10px rgba(15,48,96,.08); transform:translateY(-4px); border-color:transparent; }
+  .course-tile-top {
+    height:84px; position:relative; overflow:hidden; display:flex; align-items:flex-start; justify-content:space-between;
+    padding:.9rem 1rem; background:linear-gradient(135deg, var(--tile-c1,#1865f2), var(--tile-c2,#0f4fc2));
+  }
+  .course-tile-top::after {
+    content:''; position:absolute; right:-30px; bottom:-40px; width:130px; height:130px; border-radius:50%;
+    background:rgba(255,255,255,.14); transition:transform .35s ease;
+  }
+  .course-tile-top::before {
+    content:''; position:absolute; right:20px; top:-30px; width:70px; height:70px; border-radius:50%;
+    background:rgba(255,255,255,.09);
+  }
+  .course-tile:hover .course-tile-top::after { transform:scale(1.15) translate(-6px,-6px); }
+  .course-tile-stream { position:relative; z-index:1; font-family:'Nunito',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.05em; text-transform:uppercase;
+    padding:.22rem .6rem; border-radius:100px; display:inline-block; background:rgba(255,255,255,.22); color:#fff; backdrop-filter:blur(2px); }
+  .course-tile-glyph { position:relative; z-index:1; font-size:1.6rem; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
+  .course-tile-body { padding:1.1rem 1.15rem 1.2rem; display:flex; flex-direction:column; gap:.7rem; flex:1; }
+  .course-tile-code { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); letter-spacing:.02em; }
+  .course-tile-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:1.02rem; color:var(--ink); line-height:1.28; }
+  .course-tile-progress-row { display:flex; align-items:center; gap:.65rem; margin-top:auto; }
+  .course-tile-bar-track { flex:1; height:7px; border-radius:100px; background:var(--paper-2); overflow:hidden; }
+  .course-tile-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg, var(--tile-c1,#1865f2), var(--tile-c2,#0f4fc2)); width:0%; transition:width 1s cubic-bezier(.22,1,.36,1); }
+  .course-tile-pct { font-family:'Nunito',sans-serif; font-weight:800; font-size:.74rem; color:var(--ink-soft); flex-shrink:0; min-width:2.4em; text-align:right; }
+  .course-tile-cta { font-family:'Nunito',sans-serif; font-weight:700; font-size:.72rem; color:var(--tile-c1,#1865f2); display:flex; align-items:center; gap:.3rem; opacity:.85; }
+  .course-tile:hover .course-tile-cta { opacity:1; gap:.45rem; }
+  .course-tile-cta svg { width:12px; height:12px; transition:transform .2s; }
+  .course-tile:hover .course-tile-cta svg { transform:translateX(2px); }
+
   .ring-wrap { position:relative; width:52px; height:52px; flex-shrink:0; }
   .ring-wrap svg { transform:rotate(-90deg); }
   .ring-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:.68rem; color:var(--ink); }
   .course-tile-text { min-width:0; }
-  .course-tile-code { font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--ink-faint); }
-  .course-tile-name { font-family:'Nunito',sans-serif; font-weight:700; font-size:.95rem; color:var(--ink); line-height:1.25; margin-top:.15rem; }
-  .course-tile-stream { font-family:'Nunito',sans-serif; font-weight:700; font-size:.62rem; letter-spacing:.04em; text-transform:uppercase;
-    padding:.12rem .5rem; border-radius:100px; display:inline-block; margin-top:.35rem; }
   .stream-U { background:var(--green-bg); color:var(--green-dark); }
   .stream-C { background:var(--gold-bg); color:#a5710a; }
   .stream-M { background:var(--blue-bg); color:var(--blue); }
@@ -939,8 +968,10 @@ function ringSVG(pct, size, stroke, color, bg){
 function animateRingsIn(container){
   if(!container) return;
   const circles = container.querySelectorAll('.ring-progress');
+  const bars = container.querySelectorAll('.course-tile-bar-fill[data-pct]');
   requestAnimationFrame(()=>{
     circles.forEach(c=>{ c.style.strokeDashoffset = c.dataset.finalOffset; });
+    bars.forEach(b=>{ b.style.width = b.dataset.pct + '%'; });
   });
 }
 function ringColorFor(pct){
@@ -1198,6 +1229,11 @@ function updateAccountUI(){
 
 const SUBJECT_LABELS = { science:'Science', math:'Mathematics', social:'Social Science / History', english:'English', business:'Business', other:'Other' };
 const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var(--purple)', english:'var(--gold)', business:'#e5484d', other:'var(--ink-faint)' };
+const SUBJECT_GLYPHS = { science:'🧪', math:'∑', social:'🌍', english:'📖', business:'📊', other:'✦' };
+const SUBJECT_GRADIENTS = {
+  science: ['#14b06e','#0e8a56'], math: ['#1865f2','#0f4fc2'], social: ['#8c4fe0','#6a2fc0'],
+  english: ['#ffb100','#d98f00'], business: ['#e5484d','#c72e33'], other: ['#4b5566','#2e3644']
+};
 const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test', lesson:'Lesson' };
 
 function itemMastery(response){
@@ -1306,12 +1342,26 @@ function renderCourses(){
     const subjCourses = courses.filter(c=>c.subject===subj);
     const tiles = subjCourses.map((c,ci)=>{
       const pct = courseMasteryPct(c.id);
-      return `<div class="course-tile stagger-in" style="animation-delay:${ci*0.05}s" data-course="${c.id}">
-        <div class="ring-wrap">${ringSVG(pct,52,5,ringColorFor(pct),'#e4e9f4')}<span class="ring-pct">${pct}%</span></div>
-        <div class="course-tile-text">
-          <div class="course-tile-code mono">${esc(c.code)}</div>
-          <div class="course-tile-name">${esc(c.name)}</div>
-          <span class="course-tile-stream stream-${c.stream}">Gr. ${c.grade} · ${c.stream}</span>
+      const [c1,c2] = SUBJECT_GRADIENTS[c.subject] || SUBJECT_GRADIENTS.other;
+      const glyph = SUBJECT_GLYPHS[c.subject] || '✦';
+      const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
+      return `<div class="course-tile stagger-in" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
+        <div class="course-tile-top">
+          <span class="course-tile-stream">Gr. ${c.grade} · ${c.stream}</span>
+          <span class="course-tile-glyph">${glyph}</span>
+        </div>
+        <div class="course-tile-body">
+          <div>
+            <div class="course-tile-code mono">${esc(c.code)}</div>
+            <div class="course-tile-name">${esc(c.name)}</div>
+          </div>
+          <div class="course-tile-progress-row">
+            <div class="course-tile-bar-track"><div class="course-tile-bar-fill" data-pct="${pct}"></div></div>
+            <span class="course-tile-pct">${pct}%</span>
+          </div>
+          <div class="course-tile-cta">${ctaLabel}
+            <svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
         </div>
       </div>`;
     }).join('');
