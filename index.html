@@ -80,6 +80,23 @@
   /* ── HERO ── */
   .hero { background:var(--board); padding:8.5rem 2.5rem 3.5rem; }
   .hero-inner { max-width:820px; }
+  .hero-flex { display:flex; gap:3rem; align-items:center; max-width:1200px; margin:0 auto; }
+  .hero-flex .hero-inner { flex:1; max-width:520px; }
+  .hero-demo { flex:1; max-width:460px; }
+  .hero-demo-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:20px;
+    padding:1.35rem 1.5rem 1.5rem; backdrop-filter:blur(6px); box-shadow:0 20px 50px -12px rgba(0,0,0,.35); }
+  .hero-demo-label { font-family:'Nunito',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+  .hero-demo-eq { font-family:'IBM Plex Mono',monospace; font-size:.92rem; color:#fff; background:rgba(24,101,242,.22); border:1px solid rgba(24,101,242,.4);
+    border-radius:10px; padding:.5rem .75rem; margin-bottom:.85rem; min-height:1.4em; }
+  .hero-demo-svg-wrap { background:rgba(255,255,255,.04); border-radius:14px; padding:.5rem; margin-bottom:1rem; }
+  .hero-demo-svg-wrap svg { width:100%; height:auto; display:block; }
+  .hero-demo-sliders { display:flex; flex-direction:column; gap:.55rem; }
+  .hero-demo-slider-row { display:flex; align-items:center; gap:.65rem; }
+  .hero-demo-slider-row label { font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:rgba(246,244,239,.7); width:14px; flex-shrink:0; }
+  .hero-demo-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
+  .hero-demo-slider-row span { font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:rgba(246,244,239,.55); width:2.4em; text-align:right; flex-shrink:0; }
+  .hero-demo-hint { font-family:'Nunito',sans-serif; font-weight:600; font-size:.72rem; color:rgba(246,244,239,.45); margin-top:.85rem; text-align:center; }
+  @media (max-width:900px){ .hero-flex { flex-direction:column; } .hero-demo { max-width:100%; width:100%; } .hero-flex .hero-inner { max-width:100%; } }
   .eyebrow { font-family:'Nunito',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
   .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--paper); line-height:1.15; margin-bottom:1rem; }
   .hero h1 em { color:var(--blue); font-style:normal; }
@@ -585,16 +602,31 @@
 <!-- ═══════ COURSES ═══════ -->
 <div id="courses-page">
   <section class="hero">
-    <div class="hero-inner">
-      <div class="eyebrow">Ontario Secondary Curriculum</div>
-      <h1>Practice built for your <em>real</em> courses</h1>
-      <p>Original unit tests, worksheets, and quizzes for grade 11 and 12 Ontario high school courses — organized the way you'd expect a course to be organized: by unit, with a test at the end of each one.</p>
-      <div class="hero-cta-row">
-        <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
-        <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
-        <div class="educator-badge" id="account-badge">
-          <span id="account-badge-text"></span>
-          <button id="account-signout-btn">Sign out</button>
+    <div class="hero-flex">
+      <div class="hero-inner">
+        <div class="eyebrow">Ontario Secondary Curriculum</div>
+        <h1>Practice built for your <em>real</em> courses</h1>
+        <p>Original unit tests, worksheets, and quizzes for grade 11 and 12 Ontario high school courses — organized the way you'd expect a course to be organized: by unit, with a test at the end of each one.</p>
+        <div class="hero-cta-row">
+          <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
+          <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
+          <div class="educator-badge" id="account-badge">
+            <span id="account-badge-text"></span>
+            <button id="account-signout-btn">Sign out</button>
+          </div>
+        </div>
+      </div>
+      <div class="hero-demo">
+        <div class="hero-demo-card">
+          <div class="hero-demo-label">Try it — drag the sliders</div>
+          <div class="hero-demo-eq" id="hero-demo-eq">y = x²</div>
+          <div class="hero-demo-svg-wrap" id="hero-demo-svg-wrap"></div>
+          <div class="hero-demo-sliders">
+            <div class="hero-demo-slider-row"><label>a</label><input type="range" id="hero-demo-a" min="-3" max="3" step="0.5" value="1"><span id="hero-demo-a-val">1</span></div>
+            <div class="hero-demo-slider-row"><label>d</label><input type="range" id="hero-demo-d" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-d-val">0</span></div>
+            <div class="hero-demo-slider-row"><label>c</label><input type="range" id="hero-demo-c" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-c-val">0</span></div>
+          </div>
+          <div class="hero-demo-hint">This is what every lesson feels like.</div>
         </div>
       </div>
     </div>
@@ -1016,12 +1048,33 @@ function fxEquationStr(parentKey, a, k, d, c){
     const dPart = `x ${d>0?'−':'+'} ${Math.abs(d)}`;
     argStr = k===1 ? dPart : (k===-1 ? `−(${dPart})` : `${k}(${dPart})`);
   }
-  const inner = base.replace('x', argStr);
+  // Wrap the argument in parentheses whenever it's more than a bare 'x' — otherwise an
+  // exponent/denominator in `base` (e.g. x², 1/x) would visually attach to only part of it.
+  const wrappedArg = argStr === 'x' ? 'x' : `(${argStr})`;
+  const inner = base.replace('x', wrappedArg);
   const aPart = a===1 ? '' : (a===-1 ? '−' : `${a}·`);
   const cPart = c===0 ? '' : ` ${c>0?'+':'−'} ${Math.abs(c)}`;
   return `y = ${aPart}${inner}${cPart}`;
 }
-// Mapping-rule form the unit plan also tests directly: (x,y) → (x/k + d, a·y + c)
+// ── Landing hero interactive demo (uses the same FX engine as lessons) ──
+function initHeroDemo(){
+  const svgWrap = document.getElementById('hero-demo-svg-wrap');
+  if(!svgWrap) return;
+  const range = 6;
+  const sliders = { a: document.getElementById('hero-demo-a'), d: document.getElementById('hero-demo-d'), c: document.getElementById('hero-demo-c') };
+  const vals = { a: document.getElementById('hero-demo-a-val'), d: document.getElementById('hero-demo-d-val'), c: document.getElementById('hero-demo-c-val') };
+  const eqEl = document.getElementById('hero-demo-eq');
+  function redraw(){
+    const a = Number(sliders.a.value), d = Number(sliders.d.value), c = Number(sliders.c.value);
+    vals.a.textContent = a; vals.d.textContent = d; vals.c.textContent = c;
+    eqEl.textContent = fxEquationStr('quadratic', a, 1, d, c);
+    svgWrap.innerHTML = fxBuildSVG('hero-demo-svg', range, [{ fn:x=>fxEval('quadratic', a, 1, d, c, x) }], []);
+  }
+  Object.values(sliders).forEach(s=> s.addEventListener('input', redraw));
+  redraw();
+}
+document.addEventListener('DOMContentLoaded', initHeroDemo);
+if(document.readyState !== 'loading') initHeroDemo();
 function fxMappingRuleStr(k, d, a, c){
   const xPart = (k===1) ? 'x' : `x/${k}`;
   const xFull = d===0 ? xPart : `${xPart} ${d>0?'+':'−'} ${Math.abs(d)}`;
