@@ -1124,24 +1124,57 @@ function fxBuildSVG(id, range, curves, points){
   }
   const axes = `<line class="fx-axis" x1="24" y1="${sy(0)}" x2="${W-24}" y2="${sy(0)}"/>
     <line class="fx-axis" x1="${sx(0)}" y1="24" x2="${sx(0)}" y2="${H-24}"/>`;
+  // Two arrowhead markers (solid-curve color, dashed/target-curve color) reused by
+  // any curve segment whose end actually reaches the edge of the plotted window
+  // unbroken by a domain restriction or asymptote — i.e. it keeps going forever.
+  const defs = `<defs>
+    <marker id="${id}-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="var(--blue)"/>
+    </marker>
+    <marker id="${id}-arrow-target" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="var(--gold)"/>
+    </marker>
+  </defs>`;
   let curvePaths = '';
   (curves||[]).forEach(c=>{
-    const N=240; let d=''; let drawing=false;
+    const N=240;
+    // Build the curve as separate continuous segments (a new segment starts
+    // whenever the domain is undefined or the curve shoots off-window) so an
+    // arrowhead can be attached only to a segment end that is a genuine
+    // unbounded continuation, never to a break caused by a restricted domain
+    // or a vertical asymptote.
+    let segments = [], cur = [];
     for(let i=0;i<=N;i++){
       const x = -range + (2*range*i/N);
       const y = c.fn(x);
-      if(y===null || Math.abs(y)>range*1.6){ drawing=false; continue; }
-      const px=sx(x), py=sy(y);
-      d += (drawing?' L':'M')+px+' '+py; drawing=true;
+      if(y===null || Math.abs(y)>range*1.6){
+        if(cur.length>1) segments.push(cur);
+        cur = [];
+        continue;
+      }
+      cur.push({x,y});
     }
-    curvePaths += `<path class="${c.dashed?'fx-curve-target':'fx-curve'}" d="${d}"/>`;
+    if(cur.length>1) segments.push(cur);
+    const cls = c.dashed ? 'fx-curve-target' : 'fx-curve';
+    const arrowMarker = c.dashed ? `${id}-arrow-target` : `${id}-arrow`;
+    segments.forEach(seg=>{
+      const first = seg[0], last = seg[seg.length-1];
+      // Only arrow an end that lands right at the plotted x-range boundary —
+      // that's the signal it's a mathematical continuation, not a stopping point
+      // (e.g. sqrt's domain edge at x=0, or a break next to an asymptote).
+      const startArrow = c.showArrows!==false && first.x <= -range + 1e-6;
+      const endArrow = c.showArrows!==false && last.x >= range - 1e-6;
+      const d = seg.map((p,i)=> (i===0?'M':'L')+sx(p.x)+' '+sy(p.y)).join(' ');
+      const markerAttrs = `${startArrow?`marker-start="url(#${arrowMarker})"`:''} ${endArrow?`marker-end="url(#${arrowMarker})"`:''}`;
+      curvePaths += `<path class="${cls}" d="${d}" ${markerAttrs}/>`;
+    });
   });
   let pointEls = '';
   (points||[]).forEach(p=>{
     if(p.target){ pointEls += `<circle class="fx-point-target" cx="${sx(p.x)}" cy="${sy(p.y)}" r="9"/>`; }
     else { pointEls += `<circle class="fx-point" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
   });
-  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${grid}${axes}${curvePaths}${pointEls}</svg>`;
+  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${curvePaths}${pointEls}</svg>`;
 }
 // Convert a click/tap on the plot SVG into graph coordinates.
 function fxClientToCoord(svgEl, clientX, clientY, range){
