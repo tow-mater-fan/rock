@@ -4,16 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Modilix — Ontario High School Course Hub</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='40' y2='40'%3E%3Cstop offset='0' stop-color='%23ff7a54'/%3E%3Cstop offset='1' stop-color='%23e2431f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='40' height='40' rx='12' fill='url(%23g)'/%3E%3Cpath d='M9 26 Q20 9 31 26' stroke='%23fff' stroke-width='3.4' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='31' cy='26' r='3.1' fill='%23fff'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #f7f9fc; --paper-2: #eef2f8; --rule: #dce3ee;
-    --ink: #21242c; --ink-soft: #4b5566; --ink-faint: #8a93a6;
-    --board: #0f3060;
-    --blue: #1865f2; --blue-dark: #0f4fc2; --blue-bg: #e8f0fe;
-    --gold: #ffb100; --gold-bg: #fff3d9;
-    --green: #14b06e; --green-bg: #e1f7ed; --green-dark: #0e8a56;
-    --purple: #8c4fe0; --purple-bg: #f1e8fc;
+    --paper: #faf8f4; --paper-2: #f1ece2; --rule: #e2dbcd;
+    --ink: #1c1f2b; --ink-soft: #4b4f5c; --ink-faint: #8b8fa3;
+    --board: #12172a;
+    --blue: #ff5a36; --blue-dark: #e2431f; --blue-bg: #ffe6de;
+    --gold: #f5a623; --gold-bg: #fff3d9;
+    --green: #159a63; --green-bg: #e3f7ee; --green-dark: #0f7d50;
+    --purple: #7c5cff; --purple-bg: #efeaff;
+    --teal: #0ea5a0; --teal-bg: #e2f6f5;
     --red: #e5484d; --red-bg: #fdecec;
     --white: #ffffff;
   }
@@ -56,8 +58,8 @@
   nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
     display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:60px;
     border-bottom:1px solid rgba(255,255,255,.08); }
-  .nav-logo { font-family:'Nunito',sans-serif; font-weight:800; font-size:1.25rem; color:var(--paper); cursor:pointer; display:flex; align-items:center; gap:.4rem; }
-  .nav-logo .mark { color:var(--blue); }
+  .nav-logo { font-family:'Nunito',sans-serif; font-weight:800; font-size:1.25rem; color:var(--paper); cursor:pointer; display:flex; align-items:center; gap:.55rem; }
+  .brand-mark { width:30px; height:30px; flex-shrink:0; display:block; }
   .nav-links { display:flex; gap:1.75rem; list-style:none; align-items:center; }
   .nav-links a { font-family:'Nunito',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.75); text-decoration:none; cursor:pointer; transition:color .2s; }
   .nav-links a:hover, .nav-links a.active { color:var(--white); }
@@ -124,7 +126,7 @@
   .course-tile:hover { box-shadow:0 16px 36px -12px rgba(15,48,96,.22), 0 4px 10px rgba(15,48,96,.08); transform:translateY(-4px); border-color:transparent; }
   .course-tile-top {
     height:84px; position:relative; overflow:hidden; display:flex; align-items:flex-start; justify-content:space-between;
-    padding:.9rem 1rem; background:linear-gradient(135deg, var(--tile-c1,#1865f2), var(--tile-c2,#0f4fc2));
+    padding:.9rem 1rem; background:linear-gradient(135deg, var(--tile-c1,#ff7a54), var(--tile-c2,#e2431f));
   }
   .course-tile-top::after {
     content:''; position:absolute; right:-30px; bottom:-40px; width:130px; height:130px; border-radius:50%;
@@ -143,9 +145,9 @@
   .course-tile-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:1.02rem; color:var(--ink); line-height:1.28; }
   .course-tile-progress-row { display:flex; align-items:center; gap:.65rem; margin-top:auto; }
   .course-tile-bar-track { flex:1; height:7px; border-radius:100px; background:var(--paper-2); overflow:hidden; }
-  .course-tile-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg, var(--tile-c1,#1865f2), var(--tile-c2,#0f4fc2)); width:0%; transition:width 1s cubic-bezier(.22,1,.36,1); }
+  .course-tile-bar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg, var(--tile-c1,#ff7a54), var(--tile-c2,#e2431f)); width:0%; transition:width 1s cubic-bezier(.22,1,.36,1); }
   .course-tile-pct { font-family:'Nunito',sans-serif; font-weight:800; font-size:.74rem; color:var(--ink-soft); flex-shrink:0; min-width:2.4em; text-align:right; }
-  .course-tile-cta { font-family:'Nunito',sans-serif; font-weight:700; font-size:.72rem; color:var(--tile-c1,#1865f2); display:flex; align-items:center; gap:.3rem; opacity:.85; }
+  .course-tile-cta { font-family:'Nunito',sans-serif; font-weight:700; font-size:.72rem; color:var(--tile-c1,#ff7a54); display:flex; align-items:center; gap:.3rem; opacity:.85; }
   .course-tile:hover .course-tile-cta { opacity:1; gap:.45rem; }
   .course-tile-cta svg { width:12px; height:12px; transition:transform .2s; }
   .course-tile:hover .course-tile-cta svg { transform:translateX(2px); }
@@ -545,7 +547,17 @@
 <body>
 
 <nav>
-  <div class="nav-logo" onclick="showPage('home')">Modilix<span class="mark">.</span></div>
+  <div class="nav-logo" onclick="showPage('home')">
+    <svg class="brand-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40">
+        <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
+      </linearGradient></defs>
+      <rect width="40" height="40" rx="12" fill="url(#brandGrad)"/>
+      <path d="M9 26 Q20 9 31 26" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+      <circle cx="31" cy="26" r="3.1" fill="#fff"/>
+    </svg>
+    Modilix
+  </div>
   <div class="nav-progress" id="nav-progress" style="display:none;">
     <span class="nav-streak" id="nav-streak-chip" title="Daily streak">🔥 <span id="nav-streak-count">0</span></span>
     <span class="nav-xp" id="nav-xp-chip" title="Total XP">⚡ <span id="nav-xp-count">0</span> XP</span>
@@ -1281,11 +1293,11 @@ function updateAccountUI(){
 }
 
 const SUBJECT_LABELS = { science:'Science', math:'Mathematics', social:'Social Science / History', english:'English', business:'Business', other:'Other' };
-const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var(--purple)', english:'var(--gold)', business:'#e5484d', other:'var(--ink-faint)' };
+const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var(--purple)', english:'var(--gold)', business:'var(--teal)', other:'var(--ink-faint)' };
 const SUBJECT_GLYPHS = { science:'🧪', math:'∑', social:'🌍', english:'📖', business:'📊', other:'✦' };
 const SUBJECT_GRADIENTS = {
-  science: ['#14b06e','#0e8a56'], math: ['#1865f2','#0f4fc2'], social: ['#8c4fe0','#6a2fc0'],
-  english: ['#ffb100','#d98f00'], business: ['#e5484d','#c72e33'], other: ['#4b5566','#2e3644']
+  science: ['#22b573','#0f7d50'], math: ['#ff7a54','#e2431f'], social: ['#9575ff','#6a45e0'],
+  english: ['#f5a623','#d98816'], business: ['#14b8b2','#0b8078'], other: ['#5b6272','#3a3f4c']
 };
 const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test', lesson:'Lesson' };
 
@@ -2562,7 +2574,7 @@ function renderLpBlockInner(){
 document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
 // Small celebratory confetti burst — used when a student finishes a lesson.
 function fireConfetti(){
-  const colors = ['#ffb100','#1865f2','#14b06e','#8c4fe0','#e5484d'];
+  const colors = ['#f5a623','#ff5a36','#159a63','#7c5cff','#0ea5a0'];
   for(let i=0;i<28;i++){
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
