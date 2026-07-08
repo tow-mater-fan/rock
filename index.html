@@ -843,6 +843,7 @@
         <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
         <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:#946200;">+ Spot the error</button>
         <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
+        <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
       </div>
     </div>
     <div class="form-group">
@@ -2082,6 +2083,59 @@ function renderLpBlockInner(){
     return;
   }
 
+  if(block.type==='sequence'){
+    const isArith = block.kind !== 'geometric';
+    const a1 = block.a1, r = block.r; // common difference (arithmetic) or common ratio (geometric)
+    const nTerms = 8;
+    const termAt = n => isArith ? a1 + (n-1)*r : a1 * Math.pow(r, n-1);
+    const revealed = Math.min(block.revealed || 5, nTerms);
+    const terms = Array.from({length:nTerms}, (_,i)=>termAt(i+1));
+    const askN = block.askN || (revealed+2);
+    let answered = alreadyAnswered;
+    const renderSeq = ()=>{
+      const rows = terms.map((t,i)=>{
+        const n = i+1;
+        const hidden = n > revealed && !(answered && n===askN);
+        const isAsk = n===askN;
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;min-width:44px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--ink-faint);">n=${n}</div>
+          <div class="mono" style="background:${isAsk?'var(--teal-bg)':'var(--paper-2)'};border:1.5px solid ${isAsk?'var(--teal)':'var(--rule)'};border-radius:8px;padding:.5rem .3rem;min-width:44px;text-align:center;font-weight:600;">${hidden ? '?' : (Math.round(t*100)/100)}</div>
+        </div>`;
+      }).join('<div style="align-self:center;color:var(--ink-faint);">→</div>');
+      document.getElementById('fx-seq-row').innerHTML = rows;
+    };
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || `This is ${isArith?'an arithmetic':'a geometric'} sequence. Find the value of term n = ${askN}.`)}</div>
+      <div class="fx-wrap">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink-soft);margin-bottom:.6rem;">${isArith ? `tₙ = a₁ + (n − 1)d &nbsp;·&nbsp; a₁ = ${a1}, d = ${r}` : `tₙ = a₁ · r⁽ⁿ⁻¹⁾ &nbsp;·&nbsp; a₁ = ${a1}, r = ${r}`}</div>
+        <div id="fx-seq-row" style="display:flex;gap:.4rem;overflow-x:auto;padding:.4rem 0 .8rem;"></div>
+      </div>
+      <div class="lp-slider-row" style="max-width:260px;">
+        <input type="number" id="fx-seq-answer" placeholder="t${askN} = ?" ${answered?'disabled':''} style="flex:1;padding:.5rem .7rem;border:1.5px solid var(--rule);border-radius:8px;font-family:'IBM Plex Mono',monospace;">
+      </div>
+      <button class="btn-sm" id="fx-seq-check" style="margin-top:.7rem;${answered?'display:none;':''}">Check</button>
+      <div id="fx-seq-feedback"></div>
+    </div>`;
+    renderSeq();
+    lpSetContinueEnabled(answered);
+    const chk = document.getElementById('fx-seq-check');
+    if(chk) chk.addEventListener('click', ()=>{
+      const val = Number(document.getElementById('fx-seq-answer').value);
+      const target = termAt(askN);
+      const correct = Math.abs(val - target) < 0.01;
+      const fb = document.getElementById('fx-seq-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — t${askN} = ${Math.round(target*100)/100}.`}${block.explanation?' '+esc(block.explanation):''}</div>`;
+      answered = true;
+      document.getElementById('fx-seq-answer').disabled = true;
+      chk.style.display = 'none';
+      renderSeq();
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+    });
+    return;
+  }
+
   if(block.type==='graph'){
     const range = block.range || 10;
     // Support both the new {a,k,d,c} shape and legacy saved blocks that still use {a,h,k}.
@@ -3055,6 +3109,28 @@ function renderLessonBlockList(){
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
       </div>`;
     }
+    if(b.type==='sequence'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Sequence explorer</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Kind</label>
+            <select data-lb-select="${bi}:kind">
+              <option value="arithmetic" ${b.kind!=='geometric'?'selected':''}>Arithmetic (common difference d)</option>
+              <option value="geometric" ${b.kind==='geometric'?'selected':''}>Geometric (common ratio r)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">First term a₁</label><input type="number" step="0.5" data-lb-field="${bi}:a1" value="${b.a1}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">${b.kind==='geometric'?'Common ratio r':'Common difference d'}</label><input type="number" step="0.5" data-lb-field="${bi}:r" value="${b.r}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Terms revealed</label><input type="number" min="2" max="7" data-lb-field="${bi}:revealed" value="${b.revealed}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Ask for term n=</label><input type="number" min="1" max="8" data-lb-field="${bi}:askN" value="${b.askN}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Students see the first N terms, then type the value of a later term. Covers the Discrete Functions strand (MCR3U): recognizing and extending arithmetic/geometric patterns.</div>
+      </div>`;
+    }
     const parentOptions = Object.entries(FX_PARENTS).map(([k,v])=>`<option value="${k}" ${b.parent===k?'selected':''}>${esc(v.label)}</option>`).join('');
     if(b.type==='graph'){
       return `<div class="qb-item" data-bi="${bi}">
@@ -3551,6 +3627,10 @@ document.getElementById('lb-add-describe').onclick = ()=>{ lessonBlocks.push({
   parent:'sqrt', range:10, startA:1, startK:1, startD:0, startC:0,
   target:{ a:-1, k:1, d:3, c:2 }, tolerance:0.25,
   explanation:'', hints:['A negative a flips the graph over the x-axis.','d shifts left/right — remember (x − d), so +3 means the graph moves right.']
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-sequence').onclick = ()=>{ lessonBlocks.push({
+  type:'sequence', kind:'arithmetic',
+  prompt:'', a1:3, r:4, revealed:5, askN:7, explanation:''
 }); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
