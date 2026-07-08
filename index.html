@@ -357,6 +357,18 @@
   .vlt-btn:disabled { opacity:.5; cursor:default; }
   .vlt-progress { font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--ink-faint); }
 
+  /* ── Spot the error ── */
+  .se-eq-row { display:flex; align-items:center; justify-content:center; gap:.3rem; flex-wrap:wrap; margin:.9rem 0 1.1rem; }
+  .se-eq-part { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; padding:.3rem .15rem; border-radius:6px; }
+  .se-eq-part.param { cursor:pointer; padding:.3rem .5rem; border:2px solid transparent; transition:all .15s; }
+  .se-eq-part.param:hover { border-color:var(--blue); background:var(--blue-bg); }
+  .se-eq-part.param.picked { border-color:var(--red); background:var(--red-bg); color:var(--red); }
+  .se-eq-part.param.correct-reveal { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
+  .se-hint-label { font-family:'Nunito',sans-serif; font-weight:600; font-size:.78rem; color:var(--ink-faint); text-align:center; margin-top:-.4rem; margin-bottom:.6rem; }
+
+  /* ── Build from description ── */
+  .bd-desc-card { background:var(--blue-bg); border-radius:14px; padding:1.1rem 1.3rem; margin-bottom:1.1rem; font-family:'Nunito',sans-serif; font-weight:700; font-size:.95rem; color:var(--blue-dark); line-height:1.55; }
+
   .file-version-list { display:flex; flex-direction:column; gap:.55rem; margin-bottom:.65rem; }
   .file-version-row { display:flex; align-items:center; gap:.6rem; border:1px solid var(--rule); border-radius:10px; padding:.6rem .75rem; background:var(--paper); flex-wrap:wrap; }
   .file-version-row input[type=text] { width:110px; flex-shrink:0; }
@@ -745,6 +757,8 @@
         <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
         <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:#946200;">+ Function factory</button>
         <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
+        <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:#946200;">+ Spot the error</button>
+        <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
       </div>
     </div>
     <div class="form-group">
@@ -2306,6 +2320,104 @@ function renderLpBlockInner(){
     return;
   }
 
+  if(block.type==='spoterror'){
+    const range = block.range || 10;
+    // block.shown = the (wrong) equation displayed to the student.
+    // block.correct = the true parameters that actually match the drawn graph.
+    // block.wrongParam = which of a/k/d/c is wrong in `shown` ('a'|'k'|'d'|'c').
+    const shown = block.shown, correct = block.correct;
+    let picked = null;
+    const curves = [{ fn:x=>fxEval(block.parent, Number(correct.a), Number(correct.k), Number(correct.d), Number(correct.c), x) }];
+
+    const eqPartsHTML = (revealAnswer)=>{
+      const parts = ['a','k','d','c'];
+      return parts.map(p=>{
+        const isWrong = p===block.wrongParam;
+        const cls = ['se-eq-part','param', picked===p?'picked':'', (revealAnswer && isWrong)?'correct-reveal':''].filter(Boolean).join(' ');
+        const label = { a:`a = ${shown.a}`, k:`k = ${shown.k}`, d:`d = ${shown.d}`, c:`c = ${shown.c}` }[p];
+        return `<span class="${cls}" data-se-param="${p}">${revealAnswer && isWrong ? `${p} should be ${correct[p]}` : label}</span>`;
+      }).join('');
+    };
+
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="fx-wrap">
+        <div id="se-svg-slot"></div>
+        <div class="se-hint-label">The equation below claims to match this graph — but one parameter is wrong. Tap it.</div>
+        <div class="se-eq-row" id="se-eq-row">${eqPartsHTML(alreadyAnswered)}</div>
+      </div>
+      <div id="se-feedback"></div>
+    </div>`;
+    document.getElementById('se-svg-slot').innerHTML = fxBuildSVG('se-svg', range, curves, []);
+    lpSetContinueEnabled(alreadyAnswered);
+    if(!alreadyAnswered){
+      document.querySelectorAll('#se-eq-row [data-se-param]').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          if(lpAnswered[lpIndex]) return;
+          picked = el.dataset.seParam;
+          const isCorrect = picked === block.wrongParam;
+          document.getElementById('se-eq-row').innerHTML = eqPartsHTML(true);
+          sfx[isCorrect?'correct':'incorrect']();
+          document.getElementById('se-feedback').innerHTML =
+            `<div class="lp-feedback ${isCorrect?'correct':'incorrect'}">${isCorrect?'✓ Correct!':`✗ Not quite — ${block.wrongParam} was the wrong one.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+          lpAnswered[lpIndex] = true;
+          lpSetContinueEnabled(true);
+        });
+      });
+    }
+    return;
+  }
+
+  if(block.type==='describe'){
+    const range = block.range || 10;
+    const target = block.target;
+    let cur = { a: block.startA!==undefined?Number(block.startA):1, k: block.startK!==undefined?Number(block.startK):1,
+                d: block.startD!==undefined?Number(block.startD):0, c: block.startC!==undefined?Number(block.startC):0 };
+    const renderGraph = ()=>{
+      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.k, cur.d, cur.c, x) }];
+      const el = document.getElementById('bd-svg-slot');
+      if(el) el.innerHTML = fxBuildSVG('bd-svg', range, curves, []);
+      const eqEl = document.getElementById('bd-eq');
+      if(eqEl) eqEl.textContent = fxEquationStr(block.parent, cur.a, cur.k, cur.d, cur.c);
+    };
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="bd-desc-card">${esc(block.description)}</div>
+      <div class="fx-wrap">
+        <div class="fx-eq" id="bd-eq"></div>
+        <div id="bd-svg-slot"></div>
+        <div class="fx-controls">
+          <div class="fx-control-row"><span class="fx-control-label">a</span><input type="range" id="bd-a" min="-4" max="4" step="0.25" value="${cur.a}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-a-val">${cur.a}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="bd-k" min="-3" max="3" step="0.25" value="${cur.k}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-k-val">${cur.k}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">d</span><input type="range" id="bd-d" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.d}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-d-val">${cur.d}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="bd-c" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.c}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-c-val">${cur.c}</span></div>
+        </div>
+      </div>
+      <button class="btn-sm" id="bd-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      <div id="bd-feedback"></div>
+    </div>`;
+    renderGraph();
+    ['a','k','d','c'].forEach(p=>{
+      const inp = document.getElementById('bd-'+p);
+      inp.addEventListener('input', ()=>{
+        cur[p] = Number(inp.value);
+        document.getElementById(`bd-${p}-val`).textContent = inp.value;
+        renderGraph();
+      });
+    });
+    lpSetContinueEnabled(alreadyAnswered);
+    const checkBtn = document.getElementById('bd-check');
+    if(checkBtn) checkBtn.addEventListener('click', ()=>{
+      const tol = block.tolerance || 0.25;
+      const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
+      const fb = document.getElementById('bd-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Matches the description!':'✗ Not quite — re-read the description and adjust.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      if(correct){ lpAnswered[lpIndex]=true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>document.getElementById('bd-'+p).disabled=true); }
+    });
+    return;
+  }
+
   // table
   const xVals = block.xValues || [];
   const tIsLegacy = !('d' in block);
@@ -2879,6 +2991,62 @@ function renderLessonBlockList(){
         ${hintsEditorHTML(bi, b.hints)}
       </div>`;
     }
+    if(b.type==='spoterror'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Spot the error</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Correct values — this is what the graph actually shows:</div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-se-correct="${bi}:a" value="${b.correct.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-se-correct="${bi}:k" value="${b.correct.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-se-correct="${bi}:d" value="${b.correct.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-se-correct="${bi}:c" value="${b.correct.c}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Shown (wrong) equation — the value students see, with one deliberately off:</div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-se-shown="${bi}:a" value="${b.shown.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-se-shown="${bi}:k" value="${b.shown.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-se-shown="${bi}:d" value="${b.shown.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-se-shown="${bi}:c" value="${b.shown.c}"></div>
+        </div>
+        <div class="form-group"><label style="font-size:.65rem;">Which one is wrong?</label>
+          <select data-lb-select="${bi}:wrongParam">
+            <option value="a" ${b.wrongParam==='a'?'selected':''}>a</option>
+            <option value="k" ${b.wrongParam==='k'?'selected':''}>k</option>
+            <option value="d" ${b.wrongParam==='d'?'selected':''}>d</option>
+            <option value="c" ${b.wrongParam==='c'?'selected':''}>c</option>
+          </select>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
+        ${hintsEditorHTML(bi, b.hints)}
+      </div>`;
+    }
+    if(b.type==='describe'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Build from description</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt e.g. Use the sliders to build the graph described below." value="${esc(b.prompt)}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Word description shown to student</label><input type="text" data-lb-field="${bi}:description" placeholder="e.g. y = √x reflected over the x-axis, shifted 3 right and 2 up" value="${esc(b.description)}"></div>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Parent function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Target values that match the description (used to check the student's sliders):</div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">Target a</label><input type="number" step="0.25" data-bd-target="${bi}:a" value="${b.target.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target k</label><input type="number" step="0.25" data-bd-target="${bi}:k" value="${b.target.k}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target d</label><input type="number" step="0.5" data-bd-target="${bi}:d" value="${b.target.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target c</label><input type="number" step="0.5" data-bd-target="${bi}:c" value="${b.target.c}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.1" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--purple);">Target equation: ${esc(fxEquationStr(b.parent, Number(b.target.a), Number(b.target.k), Number(b.target.d), Number(b.target.c)))}</div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
+        ${hintsEditorHTML(bi, b.hints)}
+      </div>`;
+    }
   }).join('');
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
@@ -2962,6 +3130,20 @@ function renderLessonBlockList(){
     lessonBlocks[bi].pieces.push({ label:'y = x', parent:'linear', a:1,k:1,d:0,c:0, from:0, to:5, fromIncl:true, toIncl:true });
     renderLessonBlockList();
   });
+  // Spot the error: correct/shown are nested objects, not flat lb-field keys.
+  list.querySelectorAll('[data-se-correct]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.seCorrect.split(':');
+    lessonBlocks[+bi].correct[field] = Number(inp.value);
+  }));
+  list.querySelectorAll('[data-se-shown]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.seShown.split(':');
+    lessonBlocks[+bi].shown[field] = Number(inp.value);
+  }));
+  // Build from description: target is a nested object.
+  list.querySelectorAll('[data-bd-target]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.bdTarget.split(':');
+    lessonBlocks[+bi].target[field] = Number(inp.value);
+  }));
   // Function factory: reuses the same step op/value/remove/add selectors as
   // the "machine" block (both store their rule under `steps`), plus its own
   // example-inputs field.
@@ -3056,6 +3238,23 @@ document.getElementById('lb-add-vlt').onclick = ()=>{ lessonBlocks.push({
     {kind:'points', pts:[[1,2],[1,-2],[4,3]], isFunction:false, note:'x = 1 maps to two different y-values.'}
   ],
   hints:['A relation is a function only if every input has exactly one output.','If a vertical line crosses the graph more than once, it fails the test.']
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-spoterror').onclick = ()=>{ lessonBlocks.push({
+  type:'spoterror',
+  prompt:'The equation below claims to describe this graph — but one value is wrong. Find it.',
+  parent:'quadratic', range:10,
+  correct:{ a:2, k:1, d:-1, c:3 },
+  shown:{ a:2, k:1, d:-1, c:1 },
+  wrongParam:'c',
+  explanation:'', hints:['Check where the graph crosses the y-axis (or its vertex) against what the equation predicts.']
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-describe').onclick = ()=>{ lessonBlocks.push({
+  type:'describe',
+  prompt:'Use the sliders to build the graph described below.',
+  description:'Take y = √x, reflect it over the x-axis, then shift it 3 units right and 2 units up.',
+  parent:'sqrt', range:10, startA:1, startK:1, startD:0, startC:0,
+  target:{ a:-1, k:1, d:3, c:2 }, tolerance:0.25,
+  explanation:'', hints:['A negative a flips the graph over the x-axis.','d shifts left/right — remember (x − d), so +3 means the graph moves right.']
 }); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
