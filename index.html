@@ -293,6 +293,7 @@
   .fx-axis { stroke:#aab4c8; stroke-width:1.5; }
   .fx-curve { fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
   .fx-curve-target { fill:none; stroke:var(--gold); stroke-width:2.5; stroke-dasharray:6 5; stroke-linecap:round; }
+  .fx-asymptote { stroke:var(--ink-faint); stroke-width:1.3; stroke-dasharray:3 4; }
   .fx-point { fill:var(--purple); stroke:var(--white); stroke-width:2; cursor:pointer; }
   .fx-point-target { fill:none; stroke:var(--gold); stroke-width:2; stroke-dasharray:4 3; }
   .fx-controls { display:flex; flex-direction:column; gap:.7rem; margin-top:1rem; }
@@ -1136,6 +1137,9 @@ function fxBuildSVG(id, range, curves, points){
     </marker>
   </defs>`;
   let curvePaths = '';
+  let asymptoteLines = [];
+  const addVAsymptote = x => { if(!asymptoteLines.some(a=>a.type==='v' && Math.abs(a.at-x)<range*0.03)) asymptoteLines.push({type:'v', at:x}); };
+  const addHAsymptote = y => { if(!asymptoteLines.some(a=>a.type==='h' && Math.abs(a.at-y)<range*0.03)) asymptoteLines.push({type:'h', at:y}); };
   (curves||[]).forEach(c=>{
     const N=240;
     // Build the curve as separate continuous segments (a new segment starts
@@ -1144,17 +1148,47 @@ function fxBuildSVG(id, range, curves, points){
     // unbounded continuation, never to a break caused by a restricted domain
     // or a vertical asymptote.
     let segments = [], cur = [];
+    let rawPrev = null; // {x, y|null|'blowup'} of the previous sample, for asymptote detection
     for(let i=0;i<=N;i++){
       const x = -range + (2*range*i/N);
       const y = c.fn(x);
-      if(y===null || Math.abs(y)>range*1.6){
+      const blownUp = y!==null && Math.abs(y)>range*1.6;
+      if(blownUp && rawPrev && rawPrev.state==='valid' && x>-range+range*0.03 && x<range-range*0.03){
+        // Transitioned from a finite value to a blow-up mid-plot — a vertical asymptote,
+        // not just a domain edge (sqrt-style boundaries land as y===null, handled separately).
+        addVAsymptote(x);
+      }
+      if(y===null || blownUp){
         if(cur.length>1) segments.push(cur);
         cur = [];
+        rawPrev = { x, state: blownUp?'blowup':'null' };
         continue;
       }
       cur.push({x,y});
+      rawPrev = { x, state:'valid' };
     }
     if(cur.length>1) segments.push(cur);
+    // Horizontal asymptote: if the curve is still running near an edge of the window
+    // (an arrow-worthy end) and its y-value has nearly flattened out approaching that
+    // edge, the flat value it's approaching is a horizontal asymptote.
+    segments.forEach(seg=>{
+      if(seg.length<9) return;
+      const checkFlatten = (a,b,mid)=>{
+        const d1 = Math.abs(b.y-mid.y), d2 = Math.abs(mid.y-a.y);
+        if(d1 < range*0.01 && d2 < range*0.05 && d1<=d2+1e-9) return b.y;
+        return null;
+      };
+      const last = seg[seg.length-1];
+      if(last.x >= range - 1e-6){
+        const flat = checkFlatten(seg[seg.length-9], seg[seg.length-5], last);
+        if(flat!==null) addHAsymptote(flat);
+      }
+      const first = seg[0];
+      if(first.x <= -range + 1e-6){
+        const flat = checkFlatten(seg[8], seg[4], first);
+        if(flat!==null) addHAsymptote(flat);
+      }
+    });
     const cls = c.dashed ? 'fx-curve-target' : 'fx-curve';
     const arrowMarker = c.dashed ? `${id}-arrow-target` : `${id}-arrow`;
     segments.forEach(seg=>{
@@ -1169,12 +1203,16 @@ function fxBuildSVG(id, range, curves, points){
       curvePaths += `<path class="${cls}" d="${d}" ${markerAttrs}/>`;
     });
   });
+  let asymptotePaths = asymptoteLines.map(a=>{
+    if(a.type==='v') return `<line class="fx-asymptote" x1="${sx(a.at)}" y1="24" x2="${sx(a.at)}" y2="${H-24}"/>`;
+    return `<line class="fx-asymptote" x1="24" y1="${sy(a.at)}" x2="${W-24}" y2="${sy(a.at)}"/>`;
+  }).join('');
   let pointEls = '';
   (points||[]).forEach(p=>{
     if(p.target){ pointEls += `<circle class="fx-point-target" cx="${sx(p.x)}" cy="${sy(p.y)}" r="9"/>`; }
     else { pointEls += `<circle class="fx-point" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
   });
-  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${curvePaths}${pointEls}</svg>`;
+  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}</svg>`;
 }
 // Convert a click/tap on the plot SVG into graph coordinates.
 function fxClientToCoord(svgEl, clientX, clientY, range){
