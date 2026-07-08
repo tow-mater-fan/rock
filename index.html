@@ -294,6 +294,7 @@
   .fx-curve { fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
   .fx-curve-target { fill:none; stroke:var(--gold); stroke-width:2.5; stroke-dasharray:6 5; stroke-linecap:round; }
   .fx-asymptote { stroke:var(--ink-faint); stroke-width:1.3; stroke-dasharray:3 4; }
+  .fx-hover-dot { fill:var(--blue); stroke:#fff; stroke-width:2; pointer-events:none; opacity:0; transition:opacity .08s ease; }
   .fx-point { fill:var(--purple); stroke:var(--white); stroke-width:2; cursor:pointer; }
   .fx-point-target { fill:none; stroke:var(--gold); stroke-width:2; stroke-dasharray:4 3; }
   .fx-controls { display:flex; flex-direction:column; gap:.7rem; margin-top:1rem; }
@@ -1155,11 +1156,15 @@ function fxBuildSVG(id, range, curves, points){
     let segments = [], cur = [];
     let curStartReason = 'edge'; // why this segment began: 'edge' (window's x-boundary), 'blowup' (unbounded y), or 'null' (real finite domain boundary)
     let nullRunStartX = null; // tracks a run of null (undefined) samples, to detect a narrow interior gap = true asymptote
+    let prevState = 'edge'; // state of the previous sample: 'valid' | 'null' | 'blowup' | 'edge' (before any sample)
+    let lastBlowupX = null, lastBlowupSign = 1; // last off-window sample seen, so we can seed the next segment right at the boundary when the curve re-enters the window
     for(let i=0;i<=N;i++){
       const x = -range + (2*range*i/N);
       const y = c.fn(x);
       const blownUp = y!==null && Math.abs(y)>boundY;
-      if(y===null){
+      const state = y===null ? 'null' : (blownUp ? 'blowup' : 'valid');
+
+      if(state==='null'){
         if(nullRunStartX===null) nullRunStartX = x;
       } else if(nullRunStartX!==null){
         // A null run just ended. If it never touched either window edge, it's a real
@@ -1171,14 +1176,32 @@ function fxBuildSVG(id, range, curves, points){
         }
         nullRunStartX = null;
       }
-      if(y===null || blownUp){
-        if(blownUp) cur.push({ x, y: Math.sign(y)*boundY }); // clamp to the visible edge so the segment (and its arrow) stays on-canvas
-        if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason: blownUp?'blowup':'null' });
-        cur = blownUp ? [{ x, y: Math.sign(y)*boundY }] : []; // seed the next segment at the same clamped edge point for visual continuity
-        curStartReason = blownUp ? 'blowup' : 'null';
-        continue;
+
+      if(state==='valid'){
+        if(prevState==='blowup'){
+          // Re-entering the window after running off it — seed the new segment right
+          // at the boundary edge (using the last off-window sample) for a clean line in.
+          cur = [{ x:lastBlowupX, y: lastBlowupSign*boundY }];
+          curStartReason = 'blowup';
+        }
+        cur.push({x,y});
+      } else if(state==='blowup'){
+        if(prevState==='valid'){
+          // Just left the window — close out the current segment right at the boundary
+          // edge (clamped, so it — and its arrowhead — stay visible on-canvas).
+          cur.push({ x, y: Math.sign(y)*boundY });
+          if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason:'blowup' });
+          cur = [];
+        }
+        lastBlowupX = x; lastBlowupSign = Math.sign(y);
+      } else { // null
+        if(prevState!=='null'){
+          if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason:'null' });
+          cur = [];
+          curStartReason = 'null';
+        }
       }
-      cur.push({x,y});
+      prevState = state;
     }
     if(cur.length>1) segments.push({ pts:cur, startReason:curStartReason, endReason:'edge' });
     // Horizontal asymptote: if the curve is still running near an edge of the window
@@ -1225,7 +1248,7 @@ function fxBuildSVG(id, range, curves, points){
     if(p.target){ pointEls += `<circle class="fx-point-target" cx="${sx(p.x)}" cy="${sy(p.y)}" r="9"/>`; }
     else { pointEls += `<circle class="fx-point" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
   });
-  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}</svg>`;
+  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}<circle class="fx-hover-dot" r="5" cx="-100" cy="-100"/></svg>`;
 }
 // Convert a click/tap on the plot SVG into graph coordinates.
 function fxClientToCoord(svgEl, clientX, clientY, range){
@@ -1241,17 +1264,29 @@ function fxClientToCoord(svgEl, clientX, clientY, range){
 document.addEventListener('mousemove', (e)=>{
   const tooltip = document.getElementById('fx-coord-tooltip');
   const svg = e.target.closest && e.target.closest('.fx-svg');
+  document.querySelectorAll('.fx-hover-dot').forEach(d=>{ d.style.opacity = 0; });
   if(!svg){ if(tooltip) tooltip.style.display='none'; return; }
   const range = Number(svg.dataset.range) || 10;
   const c = fxClientToCoord(svg, e.clientX, e.clientY, range);
+  const gx = Math.round(c.x), gy = Math.round(c.y);
   tooltip.style.display = 'block';
   tooltip.style.left = (e.clientX + 14) + 'px';
   tooltip.style.top = (e.clientY + 14) + 'px';
-  tooltip.textContent = `(${Math.round(c.x)}, ${Math.round(c.y)})`;
+  tooltip.textContent = `(${gx}, ${gy})`;
+  // Snap a visible dot to that same grid intersection so the cursor readout has a
+  // clear on-graph anchor, not just a floating text label.
+  const W=520, H=340;
+  const dot = svg.querySelector('.fx-hover-dot');
+  if(dot){
+    dot.setAttribute('cx', (gx/range)*(W/2-24) + W/2);
+    dot.setAttribute('cy', H/2 - (gy/range)*(H/2-24));
+    dot.style.opacity = 1;
+  }
 });
 document.addEventListener('mouseleave', ()=>{
   const tooltip = document.getElementById('fx-coord-tooltip');
   if(tooltip) tooltip.style.display='none';
+  document.querySelectorAll('.fx-hover-dot').forEach(d=>{ d.style.opacity = 0; });
 });
 
 /* ── Nav ── */
