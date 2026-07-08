@@ -310,6 +310,53 @@
   .lp-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
   .lp-slider-val { font-family:'IBM Plex Mono',monospace; font-weight:600; min-width:2.5rem; text-align:right; }
   .lp-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; }
+
+  /* ── Hints (generic, any lesson block) ── */
+  .hint-box { margin-top: .9rem; }
+  .hint-btn { background: var(--gold-bg); color: #946200; border: 1.5px solid var(--gold); border-radius: 100px;
+    font-family:'Nunito',sans-serif; font-weight:700; font-size:.78rem; padding:.45rem 1rem; cursor:pointer; }
+  .hint-btn:hover { background: var(--gold); color: var(--white); }
+  .hint-btn:disabled { opacity:.4; cursor:default; }
+  .hint-revealed { background: var(--paper-2); border-radius:10px; padding:.6rem .85rem; margin-top:.5rem;
+    font-size:.85rem; color: var(--ink-soft); animation: fadeInUp .3s ease both; }
+  .hint-revealed b { color:#946200; }
+
+  /* ── Function factory ── */
+  .ff-wrap { display:flex; flex-direction:column; align-items:center; gap:1.2rem; padding:1rem 0; }
+  .ff-machine { display:flex; align-items:center; gap:1.5rem; }
+  .ff-box { width:120px; height:100px; background:var(--board); border-radius:16px; display:flex; align-items:center;
+    justify-content:center; font-size:2.2rem; box-shadow:0 8px 20px rgba(15,48,96,.25); position:relative; }
+  .ff-box.churning { animation: ffChurn .5s ease; }
+  @keyframes ffChurn { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08) rotate(-2deg);} }
+  .ff-slot { width:70px; height:70px; border-radius:14px; border:2.5px dashed var(--rule); display:flex; align-items:center;
+    justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.3rem; background:var(--white); }
+  .ff-slot.filled { border-style:solid; border-color:var(--blue); color:var(--blue); }
+  .ff-slot.output { border-color:var(--green); color:var(--green-dark); }
+  .ff-arrow { font-size:1.5rem; color:var(--ink-faint); }
+  .ff-examples { display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
+  .ff-example-chip { font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:var(--paper-2); border-radius:10px;
+    padding:.4rem .8rem; }
+  .ff-input-row { display:flex; align-items:center; gap:.6rem; }
+  .ff-input-row input { width:80px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:1rem;
+    border:1.5px solid var(--rule); border-radius:10px; padding:.5rem; }
+  .ff-predict-btn, .ff-drop-btn { background:var(--blue); color:var(--white); border:none; border-radius:100px;
+    font-family:'Nunito',sans-serif; font-weight:700; font-size:.82rem; padding:.55rem 1.1rem; cursor:pointer; }
+  .ff-stage-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:.75rem; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--ink-faint); }
+
+  /* ── Vertical line test sorter ── */
+  .vlt-wrap { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+  .vlt-svg { background:var(--white); border-radius:12px; border:1px solid var(--rule); }
+  .vlt-sweep { stroke:var(--red); stroke-width:2.5; opacity:0; transition:opacity .2s; }
+  .vlt-sweep.active { opacity:1; }
+  .vlt-btn-row { display:flex; gap:.8rem; }
+  .vlt-btn { border-radius:100px; font-family:'Nunito',sans-serif; font-weight:700; font-size:.85rem;
+    padding:.6rem 1.4rem; cursor:pointer; border:1.5px solid var(--rule); background:var(--white); }
+  .vlt-btn.fn { border-color:var(--green); }
+  .vlt-btn.notfn { border-color:var(--red); }
+  .vlt-btn:disabled { opacity:.5; cursor:default; }
+  .vlt-progress { font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--ink-faint); }
+
   .file-version-list { display:flex; flex-direction:column; gap:.55rem; margin-bottom:.65rem; }
   .file-version-row { display:flex; align-items:center; gap:.6rem; border:1px solid var(--rule); border-radius:10px; padding:.6rem .75rem; background:var(--paper); flex-wrap:wrap; }
   .file-version-row input[type=text] { width:110px; flex-shrink:0; }
@@ -696,6 +743,8 @@
         <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
         <button class="btn-sm" id="lb-add-piecewise" style="border-color:var(--green-dark);color:var(--green-dark);">+ Piecewise builder</button>
         <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
+        <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:#946200;">+ Function factory</button>
+        <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
       </div>
     </div>
     <div class="form-group">
@@ -1064,7 +1113,7 @@ function showXpToast(amount){
   const host = document.getElementById('xp-toast');
   const el = document.createElement('div');
   el.className = 'xp-toast-item';
-  el.textContent = `⚡ +${amount} XP`;
+  el.textContent = amount < 0 ? `⚡ ${amount} XP` : `⚡ +${amount} XP`;
   host.appendChild(el);
   setTimeout(()=>el.remove(), 2200);
 }
@@ -1591,11 +1640,13 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
 
 /* ── Lesson player (interactive, Brilliant-style) ── */
 let lpItem = null, lpIndex = 0, lpAnswered = [];
+let hintState = {}; // { blockIndex: revealedCount } — resets per lesson
 
 function openLessonPlayer(it, prior){
   lpItem = it;
   lpIndex = 0;
   lpAnswered = new Array(it.content.length).fill(false);
+  hintState = {};
   renderLpBlock();
 }
 
@@ -1605,7 +1656,44 @@ function lpSetContinueEnabled(enabled){
   document.getElementById('lp-next-btn').style.cursor = enabled ? 'pointer' : 'not-allowed';
 }
 
+// Renders a "Hint" button + revealed hints list. Costs 2 XP per hint reveal,
+// revealed one at a time. Works for any block type that has a `hints` array.
+function renderHintBox(block, blockIndex){
+  if(!block.hints || !block.hints.length) return '';
+  const revealed = hintState[blockIndex] || 0;
+  const revealedHtml = block.hints.slice(0, revealed).map((h,i)=>
+    `<div class="hint-revealed"><b>Hint ${i+1}:</b> ${esc(h)}</div>`).join('');
+  const btnHtml = revealed < block.hints.length
+    ? `<button class="hint-btn" id="hint-reveal-btn">💡 ${revealed===0?'Show a hint':'Show another hint'} (−2 XP)</button>`
+    : '';
+  return `<div class="hint-box" id="hint-box-${blockIndex}">${revealedHtml}${btnHtml}</div>`;
+}
+function wireHintBox(block, blockIndex){
+  const btn = document.getElementById('hint-reveal-btn');
+  if(!btn) return;
+  btn.addEventListener('click', async ()=>{
+    hintState[blockIndex] = (hintState[blockIndex]||0) + 1;
+    const box = document.getElementById(`hint-box-${blockIndex}`);
+    if(box) box.outerHTML = renderHintBox(block, blockIndex);
+    wireHintBox(block, blockIndex);
+    sfx.click();
+    if(currentUser && !isEducator) await awardXp(-2);
+  });
+}
+
 function renderLpBlock(){
+  renderLpBlockInner();
+  // Append the shared hints UI under whatever the block just rendered,
+  // without needing to touch every individual block-type branch below.
+  const block = lpItem.content[lpIndex];
+  const lastBlockEl = document.querySelector('#lp-block-slot .lp-block');
+  if(lastBlockEl && block.hints && block.hints.length){
+    lastBlockEl.insertAdjacentHTML('beforeend', renderHintBox(block, lpIndex));
+    wireHintBox(block, lpIndex);
+  }
+}
+
+function renderLpBlockInner(){
   const total = lpItem.content.length;
   const block = lpItem.content[lpIndex];
   document.getElementById('lp-progress-fill').style.width = `${((lpIndex+1)/total)*100}%`;
@@ -2056,6 +2144,168 @@ function renderLpBlock(){
     return;
   }
 
+  if(block.type==='factory'){
+    const applyRule = (steps, x)=>{
+      let v = x;
+      for(const s of steps){
+        if(s.op==='add') v += s.val; else if(s.op==='subtract') v -= s.val;
+        else if(s.op==='multiply') v *= s.val; else if(s.op==='divide') v = s.val ? v/s.val : NaN;
+        else if(s.op==='square') v = v*v; else if(s.op==='sqrt') v = v<0 ? NaN : Math.sqrt(v);
+      }
+      return v;
+    };
+    const opSym = {add:'+', subtract:'−', multiply:'×', divide:'÷', square:'²', sqrt:'√'};
+    const revealedXs = block.examples && block.examples.length ? block.examples : [1,2,3];
+    let stage = alreadyAnswered ? 'done' : 'examples'; // examples -> predict -> done
+    let exIdx = 0;
+
+    const paint = ()=>{
+      let body = '';
+      if(stage==='examples'){
+        const x = revealedXs[exIdx];
+        const y = applyRule(block.steps, x);
+        body = `<div class="ff-stage-label">Example ${exIdx+1} of ${revealedXs.length}</div>
+          <div class="ff-machine">
+            <div class="ff-slot filled">${x}</div><div class="ff-arrow">→</div>
+            <div class="ff-box">🏭</div><div class="ff-arrow">→</div>
+            <div class="ff-slot output">${Number.isFinite(y)?(Math.round(y*100)/100):'?'}</div>
+          </div>
+          <button class="ff-drop-btn" id="ff-next-example">${exIdx < revealedXs.length-1 ? 'Next example' : "I've got a guess"}</button>`;
+      } else if(stage==='predict'){
+        body = `<div class="ff-stage-label">Your turn — predict the output</div>
+          <div class="ff-machine">
+            <div class="ff-slot filled">${block.predictInput}</div><div class="ff-arrow">→</div>
+            <div class="ff-box">🏭</div><div class="ff-arrow">→</div>
+            <div class="ff-slot">?</div>
+          </div>
+          <div class="ff-input-row">
+            <input type="text" inputmode="decimal" id="ff-predict-input" placeholder="output">
+            <button class="ff-predict-btn" id="ff-predict-check">Check</button>
+          </div>
+          <div id="ff-predict-feedback"></div>`;
+      } else {
+        const ruleStr = block.steps.map(s=> s.op==='square'?'x²' : s.op==='sqrt'?'√x' : `x ${opSym[s.op]} ${s.val}`).join(' then ');
+        body = `<div class="lp-feedback correct">The machine's rule: ${esc(ruleStr)}${block.explanation ? ' — '+esc(block.explanation):''}</div>`;
+      }
+      const el = document.getElementById('ff-slot-inner');
+      if(el) el.innerHTML = body;
+      if(stage==='examples'){
+        const nb = document.getElementById('ff-next-example');
+        if(nb) nb.onclick = ()=>{
+          sfx.click();
+          if(exIdx < revealedXs.length-1){ exIdx++; } else { stage='predict'; }
+          paint();
+        };
+      }
+      if(stage==='predict'){
+        const cb = document.getElementById('ff-predict-check');
+        if(cb) cb.onclick = ()=>{
+          const val = parseFloat(document.getElementById('ff-predict-input').value);
+          const target = applyRule(block.steps, block.predictInput);
+          const correct = Number.isFinite(val) && Math.abs(val-target) <= (block.tolerance||0.01);
+          sfx[correct?'correct':'incorrect']();
+          document.getElementById('ff-predict-feedback').innerHTML =
+            `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the actual output was ${Math.round(target*100)/100}.`}</div>`;
+          stage='done'; lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
+          setTimeout(paint, correct?900:1600);
+        };
+      }
+    };
+
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="ff-wrap" id="ff-slot-inner"></div>
+    </div>`;
+    lpSetContinueEnabled(alreadyAnswered);
+    paint();
+    return;
+  }
+
+  if(block.type==='vlt'){
+    const relations = block.relations || [];
+    const range = block.range || 8;
+    let idx = 0, correctCount = 0, answered = alreadyAnswered;
+
+    const drawRelation = (rel)=>{
+      if(rel.kind==='graph'){
+        const curves = [{ fn:x=>fxEval(rel.parent, Number(rel.a), Number(rel.k), Number(rel.d), Number(rel.c), x) }];
+        return fxBuildSVG('vlt-svg', range, curves, []);
+      }
+      const pts = (rel.pts||[]).map((p,i)=>({x:p[0], y:p[1], i}));
+      return fxBuildSVG('vlt-svg', range, [], pts);
+    };
+
+    const paint = ()=>{
+      const rel = relations[idx];
+      const prog = document.getElementById('vlt-progress');
+      if(prog) prog.textContent = `${idx+1} / ${relations.length}`;
+      const svgSlot = document.getElementById('vlt-svg-slot');
+      if(svgSlot) svgSlot.innerHTML = drawRelation(rel);
+      const fb = document.getElementById('vlt-feedback');
+      if(fb) fb.innerHTML = '';
+      const fnBtn = document.getElementById('vlt-fn-btn'), notfnBtn = document.getElementById('vlt-notfn-btn');
+      if(fnBtn) fnBtn.disabled = false;
+      if(notfnBtn) notfnBtn.disabled = false;
+      const nextBtn = document.getElementById('vlt-next-btn');
+      if(nextBtn) nextBtn.style.display = 'none';
+    };
+
+    const answer = (choseFunction)=>{
+      const rel = relations[idx];
+      const correct = choseFunction === rel.isFunction;
+      if(correct) correctCount++;
+      document.getElementById('vlt-fn-btn').disabled = true;
+      document.getElementById('vlt-notfn-btn').disabled = true;
+      sfx[correct?'correct':'incorrect']();
+      const svg = document.getElementById('vlt-svg');
+      if(svg && rel.kind==='graph'){
+        const sweep = document.createElementNS('http://www.w3.org/2000/svg','line');
+        sweep.setAttribute('class','vlt-sweep active');
+        sweep.setAttribute('y1','24'); sweep.setAttribute('y2','316'); sweep.setAttribute('x1','24'); sweep.setAttribute('x2','24');
+        svg.appendChild(sweep);
+        let x = 24;
+        const step = ()=>{ x+=6; sweep.setAttribute('x1',x); sweep.setAttribute('x2',x); if(x<496) requestAnimationFrame(step); };
+        requestAnimationFrame(step);
+      }
+      document.getElementById('vlt-feedback').innerHTML =
+        `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'} ${esc(rel.note||'')}</div>`;
+      document.getElementById('vlt-next-btn').style.display = 'inline-block';
+    };
+
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="vlt-wrap">
+        <div class="vlt-progress" id="vlt-progress"></div>
+        <div id="vlt-svg-slot"></div>
+        <div class="vlt-btn-row">
+          <button class="vlt-btn fn" id="vlt-fn-btn">✓ Function</button>
+          <button class="vlt-btn notfn" id="vlt-notfn-btn">✗ Not a function</button>
+        </div>
+        <div id="vlt-feedback"></div>
+        <button class="btn-sm" id="vlt-next-btn" style="display:none;">Next →</button>
+      </div>
+    </div>`;
+    if(!relations.length){
+      lpSetContinueEnabled(true);
+      return;
+    }
+    paint();
+    document.getElementById('vlt-fn-btn').onclick = ()=>answer(true);
+    document.getElementById('vlt-notfn-btn').onclick = ()=>answer(false);
+    document.getElementById('vlt-next-btn').onclick = ()=>{
+      if(idx < relations.length-1){ idx++; paint(); }
+      else {
+        lpAnswered[lpIndex] = true;
+        document.getElementById('vlt-svg-slot').insertAdjacentHTML('afterend',
+          `<div class="lp-feedback correct">You got ${correctCount}/${relations.length} correct.</div>`);
+        lpSetContinueEnabled(true);
+        document.getElementById('vlt-next-btn').style.display='none';
+      }
+    };
+    lpSetContinueEnabled(alreadyAnswered);
+    return;
+  }
+
   // table
   const xVals = block.xValues || [];
   const tIsLegacy = !('d' in block);
@@ -2341,6 +2591,17 @@ function moveBlock(i, dir){
   [lessonBlocks[i], lessonBlocks[j]] = [lessonBlocks[j], lessonBlocks[i]];
   renderLessonBlockList();
 }
+// Shared hints editor, appended to the bottom of any lesson block's builder card.
+function hintsEditorHTML(bi, hints){
+  return `<div class="form-group" style="margin-top:.6rem;">
+    <label style="font-size:.65rem;">Hints (optional, revealed one at a time on request, cost 2 XP each)</label>
+    <div id="hints-list-${bi}">${(hints||[]).map((h,hi)=>`<div class="qb-opt-row">
+      <input type="text" data-hint-text="${bi}:${hi}" value="${esc(h)}" placeholder="Hint ${hi+1}">
+      <button class="qb-remove" data-hint-remove="${bi}:${hi}" type="button">✕</button>
+    </div>`).join('')}</div>
+    <button class="btn-sm" type="button" data-hint-add="${bi}">+ Add hint</button>
+  </div>`;
+}
 function renderLessonBlockList(){
   const list = document.getElementById('lesson-block-list');
   if(!lessonBlocks.length){ list.innerHTML = `<div class="empty-note" style="padding:1rem;">No blocks yet — add text, images, or interactive checks below.</div>`; return; }
@@ -2580,6 +2841,44 @@ function renderLessonBlockList(){
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
       </div>`;
     }
+    if(b.type==='factory'){
+      const opLabel = {add:'+', subtract:'−', multiply:'×', divide:'÷', square:'square', sqrt:'√'};
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Function factory</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin-bottom:.4rem;">Rule the machine actually applies, in order:</div>
+        ${b.steps.map((s,si)=>`<div class="mach-step-row">
+          <span class="mono" style="font-size:.72rem;color:var(--ink-faint);">Step ${si+1}</span>
+          <select data-mach-op="${bi}:${si}">${Object.entries(opLabel).map(([k,v])=>`<option value="${k}" ${s.op===k?'selected':''}>${v}</option>`).join('')}</select>
+          ${(s.op==='square'||s.op==='sqrt') ? '' : `<input type="number" step="0.5" data-mach-val="${bi}:${si}" value="${s.val}">`}
+          <button type="button" class="mach-step-remove" data-mach-remove="${bi}:${si}">✕</button>
+        </div>`).join('')}
+        <button class="btn-sm" type="button" data-mach-addstep="${bi}" style="margin:.3rem 0 .8rem;">+ Add step</button>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Example inputs shown before predicting (comma sep)</label><input type="text" data-ff-examples="${bi}" value="${(b.examples||[]).join(', ')}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Prediction input</label><input type="number" step="0.5" data-lb-field="${bi}:predictInput" value="${b.predictInput}"></div>
+        </div>
+        <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.01" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown at the end (optional)" value="${esc(b.explanation)}"></div>
+        ${hintsEditorHTML(bi, b.hints)}
+      </div>`;
+    }
+    if(b.type==='vlt'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Vertical line test sorter</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+        <div class="form-group">
+          <label style="font-size:.65rem;">Relations (JSON array)</label>
+          <textarea class="tp-textarea" style="min-height:140px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;" data-vlt-relations="${bi}">${esc(JSON.stringify(b.relations, null, 2))}</textarea>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.3rem;">
+            Graph: {"kind":"graph","parent":"quadratic","a":1,"k":1,"d":0,"c":0,"isFunction":true,"note":"..."}<br>
+            Points: {"kind":"points","pts":[[1,2],[1,4],[3,5]],"isFunction":false,"note":"x=1 maps to two y-values"}
+          </div>
+        </div>
+        ${hintsEditorHTML(bi, b.hints)}
+      </div>`;
+    }
   }).join('');
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
@@ -2663,6 +2962,33 @@ function renderLessonBlockList(){
     lessonBlocks[bi].pieces.push({ label:'y = x', parent:'linear', a:1,k:1,d:0,c:0, from:0, to:5, fromIncl:true, toIncl:true });
     renderLessonBlockList();
   });
+  // Function factory: reuses the same step op/value/remove/add selectors as
+  // the "machine" block (both store their rule under `steps`), plus its own
+  // example-inputs field.
+  list.querySelectorAll('[data-ff-examples]').forEach(inp=>inp.addEventListener('input',()=>{
+    const bi = +inp.dataset.ffExamples;
+    lessonBlocks[bi].examples = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
+  }));
+  // Vertical line test: relations edited as raw JSON (red border = invalid JSON, not yet saved).
+  list.querySelectorAll('[data-vlt-relations]').forEach(ta=>ta.addEventListener('input',()=>{
+    const bi = +ta.dataset.vltRelations;
+    try{ lessonBlocks[bi].relations = JSON.parse(ta.value); ta.style.borderColor=''; }
+    catch(e){ ta.style.borderColor='var(--red)'; }
+  }));
+  // Shared hints editor wiring (any block type).
+  list.querySelectorAll('[data-hint-text]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi,hi] = inp.dataset.hintText.split(':').map(Number);
+    lessonBlocks[bi].hints[hi] = inp.value;
+  }));
+  list.querySelectorAll('[data-hint-remove]').forEach(btn=>btn.onclick=()=>{
+    const [bi,hi] = btn.dataset.hintRemove.split(':').map(Number);
+    lessonBlocks[bi].hints.splice(hi,1); renderLessonBlockList();
+  });
+  list.querySelectorAll('[data-hint-add]').forEach(btn=>btn.onclick=()=>{
+    const bi = +btn.dataset.hintAdd;
+    if(!lessonBlocks[bi].hints) lessonBlocks[bi].hints=[];
+    lessonBlocks[bi].hints.push(''); renderLessonBlockList();
+  });
 }
 document.getElementById('lb-add-text').onclick = ()=>{ lessonBlocks.push({type:'text', text:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-image').onclick = ()=>{ lessonBlocks.push({type:'image', url:'', caption:''}); renderLessonBlockList(); };
@@ -2713,7 +3039,23 @@ document.getElementById('lb-add-rate').onclick = ()=>{ lessonBlocks.push({
   type:'rateofchange',
   prompt:'Find the average rate of change between the two marked points.',
   parent:'quadratic', a:1, k:1, d:0, c:0, range:10,
-  x1:-2, x2:2, tolerance:0.2, explanation:''
+  x1:-2, x2:2, tolerance:0.2, explanation:'', hints:[]
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-factory').onclick = ()=>{ lessonBlocks.push({
+  type:'factory',
+  prompt:'Watch what the machine does to each number, then predict the next output.',
+  steps:[{op:'multiply', val:2},{op:'add', val:3}],
+  examples:[1,2,4], predictInput:5, tolerance:0.01, explanation:'',
+  hints:['Try working out the difference between consecutive outputs first.']
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-vlt').onclick = ()=>{ lessonBlocks.push({
+  type:'vlt', prompt:'Is this a function? Use the vertical line test.', range:8,
+  relations:[
+    {kind:'graph', parent:'linear', a:1,k:1,d:0,c:0, isFunction:true, note:'Every x gives exactly one y.'},
+    {kind:'graph', parent:'sqrt', a:1,k:1,d:0,c:0, isFunction:true, note:'Still one output per input, even though the domain is restricted.'},
+    {kind:'points', pts:[[1,2],[1,-2],[4,3]], isFunction:false, note:'x = 1 maps to two different y-values.'}
+  ],
+  hints:['A relation is a function only if every input has exactly one output.','If a vertical line crosses the graph more than once, it fails the test.']
 }); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
