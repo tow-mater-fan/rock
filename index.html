@@ -3838,6 +3838,73 @@ function renderLpBlockInner(){
     return;
   }
 
+  if(block.type==='tov'){
+    // New block type: "is this table of values a function?" — same drill pattern as
+    // the mapping/vlt checkers, but renders a TOV instead of a diagram or graph.
+    const tables = block.tables || [];
+    let idx = 0, correctCount = 0;
+
+    const renderTOV = (t)=> `<table class="fx-table"><tr><th>x</th>${t.pairs.map(p=>`<td>${p[0]}</td>`).join('')}</tr><tr><th>y</th>${t.pairs.map(p=>`<td>${p[1]}</td>`).join('')}</tr></table>`;
+
+    const paint = ()=>{
+      const t = tables[idx];
+      const prog = document.getElementById('tov-progress');
+      if(prog) prog.textContent = `${idx+1} / ${tables.length}`;
+      const slotEl = document.getElementById('tov-table-slot');
+      if(slotEl) slotEl.innerHTML = renderTOV(t);
+      const fb = document.getElementById('tov-feedback');
+      if(fb) fb.innerHTML = '';
+      const fnBtn = document.getElementById('tov-fn-btn'), notfnBtn = document.getElementById('tov-notfn-btn');
+      if(fnBtn) fnBtn.disabled = false;
+      if(notfnBtn) notfnBtn.disabled = false;
+      const nextBtn = document.getElementById('tov-next-btn');
+      if(nextBtn) nextBtn.style.display = 'none';
+    };
+
+    const answer = (choseFunction)=>{
+      const t = tables[idx];
+      const correct = choseFunction === t.isFunction;
+      if(correct) correctCount++;
+      document.getElementById('tov-fn-btn').disabled = true;
+      document.getElementById('tov-notfn-btn').disabled = true;
+      sfx[correct?'correct':'incorrect']();
+      document.getElementById('tov-feedback').innerHTML =
+        `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'} ${esc(t.note||'')}</div>`;
+      document.getElementById('tov-next-btn').style.display = 'inline-block';
+    };
+
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="vlt-wrap">
+        <div class="vlt-progress" id="tov-progress"></div>
+        <div id="tov-table-slot"></div>
+        <div class="vlt-btn-row">
+          <button class="vlt-btn fn" id="tov-fn-btn">✓ Function</button>
+          <button class="vlt-btn notfn" id="tov-notfn-btn">✗ Not a function</button>
+        </div>
+        <div id="tov-feedback"></div>
+        <button class="btn-sm" id="tov-next-btn" style="display:none;">Next →</button>
+      </div>
+    </div>`;
+    if(!tables.length){ lpSetContinueEnabled(true); return; }
+    paint();
+    document.getElementById('tov-fn-btn').onclick = ()=>answer(true);
+    document.getElementById('tov-notfn-btn').onclick = ()=>answer(false);
+    document.getElementById('tov-next-btn').onclick = ()=>{
+      if(idx < tables.length-1){ idx++; paint(); }
+      else {
+        lpAnswered[lpIndex] = true;
+        document.getElementById('tov-table-slot').insertAdjacentHTML('afterend',
+          `<div class="lp-feedback correct">You got ${correctCount}/${tables.length} correct.</div>`);
+        lpSetContinueEnabled(true);
+        document.getElementById('tov-next-btn').style.display='none';
+        lpRecordResult(correctCount===tables.length, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'TOV function check', hint: '' });
+      }
+    };
+    lpSetContinueEnabled(alreadyAnswered);
+    return;
+  }
+
   if(block.type==='spoterror'){
     const range = block.range || 10;
     // block.shown = the (wrong) equation displayed to the student.
