@@ -506,6 +506,69 @@
   .dash-league-icon { font-size:1.8rem; }
   .dash-league-title { font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; color:var(--ink); }
   .dash-league-sub { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); margin-top:.1rem; }
+
+  /* ── ACCOUNT PAGE ── */
+  .acct-wrap { max-width:920px; margin:0 auto; padding:6.5rem 2.5rem 4rem; display:flex; flex-direction:column; gap:1.5rem; }
+  .acct-header { display:flex; align-items:center; gap:1.5rem; background:var(--white); border:1px solid var(--rule); border-radius:20px; padding:1.75rem; }
+  .acct-avatar-wrap { position:relative; flex-shrink:0; }
+  .acct-avatar { width:88px; height:88px; border-radius:50%; object-fit:cover; background:var(--blue); display:flex; align-items:center; justify-content:center;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:2rem; color:#fff; border:3px solid var(--paper-2); }
+  .acct-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+  .acct-avatar-edit { position:absolute; bottom:-2px; right:-2px; width:30px; height:30px; border-radius:50%; background:var(--board); color:#fff; border:2px solid var(--white);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.85rem; transition:background .15s; }
+  .acct-avatar-edit:hover { background:var(--blue); }
+  .acct-avatar-edit input { display:none; }
+  .acct-id { flex:1; min-width:0; }
+  .acct-name-row { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
+  .acct-name { font-size:1.35rem; }
+  .acct-name-edit-btn { background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:.85rem; text-decoration:underline; font-family:'Sora',sans-serif; font-weight:600; }
+  .acct-name-edit-btn:hover { color:var(--blue); }
+  .acct-email { color:var(--ink-soft); font-size:.88rem; margin-top:.2rem; }
+  .acct-role-chip { display:inline-block; font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem; letter-spacing:.03em; text-transform:uppercase;
+    background:var(--blue-bg); color:var(--blue-dark); padding:.25rem .6rem; border-radius:100px; margin-top:.5rem; }
+  .acct-name-edit-form { display:flex; gap:.5rem; margin-top:.35rem; align-items:center; }
+  .acct-name-edit-form input { font-family:'Sora',sans-serif; font-weight:700; font-size:1rem; padding:.4rem .7rem; border-radius:8px; border:1.5px solid var(--rule); }
+
+  .acct-stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+  .acct-stat-card { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.25rem; text-align:center; }
+  .acct-stat-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.7rem; color:var(--ink); }
+  .acct-stat-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.75rem; color:var(--ink-soft); margin-top:.2rem; }
+
+  .acct-card { background:var(--white); border:1px solid var(--rule); border-radius:18px; padding:1.5rem; }
+  .acct-card h3 { font-size:1.05rem; margin-bottom:1rem; }
+  .acct-cal-row { display:flex; justify-content:space-between; gap:.5rem; }
+  .acct-cal-day { flex:1; display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+  .acct-cal-dot { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem;
+    background:var(--paper-2); color:var(--ink-faint); }
+  .acct-cal-dot.lit { background:var(--gold-bg); }
+  .acct-cal-label { font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--ink-faint); }
+
+  .acct-progress-list { display:flex; flex-direction:column; gap:.9rem; }
+  .acct-progress-item { display:flex; align-items:center; gap:.9rem; }
+  .acct-progress-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .acct-progress-info { flex:1; min-width:0; }
+  .acct-progress-top { display:flex; justify-content:space-between; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; margin-bottom:.35rem; }
+  .acct-progress-name { color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acct-progress-pct { color:var(--ink-soft); flex-shrink:0; margin-left:.5rem; }
+  .acct-progress-bar-track { height:8px; background:var(--paper-2); border-radius:100px; overflow:hidden; }
+  .acct-progress-bar-fill { height:100%; border-radius:100px; transition:width .6s cubic-bezier(.22,1,.36,1); }
+  .acct-empty-note { color:var(--ink-faint); font-size:.88rem; }
+
+  .acct-settings-row { display:flex; align-items:center; justify-content:space-between; padding:.9rem 0; border-bottom:1px solid var(--rule); gap:1rem; flex-wrap:wrap; }
+  .acct-settings-row:last-child { border-bottom:none; }
+  .acct-settings-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; color:var(--ink); }
+  .acct-settings-sub { font-size:.8rem; color:var(--ink-soft); margin-top:.15rem; }
+
+  .acct-danger-card { background:var(--red-bg); border:1px solid rgba(229,72,77,.3); border-radius:18px; padding:1.5rem; }
+  .acct-danger-card h3 { color:var(--red); font-size:1rem; }
+  .btn-danger { background:var(--red); color:#fff; }
+  .btn-danger:hover { background:#c8383d; }
+
+  @media (max-width:700px){
+    .acct-wrap { padding:6rem 1.25rem 3rem; }
+    .acct-header { flex-direction:column; text-align:center; }
+    .acct-stats-row { grid-template-columns:1fr 1fr; }
+  }
   .dash-cta-title { font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; color:var(--ink); }
   .dash-cta-sub { font-size:.82rem; color:var(--ink-soft); margin-top:.25rem; line-height:1.5; }
 
@@ -592,6 +655,7 @@
     <li><a data-page="courses" onclick="showPage('courses');closeNav()">Courses</a></li>
     <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()">Daily Review</a></li>
     <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()">Analytics</a></li>
+    <li id="nav-account-li" style="display:none;"><a data-page="account" onclick="showPage('account');closeNav()">Account</a></li>
     <li><a data-page="about" onclick="showPage('about');closeNav()">About</a></li>
   </ul>
 </nav>
@@ -642,6 +706,92 @@
   </div>
 </div>
 
+<!-- ═══════ ACCOUNT ═══════ -->
+<div id="account-page" style="display:none; min-height:100vh; background:var(--paper);">
+  <div class="acct-wrap">
+
+    <div class="acct-header">
+      <div class="acct-avatar-wrap">
+        <div class="acct-avatar" id="acct-avatar"></div>
+        <label class="acct-avatar-edit" id="acct-avatar-edit" title="Change photo">
+          ✎<input type="file" id="acct-avatar-input" accept="image/png,image/jpeg,image/webp">
+        </label>
+      </div>
+      <div class="acct-id">
+        <div class="acct-name-row">
+          <h2 class="acct-name" id="acct-name">Student</h2>
+          <button class="acct-name-edit-btn" id="acct-name-edit-btn">Edit</button>
+        </div>
+        <div class="acct-name-edit-form" id="acct-name-edit-form" style="display:none;">
+          <input type="text" id="acct-name-input" maxlength="40" placeholder="Display name">
+          <button class="btn-sm" id="acct-name-save-btn">Save</button>
+          <button class="btn-sm" id="acct-name-cancel-btn">Cancel</button>
+        </div>
+        <div class="acct-email" id="acct-email"></div>
+        <span class="acct-role-chip" id="acct-role-chip">Student</span>
+        <div id="acct-avatar-error" style="color:var(--red); font-size:.78rem; margin-top:.4rem;"></div>
+      </div>
+    </div>
+
+    <div class="acct-stats-row">
+      <div class="acct-stat-card">
+        <div class="acct-stat-num" id="acct-stat-xp">0</div>
+        <div class="acct-stat-label">⚡ Total XP</div>
+      </div>
+      <div class="acct-stat-card">
+        <div class="acct-stat-num" id="acct-stat-streak">0</div>
+        <div class="acct-stat-label">🔥 Current streak</div>
+      </div>
+      <div class="acct-stat-card">
+        <div class="acct-stat-num" id="acct-stat-longest">0</div>
+        <div class="acct-stat-label">🏆 Longest streak</div>
+      </div>
+    </div>
+
+    <div class="acct-card">
+      <h3>This week</h3>
+      <div class="acct-cal-row" id="acct-cal-row"></div>
+    </div>
+
+    <div class="acct-card">
+      <h3>Course progress</h3>
+      <div class="acct-progress-list" id="acct-progress-list">
+        <div class="acct-empty-note">No courses started yet — head to Courses to begin one.</div>
+      </div>
+    </div>
+
+    <div class="acct-card">
+      <h3>Settings</h3>
+      <div class="acct-settings-row">
+        <div>
+          <div class="acct-settings-label">Sound effects</div>
+          <div class="acct-settings-sub">XP and streak sound cues while you practice.</div>
+        </div>
+        <button class="btn-sm" id="acct-sound-toggle-btn">🔊 On</button>
+      </div>
+      <div class="acct-settings-row">
+        <div>
+          <div class="acct-settings-label">Signed in with</div>
+          <div class="acct-settings-sub" id="acct-signin-method">Google</div>
+        </div>
+        <button class="btn-sm danger" id="acct-signout-btn">Sign out</button>
+      </div>
+    </div>
+
+    <div class="acct-danger-card">
+      <h3>Danger zone</h3>
+      <div class="acct-settings-row" style="border-bottom:none;">
+        <div>
+          <div class="acct-settings-label">Delete account</div>
+          <div class="acct-settings-sub">Permanently deletes your profile, XP, streak, and saved answers. This cannot be undone.</div>
+        </div>
+        <button class="btn btn-danger" id="acct-delete-btn">Delete account</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ═══════ COURSES ═══════ -->
 <div id="courses-page">
   <section class="hero">
@@ -654,7 +804,7 @@
           <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
           <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
           <div class="educator-badge" id="account-badge">
-            <span id="account-badge-text"></span>
+            <span id="account-badge-text" style="cursor:pointer;"></span>
             <button id="account-signout-btn">Sign out</button>
           </div>
         </div>
@@ -913,6 +1063,18 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="acct-del-overlay">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-eyebrow">Delete account</div>
+    <h2>Delete your account?</h2>
+    <p class="desc">This permanently deletes your profile, XP, streak, and every saved answer. It cannot be undone. Type <b>DELETE</b> below to confirm.</p>
+    <input type="text" id="acct-del-confirm-input" placeholder="Type DELETE" style="width:100%; padding:.6rem .8rem; border-radius:8px; border:1.5px solid var(--rule); font-family:inherit; margin-bottom:1rem;">
+    <div id="acct-del-error" style="color:var(--red); font-size:.8rem; margin-bottom:.75rem;"></div>
+    <button class="modal-btn btn-danger" id="acct-del-confirm-btn">Delete my account</button>
+    <button class="modal-btn secondary" id="acct-del-cancel-btn">Cancel</button>
+  </div>
+</div>
+
 <footer>
   <div class="footer-inner">
     <div class="footer-copy">Modilix — original practice material for Ontario high school students.</div>
@@ -931,6 +1093,7 @@
 const SUPABASE_URL = 'https://oohclfpwffhrlwwseotz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vaGNsZnB3ZmZocmx3d3Nlb3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjg2MzYsImV4cCI6MjA5ODg0NDYzNn0.iW_1x03_-77E2QnM_C2Dg10SIY_f1Tcz3tsojz2UU1s';
 const FILES_BUCKET = 'course-files';
+const AVATAR_BUCKET = 'avatars';
 
 /* ══════════════════════════════════════
    FIREBASE CONFIG — paste your values here
@@ -1464,6 +1627,7 @@ function showPage(page){
   document.getElementById('about-page').style.display='none';
   document.getElementById('review-page').style.display='none';
   document.getElementById('analytics-page').style.display='none';
+  document.getElementById('account-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
   updateNavActive(page);
@@ -1498,6 +1662,12 @@ function showPage(page){
     const el = document.getElementById('analytics-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
     renderAnalyticsPage();
+  }
+  if(page==='account'){
+    if(!currentUser || isEducator){ showPage('home'); return; }
+    const el = document.getElementById('account-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderAccountPage();
   }
   window.scrollTo(0,0);
 }
@@ -1624,6 +1794,8 @@ function updateAccountUI(){
   document.getElementById('educator-signin-btn').style.display = currentUser ? 'none' : 'inline-block';
   document.getElementById('nav-review-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-analytics-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
+  document.getElementById('nav-account-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
+  text.onclick = (currentUser && !isEducator) ? ()=>showPage('account') : null;
   if(!currentUser){ studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null }; }
   renderNavProgress();
 }
@@ -3585,7 +3757,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
 };
 
 /* ── Shared sign-out ── */
-document.getElementById('account-signout-btn').onclick = async ()=>{
+async function doSignOut(){
   if(firebaseUser){
     await firebaseAuth.signOut();
     firebaseUser=null; studentAccessToken=null; studentAccessTokenExpiresAt=0;
@@ -3594,6 +3766,179 @@ document.getElementById('account-signout-btn').onclick = async ()=>{
   }
   currentUser=null; currentProfile=null; isEducator=false; studentResponses={};
   updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
+}
+document.getElementById('account-signout-btn').onclick = doSignOut;
+document.getElementById('acct-signout-btn').onclick = doSignOut;
+
+/* ══════════════════════════════════════
+   ACCOUNT PAGE
+   ══════════════════════════════════════ */
+function acctInitials(name, email){
+  const src = (name || email || '?').trim();
+  const parts = src.split(/\s+/).filter(Boolean);
+  if(parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return src.slice(0,2).toUpperCase();
+}
+
+function renderAccountPage(){
+  if(!currentUser || isEducator) return;
+
+  const name = currentProfile?.display_name || currentUser.displayName || 'Student';
+  document.getElementById('acct-name').textContent = name;
+  document.getElementById('acct-email').textContent = currentUser.email || '';
+  document.getElementById('acct-role-chip').textContent = 'Student';
+  document.getElementById('acct-signin-method').textContent = firebaseUser ? 'Google' : 'Email & password';
+
+  // Avatar
+  const avatarEl = document.getElementById('acct-avatar');
+  const avatarUrl = currentProfile?.avatar_url;
+  avatarEl.innerHTML = avatarUrl
+    ? `<img src="${esc(avatarUrl)}" alt="${esc(name)}'s avatar">`
+    : esc(acctInitials(name, currentUser.email));
+
+  // Stats
+  document.getElementById('acct-stat-xp').textContent = studentProgress.xp || 0;
+  document.getElementById('acct-stat-streak').textContent = studentProgress.current_streak || 0;
+  document.getElementById('acct-stat-longest').textContent = studentProgress.longest_streak || 0;
+
+  // Week calendar (mirrors the dashboard's week logic)
+  const cal = document.getElementById('acct-cal-row');
+  const dayLabels = ['S','M','T','W','T','F','S'];
+  const streak = studentProgress.current_streak || 0;
+  const lastActive = studentProgress.last_active_date ? new Date(studentProgress.last_active_date + 'T00:00:00') : null;
+  let calHtml = '';
+  const today = new Date();
+  for(let i=6;i>=0;i--){
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    let active = false;
+    if(lastActive && streak>0){
+      const daysBack = Math.round((lastActive - d)/86400000);
+      active = daysBack>=0 && daysBack < streak;
+    }
+    calHtml += `<div class="acct-cal-day">
+        <div class="acct-cal-dot ${active?'lit':''}">${active?'🔥':''}</div>
+        <div class="acct-cal-label">${dayLabels[d.getDay()]}</div>
+      </div>`;
+  }
+  cal.innerHTML = calHtml;
+
+  // Course progress
+  const listEl = document.getElementById('acct-progress-list');
+  const started = courses.filter(c=>{
+    const ids = items.filter(i=>i.courseId===c.id).map(i=>i.id);
+    return ids.some(id=>studentResponses[id]);
+  });
+  if(!started.length){
+    listEl.innerHTML = `<div class="acct-empty-note">No courses started yet — head to Courses to begin one.</div>`;
+  } else {
+    listEl.innerHTML = started.map(c=>{
+      const pct = courseCompletionPct(c.id);
+      const color = SUBJECT_COLORS[c.subject] || 'var(--blue)';
+      return `<div class="acct-progress-item">
+        <span class="acct-progress-dot" style="background:${color};"></span>
+        <div class="acct-progress-info">
+          <div class="acct-progress-top">
+            <span class="acct-progress-name">${esc(c.code)} — ${esc(c.name)}</span>
+            <span class="acct-progress-pct">${pct}%</span>
+          </div>
+          <div class="acct-progress-bar-track"><div class="acct-progress-bar-fill" style="width:${pct}%; background:${color};"></div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  renderSoundToggle();
+}
+
+// Keep the account-page sound button in sync too.
+const _origRenderSoundToggle = renderSoundToggle;
+renderSoundToggle = function(){
+  _origRenderSoundToggle();
+  const btn = document.getElementById('acct-sound-toggle-btn');
+  if(btn) btn.textContent = soundsOn ? '🔊 On' : '🔇 Off';
+};
+document.getElementById('acct-sound-toggle-btn').onclick = toggleSound;
+
+/* ── Display name edit ── */
+document.getElementById('acct-name-edit-btn').onclick = ()=>{
+  document.getElementById('acct-name-input').value = document.getElementById('acct-name').textContent;
+  document.getElementById('acct-name-edit-form').style.display = 'flex';
+};
+document.getElementById('acct-name-cancel-btn').onclick = ()=>{
+  document.getElementById('acct-name-edit-form').style.display = 'none';
+};
+document.getElementById('acct-name-save-btn').onclick = async ()=>{
+  const val = document.getElementById('acct-name-input').value.trim();
+  if(!val) return;
+  const btn = document.getElementById('acct-name-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await db.from('profiles').update({ display_name: val }).eq('id', currentUser.id);
+  btn.disabled = false; btn.textContent = 'Save';
+  if(error){ document.getElementById('acct-avatar-error').textContent = error.message; return; }
+  currentProfile = { ...(currentProfile||{}), display_name: val };
+  document.getElementById('acct-name').textContent = val;
+  document.getElementById('acct-avatar').innerHTML = document.getElementById('acct-avatar').querySelector('img')
+    ? document.getElementById('acct-avatar').innerHTML
+    : esc(acctInitials(val, currentUser.email));
+  document.getElementById('acct-name-edit-form').style.display = 'none';
+};
+
+/* ── Avatar upload ──
+   Requires a public Supabase Storage bucket named 'avatars' (see setup notes). */
+document.getElementById('acct-avatar-input').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const errEl = document.getElementById('acct-avatar-error');
+  errEl.textContent = '';
+  if(file.size > 3 * 1024 * 1024){ errEl.textContent = 'Image must be under 3MB.'; return; }
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `${currentUser.id}/avatar-${Date.now()}.${ext}`;
+  const { error: upErr } = await db.storage.from(AVATAR_BUCKET).upload(path, file, { upsert: true });
+  if(upErr){ errEl.textContent = upErr.message; return; }
+  const { data: urlData } = db.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+  const { error: dbErr } = await db.from('profiles').update({ avatar_url: urlData.publicUrl }).eq('id', currentUser.id);
+  if(dbErr){ errEl.textContent = dbErr.message; return; }
+  currentProfile = { ...(currentProfile||{}), avatar_url: urlData.publicUrl };
+  document.getElementById('acct-avatar').innerHTML = `<img src="${esc(urlData.publicUrl)}" alt="avatar">`;
+});
+
+/* ── Delete account ── */
+document.getElementById('acct-delete-btn').onclick = ()=>{
+  document.getElementById('acct-del-confirm-input').value = '';
+  document.getElementById('acct-del-error').textContent = '';
+  openModal('acct-del-overlay');
+};
+document.getElementById('acct-del-cancel-btn').onclick = ()=>closeModal('acct-del-overlay');
+document.getElementById('acct-del-confirm-btn').onclick = async ()=>{
+  const typed = document.getElementById('acct-del-confirm-input').value.trim();
+  const errEl = document.getElementById('acct-del-error');
+  if(typed !== 'DELETE'){ errEl.textContent = 'Type DELETE exactly to confirm.'; return; }
+  const btn = document.getElementById('acct-del-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  const uid = currentUser.id;
+  try{
+    await db.from('responses').delete().eq('student_id', uid);
+    await db.from('student_progress').delete().eq('student_id', uid);
+    await db.from('profiles').delete().eq('id', uid);
+    if(firebaseUser){
+      // Firebase lets a signed-in user delete their own account. If the
+      // session is stale, this throws auth/requires-recent-login — in that
+      // case the data rows above are already gone, so we still sign out.
+      try{ await firebaseUser.delete(); } catch(e){ console.warn('firebase delete', e); }
+    } else {
+      // Legacy email/password students: we can't delete the Supabase auth
+      // user from the client (needs the service role key). Data is wiped
+      // above; an admin can remove the leftover auth user from the
+      // Supabase dashboard if needed.
+    }
+  } catch(e){
+    errEl.textContent = e.message || 'Something went wrong deleting your account.';
+    btn.disabled = false; btn.textContent = 'Delete my account';
+    return;
+  }
+  btn.disabled = false; btn.textContent = 'Delete my account';
+  closeModal('acct-del-overlay');
+  await doSignOut();
 };
 
 /* ── Question builder ── */
