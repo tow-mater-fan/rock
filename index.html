@@ -197,6 +197,31 @@
   /* ── COURSE DETAIL PAGE (two-column) ── */
   #course-detail-page { display:none; min-height:100vh; background:var(--paper); }
   #course-detail-page.visible { display:block; }
+  #tool-graphbuilder-page { display:none; min-height:100vh; background:var(--paper); }
+  #tool-graphbuilder-page.visible { display:block; }
+  .tool-tile { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.1rem 1.2rem; display:flex; gap:.9rem; align-items:flex-start; cursor:pointer; transition:transform .18s, box-shadow .18s, border-color .18s; }
+  .tool-tile:hover { transform:translateY(-3px); box-shadow:0 14px 30px -12px rgba(15,48,96,.2); border-color:transparent; }
+  .tool-tile-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; }
+  .tool-tile-name { font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; margin-bottom:.25rem; }
+  .tool-tile-desc { font-size:.8rem; color:var(--ink-soft); line-height:1.5; }
+  .gb-hero { padding:5.5rem 2.5rem 0; max-width:1120px; margin:0 auto; }
+  .gb-back { background:none; border:none; font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; color:var(--ink-soft); cursor:pointer; margin-bottom:1rem; }
+  .gb-back:hover { color:var(--blue); }
+  .gb-layout { display:flex; gap:2rem; max-width:1120px; margin:0 auto; padding:0 2.5rem 4rem; align-items:flex-start; flex-wrap:wrap; }
+  .gb-controls { flex:1 1 340px; min-width:300px; background:var(--white); border:1px solid var(--rule); border-radius:18px; padding:1.5rem; }
+  .gb-controls h3 { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:.4rem; }
+  .gb-select { width:100%; padding:.65rem .8rem; border:1px solid var(--rule); border-radius:10px; font-family:'Sora',sans-serif; font-weight:600; font-size:.9rem; margin-bottom:1.25rem; background:var(--white); color:var(--ink); }
+  .gb-eq { font-family:'IBM Plex Mono',monospace; font-size:1rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; padding:.75rem .9rem; margin-bottom:1.4rem; }
+  .gb-param-row { margin-bottom:1.1rem; }
+  .gb-param-label-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:.35rem; }
+  .gb-param-label-row label { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.85rem; color:var(--ink); }
+  .gb-param-label-row .gb-param-hint { font-size:.7rem; color:var(--ink-faint); }
+  .gb-param-inputs { display:flex; align-items:center; gap:.6rem; }
+  .gb-param-inputs input[type=range] { flex:1; accent-color:var(--blue); }
+  .gb-param-inputs input[type=number] { width:4.2em; padding:.35rem .4rem; border:1px solid var(--rule); border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:.85rem; text-align:center; }
+  .gb-graph-wrap { flex:1 1 420px; min-width:320px; background:var(--white); border:1px solid var(--rule); border-radius:18px; padding:1.25rem; }
+  .gb-graph-wrap svg { width:100%; height:auto; display:block; background:var(--white); border-radius:10px; }
+  .gb-reset-btn { width:100%; margin-top:.3rem; }
   .cd-hero { background:var(--board); padding:7.5rem 2.5rem 2.25rem; }
   .cd-back { font-family:'Sora',sans-serif; font-weight:700; font-size:.8rem; color:rgba(246,244,239,.6); background:none; border:none; cursor:pointer; margin-bottom:1.1rem; }
   .cd-back:hover { color:var(--white); }
@@ -930,6 +955,7 @@
   </div>
   <div id="courses-signedin-body" style="display:none;">
     <button class="btn btn-outline" id="btn-new-course" style="display:none; margin:0 auto 1.75rem; width:max-content;">+ New Course</button>
+    <div id="tools-sections"></div>
     <div id="subject-sections"></div>
   </div>
 </div>
@@ -997,6 +1023,54 @@
       <div class="lesson-list" id="lesson-list"></div>
       <div class="unit-admin-row" id="unit-admin-row"></div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════ TOOL: GRAPH BUILDER (math) ═══════ -->
+<div id="tool-graphbuilder-page">
+  <div class="gb-hero">
+    <button class="gb-back" id="gb-back-btn">← Back to courses</button>
+    <div class="eyebrow" style="color:var(--blue);">Math Tool</div>
+    <h1 style="font-size:1.7rem; margin-bottom:.3rem;">Graph Builder</h1>
+    <p style="color:var(--ink-soft); font-size:.9rem; max-width:640px;">Pick a base function, then transform it with sliders or by typing values directly. Watch the equation and graph update live — including automatic arrows and asymptotes.</p>
+  </div>
+  <div class="gb-layout">
+    <div class="gb-controls">
+      <h3>Base function</h3>
+      <select class="gb-select" id="gb-parent-select"></select>
+      <div class="gb-eq" id="gb-eq">y = x</div>
+
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>a — vertical stretch/reflection</label><span class="gb-param-hint">a·f(x)</span></div>
+        <div class="gb-param-inputs">
+          <input type="range" id="gb-slider-a" min="-3" max="3" step="0.1" value="1">
+          <input type="number" id="gb-input-a" min="-3" max="3" step="0.1" value="1">
+        </div>
+      </div>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>k — horizontal stretch/reflection</label><span class="gb-param-hint">f(k·x)</span></div>
+        <div class="gb-param-inputs">
+          <input type="range" id="gb-slider-k" min="-3" max="3" step="0.1" value="1">
+          <input type="number" id="gb-input-k" min="-3" max="3" step="0.1" value="1">
+        </div>
+      </div>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>d — horizontal shift</label><span class="gb-param-hint">f(x − d)</span></div>
+        <div class="gb-param-inputs">
+          <input type="range" id="gb-slider-d" min="-6" max="6" step="0.5" value="0">
+          <input type="number" id="gb-input-d" min="-6" max="6" step="0.5" value="0">
+        </div>
+      </div>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>c — vertical shift</label><span class="gb-param-hint">f(x) + c</span></div>
+        <div class="gb-param-inputs">
+          <input type="range" id="gb-slider-c" min="-6" max="6" step="0.5" value="0">
+          <input type="number" id="gb-input-c" min="-6" max="6" step="0.5" value="0">
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm gb-reset-btn" id="gb-reset-btn">Reset to y = x</button>
+    </div>
+    <div class="gb-graph-wrap" id="gb-graph-wrap"></div>
   </div>
 </div>
 
@@ -1484,6 +1558,72 @@ function fxEquationStr(parentKey, a, k, d, c){
   const cPart = c===0 ? '' : ` ${c>0?'+':'−'} ${Math.abs(c)}`;
   return `y = ${aPart}${inner}${cPart}`;
 }
+// ── Graph Builder tool (math) — reuses the FX engine's FX_PARENTS/fxEval/fxEquationStr/fxBuildSVG ──
+let gbState = { parent:'linear', a:1, k:1, d:0, c:0 };
+function gbPopulateParentSelect(){
+  const sel = document.getElementById('gb-parent-select');
+  if(!sel) return;
+  sel.innerHTML = Object.keys(FX_PARENTS).map(key=>`<option value="${key}">${FX_PARENTS[key].label}</option>`).join('');
+  sel.value = gbState.parent;
+}
+function gbSyncControlsFromState(){
+  ['a','k','d','c'].forEach(p=>{
+    document.getElementById('gb-slider-'+p).value = gbState[p];
+    document.getElementById('gb-input-'+p).value = gbState[p];
+  });
+  document.getElementById('gb-parent-select').value = gbState.parent;
+}
+function gbRedraw(){
+  document.getElementById('gb-eq').textContent = fxEquationStr(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c);
+  const range = 10;
+  document.getElementById('gb-graph-wrap').innerHTML = fxBuildSVG('gb-svg', range,
+    [{ fn:x=>fxEval(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c, x) }], []);
+}
+function openGraphBuilder(){
+  document.getElementById('home-page').style.display='none';
+  document.getElementById('dashboard-page').style.display='none';
+  document.getElementById('courses-page').style.display='none';
+  document.getElementById('about-page').style.display='none';
+  document.getElementById('course-detail-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible');
+  const el = document.getElementById('tool-graphbuilder-page');
+  el.classList.add('visible');
+  el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+  gbPopulateParentSelect();
+  gbSyncControlsFromState();
+  gbRedraw();
+  window.scrollTo(0,0);
+}
+document.getElementById('gb-back-btn').onclick = ()=>{
+  document.getElementById('tool-graphbuilder-page').classList.remove('visible');
+  showPage('courses');
+};
+document.getElementById('gb-parent-select').onchange = e=>{ gbState.parent = e.target.value; gbRedraw(); };
+['a','k','d','c'].forEach(p=>{
+  const slider = document.getElementById('gb-slider-'+p);
+  const input = document.getElementById('gb-input-'+p);
+  // Slider drag and typed number both drive the same state, so either interaction updates the graph live.
+  slider.addEventListener('input', ()=>{
+    gbState[p] = parseFloat(slider.value);
+    input.value = slider.value;
+    gbRedraw();
+  });
+  input.addEventListener('input', ()=>{
+    const raw = parseFloat(input.value);
+    if(Number.isNaN(raw)) return;
+    const min = parseFloat(slider.min), max = parseFloat(slider.max);
+    const clamped = Math.min(max, Math.max(min, raw));
+    gbState[p] = clamped;
+    slider.value = clamped;
+    gbRedraw();
+  });
+});
+document.getElementById('gb-reset-btn').onclick = ()=>{
+  gbState = { parent:'linear', a:1, k:1, d:0, c:0 };
+  gbSyncControlsFromState();
+  gbRedraw();
+};
+
 // ── Landing hero interactive demo (uses the same FX engine as lessons) ──
 function initHeroDemo(){
   const svgWrap = document.getElementById('hero-demo-svg-wrap');
@@ -1761,6 +1901,7 @@ function showPage(page){
   document.getElementById('account-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('tool-graphbuilder-page').classList.remove('visible');
   updateNavActive(page);
   if(page==='home'){
     // Home is the public marketing page — same content whether you're signed in or not.
@@ -1784,6 +1925,7 @@ function showPage(page){
     } else {
       gate.style.display='none'; body.style.display='block';
       renderCourses();
+      renderTools();
     }
   }
   if(page==='about'){
@@ -1946,6 +2088,33 @@ const SUBJECT_GRADIENTS = {
   english: ['#f5a623','#d98816'], business: ['#14b8b2','#0b8078'], other: ['#5b6272','#3a3f4c']
 };
 const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test', lesson:'Lesson' };
+
+// ── Per-subject tools shown on the Courses page (above the course catalog) ──
+const TOOLS_BY_SUBJECT = {
+  math: [
+    { id:'graph-builder', name:'Graph Builder', icon:'📈', desc:'Pick a base function and transform it with sliders or by typing values — see the equation and graph update live.' }
+  ],
+};
+function renderTools(){
+  const cont = document.getElementById('tools-sections');
+  if(!cont) return;
+  const subjects = Object.keys(TOOLS_BY_SUBJECT).filter(s=>TOOLS_BY_SUBJECT[s] && TOOLS_BY_SUBJECT[s].length);
+  if(!subjects.length){ cont.innerHTML=''; return; }
+  cont.innerHTML = subjects.map(subj=>{
+    const tiles = TOOLS_BY_SUBJECT[subj].map(t=>`<div class="tool-tile" data-tool="${t.id}">
+        <div class="tool-tile-icon" style="background:${SUBJECT_COLORS[subj]||'var(--ink-faint)'}22; color:${SUBJECT_COLORS[subj]||'var(--ink-faint)'};">${t.icon}</div>
+        <div><div class="tool-tile-name">${esc(t.name)}</div><div class="tool-tile-desc">${esc(t.desc)}</div></div>
+      </div>`).join('');
+    return `<div class="subject-section" style="padding-bottom:0;">
+      <div class="subject-head"><h2><span class="subject-dot" style="background:${SUBJECT_COLORS[subj]||'var(--ink-faint)'}"></span>${SUBJECT_LABELS[subj]||subj} tools</h2></div>
+      <div class="course-row">${tiles}</div>
+    </div>`;
+  }).join('');
+  cont.querySelectorAll('.tool-tile').forEach(t=>t.addEventListener('click', ()=>openTool(t.dataset.tool)));
+}
+function openTool(toolId){
+  if(toolId==='graph-builder') openGraphBuilder();
+}
 
 function itemMastery(response){
   if(!response || !response.submitted) return { label:'Not started', cls:'ms-none' };
