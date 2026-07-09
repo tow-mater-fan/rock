@@ -572,6 +572,8 @@
   <ul class="nav-links" id="nav-links">
     <li><a data-page="home" onclick="showPage('home');closeNav()">Home</a></li>
     <li><a data-page="courses" onclick="showPage('courses');closeNav()">Courses</a></li>
+    <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()">Daily Review</a></li>
+    <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()">Analytics</a></li>
     <li><a data-page="about" onclick="showPage('about');closeNav()">About</a></li>
   </ul>
 </nav>
@@ -669,6 +671,26 @@
   </section>
   <div class="subject-section">
     <p style="max-width:640px; color:var(--ink-soft); line-height:1.8; font-size:.95rem;"> Course material for highschools in ontario..</p>
+  </div>
+</div>
+
+<!-- ═══════ DAILY REVIEW (spaced repetition) ═══════ -->
+<div id="review-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+  <div style="max-width:640px; margin:0 auto;">
+    <div class="eyebrow" style="color:var(--teal);">Daily Review</div>
+    <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Keep what you've learned</h1>
+    <p style="color:var(--ink-soft); font-size:.92rem; margin-bottom:1.5rem;">A short mix of questions you're close to forgetting, plus a few new ones — spaced out using the same idea behind flashcard apps like Anki.</p>
+    <div id="review-body"></div>
+  </div>
+</div>
+
+<!-- ═══════ EDUCATOR ANALYTICS ═══════ -->
+<div id="analytics-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+  <div style="max-width:960px; margin:0 auto;">
+    <div class="eyebrow" style="color:var(--purple);">Educator</div>
+    <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Class Analytics</h1>
+    <p style="color:var(--ink-soft); font-size:.92rem; margin-bottom:1.5rem;">Per-question performance across every student who has submitted work, so you can spot which distractor is catching people and which questions need a rewrite.</p>
+    <div id="analytics-body"></div>
   </div>
 </div>
 
@@ -844,6 +866,8 @@
         <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:#946200;">+ Spot the error</button>
         <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
         <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
+        <button class="btn-sm" id="lb-add-compose" style="border-color:var(--purple);color:var(--purple);">+ Composition f(g(x))</button>
+        <button class="btn-sm" id="lb-add-inverse" style="border-color:var(--purple);color:var(--purple);">+ Inverse function</button>
       </div>
     </div>
     <div class="form-group">
@@ -950,6 +974,94 @@ const sbStudent = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, 
 // sbAuth/sbStudent directly. Auth actions always use sbAuth directly.
 let db = sbAuth;
 
+/* ── Connection resilience: retry + offline banner + localStorage fallback queue ──
+   Every write (`insert`/`update`/`upsert`/`delete`) that matters for grading or
+   progress should go through dbWrite() instead of calling db.from(...) directly,
+   so a flaky connection during a graded item degrades gracefully instead of
+   leaving a button stuck on "Saving…". */
+let netBannerEl = null;
+function showNetBanner(msg, kind){
+  if(!netBannerEl){
+    netBannerEl = document.createElement('div');
+    netBannerEl.id = 'net-banner';
+    netBannerEl.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:3000;'
+      + "font-family:'Sora',sans-serif;font-weight:600;font-size:.78rem;padding:.6rem 1.1rem;border-radius:100px;"
+      + 'box-shadow:0 10px 28px rgba(0,0,0,.22);display:none;max-width:90vw;text-align:center;';
+    document.body.appendChild(netBannerEl);
+  }
+  netBannerEl.style.background = kind==='error' ? 'var(--red)' : (kind==='ok' ? 'var(--green)' : 'var(--gold)');
+  netBannerEl.style.color = '#fff';
+  netBannerEl.textContent = msg;
+  netBannerEl.style.display = 'block';
+  clearTimeout(netBannerEl._hideTimer);
+  if(kind!=='persist') netBannerEl._hideTimer = setTimeout(()=>{ netBannerEl.style.display='none'; }, 4000);
+}
+function hideNetBanner(){ if(netBannerEl) netBannerEl.style.display='none'; }
+
+const PENDING_KEY = 'modilix-pending-writes';
+function queuePendingWrite(kind, payload){
+  const q = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+  q.push({ id: uid(), kind, payload, queuedAt: Date.now() });
+  localStorage.setItem(PENDING_KEY, JSON.stringify(q));
+}
+async function flushPendingWrites(){
+  const q = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]');
+  if(!q.length || !currentUser) return;
+  const remaining = [];
+  for(const entry of q){
+    try{
+      let res;
+      if(entry.kind==='response') res = await db.from('responses').upsert(entry.payload, { onConflict:'student_id,item_id' });
+      else if(entry.kind==='review') res = await db.from('review_log').upsert(entry.payload, { onConflict:'student_id,question_key' });
+      if(res && res.error) remaining.push(entry);
+    } catch(e){ remaining.push(entry); }
+  }
+  localStorage.setItem(PENDING_KEY, JSON.stringify(remaining));
+  if(q.length && !remaining.length) showNetBanner('✓ Synced saved answers', 'ok');
+}
+window.addEventListener('online', flushPendingWrites);
+
+// Wraps a Supabase call with retries + exponential backoff. On final failure,
+// optionally queues the payload to localStorage so it syncs automatically
+// once the connection (or the 'online' event) returns.
+async function dbWrite(queryFn, { label='Saving', retries=2, queueKind=null, queuePayload=null } = {}){
+  for(let attempt=0; attempt<=retries; attempt++){
+    try{
+      const result = await queryFn();
+      if(result && result.error){
+        const transient = /network|fetch|timeout|failed to fetch/i.test(result.error.message||'');
+        if(transient && attempt<retries){
+          showNetBanner(`${label} — connection issue, retrying…`, 'warn');
+          await new Promise(r=>setTimeout(r, 700*(attempt+1)));
+          continue;
+        }
+        if(transient && queueKind){
+          queuePendingWrite(queueKind, queuePayload);
+          showNetBanner(`${label} — offline. Saved locally, will sync automatically.`, 'persist');
+        } else {
+          showNetBanner(`${label} failed: ${result.error.message}`, 'error');
+        }
+        return result;
+      }
+      hideNetBanner();
+      return result;
+    } catch(err){
+      if(attempt<retries){
+        showNetBanner(`${label} — connection issue, retrying…`, 'warn');
+        await new Promise(r=>setTimeout(r, 700*(attempt+1)));
+        continue;
+      }
+      if(queueKind){
+        queuePendingWrite(queueKind, queuePayload);
+        showNetBanner(`${label} — offline. Saved locally, will sync automatically.`, 'persist');
+      } else {
+        showNetBanner(`${label} failed — check your connection.`, 'error');
+      }
+      return { error: err };
+    }
+  }
+}
+
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
 
@@ -1050,6 +1162,8 @@ const FX_PARENTS = {
   sqrt:        { label:'Square root — f(x) = √x',      fn:x=>Math.sqrt(x),       domain:x=>x>=0 },
   reciprocal:  { label:'Reciprocal — f(x) = 1/x',      fn:x=>1/x,                domain:x=>Math.abs(x)>0.05 },
   exponential: { label:'Exponential — f(x) = 2ˣ',      fn:x=>Math.pow(2,x),      domain:x=>true },
+  sine:        { label:'Sine — f(x) = sin(x°)',        fn:x=>Math.sin(x*Math.PI/180), domain:x=>true },
+  cosine:      { label:'Cosine — f(x) = cos(x°)',      fn:x=>Math.cos(x*Math.PI/180), domain:x=>true },
 };
 // Full Ontario MCR3U/MHF4U transformation form: y = a · f( k(x − d) ) + c
 //   a = vertical stretch/compression, and reflection in the x-axis when a<0
@@ -1064,7 +1178,7 @@ function fxEval(parentKey, a, k, d, c, x){
   return Number.isFinite(v) ? v : null;
 }
 function fxEquationStr(parentKey, a, k, d, c){
-  const base = { linear:'x', quadratic:'x²', absolute:'|x|', cubic:'x³', sqrt:'√x', reciprocal:'1/x', exponential:'2ˣ' }[parentKey] || 'x';
+  const base = { linear:'x', quadratic:'x²', absolute:'|x|', cubic:'x³', sqrt:'√x', reciprocal:'1/x', exponential:'2ˣ', sine:'sin(x)', cosine:'cos(x)' }[parentKey] || 'x';
   let argStr;
   if(d===0){
     argStr = k===1 ? 'x' : (k===-1 ? '−x' : `${k}x`);
@@ -1295,6 +1409,8 @@ function showPage(page){
   document.getElementById('dashboard-page').style.display='none';
   document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
+  document.getElementById('review-page').style.display='none';
+  document.getElementById('analytics-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
   updateNavActive(page);
@@ -1319,6 +1435,16 @@ function showPage(page){
   if(page==='about'){
     const el = document.getElementById('about-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+  }
+  if(page==='review'){
+    const el = document.getElementById('review-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderReviewPage();
+  }
+  if(page==='analytics'){
+    const el = document.getElementById('analytics-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderAnalyticsPage();
   }
   window.scrollTo(0,0);
 }
@@ -1443,6 +1569,8 @@ function updateAccountUI(){
   }
   document.getElementById('student-auth-btn').style.display = currentUser ? 'none' : 'inline-block';
   document.getElementById('educator-signin-btn').style.display = currentUser ? 'none' : 'inline-block';
+  document.getElementById('nav-review-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
+  document.getElementById('nav-analytics-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   if(!currentUser){ studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null }; }
   renderNavProgress();
 }
@@ -1936,12 +2064,18 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
   });
   const submitBtn = document.getElementById('tp-submit-btn');
   submitBtn.disabled = true;
-  const { error } = await db.from('responses').upsert({
+  submitBtn.textContent = 'Saving…';
+  const payload = {
     student_id: currentUser.id, item_id: currentItemId,
     answers, score: mcCorrect, total: mcTotal, submitted: true, submitted_at: new Date().toISOString()
-  }, { onConflict: 'student_id,item_id' });
+  };
+  const { error } = await dbWrite(
+    ()=>db.from('responses').upsert(payload, { onConflict: 'student_id,item_id' }),
+    { label:'Saving your answers', queueKind:'response', queuePayload:payload }
+  );
   submitBtn.disabled = false;
-  if(error){ document.getElementById('tp-score').textContent = 'Could not save: ' + error.message; return; }
+  submitBtn.textContent = 'Submit';
+  if(error && !/network|fetch|timeout/i.test(error.message||'')){ document.getElementById('tp-score').textContent = 'Could not save: ' + error.message; return; }
   studentResponses[currentItemId] = { answers, score:mcCorrect, total:mcTotal, submitted:true };
   const ms = itemMastery(studentResponses[currentItemId]);
   document.getElementById('tp-score').textContent = mcTotal
@@ -1954,13 +2088,296 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
 /* ── Lesson player (interactive, Brilliant-style) ── */
 let lpItem = null, lpIndex = 0, lpAnswered = [];
 let hintState = {}; // { blockIndex: revealedCount } — resets per lesson
+let lpWrongStreak = 0; // adaptive difficulty: consecutive wrong checks in this lesson
 
 function openLessonPlayer(it, prior){
   lpItem = it;
   lpIndex = 0;
   lpAnswered = new Array(it.content.length).fill(false);
   hintState = {};
+  lpWrongStreak = 0;
   renderLpBlock();
+}
+
+/* ── Adaptive difficulty + spaced repetition, called from every gradable
+   block once a student answers. `meta.key` should be a stable identifier
+   for the specific question (`${itemId}:${blockIndex}`), used both for the
+   SM-2 review schedule and for teacher-facing misconception analytics. */
+function lpRecordResult(correct, meta={}){
+  if(correct){
+    lpWrongStreak = 0;
+  } else {
+    lpWrongStreak++;
+    // 2 wrong in a row → inject a scaffolded hint block right after the
+    // current one before the student continues. This is inserted into the
+    // in-memory lesson content only (not saved back), so it never pollutes
+    // the educator's authored lesson.
+    if(lpWrongStreak >= 2 && lpItem && lpItem.content){
+      lpWrongStreak = 0;
+      const hintText = meta.hint || 'Scaffold: before trying the next question, re-read the rule above and name out loud what single thing is changing (a shift, a stretch, or a reflection) — then re-attempt with just that one idea in mind.';
+      const already = lpItem.content[lpIndex+1];
+      if(!already || !already._adaptive){
+        lpItem.content.splice(lpIndex+1, 0, { type:'text', text:'💡 '+hintText, _adaptive:true });
+        lpAnswered.splice(lpIndex+1, 0, false);
+      }
+    }
+  }
+  if(meta.key) scheduleReview(meta.key, meta.itemId, correct);
+  if(meta.key && !correct) logMisconception(meta);
+}
+
+/* ── Spaced repetition (SM-2 lite) ──────────────────────────────────────
+   reviewLogMap: { [questionKey]: {student_id,item_id,question_key,ease,
+   interval_days,reps,due_at} }, loaded once per session from `review_log`. */
+let reviewLogMap = {};
+function sm2Update(card, correct){
+  card = Object.assign({ ease:2.5, interval_days:1, reps:0 }, card);
+  if(correct){
+    card.reps += 1;
+    card.ease = Math.max(1.3, card.ease + 0.1);
+    card.interval_days = card.reps===1 ? 1 : (card.reps===2 ? 3 : Math.round(card.interval_days * card.ease));
+  } else {
+    card.reps = 0;
+    card.ease = Math.max(1.3, card.ease - 0.2);
+    card.interval_days = 1;
+  }
+  card.last_result = correct ? 'correct' : 'incorrect';
+  card.due_at = new Date(Date.now() + card.interval_days*86400000).toISOString();
+  card.updated_at = new Date().toISOString();
+  return card;
+}
+async function loadReviewLog(){
+  reviewLogMap = {};
+  if(!currentUser || isEducator) return;
+  const { data, error } = await dbWrite(()=>db.from('review_log').select('*').eq('student_id', currentUser.id), { label:'Loading review queue' });
+  if(!error && data) data.forEach(r=> reviewLogMap[r.question_key] = r);
+}
+async function scheduleReview(questionKey, itemId, correct){
+  if(!currentUser || isEducator) return;
+  const card = sm2Update(reviewLogMap[questionKey], correct);
+  card.student_id = currentUser.id; card.item_id = itemId; card.question_key = questionKey;
+  reviewLogMap[questionKey] = card;
+  await dbWrite(()=>db.from('review_log').upsert(card, { onConflict:'student_id,question_key' }),
+    { label:'Updating review schedule', queueKind:'review', queuePayload:card });
+}
+
+/* ── Misconception log (teacher analytics) — best-effort; a missing table
+   is silently ignored so this never blocks a student's flow. */
+async function logMisconception(meta){
+  if(!currentUser || isEducator) return;
+  try{
+    await db.from('misconceptions').insert({
+      student_id: currentUser.id, item_id: meta.itemId, block_index: meta.blockIndex ?? null,
+      question_text: (meta.text||'').slice(0,300), chosen_option: meta.chosenOption ?? null,
+      correct_option: meta.correctOption ?? null
+    });
+  } catch(e){ /* table may not exist yet — see SQL migrations */ }
+}
+
+/* ── Daily Review page ────────────────────────────────────────────────
+   Pulls every auto-gradable lesson block ('check' MC and 'slider' numeric)
+   across all lessons the platform knows about, splits into "due" (already
+   in reviewLogMap and past its due_at) vs "new" (never seen), and quizzes
+   the student on up to 5 of each — a lightweight, generalizable stand-in
+   for full item-level analytics until block types are graded uniformly. */
+function shuffleArr(arr){
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+function buildReviewBank(){
+  const bank = [];
+  items.forEach(it=>{
+    if(it.type!=='lesson' || !it.content) return;
+    it.content.forEach((b,bi)=>{
+      if(b._adaptive) return; // never review auto-injected scaffold text
+      if(b.type==='check' && b.options && b.options.length){
+        bank.push({ key:`${it.id}:${bi}`, itemId:it.id, itemTitle:it.title, kind:'check', text:b.text, options:b.options, correct:b.correct, explanation:b.explanation||'' });
+      } else if(b.type==='slider'){
+        bank.push({ key:`${it.id}:${bi}`, itemId:it.id, itemTitle:it.title, kind:'slider', text:b.prompt, min:b.min, max:b.max, target:b.target, tolerance:b.tolerance||0, explanation:b.explanation||'' });
+      }
+    });
+  });
+  return bank;
+}
+let reviewSession = null;
+function renderReviewPage(){
+  const body = document.getElementById('review-body');
+  if(!currentUser || isEducator){ body.innerHTML = `<div class="empty-note">Sign in as a student to build your review queue.</div>`; return; }
+  const bank = buildReviewBank();
+  if(!bank.length){ body.innerHTML = `<div class="empty-note">No reviewable questions published yet — check back once your courses have some lessons with checks.</div>`; return; }
+  const now = Date.now();
+  const due = bank.filter(q=> reviewLogMap[q.key] && new Date(reviewLogMap[q.key].due_at).getTime() <= now);
+  const fresh = bank.filter(q=> !reviewLogMap[q.key]);
+  shuffleArr(due); shuffleArr(fresh);
+  const queue = [...due.slice(0,5), ...fresh.slice(0,5)];
+  if(!queue.length){
+    const nextDue = bank.map(q=>reviewLogMap[q.key]).filter(Boolean).map(c=>new Date(c.due_at).getTime()).sort((a,b)=>a-b)[0];
+    body.innerHTML = `<div class="empty-note">✓ You're all caught up. ${nextDue ? `Next review unlocks ${new Date(nextDue).toLocaleDateString()}.` : 'Complete a few lessons to start building your review queue.'}</div>`;
+    return;
+  }
+  reviewSession = { queue, idx:0, correctCount:0, dueCount:due.length>5?5:due.length };
+  renderReviewCard();
+}
+function renderReviewCard(){
+  const body = document.getElementById('review-body');
+  const { queue, idx } = reviewSession;
+  if(idx >= queue.length){
+    const pct = Math.round((reviewSession.correctCount/queue.length)*100);
+    body.innerHTML = `<div class="lp-block stagger-in" style="text-align:center;">
+      <h2 style="font-size:1.3rem;margin-bottom:.5rem;">Review complete 🎉</h2>
+      <p style="color:var(--ink-soft);">${reviewSession.correctCount}/${queue.length} correct (${pct}%)</p>
+      <button class="btn btn-primary" style="margin-top:1rem;" onclick="showPage('home')">Back to dashboard</button>
+    </div>`;
+    awardXp(10 + reviewSession.correctCount*2);
+    return;
+  }
+  const q = queue[idx];
+  const progressLabel = `${idx+1} / ${queue.length}${idx < reviewSession.dueCount ? ' · due for review' : ' · new'}`;
+  if(q.kind==='check'){
+    body.innerHTML = `<div class="lp-block stagger-in">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-faint);margin-bottom:.6rem;">${esc(progressLabel)} · from “${esc(q.itemTitle)}”</div>
+      <div class="lp-check-q">${esc(q.text)}</div>
+      <div class="tp-options" id="rv-options">${q.options.map((o,oi)=>`<label class="tp-option" data-oi="${oi}"><input type="radio" name="rv-check" value="${oi}"><span>${esc(o)}</span></label>`).join('')}</div>
+      <div id="rv-feedback"></div>
+      <button class="btn btn-primary" id="rv-continue" style="margin-top:1rem;display:none;">Continue</button>
+    </div>`;
+    document.querySelectorAll('#rv-options .tp-option').forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        if(reviewSession._locked) return; reviewSession._locked = true;
+        const chosen = parseInt(opt.dataset.oi,10);
+        document.querySelectorAll('#rv-options .tp-option').forEach((o,oi)=>{
+          o.classList.remove('correct','incorrect');
+          if(oi===q.correct) o.classList.add('correct'); else if(oi===chosen) o.classList.add('incorrect');
+        });
+        const correct = chosen===q.correct;
+        sfx[correct?'correct':'incorrect']();
+        if(correct) reviewSession.correctCount++;
+        document.getElementById('rv-feedback').innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${q.explanation?' '+esc(q.explanation):''}</div>`;
+        document.getElementById('rv-continue').style.display = 'inline-block';
+        scheduleReview(q.key, q.itemId, correct);
+      });
+    });
+  } else {
+    const startVal = Math.round((q.min+q.max)/2);
+    body.innerHTML = `<div class="lp-block stagger-in">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-faint);margin-bottom:.6rem;">${esc(progressLabel)} · from “${esc(q.itemTitle)}”</div>
+      <div class="lp-check-q">${esc(q.text)}</div>
+      <div class="lp-slider-row"><input type="range" id="rv-slider" min="${q.min}" max="${q.max}" value="${startVal}"><span class="lp-slider-val mono" id="rv-slider-val">${startVal}</span></div>
+      <button class="btn-sm" id="rv-slider-check">Check</button>
+      <div id="rv-feedback"></div>
+      <button class="btn btn-primary" id="rv-continue" style="margin-top:1rem;display:none;">Continue</button>
+    </div>`;
+    const slider = document.getElementById('rv-slider');
+    slider.addEventListener('input', ()=>{ document.getElementById('rv-slider-val').textContent = slider.value; });
+    document.getElementById('rv-slider-check').addEventListener('click', ()=>{
+      if(reviewSession._locked) return; reviewSession._locked = true;
+      const val = Number(slider.value);
+      const correct = Math.abs(val-q.target) <= (q.tolerance||0);
+      sfx[correct?'correct':'incorrect']();
+      if(correct) reviewSession.correctCount++;
+      slider.disabled = true; document.getElementById('rv-slider-check').style.display='none';
+      document.getElementById('rv-feedback').innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — target was ${q.target}.`}${q.explanation?' '+esc(q.explanation):''}</div>`;
+      document.getElementById('rv-continue').style.display = 'inline-block';
+      scheduleReview(q.key, q.itemId, correct);
+    });
+  }
+  reviewSession._locked = false;
+  document.getElementById('review-body').addEventListener('click', function contBtn(e){
+    if(e.target && e.target.id==='rv-continue'){
+      reviewSession.idx++; renderReviewCard();
+      document.getElementById('review-body').removeEventListener('click', contBtn);
+    }
+  });
+}
+
+/* ── Educator analytics dashboard ───────────────────────────────────────
+   Built entirely from data already fetched for grading (no schema change
+   required for the quiz/test side): loads every `responses` row across all
+   students for items in the educator's courses, and aggregates per-question
+   option distribution + average score. Lesson-block misconceptions layer on
+   top if the optional `misconceptions` table (see SQL migrations) exists. */
+let allResponsesCache = null;
+async function loadAllResponsesForEducator(){
+  if(!isEducator) return [];
+  if(allResponsesCache) return allResponsesCache;
+  const { data, error } = await dbWrite(()=>db.from('responses').select('*'), { label:'Loading class responses' });
+  allResponsesCache = (!error && data) ? data : [];
+  return allResponsesCache;
+}
+async function renderAnalyticsPage(){
+  const body = document.getElementById('analytics-body');
+  if(!isEducator){ body.innerHTML = `<div class="empty-note">Analytics are only available to educator accounts.</div>`; return; }
+  body.innerHTML = `<div class="empty-note">Loading…</div>`;
+  const [responses] = await Promise.all([ loadAllResponsesForEducator() ]);
+  let misconceptions = [];
+  try{
+    const { data } = await db.from('misconceptions').select('*');
+    misconceptions = data || [];
+  } catch(e){ /* optional table not installed */ }
+
+  const quizItems = items.filter(it=> it.type!=='lesson' && it.questions && it.questions.length);
+  const rows = [];
+  quizItems.forEach(it=>{
+    const itResponses = responses.filter(r=>r.item_id===it.id && r.submitted);
+    if(!itResponses.length) return;
+    it.questions.forEach((q,qi)=>{
+      if(q.type!=='mc') return;
+      const counts = new Array((q.options||[]).length).fill(0);
+      let attempted = 0;
+      itResponses.forEach(r=>{
+        const chosen = r.answers ? r.answers[qi] : undefined;
+        if(chosen===undefined || chosen===null) return;
+        attempted++;
+        if(counts[chosen]!==undefined) counts[chosen]++;
+      });
+      if(!attempted) return;
+      rows.push({ itemTitle: it.title, text: q.text, options: q.options, correct: q.correct, counts, attempted });
+    });
+  });
+
+  const miscByItem = {};
+  misconceptions.forEach(m=>{
+    const key = `${m.item_id}:${m.block_index}`;
+    if(!miscByItem[key]) miscByItem[key] = { text:m.question_text, wrongCount:0, chosenCounts:{} };
+    miscByItem[key].wrongCount++;
+    miscByItem[key].chosenCounts[m.chosen_option] = (miscByItem[key].chosenCounts[m.chosen_option]||0)+1;
+  });
+
+  if(!rows.length && !Object.keys(miscByItem).length){
+    body.innerHTML = `<div class="empty-note">No student responses yet — analytics will populate once students start submitting work.</div>`;
+    return;
+  }
+
+  const barRow = (label, count, total, color)=>{
+    const pct = total ? Math.round((count/total)*100) : 0;
+    return `<div style="display:flex;align-items:center;gap:.6rem;margin:.35rem 0;">
+      <div style="flex:1;font-size:.78rem;color:var(--ink-soft);">${esc(label)}</div>
+      <div style="flex:2;background:var(--paper-2);border-radius:8px;height:10px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${color};"></div></div>
+      <div style="width:3.2em;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink-faint);">${pct}%</div>
+    </div>`;
+  };
+
+  let html = '';
+  if(rows.length){
+    html += `<h3 style="font-size:1.05rem;margin:1.2rem 0 .6rem;">Quiz &amp; test option distribution</h3>`;
+    rows.forEach(r=>{
+      html += `<div class="lp-block" style="margin-bottom:1rem;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin-bottom:.3rem;">${esc(r.itemTitle)} · ${r.attempted} response${r.attempted===1?'':'s'}</div>
+        <div class="lp-check-q" style="font-size:.95rem;">${esc(r.text)}</div>
+        ${r.options.map((o,oi)=>barRow(o + (oi===r.correct?' ✓':''), r.counts[oi], r.attempted, oi===r.correct?'var(--green)':'var(--red)')).join('')}
+      </div>`;
+    });
+  }
+  if(Object.keys(miscByItem).length){
+    html += `<h3 style="font-size:1.05rem;margin:1.5rem 0 .6rem;">Lesson check misconceptions</h3>`;
+    Object.values(miscByItem).sort((a,b)=>b.wrongCount-a.wrongCount).forEach(m=>{
+      html += `<div class="lp-block" style="margin-bottom:1rem;">
+        <div class="lp-check-q" style="font-size:.9rem;">${esc(m.text)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--red);margin-top:.3rem;">Missed ${m.wrongCount} time${m.wrongCount===1?'':'s'}</div>
+      </div>`;
+    });
+  }
+  body.innerHTML = html;
 }
 
 function lpSetContinueEnabled(enabled){
@@ -2051,6 +2468,10 @@ function renderLpBlockInner(){
         fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
         lpAnswered[lpIndex] = true;
         lpSetContinueEnabled(true);
+        lpRecordResult(correct, {
+          key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex,
+          text: block.text, chosenOption: chosen, correctOption: block.correct, hint: block.explanation
+        });
       });
     });
     return;
@@ -2079,6 +2500,7 @@ function renderLpBlockInner(){
       document.getElementById('lp-slider-check').style.display='none';
       lpAnswered[lpIndex] = true;
       lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt, hint: block.explanation });
     });
     return;
   }
@@ -2132,6 +2554,80 @@ function renderLpBlockInner(){
       renderSeq();
       lpAnswered[lpIndex] = true;
       lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'sequence', hint: block.explanation });
+    });
+    return;
+  }
+
+  if(block.type==='compose'){
+    const fLabel = fxEquationStr(block.fParent, block.fA, 1, 0, block.fC).replace('y = ', 'f(x) = ');
+    const gLabel = fxEquationStr(block.gParent, block.gA, 1, 0, block.gC).replace('y = ', 'g(x) = ');
+    const gVal = fxEval(block.gParent, block.gA, 1, 0, block.gC, block.x0);
+    const target = gVal===null ? null : fxEval(block.fParent, block.fA, 1, 0, block.fC, gVal);
+    let answered = alreadyAnswered;
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || `Given the functions below, evaluate (f ∘ g)(${block.x0}) = f(g(${block.x0})).`)}</div>
+      <div class="fx-wrap">
+        <div class="fx-eq" id="fx-compose-f">${esc(fLabel)}</div>
+        <div class="fx-eq" id="fx-compose-g" style="background:var(--teal-bg);color:var(--teal);margin-left:.4rem;">${esc(gLabel)}</div>
+      </div>
+      <div class="lp-slider-row" style="max-width:260px;">
+        <input type="number" step="0.01" id="fx-compose-answer" placeholder="f(g(${block.x0})) = ?" ${answered?'disabled':''} style="flex:1;padding:.5rem .7rem;border:1.5px solid var(--rule);border-radius:8px;font-family:'IBM Plex Mono',monospace;">
+      </div>
+      <button class="btn-sm" id="fx-compose-check" style="margin-top:.7rem;${answered?'display:none;':''}">Check</button>
+      <div id="fx-compose-feedback"></div>
+    </div>`;
+    lpSetContinueEnabled(answered);
+    const chk = document.getElementById('fx-compose-check');
+    if(chk) chk.addEventListener('click', ()=>{
+      const val = Number(document.getElementById('fx-compose-answer').value);
+      const correct = target!==null && Math.abs(val-target) < (block.tolerance||0.05);
+      const fb = document.getElementById('fx-compose-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — g(${block.x0}) = ${gVal===null?'undefined':Math.round(gVal*100)/100}, so f(g(${block.x0})) = ${target===null?'undefined':Math.round(target*100)/100}.`}${block.explanation?' '+esc(block.explanation):''}</div>`;
+      answered = true;
+      document.getElementById('fx-compose-answer').disabled = true;
+      chk.style.display='none';
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'composition', hint: block.explanation });
+    });
+    return;
+  }
+
+  if(block.type==='inverse'){
+    const range = block.range || 10;
+    const target = fxEval(block.parent, block.a, 1, block.d||0, block.c||0, block.x0);
+    let answered = alreadyAnswered;
+    const curves = [{ fn:x=>fxEval(block.parent, block.a, 1, block.d||0, block.c||0, x) }, { fn:x=>x, dashed:true }];
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || `The graph shows y = f(x). The dashed line is y = x. If f(${block.x0}) = ${target===null?'undefined':Math.round(target*100)/100}, what is f⁻¹(${target===null?'?':Math.round(target*100)/100})?`)}</div>
+      <div class="fx-wrap">
+        <div class="fx-eq">${esc(fxEquationStr(block.parent, block.a, 1, block.d||0, block.c||0))}</div>
+        <div id="fx-inverse-svg-slot"></div>
+        <div class="fx-hint">Dashed line: y = x — a function and its inverse are mirror images across it.</div>
+      </div>
+      <div class="lp-slider-row" style="max-width:220px;">
+        <input type="number" step="0.01" id="fx-inverse-answer" placeholder="f⁻¹(...) = ?" ${answered?'disabled':''} style="flex:1;padding:.5rem .7rem;border:1.5px solid var(--rule);border-radius:8px;font-family:'IBM Plex Mono',monospace;">
+      </div>
+      <button class="btn-sm" id="fx-inverse-check" style="margin-top:.7rem;${answered?'display:none;':''}">Check</button>
+      <div id="fx-inverse-feedback"></div>
+    </div>`;
+    document.getElementById('fx-inverse-svg-slot').innerHTML = fxBuildSVG('fx-inverse-svg', range, curves, []);
+    lpSetContinueEnabled(answered);
+    const chk = document.getElementById('fx-inverse-check');
+    if(chk) chk.addEventListener('click', ()=>{
+      const val = Number(document.getElementById('fx-inverse-answer').value);
+      const correct = Math.abs(val-block.x0) < (block.tolerance||0.05);
+      const fb = document.getElementById('fx-inverse-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — f⁻¹ undoes f, so the answer is ${block.x0}.`}${block.explanation?' '+esc(block.explanation):''}</div>`;
+      answered = true;
+      document.getElementById('fx-inverse-answer').disabled = true;
+      chk.style.display='none';
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'inverse', hint: block.explanation });
     });
     return;
   }
@@ -2830,11 +3326,15 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   // Finished the last block — mark the lesson complete.
   const btn = document.getElementById('lp-next-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
-  const { error } = await db.from('responses').upsert({
+  const lessonPayload = {
     student_id: currentUser.id, item_id: currentItemId,
     answers: {}, score: null, total: null, submitted: true, submitted_at: new Date().toISOString()
-  }, { onConflict: 'student_id,item_id' });
-  if(error){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
+  };
+  const { error } = await dbWrite(
+    ()=>db.from('responses').upsert(lessonPayload, { onConflict: 'student_id,item_id' }),
+    { label:'Saving lesson progress', queueKind:'response', queuePayload:lessonPayload }
+  );
+  if(error && !/network|fetch|timeout/i.test(error.message||'')){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
   studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
   fireConfetti(); sfx.lessonComplete();
   await awardXp(20);
@@ -2863,6 +3363,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   closeModal('educator-overlay');
   await loadResponses();
   await loadProgress();
+  await loadReviewLog();
   updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
 };
 document.getElementById('educator-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('educator-confirm-btn').click(); });
@@ -2899,6 +3400,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     closeModal('student-overlay');
     await loadResponses();
   await loadProgress();
+  await loadReviewLog();
     updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
   } catch(err){
     console.error(err);
@@ -2931,6 +3433,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   closeModal('student-overlay');
   await loadResponses();
   await loadProgress();
+  await loadReviewLog();
   updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
 };
 
@@ -3132,6 +3635,47 @@ function renderLessonBlockList(){
       </div>`;
     }
     const parentOptions = Object.entries(FX_PARENTS).map(([k,v])=>`<option value="${k}" ${b.parent===k?'selected':''}>${esc(v.label)}</option>`).join('');
+    if(b.type==='compose'){
+      const fOptions = Object.entries(FX_PARENTS).map(([k,v])=>`<option value="${k}" ${b.fParent===k?'selected':''}>${esc(v.label)}</option>`).join('');
+      const gOptions = Object.entries(FX_PARENTS).map(([k,v])=>`<option value="${k}" ${b.gParent===k?'selected':''}>${esc(v.label)}</option>`).join('');
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Composition f(g(x))</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--purple);margin:.2rem 0;">f(x) = a · parent(x) + c</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">f — parent</label><select data-lb-select="${bi}:fParent">${fOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">f — a</label><input type="number" step="0.25" data-lb-field="${bi}:fA" value="${b.fA}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">f — c</label><input type="number" step="0.5" data-lb-field="${bi}:fC" value="${b.fC}"></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--teal);margin:.2rem 0;">g(x) = a · parent(x) + c</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">g — parent</label><select data-lb-select="${bi}:gParent">${gOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">g — a</label><input type="number" step="0.25" data-lb-field="${bi}:gA" value="${b.gA}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">g — c</label><input type="number" step="0.5" data-lb-field="${bi}:gC" value="${b.gC}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Evaluate at x =</label><input type="number" step="0.5" data-lb-field="${bi}:x0" value="${b.x0}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.01" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Students evaluate (f∘g)(x₀) = f(g(x₀)) numerically — core MHF4U function-operations content.</div>
+      </div>`;
+    }
+    if(b.type==='inverse'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Inverse function</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">Parent function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Known x₀</label><input type="number" step="0.5" data-lb-field="${bi}:x0" value="${b.x0}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" step="0.01" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);">Shows f(x) plotted against y = x and asks the student to find f⁻¹ at the value f(x₀) — reinforces "inverse = reflection across y = x" visually.</div>
+      </div>`;
+    }
     if(b.type==='graph'){
       return `<div class="qb-item" data-bi="${bi}">
         <div class="qb-item-head"><span class="qb-type-tag mono">Function grapher</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
@@ -3632,6 +4176,16 @@ document.getElementById('lb-add-sequence').onclick = ()=>{ lessonBlocks.push({
   type:'sequence', kind:'arithmetic',
   prompt:'', a1:3, r:4, revealed:5, askN:7, explanation:''
 }); renderLessonBlockList(); };
+document.getElementById('lb-add-compose').onclick = ()=>{ lessonBlocks.push({
+  type:'compose', prompt:'',
+  fParent:'linear', fA:2, fC:1,
+  gParent:'quadratic', gA:1, gC:-3,
+  x0:2, tolerance:0.05, explanation:''
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-inverse').onclick = ()=>{ lessonBlocks.push({
+  type:'inverse', prompt:'',
+  parent:'sqrt', range:10, a:1, d:0, c:0, x0:4, tolerance:0.05, explanation:''
+}); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
   const title = document.getElementById('test-name-input').value.trim();
@@ -3742,6 +4296,7 @@ function waitForFirebaseUser(){
   await loadCatalog();
   await loadResponses();
   await loadProgress();
+  await loadReviewLog();
   updateAccountUI();
   renderSoundToggle();
   showPage('home');
