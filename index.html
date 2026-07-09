@@ -348,7 +348,7 @@
   .fx-axis { stroke:#aab4c8; stroke-width:1.5; }
   .fx-curve { fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
   .fx-curve-target { fill:none; stroke:var(--gold); stroke-width:2.5; stroke-dasharray:6 5; stroke-linecap:round; }
-  .fx-asymptote { stroke:var(--ink-faint); stroke-width:1.3; stroke-dasharray:3 4; }
+  .fx-asymptote { stroke:#000; stroke-width:1.5; stroke-dasharray:3 4; }
   .fx-hover-dot { fill:var(--blue); stroke:#fff; stroke-width:2; pointer-events:none; opacity:0; transition:opacity .08s ease; }
   .fx-point { fill:var(--purple); stroke:var(--white); stroke-width:2; cursor:pointer; }
   .fx-point-target { fill:none; stroke:var(--gold); stroke-width:2; stroke-dasharray:4 3; }
@@ -1524,10 +1524,10 @@ const FX_PARENTS = {
   absolute:    { label:'Absolute value — f(x) = |x|',  fn:x=>Math.abs(x),        domain:x=>true },
   cubic:       { label:'Cubic — f(x) = x³',            fn:x=>x*x*x,              domain:x=>true },
   sqrt:        { label:'Square root — f(x) = √x',      fn:x=>Math.sqrt(x),       domain:x=>x>=0 },
-  reciprocal:  { label:'Reciprocal — f(x) = 1/x',      fn:x=>1/x,                domain:x=>Math.abs(x)>0.05 },
-  exponential: { label:'Exponential — f(x) = 2ˣ',      fn:x=>Math.pow(2,x),      domain:x=>true },
-  sine:        { label:'Sine — f(x) = sin(x°)',        fn:x=>Math.sin(x*Math.PI/180), domain:x=>true },
-  cosine:      { label:'Cosine — f(x) = cos(x°)',      fn:x=>Math.cos(x*Math.PI/180), domain:x=>true },
+  reciprocal:  { label:'Reciprocal — f(x) = 1/x',      fn:x=>1/x,                domain:x=>Math.abs(x)>0.05, hasAsymptotes:true },
+  exponential: { label:'Exponential — f(x) = 2ˣ',      fn:x=>Math.pow(2,x),      domain:x=>true, hasAsymptotes:true },
+  sine:        { label:'Sine — f(x) = sin(x°)',        fn:x=>Math.sin(x*Math.PI/180), domain:x=>true, bounded:true },
+  cosine:      { label:'Cosine — f(x) = cos(x°)',      fn:x=>Math.cos(x*Math.PI/180), domain:x=>true, bounded:true },
 };
 // Full Ontario MCR3U/MHF4U transformation form: y = a · f( k(x − d) ) + c
 //   a = vertical stretch/compression, and reflection in the x-axis when a<0
@@ -1577,7 +1577,7 @@ function gbRedraw(){
   document.getElementById('gb-eq').textContent = fxEquationStr(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c);
   const range = 10;
   document.getElementById('gb-graph-wrap').innerHTML = fxBuildSVG('gb-svg', range,
-    [{ fn:x=>fxEval(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c, x) }], []);
+    [{ fn:x=>fxEval(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c, x), parent:gbState.parent }], []);
 }
 function openGraphBuilder(){
   document.getElementById('home-page').style.display='none';
@@ -1636,7 +1636,7 @@ function initHeroDemo(){
     const a = Number(sliders.a.value), d = Number(sliders.d.value), c = Number(sliders.c.value);
     vals.a.textContent = a; vals.d.textContent = d; vals.c.textContent = c;
     eqEl.textContent = fxEquationStr('quadratic', a, 1, d, c);
-    svgWrap.innerHTML = fxBuildSVG('hero-demo-svg', range, [{ fn:x=>fxEval('quadratic', a, 1, d, c, x) }], []);
+    svgWrap.innerHTML = fxBuildSVG('hero-demo-svg', range, [{ fn:x=>fxEval('quadratic', a, 1, d, c, x), parent:'quadratic' }], []);
   }
   Object.values(sliders).forEach(s=> s.addEventListener('input', redraw));
   redraw();
@@ -1695,6 +1695,14 @@ function fxBuildSVG(id, range, curves, points){
   // actually reach a visible point, instead of landing off-canvas and disappearing.
   const boundY = range * 1.1;
   (curves||[]).forEach(c=>{
+    // Only certain parent functions (reciprocal, exponential) have genuine asymptotes.
+    // Functions like sqrt (finite domain edge, not a pole), sine/cosine (bounded,
+    // periodic — never flatten out), and the polynomials never do. Gating on this
+    // avoids false-positive asymptote lines from the numeric flatten/blow-up heuristic
+    // below, which was designed for poles like 1/x and misfires on slow-changing or
+    // low-amplitude curves (e.g. sin(x°) plotted over a small x-window looks almost flat).
+    const parentDef = FX_PARENTS[c.parent];
+    const allowAsymptotes = !!(parentDef && parentDef.hasAsymptotes);
     const N=240;
     // Build the curve as separate continuous segments (a new segment starts
     // whenever the domain is undefined or the curve shoots off-window) so an
@@ -1726,7 +1734,7 @@ function fxBuildSVG(id, range, curves, points){
         // extends to the window edge, so it's filtered out below) or a pole the curve
         // shoots away from — i.e. a vertical asymptote.
         const runEndX = x - (2*range/N);
-        if(nonValidRunStartX > -range + 1e-6 && runEndX < range - 1e-6){
+        if(allowAsymptotes && nonValidRunStartX > -range + 1e-6 && runEndX < range - 1e-6){
           addVAsymptote((nonValidRunStartX + runEndX)/2);
         }
         nonValidRunStartX = null;
@@ -1763,6 +1771,7 @@ function fxBuildSVG(id, range, curves, points){
     // (an arrow-worthy end) and its y-value has nearly flattened out approaching that
     // edge, the flat value it's approaching is a horizontal asymptote.
     segments.forEach(({pts:seg})=>{
+      if(!allowAsymptotes) return;
       if(seg.length<9) return;
       const checkFlatten = (a,b,mid)=>{
         const d1 = Math.abs(b.y-mid.y), d2 = Math.abs(mid.y-a.y);
@@ -3157,7 +3166,7 @@ function renderLpBlockInner(){
     const range = block.range || 10;
     const target = fxEval(block.parent, block.a, 1, block.d||0, block.c||0, block.x0);
     let answered = alreadyAnswered;
-    const curves = [{ fn:x=>fxEval(block.parent, block.a, 1, block.d||0, block.c||0, x) }, { fn:x=>x, dashed:true }];
+    const curves = [{ fn:x=>fxEval(block.parent, block.a, 1, block.d||0, block.c||0, x), parent:block.parent }, { fn:x=>x, dashed:true }];
     slot.innerHTML = `<div class="lp-block">
       <div class="lp-check-q">${esc(block.prompt || `The graph shows y = f(x). The dashed line is y = x. If f(${block.x0}) = ${target===null?'undefined':Math.round(target*100)/100}, what is f⁻¹(${target===null?'?':Math.round(target*100)/100})?`)}</div>
       <div class="fx-wrap">
@@ -3200,8 +3209,8 @@ function renderLpBlockInner(){
       : { a:block.target.a, k:block.target.k!==undefined?block.target.k:1, d:block.target.d||0, c:block.target.c||0 }) : null;
     const isMatch = block.mode==='match';
     const renderGraph = ()=>{
-      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.k, cur.d, cur.c, x) }];
-      if(isMatch && target) curves.push({ fn:x=>fxEval(block.parent, target.a, target.k, target.d, target.c, x), dashed:true });
+      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.k, cur.d, cur.c, x), parent:block.parent }];
+      if(isMatch && target) curves.push({ fn:x=>fxEval(block.parent, target.a, target.k, target.d, target.c, x), dashed:true, parent:block.parent });
       document.getElementById('fx-graph-svg-slot').innerHTML = fxBuildSVG('fx-graph-svg', range, curves, []);
       document.getElementById('fx-graph-eq').textContent = fxEquationStr(block.parent, cur.a, cur.k, cur.d, cur.c);
       document.getElementById('fx-graph-mapping').textContent = fxMappingRuleStr(cur.k, cur.d, cur.a, cur.c);
@@ -3259,7 +3268,7 @@ function renderLpBlockInner(){
     let picked = null;
     let checked = alreadyAnswered;
     const renderPoints = ()=>{
-      const curves = block.showCurve ? [{ fn:x=>fxEval(block.parent, block.a, bk, bd, bc, x) }] : [];
+      const curves = block.showCurve ? [{ fn:x=>fxEval(block.parent, block.a, bk, bd, bc, x), parent:block.parent }] : [];
       const pts = [];
       if(picked) pts.push({ x:picked.x, y:picked.y, i:0 });
       if(checked) pts.push({ x:block.target.x, y:block.target.y, target:true });
@@ -3344,7 +3353,7 @@ function renderLpBlockInner(){
       <button class="btn-sm" id="nl-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
       <div id="nl-feedback"></div>
     </div>`;
-    const curves = [{ fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x) }];
+    const curves = [{ fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x), parent:block.parent }];
     document.getElementById('fx-dr-svg-slot').innerHTML = fxBuildSVG('fx-dr-svg', range, curves, []);
     paintTrack();
     lpSetContinueEnabled(alreadyAnswered);
@@ -3469,7 +3478,7 @@ function renderLpBlockInner(){
 
   if(block.type==='piecewise'){
     const range = block.range || 10;
-    const curves = block.pieces.map(p=>({ fn:x=> (x>=p.from && x<=p.to) ? fxEval(p.parent, Number(p.a), Number(p.k), Number(p.d), Number(p.c), x) : null }));
+    const curves = block.pieces.map(p=>({ fn:x=> (x>=p.from && x<=p.to) ? fxEval(p.parent, Number(p.a), Number(p.k), Number(p.d), Number(p.c), x) : null, parent:p.parent }));
     let studentPieces = block.pieces.map(()=>({from:'', to:'', fromIncl:false, toIncl:false}));
     const renderRows = ()=> block.pieces.map((p,pi)=>{
       const sp = studentPieces[pi];
@@ -3530,7 +3539,7 @@ function renderLpBlockInner(){
     const y2 = fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), Number(block.x2));
     const target = (y1!==null && y2!==null && Number(block.x2)!==Number(block.x1)) ? (y2-y1)/(Number(block.x2)-Number(block.x1)) : null;
     const curves = [
-      { fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x) },
+      { fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x), parent:block.parent },
       { fn:x=> (target!==null) ? y1 + target*(x-Number(block.x1)) : null, dashed:true }
     ];
     const pts = [];
@@ -3646,7 +3655,7 @@ function renderLpBlockInner(){
 
     const drawRelation = (rel)=>{
       if(rel.kind==='graph'){
-        const curves = [{ fn:x=>fxEval(rel.parent, Number(rel.a), Number(rel.k), Number(rel.d), Number(rel.c), x) }];
+        const curves = [{ fn:x=>fxEval(rel.parent, Number(rel.a), Number(rel.k), Number(rel.d), Number(rel.c), x), parent:rel.parent }];
         return fxBuildSVG('vlt-svg', range, curves, []);
       }
       const pts = (rel.pts||[]).map((p,i)=>({x:p[0], y:p[1], i}));
@@ -3795,7 +3804,7 @@ function renderLpBlockInner(){
     // block.wrongParam = which of a/k/d/c is wrong in `shown` ('a'|'k'|'d'|'c').
     const shown = block.shown, correct = block.correct;
     let picked = null;
-    const curves = [{ fn:x=>fxEval(block.parent, Number(correct.a), Number(correct.k), Number(correct.d), Number(correct.c), x) }];
+    const curves = [{ fn:x=>fxEval(block.parent, Number(correct.a), Number(correct.k), Number(correct.d), Number(correct.c), x), parent:block.parent }];
 
     const eqPartsHTML = (revealAnswer)=>{
       const parts = ['a','k','d','c'];
@@ -3842,7 +3851,7 @@ function renderLpBlockInner(){
     let cur = { a: block.startA!==undefined?Number(block.startA):1, k: block.startK!==undefined?Number(block.startK):1,
                 d: block.startD!==undefined?Number(block.startD):0, c: block.startC!==undefined?Number(block.startC):0 };
     const renderGraph = ()=>{
-      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.k, cur.d, cur.c, x) }];
+      const curves = [{ fn:x=>fxEval(block.parent, cur.a, cur.k, cur.d, cur.c, x), parent:block.parent }];
       const el = document.getElementById('bd-svg-slot');
       if(el) el.innerHTML = fxBuildSVG('bd-svg', range, curves, []);
       const eqEl = document.getElementById('bd-eq');
