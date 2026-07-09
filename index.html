@@ -1533,6 +1533,30 @@ const FX_PARENTS = {
 //   a = vertical stretch/compression, and reflection in the x-axis when a<0
 //   k = horizontal stretch/compression, and reflection in the y-axis when k<0
 //   d = horizontal translation, c = vertical translation
+// Sine/cosine are evaluated as sin(x°)/cos(x°) — a full period is 360, so plotting them
+// on the same ±10 window used for polynomials shows only a sliver near x=0 (looks flat/wrong).
+// Give degree-based trig a window wide enough to show a couple of periods.
+function fxDefaultRange(parent){
+  return (parent==='sine' || parent==='cosine') ? 360 : 10;
+}
+// Choose a "nice" grid spacing so the gridlines stay readable at any window size —
+// a fixed 1-unit grid (fine for range=10) would draw hundreds of lines at range=360.
+function fxGridStep(range, parent){
+  if(parent==='sine' || parent==='cosine') return 90; // quarter-period marks, matches how trig graphs are taught
+  if(range<=20) return 1;
+  const target = range/8;
+  const mag = Math.pow(10, Math.floor(Math.log10(target)));
+  const norm = target/mag;
+  const step = norm<1.5 ? 1 : (norm<3.5 ? 2 : (norm<7.5 ? 5 : 10));
+  return step*mag;
+}
+function fxDefaultYRange(parent, a, c){
+  if(parent==='sine' || parent==='cosine'){
+    const amp = Math.abs(a==null?1:a), shift = Math.abs(c==null?0:c);
+    return Math.max(4, Math.ceil(amp+shift)+2);
+  }
+  return null; // null = "same as x range", i.e. previous square-window behaviour
+}
 function fxEval(parentKey, a, k, d, c, x){
   const p = FX_PARENTS[parentKey] || FX_PARENTS.linear;
   const kk = (k===0) ? 0.0001 : k; // guard against a degenerate 0 horizontal-scale slider
@@ -1573,11 +1597,19 @@ function gbSyncControlsFromState(){
   });
   document.getElementById('gb-parent-select').value = gbState.parent;
 }
+function gbUpdateDBounds(){
+  const trig = gbState.parent==='sine' || gbState.parent==='cosine';
+  const lo = trig ? -180 : -6, hi = trig ? 180 : 6, step = trig ? 15 : 0.5;
+  const slider = document.getElementById('gb-slider-d'), input = document.getElementById('gb-input-d');
+  [slider, input].forEach(el=>{ el.min = lo; el.max = hi; el.step = step; });
+  if(gbState.d < lo || gbState.d > hi){ gbState.d = 0; slider.value = 0; input.value = 0; }
+}
 function gbRedraw(){
   document.getElementById('gb-eq').textContent = fxEquationStr(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c);
-  const range = 10;
+  const range = fxDefaultRange(gbState.parent);
+  const yRange = fxDefaultYRange(gbState.parent, gbState.a, gbState.c) || range;
   document.getElementById('gb-graph-wrap').innerHTML = fxBuildSVG('gb-svg', range,
-    [{ fn:x=>fxEval(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c, x), parent:gbState.parent }], []);
+    [{ fn:x=>fxEval(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c, x), parent:gbState.parent }], [], yRange);
 }
 function openGraphBuilder(){
   document.getElementById('home-page').style.display='none';
@@ -1591,6 +1623,7 @@ function openGraphBuilder(){
   el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
   gbPopulateParentSelect();
   gbSyncControlsFromState();
+  gbUpdateDBounds();
   gbRedraw();
   window.scrollTo(0,0);
 }
@@ -1598,7 +1631,7 @@ document.getElementById('gb-back-btn').onclick = ()=>{
   document.getElementById('tool-graphbuilder-page').classList.remove('visible');
   showPage('courses');
 };
-document.getElementById('gb-parent-select').onchange = e=>{ gbState.parent = e.target.value; gbRedraw(); };
+document.getElementById('gb-parent-select').onchange = e=>{ gbState.parent = e.target.value; gbUpdateDBounds(); gbRedraw(); };
 ['a','k','d','c'].forEach(p=>{
   const slider = document.getElementById('gb-slider-'+p);
   const input = document.getElementById('gb-input-'+p);
@@ -1658,15 +1691,23 @@ function fxInequalityStr(varName, lo, loInf, loIncl, hi, hiInf, hiIncl){
   if(loInf && !hiInf) return `${varName} ${hiIncl?'≤':'<'} ${fmt(hi)}`;
   return `${fmt(lo)} ${loIncl?'≤':'<'} ${varName} ${hiIncl?'≤':'<'} ${fmt(hi)}`;
 }
-// Build an SVG plot (axes + one or two curves) over [-range,range] on both axes.
-function fxBuildSVG(id, range, curves, points){
+// Build an SVG plot (axes + one or two curves) over x:[-range,range], y:[-yRange,yRange].
+// yRange defaults to range (square window) when omitted, preserving old behaviour.
+function fxBuildSVG(id, range, curves, points, yRange){
+  if(yRange==null) yRange = range;
   const W=520,H=340;
   const sx = x => (x/range)*(W/2-24) + W/2;
-  const sy = y => H/2 - (y/range)*(H/2-24);
+  const sy = y => H/2 - (y/yRange)*(H/2-24);
   let grid='';
-  for(let g=-Math.floor(range); g<=Math.floor(range); g++){
+  const parentForGrid = curves&&curves[0]&&curves[0].parent;
+  const gridStepX = fxGridStep(range, parentForGrid);
+  const gridStepY = fxGridStep(yRange, null);
+  for(let g=-Math.floor(range/gridStepX)*gridStepX; g<=range; g+=gridStepX){
     if(g===0) continue;
     grid += `<line class="fx-grid-line" x1="${sx(g)}" y1="24" x2="${sx(g)}" y2="${H-24}"/>`;
+  }
+  for(let g=-Math.floor(yRange/gridStepY)*gridStepY; g<=yRange; g+=gridStepY){
+    if(g===0) continue;
     grid += `<line class="fx-grid-line" x1="24" y1="${sy(g)}" x2="${W-24}" y2="${sy(g)}"/>`;
   }
   const axes = `<line class="fx-axis" x1="24" y1="${sy(0)}" x2="${W-24}" y2="${sy(0)}"/>
@@ -1688,12 +1729,12 @@ function fxBuildSVG(id, range, curves, points){
   let curvePaths = '';
   let asymptoteLines = [];
   const addVAsymptote = x => { if(!asymptoteLines.some(a=>a.type==='v' && Math.abs(a.at-x)<range*0.03)) asymptoteLines.push({type:'v', at:x}); };
-  const addHAsymptote = y => { if(!asymptoteLines.some(a=>a.type==='h' && Math.abs(a.at-y)<range*0.03)) asymptoteLines.push({type:'h', at:y}); };
-  // The visible canvas maps data-y = ±range to the inner margins (pixel 24 / H-24);
+  const addHAsymptote = y => { if(!asymptoteLines.some(a=>a.type==='h' && Math.abs(a.at-y)<yRange*0.03)) asymptoteLines.push({type:'h', at:y}); };
+  // The visible canvas maps data-y = ±yRange to the inner margins (pixel 24 / H-24);
   // anything a bit past that is still inside the white card. Clamp blow-up points to
   // just inside the true canvas edge (~1.15x) so the curve — and its arrowhead —
   // actually reach a visible point, instead of landing off-canvas and disappearing.
-  const boundY = range * 1.1;
+  const boundY = yRange * 1.1;
   (curves||[]).forEach(c=>{
     // Only certain parent functions (reciprocal, exponential) have genuine asymptotes.
     // Functions like sqrt (finite domain edge, not a pole), sine/cosine (bounded,
@@ -1775,7 +1816,7 @@ function fxBuildSVG(id, range, curves, points){
       if(seg.length<9) return;
       const checkFlatten = (a,b,mid)=>{
         const d1 = Math.abs(b.y-mid.y), d2 = Math.abs(mid.y-a.y);
-        if(d1 < range*0.01 && d2 < range*0.05 && d1<=d2+1e-9) return b.y;
+        if(d1 < yRange*0.01 && d2 < yRange*0.05 && d1<=d2+1e-9) return b.y;
         return null;
       };
       const last = seg[seg.length-1];
@@ -1825,7 +1866,7 @@ function fxBuildSVG(id, range, curves, points){
     if(p.target){ pointEls += `<circle class="fx-point-target" cx="${sx(p.x)}" cy="${sy(p.y)}" r="9"/>`; }
     else { pointEls += `<circle class="fx-point" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
   });
-  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}<circle class="fx-hover-dot" r="5" cx="-100" cy="-100"/></svg>`;
+  return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}" data-yrange="${yRange}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}<circle class="fx-hover-dot" r="5" cx="-100" cy="-100"/></svg>`;
 }
 // Renders a mapping diagram: two columns of nodes (inputs left, outputs right)
 // with arrows for each (input,output) pair. Highlights any input node that has
