@@ -1456,7 +1456,13 @@ function fxBuildSVG(id, range, curves, points){
     // or a vertical asymptote.
     let segments = [], cur = [];
     let curStartReason = 'edge'; // why this segment began: 'edge' (window's x-boundary), 'blowup' (unbounded y), or 'null' (real finite domain boundary)
-    let nullRunStartX = null; // tracks a run of null (undefined) samples, to detect a narrow interior gap = true asymptote
+    // Tracks a run of consecutive non-valid samples (either 'null'/undefined, or 'blowup'/too
+    // large to plot) to detect a narrow interior gap = true asymptote. Both cases matter: a
+    // function like 1/x has a domain-exclusion band around its pole that's far narrower than
+    // the zone where its value is too big to plot, so most samples near the pole land in
+    // 'blowup', not 'null' — if we only watched for 'null' runs, the asymptote line would
+    // almost never show up.
+    let nonValidRunStartX = null;
     let prevState = 'edge'; // state of the previous sample: 'valid' | 'null' | 'blowup' | 'edge' (before any sample)
     let lastBlowupX = null, lastBlowupSign = 1; // last off-window sample seen, so we can seed the next segment right at the boundary when the curve re-enters the window
     for(let i=0;i<=N;i++){
@@ -1465,17 +1471,18 @@ function fxBuildSVG(id, range, curves, points){
       const blownUp = y!==null && Math.abs(y)>boundY;
       const state = y===null ? 'null' : (blownUp ? 'blowup' : 'valid');
 
-      if(state==='null'){
-        if(nullRunStartX===null) nullRunStartX = x;
-      } else if(nullRunStartX!==null){
-        // A null run just ended. If it never touched either window edge, it's a real
-        // undefined point mid-domain (a vertical asymptote) rather than a domain
-        // boundary like sqrt's edge at x=0 — those runs always extend to the edge.
+      if(state!=='valid'){
+        if(nonValidRunStartX===null) nonValidRunStartX = x;
+      } else if(nonValidRunStartX!==null){
+        // A non-valid run just ended. If it never touched either window edge, it's a real
+        // interior gap — either an undefined point (like sqrt's edge — but that always
+        // extends to the window edge, so it's filtered out below) or a pole the curve
+        // shoots away from — i.e. a vertical asymptote.
         const runEndX = x - (2*range/N);
-        if(nullRunStartX > -range + 1e-6 && runEndX < range - 1e-6){
-          addVAsymptote((nullRunStartX + runEndX)/2);
+        if(nonValidRunStartX > -range + 1e-6 && runEndX < range - 1e-6){
+          addVAsymptote((nonValidRunStartX + runEndX)/2);
         }
-        nullRunStartX = null;
+        nonValidRunStartX = null;
       }
 
       if(state==='valid'){
