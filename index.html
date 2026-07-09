@@ -1918,15 +1918,11 @@ function showPage(page){
   if(page==='courses'){
     const el = document.getElementById('courses-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
-    const gate = document.getElementById('courses-signedout-gate');
-    const body = document.getElementById('courses-signedin-body');
-    if(!currentUser){
-      gate.style.display='block'; body.style.display='none';
-    } else {
-      gate.style.display='none'; body.style.display='block';
-      renderCourses();
-      renderTools();
-    }
+    // Browsing courses doesn't require signing in — only opening a lesson/test does (see openTest()).
+    document.getElementById('courses-signedout-gate').style.display='none';
+    document.getElementById('courses-signedin-body').style.display='block';
+    renderCourses();
+    renderTools();
   }
   if(page==='about'){
     const el = document.getElementById('about-page');
