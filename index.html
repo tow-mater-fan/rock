@@ -99,6 +99,32 @@
   .hero-demo-slider-row span { font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:rgba(246,244,239,.55); width:2.4em; text-align:right; flex-shrink:0; }
   .hero-demo-hint { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:rgba(246,244,239,.45); margin-top:.85rem; text-align:center; }
   @media (max-width:900px){ .hero-flex { flex-direction:column; } .hero-demo { max-width:100%; width:100%; } .hero-flex .hero-inner { max-width:100%; } }
+
+  /* ── Home page marketing sections ── */
+  .home-stats-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:2.5rem; background:var(--paper-2); padding:2rem 1.5rem; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+  .home-stat { text-align:center; }
+  .home-stat-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.4rem; color:var(--blue); }
+  .home-stat-label { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:var(--ink-soft); margin-top:.2rem; }
+  .home-section { max-width:1080px; margin:0 auto; padding:4rem 1.5rem; }
+  .home-section-head { max-width:640px; margin:0 auto 2.5rem; text-align:center; }
+  .home-section-head h2 { font-size:1.7rem; margin-top:.4rem; }
+  .home-feature-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1.5rem; }
+  .home-feature-card { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.75rem 1.5rem; transition:transform .2s, box-shadow .2s; }
+  .home-feature-card:hover { transform:translateY(-3px); box-shadow:0 10px 24px rgba(28,31,43,.07); }
+  .home-feature-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:1rem; }
+  .home-feature-card h3 { font-size:1rem; margin-bottom:.5rem; }
+  .home-feature-card p { font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
+  .home-steps-section { background:var(--board); padding:4rem 1.5rem; }
+  .home-steps-section .home-section-head .eyebrow { color:var(--gold); }
+  .home-steps-section .home-section-head h2 { color:var(--white); }
+  .home-steps-row { max-width:1080px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:2rem; }
+  .home-step { color:rgba(246,244,239,.85); }
+  .home-step-num { width:36px; height:36px; border-radius:50%; background:var(--blue); color:var(--white); font-family:'Sora',sans-serif; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:.9rem; }
+  .home-step h3 { color:var(--white); font-size:1rem; margin-bottom:.4rem; }
+  .home-step p { font-size:.85rem; color:rgba(246,244,239,.65); line-height:1.6; }
+  .home-cta-banner { text-align:center; padding:4.5rem 1.5rem; max-width:640px; margin:0 auto; }
+  .home-cta-banner h2 { font-size:1.6rem; margin-bottom:.6rem; }
+  .home-cta-banner p { color:var(--ink-soft); margin-bottom:1.5rem; }
   .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
   .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--paper); line-height:1.15; margin-bottom:1rem; }
   .hero h1 em { color:var(--blue); font-style:normal; }
@@ -652,6 +678,7 @@
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
     <li><a data-page="home" onclick="showPage('home');closeNav()">Home</a></li>
+    <li id="nav-dashboard-li" style="display:none;"><a data-page="dashboard" onclick="showPage('dashboard');closeNav()">Dashboard</a></li>
     <li><a data-page="courses" onclick="showPage('courses');closeNav()">Courses</a></li>
     <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()">Daily Review</a></li>
     <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()">Analytics</a></li>
@@ -792,8 +819,8 @@
   </div>
 </div>
 
-<!-- ═══════ COURSES ═══════ -->
-<div id="courses-page">
+<!-- ═══════ HOME (public marketing page — always the same, logged in or not) ═══════ -->
+<div id="home-page">
   <section class="hero">
     <div class="hero-flex">
       <div class="hero-inner">
@@ -824,9 +851,89 @@
       </div>
     </div>
   </section>
-  <button class="btn btn-outline" id="btn-new-course" style="display:none; margin:1.75rem auto 0; display:block; width:max-content;">+ New Course</button>
-  <div id="subject-sections"></div>
+
+  <section class="home-stats-bar">
+    <div class="home-stat"><div class="home-stat-num">100%</div><div class="home-stat-label">Ontario curriculum aligned</div></div>
+    <div class="home-stat"><div class="home-stat-num">Gr. 11–12</div><div class="home-stat-label">U &amp; M stream courses</div></div>
+    <div class="home-stat"><div class="home-stat-num">Unit-by-unit</div><div class="home-stat-label">tests, worksheets &amp; quizzes</div></div>
+    <div class="home-stat"><div class="home-stat-num">0$</div><div class="home-stat-label">Free to use</div></div>
+  </section>
+
+  <section class="home-section">
+    <div class="home-section-head">
+      <div class="eyebrow">Why Modilix</div>
+      <h2>Learning that responds to you, not the other way around</h2>
+    </div>
+    <div class="home-feature-grid">
+      <div class="home-feature-card">
+        <div class="home-feature-icon" style="background:var(--blue-bg); color:var(--blue);">🎛️</div>
+        <h3>Interactive, not just readable</h3>
+        <p>Drag sliders, plot points, and watch graphs update live — the same demo you just tried above shows up throughout every lesson.</p>
+      </div>
+      <div class="home-feature-card">
+        <div class="home-feature-icon" style="background:var(--teal-bg); color:var(--teal);">🔥</div>
+        <h3>Streaks that keep you consistent</h3>
+        <p>A daily streak and XP system built to make five minutes of practice a habit, not a chore.</p>
+      </div>
+      <div class="home-feature-card">
+        <div class="home-feature-icon" style="background:var(--purple-bg); color:var(--purple);">🧠</div>
+        <h3>Spaced review, built in</h3>
+        <p>Daily Review resurfaces exactly the questions you're close to forgetting, using the same idea behind flashcard apps like Anki.</p>
+      </div>
+      <div class="home-feature-card">
+        <div class="home-feature-icon" style="background:var(--gold-bg); color:#a5710a;">📊</div>
+        <h3>Real unit structure</h3>
+        <p>Every course is organized the way your class actually is — by unit, with worksheets building up to a proper unit test.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-steps-section">
+    <div class="home-section-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Three steps to your next unit test</h2>
+    </div>
+    <div class="home-steps-row">
+      <div class="home-step">
+        <div class="home-step-num">1</div>
+        <h3>Sign in &amp; pick your course</h3>
+        <p>Find your exact course by grade and stream — from MCR3U to MHF4U and beyond.</p>
+      </div>
+      <div class="home-step">
+        <div class="home-step-num">2</div>
+        <h3>Work through the unit</h3>
+        <p>Interactive lessons and worksheets that build up gradually, unit by unit.</p>
+      </div>
+      <div class="home-step">
+        <div class="home-step-num">3</div>
+        <h3>Take the unit test</h3>
+        <p>Check what you actually know before the real one — track XP and streaks along the way.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-cta-banner">
+    <h2>Ready to start practicing?</h2>
+    <p>Create a free student account and pick your first course in under a minute.</p>
+    <button class="btn btn-primary" id="home-cta-signin-btn">Get started free</button>
+  </section>
 </div>
+
+<!-- ═══════ COURSES (real course catalog — requires sign-in) ═══════ -->
+<div id="courses-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+  <div id="courses-signedout-gate" style="display:none; max-width:520px; margin:2rem auto; text-align:center;">
+    <div class="eyebrow">Courses</div>
+    <h1 style="font-size:1.9rem; margin-bottom:.6rem;">Sign in to see your courses</h1>
+    <p style="color:var(--ink-soft); font-size:.95rem; margin-bottom:1.5rem;">Course content, progress tracking, and unit tests are only available to signed-in students and educators.</p>
+    <button class="btn btn-primary" id="courses-gate-signin-btn">Student sign in</button>
+    <button class="btn btn-ghost" id="courses-gate-educator-btn">Educator sign-in</button>
+  </div>
+  <div id="courses-signedin-body" style="display:none;">
+    <button class="btn btn-outline" id="btn-new-course" style="display:none; margin:0 auto 1.75rem; width:max-content;">+ New Course</button>
+    <div id="subject-sections"></div>
+  </div>
+</div>
+
 
 <!-- ═══════ ABOUT ═══════ -->
 <div id="about-page" style="display:none; min-height:100vh; background:var(--paper);">
@@ -1645,6 +1752,7 @@ document.addEventListener('mouseleave', ()=>{
 
 /* ── Nav ── */
 function showPage(page){
+  document.getElementById('home-page').style.display='none';
   document.getElementById('dashboard-page').style.display='none';
   document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
@@ -1655,22 +1763,28 @@ function showPage(page){
   document.getElementById('test-page').classList.remove('visible');
   updateNavActive(page);
   if(page==='home'){
-    // Students (signed in, non-educator) land on the personal dashboard.
-    // Everyone else (logged out, or educators) lands on the course catalog.
-    if(currentUser && !isEducator){
-      const el = document.getElementById('dashboard-page');
-      el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
-      renderDashboard();
-    } else {
-      const el = document.getElementById('courses-page');
-      el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
-      renderCourses();
-    }
+    // Home is the public marketing page — same content whether you're signed in or not.
+    const el = document.getElementById('home-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+  }
+  if(page==='dashboard'){
+    // The dashboard (streak, XP, recommended lesson) is only for signed-in students.
+    if(!currentUser || isEducator){ showPage('home'); return; }
+    const el = document.getElementById('dashboard-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderDashboard();
   }
   if(page==='courses'){
     const el = document.getElementById('courses-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
-    renderCourses();
+    const gate = document.getElementById('courses-signedout-gate');
+    const body = document.getElementById('courses-signedin-body');
+    if(!currentUser){
+      gate.style.display='block'; body.style.display='none';
+    } else {
+      gate.style.display='none'; body.style.display='block';
+      renderCourses();
+    }
   }
   if(page==='about'){
     const el = document.getElementById('about-page');
@@ -1815,6 +1929,7 @@ function updateAccountUI(){
   }
   document.getElementById('student-auth-btn').style.display = currentUser ? 'none' : 'inline-block';
   document.getElementById('educator-signin-btn').style.display = currentUser ? 'none' : 'inline-block';
+  document.getElementById('nav-dashboard-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-review-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-analytics-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   document.getElementById('nav-account-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
@@ -3706,9 +3821,12 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   await loadResponses();
   await loadProgress();
   await loadReviewLog();
-  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
+  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('courses'); }
 };
 document.getElementById('educator-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('educator-confirm-btn').click(); });
+document.getElementById('courses-gate-signin-btn').onclick = ()=>{ studentModalMode='signin'; renderStudentModal(); openModal('student-overlay'); };
+document.getElementById('courses-gate-educator-btn').onclick = ()=>{ document.getElementById('educator-error').textContent=''; openModal('educator-overlay'); };
+document.getElementById('home-cta-signin-btn').onclick = ()=>{ studentModalMode='signup'; renderStudentModal(); openModal('student-overlay'); };
 
 /* ── Student sign-in / sign-up ── */
 let studentModalMode = 'signin';
@@ -3743,7 +3861,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     await loadResponses();
   await loadProgress();
   await loadReviewLog();
-    updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
+    updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('dashboard'); }
   } catch(err){
     console.error(err);
     document.getElementById('student-error').textContent = err.message || 'Google sign-in failed.';
@@ -3776,7 +3894,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   await loadResponses();
   await loadProgress();
   await loadReviewLog();
-  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
+  updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('dashboard'); }
 };
 
 /* ── Shared sign-out ── */
