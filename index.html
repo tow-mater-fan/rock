@@ -407,6 +407,20 @@
   .vlt-btn:disabled { opacity:.5; cursor:default; }
   .vlt-progress { font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--ink-faint); }
 
+  /* ── Mapping diagram ── */
+  .map-svg { background:var(--white); border-radius:12px; border:1px solid var(--rule); }
+  .map-node { fill:var(--paper-2); stroke:var(--ink-soft); stroke-width:1.5; }
+  .map-node-multi { fill:var(--red-bg); stroke:var(--red); }
+  .map-node-label { font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; fill:var(--ink); }
+  .map-col-label { font-family:'Sora',sans-serif; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; fill:var(--ink-faint); }
+  .map-arrow { stroke:var(--blue); stroke-width:1.75; opacity:.75; }
+  .map-arrow-multi { stroke:var(--red); }
+  .map-arrow-tip { fill:var(--blue); }
+  .map-arrow-tip-multi { fill:var(--red); }
+  .map-wrap { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+  .map-node-flash { animation: mapFlash .5s ease-in-out 2; }
+  @keyframes mapFlash { 0%,100% { stroke-width:1.5; } 50% { stroke-width:4; } }
+
   /* ── Spot the error ── */
   .se-eq-row { display:flex; align-items:center; justify-content:center; gap:.3rem; flex-wrap:wrap; margin:.9rem 0 1.1rem; }
   .se-eq-part { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; padding:.3rem .15rem; border-radius:6px; }
@@ -868,6 +882,7 @@
         <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
         <button class="btn-sm" id="lb-add-compose" style="border-color:var(--purple);color:var(--purple);">+ Composition f(g(x))</button>
         <button class="btn-sm" id="lb-add-inverse" style="border-color:var(--purple);color:var(--purple);">+ Inverse function</button>
+        <button class="btn-sm" id="lb-add-mapping" style="border-color:var(--blue);color:var(--blue);">+ Mapping diagram</button>
       </div>
     </div>
     <div class="form-group">
@@ -1364,6 +1379,39 @@ function fxBuildSVG(id, range, curves, points){
     else { pointEls += `<circle class="fx-point" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
   });
   return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}<circle class="fx-hover-dot" r="5" cx="-100" cy="-100"/></svg>`;
+}
+// Renders a mapping diagram: two columns of nodes (inputs left, outputs right)
+// with arrows for each (input,output) pair. Highlights any input node that has
+// more than one outgoing arrow, since that's the whole "is it a function" test.
+function fxBuildMappingSVG(id, pairs){
+  const W = 520, H = 340;
+  const inputs = [...new Set(pairs.map(p=>p[0]))];
+  const outputs = [...new Set(pairs.map(p=>p[1]))];
+  const countFor = v => inputs.filter(iv=> pairs.some(p=>p[0]===iv)).length; // unused, kept simple
+  const outCount = {};
+  pairs.forEach(p=>{ outCount[p[0]] = (outCount[p[0]]||0)+1; });
+  const pad = 46;
+  const inY = v => inputs.length<=1 ? H/2 : pad + (inputs.indexOf(v)/(inputs.length-1))*(H-2*pad);
+  const outY = v => outputs.length<=1 ? H/2 : pad + (outputs.indexOf(v)/(outputs.length-1))*(H-2*pad);
+  const leftX = 90, rightX = W-90;
+  const arrows = pairs.map(p=>{
+    const multi = outCount[p[0]] > 1;
+    return `<line class="map-arrow ${multi?'map-arrow-multi':''}" x1="${leftX+22}" y1="${inY(p[0])}" x2="${rightX-22}" y2="${outY(p[1])}" marker-end="url(#mapArrowHead${multi?'Multi':''})"/>`;
+  }).join('');
+  const inNodes = inputs.map(v=>{
+    const multi = outCount[v] > 1;
+    return `<g><circle class="map-node ${multi?'map-node-multi':''}" cx="${leftX}" cy="${inY(v)}" r="20"/><text class="map-node-label" x="${leftX}" y="${inY(v)+5}" text-anchor="middle">${esc(String(v))}</text></g>`;
+  }).join('');
+  const outNodes = outputs.map(v=>`<g><circle class="map-node" cx="${rightX}" cy="${outY(v)}" r="20"/><text class="map-node-label" x="${rightX}" y="${outY(v)+5}" text-anchor="middle">${esc(String(v))}</text></g>`).join('');
+  return `<svg class="fx-svg map-svg" id="${id}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <marker id="mapArrowHead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="map-arrow-tip"/></marker>
+      <marker id="mapArrowHeadMulti" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="map-arrow-tip-multi"/></marker>
+    </defs>
+    <text x="${leftX}" y="24" text-anchor="middle" class="map-col-label">Input</text>
+    <text x="${rightX}" y="24" text-anchor="middle" class="map-col-label">Output</text>
+    ${arrows}${inNodes}${outNodes}
+  </svg>`;
 }
 // Convert a click/tap on the plot SVG into graph coordinates.
 function fxClientToCoord(svgEl, clientX, clientY, range){
@@ -3166,6 +3214,70 @@ function renderLpBlockInner(){
     return;
   }
 
+  if(block.type==='mapping'){
+    const diagrams = block.diagrams || [];
+    let idx = 0, correctCount = 0;
+
+    const paint = ()=>{
+      const d = diagrams[idx];
+      const prog = document.getElementById('map-progress');
+      if(prog) prog.textContent = `${idx+1} / ${diagrams.length}`;
+      const svgSlot = document.getElementById('map-svg-slot');
+      if(svgSlot) svgSlot.innerHTML = fxBuildMappingSVG('map-svg', d.pairs);
+      const fb = document.getElementById('map-feedback');
+      if(fb) fb.innerHTML = '';
+      const fnBtn = document.getElementById('map-fn-btn'), notfnBtn = document.getElementById('map-notfn-btn');
+      if(fnBtn) fnBtn.disabled = false;
+      if(notfnBtn) notfnBtn.disabled = false;
+      const nextBtn = document.getElementById('map-next-btn');
+      if(nextBtn) nextBtn.style.display = 'none';
+    };
+
+    const answer = (choseFunction)=>{
+      const d = diagrams[idx];
+      const correct = choseFunction === d.isFunction;
+      if(correct) correctCount++;
+      document.getElementById('map-fn-btn').disabled = true;
+      document.getElementById('map-notfn-btn').disabled = true;
+      sfx[correct?'correct':'incorrect']();
+      document.getElementById('map-svg-slot').querySelectorAll('.map-node-multi').forEach(n=> n.classList.add('map-node-flash'));
+      document.getElementById('map-feedback').innerHTML =
+        `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'} ${esc(d.note||'')}</div>`;
+      document.getElementById('map-next-btn').style.display = 'inline-block';
+    };
+
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || 'Is this mapping diagram a function?')}</div>
+      <div class="map-wrap">
+        <div class="vlt-progress" id="map-progress"></div>
+        <div id="map-svg-slot"></div>
+        <div class="vlt-btn-row">
+          <button class="vlt-btn fn" id="map-fn-btn">✓ Function</button>
+          <button class="vlt-btn notfn" id="map-notfn-btn">✗ Not a function</button>
+        </div>
+        <div id="map-feedback"></div>
+        <button class="btn-sm" id="map-next-btn" style="display:none;">Next →</button>
+      </div>
+    </div>`;
+    if(!diagrams.length){ lpSetContinueEnabled(true); return; }
+    paint();
+    document.getElementById('map-fn-btn').onclick = ()=>answer(true);
+    document.getElementById('map-notfn-btn').onclick = ()=>answer(false);
+    document.getElementById('map-next-btn').onclick = ()=>{
+      if(idx < diagrams.length-1){ idx++; paint(); }
+      else {
+        lpAnswered[lpIndex] = true;
+        document.getElementById('map-svg-slot').insertAdjacentHTML('afterend',
+          `<div class="lp-feedback correct">You got ${correctCount}/${diagrams.length} correct.</div>`);
+        lpSetContinueEnabled(true);
+        document.getElementById('map-next-btn').style.display='none';
+        lpRecordResult(correctCount===diagrams.length, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'mapping diagram', hint: '' });
+      }
+    };
+    lpSetContinueEnabled(alreadyAnswered);
+    return;
+  }
+
   if(block.type==='spoterror'){
     const range = block.range || 10;
     // block.shown = the (wrong) equation displayed to the student.
@@ -3891,6 +4003,21 @@ function renderLessonBlockList(){
         ${hintsEditorHTML(bi, b.hints)}
       </div>`;
     }
+    if(b.type==='mapping'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Mapping diagram sorter</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt)}"></div>
+        <div class="form-group">
+          <label style="font-size:.65rem;">Diagrams (JSON array)</label>
+          <textarea class="tp-textarea" style="min-height:140px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;" data-map-diagrams="${bi}">${esc(JSON.stringify(b.diagrams, null, 2))}</textarea>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.3rem;">
+            {"pairs":[[1,4],[2,5],[3,6]],"isFunction":true,"note":"Each input has exactly one arrow out."}<br>
+            {"pairs":[[1,4],[1,7],[2,5]],"isFunction":false,"note":"Input 1 has two arrows — not a function."}
+          </div>
+        </div>
+        ${hintsEditorHTML(bi, b.hints)}
+      </div>`;
+    }
     if(b.type==='vlt'){
       return `<div class="qb-item" data-bi="${bi}">
         <div class="qb-item-head"><span class="qb-type-tag mono">Vertical line test sorter</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
@@ -4073,6 +4200,12 @@ function renderLessonBlockList(){
     try{ lessonBlocks[bi].relations = JSON.parse(ta.value); ta.style.borderColor=''; }
     catch(e){ ta.style.borderColor='var(--red)'; }
   }));
+  // Mapping diagram sorter: same raw-JSON pattern as VLT relations.
+  list.querySelectorAll('[data-map-diagrams]').forEach(ta=>ta.addEventListener('input',()=>{
+    const bi = +ta.dataset.mapDiagrams;
+    try{ lessonBlocks[bi].diagrams = JSON.parse(ta.value); ta.style.borderColor=''; }
+    catch(e){ ta.style.borderColor='var(--red)'; }
+  }));
   // Shared hints editor wiring (any block type).
   list.querySelectorAll('[data-hint-text]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi,hi] = inp.dataset.hintText.split(':').map(Number);
@@ -4185,6 +4318,14 @@ document.getElementById('lb-add-compose').onclick = ()=>{ lessonBlocks.push({
 document.getElementById('lb-add-inverse').onclick = ()=>{ lessonBlocks.push({
   type:'inverse', prompt:'',
   parent:'sqrt', range:10, a:1, d:0, c:0, x0:4, tolerance:0.05, explanation:''
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-mapping').onclick = ()=>{ lessonBlocks.push({
+  type:'mapping', prompt:'Is this mapping diagram a function?',
+  diagrams:[
+    { pairs:[[1,4],[2,5],[3,6]], isFunction:true, note:'Each input has exactly one arrow out — this is a function.' },
+    { pairs:[[1,4],[1,7],[2,5]], isFunction:false, note:'Input 1 has two arrows out (to 4 and 7) — not a function.' }
+  ],
+  hints:[]
 }); renderLessonBlockList(); };
 
 document.getElementById('test-save-btn').onclick = async ()=>{
