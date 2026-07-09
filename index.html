@@ -1650,19 +1650,43 @@ function itemMastery(response){
 function masteryPct(response){
   if(!response || !response.submitted) return 0;
   if(response.total && response.total>0) return Math.round((response.score/response.total)*100);
-  return 60; // flat partial credit for reflection-only items
+  return 100; // reflection-only items count as fully complete once submitted
 }
-function unitMasteryPct(unitId){
+
+/* ── COMPLETION: has the student finished the item, regardless of score? ── */
+function itemComplete(response){
+  return !!(response && response.submitted);
+}
+function unitCompletionPct(unitId){
   const unitItems = items.filter(i=>i.unitId===unitId);
   if(!unitItems.length) return 0;
-  const total = unitItems.reduce((sum,it)=>sum+masteryPct(studentResponses[it.id]),0);
-  return Math.round(total/unitItems.length);
+  const done = unitItems.reduce((sum,it)=>sum + (itemComplete(studentResponses[it.id]) ? 1 : 0), 0);
+  return Math.round((done/unitItems.length)*100);
+}
+function courseCompletionPct(courseId){
+  const courseUnits = units.filter(u=>u.courseId===courseId);
+  if(!courseUnits.length) return 0;
+  const total = courseUnits.reduce((sum,u)=>sum+unitCompletionPct(u.id),0);
+  return Math.round(total/courseUnits.length);
+}
+
+/* ── MASTERY: quality of work, based only on graded (scored) items the
+   student has actually submitted. Reflection-only / ungraded items don't
+   have a "quality" to measure, so they're excluded rather than assumed. ── */
+function unitMasteryPct(unitId){
+  const unitItems = items.filter(i=>i.unitId===unitId);
+  const graded = unitItems
+    .map(it=>studentResponses[it.id])
+    .filter(r=>r && r.submitted && r.total && r.total>0);
+  if(!graded.length) return null; // no graded work yet — not "0% mastery", just unknown
+  const total = graded.reduce((sum,r)=>sum+Math.round((r.score/r.total)*100),0);
+  return Math.round(total/graded.length);
 }
 function courseMasteryPct(courseId){
   const courseUnits = units.filter(u=>u.courseId===courseId);
-  if(!courseUnits.length) return 0;
-  const total = courseUnits.reduce((sum,u)=>sum+unitMasteryPct(u.id),0);
-  return Math.round(total/courseUnits.length);
+  const unitScores = courseUnits.map(u=>unitMasteryPct(u.id)).filter(v=>v!==null);
+  if(!unitScores.length) return null;
+  return Math.round(unitScores.reduce((a,b)=>a+b,0)/unitScores.length);
 }
 
 /* ── HOME: subject-grouped course rows ── */
@@ -1728,7 +1752,7 @@ function renderDashboard(){
   const continueCard = document.getElementById('dash-continue-card');
   if(continueCourse){
     continueCard.style.display = '';
-    const pct = courseMasteryPct(continueCourse.id);
+    const pct = courseCompletionPct(continueCourse.id);
     document.getElementById('dash-continue-title').textContent = `Continue ${continueCourse.code}`;
     document.getElementById('dash-continue-sub').textContent = `${continueCourse.name} — ${pct}% complete so far.`;
     document.getElementById('dash-continue-btn').onclick = ()=> openCourseDetail(continueCourse.id);
@@ -1767,7 +1791,7 @@ function renderCourses(){
   cont.innerHTML = subjects.map(subj=>{
     const subjCourses = courses.filter(c=>c.subject===subj);
     const tiles = subjCourses.map((c,ci)=>{
-      const pct = courseMasteryPct(c.id);
+      const pct = courseCompletionPct(c.id);
       const [c1,c2] = SUBJECT_GRADIENTS[c.subject] || SUBJECT_GRADIENTS.other;
       const glyph = SUBJECT_GLYPHS[c.subject] || '✦';
       const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
@@ -1841,8 +1865,10 @@ function openCourseDetail(courseId){
   document.getElementById('course-detail-page').classList.remove('page-fade'); void document.getElementById('course-detail-page').offsetWidth; document.getElementById('course-detail-page').classList.add('page-fade');
   document.getElementById('cd-code').textContent = c.code;
   document.getElementById('cd-title').textContent = c.name;
-  document.getElementById('cd-sub').textContent = `${SUBJECT_LABELS[c.subject]} · Grade ${c.grade} · Stream ${c.stream}`;
-  const pct = courseMasteryPct(courseId);
+  const masteryVal = courseMasteryPct(courseId);
+  document.getElementById('cd-sub').textContent = `${SUBJECT_LABELS[c.subject]} · Grade ${c.grade} · Stream ${c.stream}`
+    + (masteryVal===null ? '' : ` · ${masteryVal}% mastery on graded work`);
+  const pct = courseCompletionPct(courseId);
   document.getElementById('cd-ring-wrap').innerHTML = ringSVG(pct,64,6,'var(--gold)','rgba(255,255,255,.15)') + `<span class="cd-ring-pct">${pct}%</span>`;
   animateRingsIn(document.getElementById('cd-ring-wrap'));
   document.getElementById('btn-new-unit').style.display = isEducator ? 'block' : 'none';
@@ -1862,13 +1888,14 @@ function renderUnitNav(){
   const list = document.getElementById('unit-nav-list');
   if(!courseUnits.length){ list.innerHTML = `<div class="empty-note" style="padding:1.5rem;">No units yet.</div>`; return; }
   list.innerHTML = courseUnits.map((u,ui)=>{
-    const pct = unitMasteryPct(u.id);
+    const pct = unitCompletionPct(u.id);
+    const mastery = unitMasteryPct(u.id);
     const count = items.filter(i=>i.unitId===u.id).length;
     return `<div class="unit-nav-item stagger-in ${u.id===currentUnitId?'active':''}" style="animation-delay:${ui*0.04}s" data-unit="${u.id}">
       <div class="unit-nav-ring">${ringSVG(pct,28,3,ringColorFor(pct),'#e4e9f4')}</div>
       <div>
         <div class="unit-nav-name">${esc(u.name)}</div>
-        <div class="unit-nav-meta">${count} item${count===1?'':'s'}</div>
+        <div class="unit-nav-meta">${count} item${count===1?'':'s'}${mastery===null?'':` · ${mastery}% mastery`}</div>
       </div>
     </div>`;
   }).join('');
