@@ -1424,17 +1424,20 @@ function fxBuildSVG(id, range, curves, points){
   }
   const axes = `<line class="fx-axis" x1="24" y1="${sy(0)}" x2="${W-24}" y2="${sy(0)}"/>
     <line class="fx-axis" x1="${sx(0)}" y1="24" x2="${sx(0)}" y2="${H-24}"/>`;
-  // Two arrowhead markers (solid-curve color, dashed/target-curve color) reused by
-  // any curve segment whose end actually reaches the edge of the plotted window
-  // unbroken by a domain restriction or asymptote — i.e. it keeps going forever.
-  const defs = `<defs>
-    <marker id="${id}-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 Z" fill="var(--blue)"/>
-    </marker>
-    <marker id="${id}-arrow-target" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 Z" fill="var(--gold)"/>
-    </marker>
-  </defs>`;
+  const defs = `<defs></defs>`;
+  // Draws one arrowhead triangle, manually rotated to match the curve's actual
+  // tangent direction at (tipX,tipY). We compute the angle ourselves from real
+  // sampled points instead of relying on SVG's marker orient="auto-start-reverse",
+  // which computes tangents inconsistently across browsers (and gets noisy/wrong
+  // right at seeded boundary points), causing arrowheads to look fine sometimes
+  // and skewed other times.
+  const arrowHead = (tipX, tipY, angleRad, color) => {
+    const len = 11, halfW = 5.5;
+    const backX = tipX - len*Math.cos(angleRad), backY = tipY - len*Math.sin(angleRad);
+    const leftX = backX + halfW*Math.cos(angleRad+Math.PI/2), leftY = backY + halfW*Math.sin(angleRad+Math.PI/2);
+    const rightX = backX + halfW*Math.cos(angleRad-Math.PI/2), rightY = backY + halfW*Math.sin(angleRad-Math.PI/2);
+    return `<path d="M${tipX} ${tipY} L${leftX} ${leftY} L${rightX} ${rightY} Z" fill="${color}"/>`;
+  };
   let curvePaths = '';
   let asymptoteLines = [];
   const addVAsymptote = x => { if(!asymptoteLines.some(a=>a.type==='v' && Math.abs(a.at-x)<range*0.03)) asymptoteLines.push({type:'v', at:x}); };
@@ -1524,7 +1527,7 @@ function fxBuildSVG(id, range, curves, points){
       }
     });
     const cls = c.dashed ? 'fx-curve-target' : 'fx-curve';
-    const arrowMarker = c.dashed ? `${id}-arrow-target` : `${id}-arrow`;
+    const arrowColor = c.dashed ? 'var(--gold)' : 'var(--blue)';
     segments.forEach(({pts:seg, startReason, endReason})=>{
       // Arrow any end that's genuinely unbounded — either it runs off the left/right
       // edge of the window, or it shoots off the top/bottom (still infinite, just
@@ -1533,8 +1536,21 @@ function fxBuildSVG(id, range, curves, points){
       const startArrow = c.showArrows!==false && startReason!=='null';
       const endArrow = c.showArrows!==false && endReason!=='null';
       const d = seg.map((p,i)=> (i===0?'M':'L')+sx(p.x)+' '+sy(p.y)).join(' ');
-      const markerAttrs = `${startArrow?`marker-start="url(#${arrowMarker})"`:''} ${endArrow?`marker-end="url(#${arrowMarker})"`:''}`;
-      curvePaths += `<path class="${cls}" d="${d}" ${markerAttrs}/>`;
+      curvePaths += `<path class="${cls}" d="${d}"/>`;
+      // Angle is taken from real, well-separated sample points (not adjacent pixels),
+      // which keeps the arrow direction stable even on steep or clamped segments.
+      if(startArrow && seg.length>1){
+        const near = seg[Math.min(3, seg.length-2)];
+        const tip = seg[0];
+        const ang = Math.atan2(sy(tip.y)-sy(near.y), sx(tip.x)-sx(near.x));
+        curvePaths += arrowHead(sx(tip.x), sy(tip.y), ang, arrowColor);
+      }
+      if(endArrow && seg.length>1){
+        const near = seg[Math.max(seg.length-4, 1)];
+        const tip = seg[seg.length-1];
+        const ang = Math.atan2(sy(tip.y)-sy(near.y), sx(tip.x)-sx(near.x));
+        curvePaths += arrowHead(sx(tip.x), sy(tip.y), ang, arrowColor);
+      }
     });
   });
   let asymptotePaths = asymptoteLines.map(a=>{
