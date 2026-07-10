@@ -348,6 +348,17 @@
   .qb-opt-row input[type=text] { flex:1; }
   .qb-add-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.1rem; }
   .lb-img-preview { max-width:100%; max-height:160px; border-radius:8px; margin-top:.4rem; display:block; }
+  .lb-drag-handle { cursor:grab; font-size:1rem; color:var(--ink-faint); padding:0 .3rem; user-select:none; }
+  .lb-drag-handle:active { cursor:grabbing; }
+  .qb-item { transition:box-shadow .18s var(--ease-premium), transform .18s var(--ease-premium), border-color .18s; }
+  .qb-item.lb-dragging { opacity:.4; }
+  .qb-item.lb-drag-over { border-color:var(--blue) !important; box-shadow:0 0 0 3px var(--blue-bg); transform:translateY(2px); }
+  .lb-palette { display:flex; flex-direction:column; gap:.6rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:.85rem; margin-bottom:.9rem; }
+  .lb-palette-cat { display:flex; flex-direction:column; gap:.4rem; }
+  .lb-palette-cat-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+  .lb-palette-btns { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem; }
+  .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); }
   .lb-move-btns { display:flex; gap:.25rem; }
   .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1; }
   .lb-move-btns button:hover { border-color:var(--blue); color:var(--blue); }
@@ -1216,6 +1227,21 @@
           <option value="lesson">Lesson (interactive)</option>
         </select>
       </div>
+      <div class="form-group"><label>Status</label>
+        <select id="test-status-input">
+          <option value="published">Published — visible to students</option>
+          <option value="draft">Draft — educators only</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Description <span style="font-weight:400; text-transform:none; opacity:.7;">(shown to students before they start)</span></label>
+      <textarea class="tp-textarea" id="test-description-input" style="min-height:55px;" placeholder="One or two sentences about what this covers..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Learning objectives <span style="font-weight:400; text-transform:none; opacity:.7;">(optional checklist shown to students)</span></label>
+      <div id="objectives-list" style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.4rem;"></div>
+      <button class="btn-sm" type="button" id="objective-add-btn">+ Add objective</button>
     </div>
     <div class="form-group" style="margin-top:.4rem;" id="questions-builder-group">
       <label>Questions</label>
@@ -1227,29 +1253,78 @@
       </div>
     </div>
     <div class="form-group" style="margin-top:.4rem; display:none;" id="lesson-builder-group">
-      <label>Lesson Blocks <span style="font-weight:400; text-transform:none; opacity:.7;">(students step through these one at a time)</span></label>
+      <div class="lb-toolbar">
+        <label style="margin:0;">Lesson Blocks <span style="font-weight:400; text-transform:none; opacity:.7;">(students step through these one at a time)</span></label>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+          <span class="lb-toolbar-stats" id="lb-toolbar-stats">0 blocks</span>
+          <button class="btn-sm" id="lb-undo-btn" type="button" title="Undo">↶ Undo</button>
+          <button class="btn-sm" id="lb-redo-btn" type="button" title="Redo">↷ Redo</button>
+          <button class="btn-sm" id="lb-export-btn" type="button" title="Export lesson as JSON">⬇ Export</button>
+          <button class="btn-sm" id="lb-import-btn" type="button" title="Import lesson JSON">⬆ Import</button>
+          <input type="file" id="lb-import-file" accept="application/json" style="display:none;">
+          <button class="btn-sm" id="lb-preview-btn" type="button" style="border-color:var(--blue);color:var(--blue);">👁 Preview lesson</button>
+        </div>
+      </div>
       <div class="qb-list" id="lesson-block-list"></div>
-      <div class="qb-add-row">
-        <button class="btn-sm" id="lb-add-text">+ Text</button>
-        <button class="btn-sm" id="lb-add-image">+ Image</button>
-        <button class="btn-sm" id="lb-add-check">+ Check (multiple choice)</button>
-        <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
-        <button class="btn-sm" id="lb-add-simulate" style="border-color:var(--teal);color:var(--teal);">+ Probability simulator</button>
-        <button class="btn-sm" id="lb-add-graph" style="border-color:var(--purple);color:var(--purple);">+ Function grapher</button>
-        <button class="btn-sm" id="lb-add-points" style="border-color:var(--purple);color:var(--purple);">+ Point plotter</button>
-        <button class="btn-sm" id="lb-add-table" style="border-color:var(--purple);color:var(--purple);">+ Table of values</button>
-        <button class="btn-sm" id="lb-add-domainrange" style="border-color:var(--green-dark);color:var(--green-dark);">+ Domain &amp; range</button>
-        <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
-        <button class="btn-sm" id="lb-add-piecewise" style="border-color:var(--green-dark);color:var(--green-dark);">+ Piecewise builder</button>
-        <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
-        <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:#946200;">+ Function factory</button>
-        <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
-        <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:#946200;">+ Spot the error</button>
-        <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
-        <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
-        <button class="btn-sm" id="lb-add-compose" style="border-color:var(--purple);color:var(--purple);">+ Composition f(g(x))</button>
-        <button class="btn-sm" id="lb-add-inverse" style="border-color:var(--purple);color:var(--purple);">+ Inverse function</button>
-        <button class="btn-sm" id="lb-add-mapping" style="border-color:var(--blue);color:var(--blue);">+ Mapping diagram</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:.7rem 0 .3rem;">
+        <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:.72rem;color:var(--ink-soft);">Custom modules</span>
+        <button class="btn-sm" id="lb-open-templates" type="button">📦 Insert from library</button>
+      </div>
+      <div id="lb-templates-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.7rem;margin-bottom:.7rem;">
+        <div id="lb-templates-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.4rem;">Templates are blocks you've saved for reuse across lessons in your school. Click "💾 Save as template" on any block below to add it here.</div>
+      </div>
+      <div class="lb-palette">
+        <div class="lb-palette-cat">
+          <div class="lb-palette-cat-label">Content</div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-text">+ Text</button>
+            <button class="btn-sm" id="lb-add-image">+ Image</button>
+            <button class="btn-sm" id="lb-add-video" style="border-color:#c0392b;color:#c0392b;">+ Video embed</button>
+            <button class="btn-sm" id="lb-add-callout" style="border-color:var(--gold);color:#946200;">+ Callout box</button>
+            <button class="btn-sm" id="lb-add-embed" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Embed / PDF</button>
+            <button class="btn-sm" id="lb-add-divider" style="border-color:var(--rule);color:var(--ink-faint);">+ Divider</button>
+            <button class="btn-sm" id="lb-add-quote" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Quote</button>
+            <button class="btn-sm" id="lb-add-accordion" style="border-color:var(--teal);color:var(--teal);">+ Accordion / FAQ</button>
+            <button class="btn-sm" id="lb-add-audio" style="border-color:#c0392b;color:#c0392b;">+ Audio embed</button>
+            <button class="btn-sm" id="lb-add-filedownload" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ File download</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat">
+          <div class="lb-palette-cat-label">Checks &amp; questions</div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-check">+ Multiple choice</button>
+            <button class="btn-sm" id="lb-add-fillblank" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Fill in the blank</button>
+            <button class="btn-sm" id="lb-add-flashcards" style="border-color:var(--gold);color:#946200;">+ Flashcards</button>
+            <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
+            <button class="btn-sm" id="lb-add-simulate" style="border-color:var(--teal);color:var(--teal);">+ Probability simulator</button>
+            <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
+            <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:#946200;">+ Spot the error</button>
+            <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat">
+          <div class="lb-palette-cat-label">Interactive math</div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-graph" style="border-color:var(--purple);color:var(--purple);">+ Function grapher</button>
+            <button class="btn-sm" id="lb-add-points" style="border-color:var(--purple);color:var(--purple);">+ Point plotter</button>
+            <button class="btn-sm" id="lb-add-table" style="border-color:var(--purple);color:var(--purple);">+ Table of values</button>
+            <button class="btn-sm" id="lb-add-compose" style="border-color:var(--purple);color:var(--purple);">+ Composition f(g(x))</button>
+            <button class="btn-sm" id="lb-add-inverse" style="border-color:var(--purple);color:var(--purple);">+ Inverse function</button>
+            <button class="btn-sm" id="lb-add-mapping" style="border-color:var(--blue);color:var(--blue);">+ Mapping diagram</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat">
+          <div class="lb-palette-cat-label">Functions &amp; analysis</div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-domainrange" style="border-color:var(--green-dark);color:var(--green-dark);">+ Domain &amp; range</button>
+            <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
+            <button class="btn-sm" id="lb-add-piecewise" style="border-color:var(--green-dark);color:var(--green-dark);">+ Piecewise builder</button>
+            <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
+            <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:#946200;">+ Function factory</button>
+            <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="form-group">
@@ -2126,7 +2201,7 @@ async function loadCatalog(){
   if(iErr) console.error('items load error', iErr);
   courses = (cData||[]).map(c=>({ id:c.id, code:c.code, name:c.name, grade:c.grade, subject:c.subject, stream:c.stream }));
   units = (uData||[]).map(u=>({ id:u.id, courseId:u.course_id, name:u.name }));
-  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[] }));
+  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[], description:i.description||'', objectives:i.objectives||[], status:i.status||'published' }));
 }
 
 async function loadResponses(){
@@ -2533,7 +2608,7 @@ function renderUnitContent(){
         <div class="status-icon ${ms.cls}">${icon}</div>
         <div class="lesson-row-text">
           <div class="lesson-row-title">${esc(it.title)}</div>
-          <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}</div>
+          <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}${it.status==='draft' && isEducator ? ' · <span style="color:var(--gold);">DRAFT</span>' : ''}</div>
           ${filePills}
         </div>
         <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
@@ -2682,7 +2757,11 @@ function openTest(itemId){
   });
   window.scrollTo(0,0);
 }
-document.getElementById('tp-back-btn').onclick = ()=>{ document.getElementById('test-page').classList.remove('visible'); if(currentCourseId) openCourseDetail(currentCourseId); };
+document.getElementById('tp-back-btn').onclick = ()=>{
+  document.getElementById('test-page').classList.remove('visible');
+  if(lpPreviewMode){ lpPreviewMode=false; openModal('test-overlay'); return; }
+  if(currentCourseId) openCourseDetail(currentCourseId);
+};
 document.getElementById('tp-submit-btn').onclick = async ()=>{
   const it = items.find(i=>i.id===currentItemId);
   if(!it || !currentUser) return;
@@ -2726,6 +2805,7 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
 
 /* ── Lesson player (interactive, Brilliant-style) ── */
 let lpItem = null, lpIndex = 0, lpAnswered = [];
+let lpPreviewMode = false;
 let hintState = {}; // { blockIndex: revealedCount } — resets per lesson
 let lpWrongStreak = 0; // adaptive difficulty: consecutive wrong checks in this lesson
 
@@ -3053,6 +3133,16 @@ function wireHintBox(block, blockIndex){
   });
 }
 
+function toEmbedUrl(url){
+  if(!url) return '';
+  try {
+    const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+    if(yt) return `https://www.youtube.com/embed/${yt[1]}`;
+    const vimeo = url.match(/vimeo\.com\/(\d+)/);
+    if(vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+    return url;
+  } catch(e){ return url; }
+}
 function renderLpBlock(){
   renderLpBlockInner();
   // Append the shared hints UI under whatever the block just rendered,
@@ -3085,6 +3175,128 @@ function renderLpBlockInner(){
       ${block.url ? `<img class="lp-image" src="${esc(block.url)}">` : ''}
       ${block.caption ? `<div class="lp-caption">${esc(block.caption)}</div>` : ''}
     </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='video'){
+    const embedUrl = toEmbedUrl(block.url||'');
+    slot.innerHTML = `<div class="lp-block">
+      ${block.caption ? `<div class="lp-caption" style="margin-bottom:.5rem;">${esc(block.caption)}</div>` : ''}
+      ${embedUrl ? `<div style="position:relative;padding-bottom:56.25%;height:0;border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-md);"><iframe src="${esc(embedUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>` : '<div class="empty-note">No video URL set.</div>'}
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='callout'){
+    const styles = { info:{bg:'var(--blue-bg)',border:'var(--blue)',icon:'ℹ️'}, warning:{bg:'var(--gold-bg)',border:'var(--gold)',icon:'⚠️'}, tip:{bg:'var(--green-bg)',border:'var(--green)',icon:'💡'} };
+    const st = styles[block.style] || styles.info;
+    slot.innerHTML = `<div class="lp-block">
+      <div style="background:${st.bg};border-left:4px solid ${st.border};border-radius:var(--radius-sm);padding:.9rem 1.1rem;">
+        <div style="font-weight:700;font-family:'Sora',sans-serif;margin-bottom:.25rem;">${st.icon} ${esc(block.title||'')}</div>
+        <div>${esc(block.text||'').replace(/\n/g,'<br>')}</div>
+      </div>
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='embed'){
+    slot.innerHTML = `<div class="lp-block">
+      ${block.caption ? `<div class="lp-caption" style="margin-bottom:.5rem;">${esc(block.caption)}</div>` : ''}
+      ${block.url ? `<iframe src="${esc(block.url)}" style="width:100%;height:520px;border:1px solid var(--rule);border-radius:var(--radius-md);"></iframe>` : '<div class="empty-note">No embed URL set.</div>'}
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='divider'){
+    slot.innerHTML = `<div class="lp-block"><div style="display:flex;align-items:center;gap:.75rem;margin:1rem 0;">
+      <div style="flex:1;height:1px;background:var(--rule);"></div>
+      ${block.label ? `<div style="font-family:'Sora',sans-serif;font-weight:700;font-size:.75rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;">${esc(block.label)}</div><div style="flex:1;height:1px;background:var(--rule);"></div>` : ''}
+    </div></div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='quote'){
+    slot.innerHTML = `<div class="lp-block">
+      <blockquote style="border-left:4px solid var(--gold);padding:.5rem 0 .5rem 1.2rem;font-family:'Sora',sans-serif;font-weight:600;font-size:1.1rem;font-style:italic;color:var(--ink);">
+        “${esc(block.text||'')}”
+        ${block.attribution ? `<div style="margin-top:.5rem;font-size:.8rem;font-weight:700;font-style:normal;color:var(--ink-faint);">— ${esc(block.attribution)}</div>` : ''}
+      </blockquote>
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='accordion'){
+    const items_ = block.items || [];
+    slot.innerHTML = `<div class="lp-block">
+      ${block.title ? `<div class="lp-check-q" style="margin-bottom:.6rem;">${esc(block.title)}</div>` : ''}
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        ${items_.map((it,ii)=>`<details style="border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.6rem .9rem;background:var(--white);">
+          <summary style="cursor:pointer;font-family:'Sora',sans-serif;font-weight:700;">${esc(it.q||'')}</summary>
+          <div style="margin-top:.5rem;color:var(--ink-soft);">${esc(it.a||'').replace(/\n/g,'<br>')}</div>
+        </details>`).join('')}
+      </div>
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='audio'){
+    slot.innerHTML = `<div class="lp-block">
+      ${block.caption ? `<div class="lp-caption" style="margin-bottom:.5rem;">${esc(block.caption)}</div>` : ''}
+      ${block.url ? `<audio controls style="width:100%;"><source src="${esc(block.url)}"></audio>` : '<div class="empty-note">No audio URL set.</div>'}
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='filedownload'){
+    slot.innerHTML = `<div class="lp-block">
+      <a href="${esc(block.url||'#')}" target="_blank" rel="noopener" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:.5rem;">⬇️ ${esc(block.filename || 'Download file')}</a>
+    </div>`;
+    lpSetContinueEnabled(true);
+    return;
+  }
+  if(block.type==='fillblank'){
+    const parts = (block.text||'').split('___');
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(parts[0]||'')}<input type="text" id="lp-fillblank-input" class="mono" style="border:1.5px solid var(--rule);border-radius:8px;padding:.3rem .6rem;width:160px;margin:0 .3rem;">${esc(parts[1]||'')}</div>
+      <button class="btn btn-outline" id="lp-fillblank-check" style="margin-top:.8rem;">Check answer</button>
+      <div id="lp-fillblank-feedback"></div>
+    </div>`;
+    lpSetContinueEnabled(alreadyAnswered);
+    if(alreadyAnswered) document.getElementById('lp-fillblank-input').disabled = true;
+    document.getElementById('lp-fillblank-check').addEventListener('click', ()=>{
+      if(lpAnswered[lpIndex]) return;
+      const val = document.getElementById('lp-fillblank-input').value.trim();
+      const target = (block.answer||'').trim();
+      const correct = block.caseSensitive ? val===target : val.toLowerCase()===target.toLowerCase();
+      const fb = document.getElementById('lp-fillblank-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the answer was "${esc(block.answer)}".`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      lpAnswered[lpIndex] = true;
+      document.getElementById('lp-fillblank-input').disabled = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.text, chosenOption: val, correctOption: block.answer, hint: block.explanation });
+    });
+    return;
+  }
+  if(block.type==='flashcards'){
+    const cards = block.cards || [];
+    slot.innerHTML = `<div class="lp-block">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;">
+        ${cards.map((c,ci)=>`<div class="lp-flashcard" data-fc-flip="${ci}" style="cursor:pointer;perspective:800px;height:120px;">
+          <div class="lp-flashcard-inner" style="position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;">
+            <div style="position:absolute;inset:0;backface-visibility:hidden;background:var(--board);color:var(--paper);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;padding:.8rem;text-align:center;font-family:'Sora',sans-serif;font-weight:700;">${esc(c.front||'')}</div>
+            <div style="position:absolute;inset:0;backface-visibility:hidden;background:var(--blue-bg);color:var(--blue-dark);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;padding:.8rem;text-align:center;font-family:'Sora',sans-serif;font-weight:700;transform:rotateY(180deg);">${esc(c.back||'')}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div class="lp-caption" style="margin-top:.6rem;">Tap a card to flip it.</div>
+    </div>`;
+    slot.querySelectorAll('[data-fc-flip]').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        const inner = card.querySelector('.lp-flashcard-inner');
+        inner.style.transform = inner.style.transform==='rotateY(180deg)' ? '' : 'rotateY(180deg)';
+      });
+    });
     lpSetContinueEnabled(true);
     return;
   }
@@ -4171,6 +4383,12 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
     lpIndex++; renderLpBlock(); window.scrollTo(0,0);
     return;
   }
+  if(lpPreviewMode){
+    document.getElementById('test-page').classList.remove('visible');
+    lpPreviewMode = false;
+    openModal('test-overlay');
+    return;
+  }
   // Finished the last block — mark the lesson complete.
   const btn = document.getElementById('lp-next-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
@@ -4555,8 +4773,20 @@ document.getElementById('acct-del-confirm-btn').onclick = async ()=>{
 let qbQuestions = [];
 let qbFiles = [];
 let lessonBlocks = [];
+let lessonObjectives = [];
 let editingItemId = null;
 let addToUnitId = null;
+
+function renderObjectivesList(){
+  const list = document.getElementById('objectives-list');
+  list.innerHTML = lessonObjectives.map((o,oi)=>`<div class="qb-opt-row">
+    <input type="text" data-obj-text="${oi}" placeholder="e.g. Identify domain and range from a graph" value="${esc(o)}">
+    <button class="qb-remove" data-obj-remove="${oi}" type="button">✕</button>
+  </div>`).join('');
+  list.querySelectorAll('[data-obj-text]').forEach(inp=>inp.addEventListener('input',()=>{ lessonObjectives[+inp.dataset.objText] = inp.value; }));
+  list.querySelectorAll('[data-obj-remove]').forEach(b=>b.onclick=()=>{ lessonObjectives.splice(+b.dataset.objRemove,1); renderObjectivesList(); });
+}
+document.getElementById('objective-add-btn').onclick = ()=>{ lessonObjectives.push(''); renderObjectivesList(); };
 
 function toggleBuilderSections(){
   const isLesson = document.getElementById('test-type-input').value === 'lesson';
@@ -4576,16 +4806,24 @@ function openTestModal(itemId, unitId){
     const it = items.find(i=>i.id===itemId);
     document.getElementById('test-name-input').value = it.title;
     document.getElementById('test-type-input').value = it.type;
+    document.getElementById('test-status-input').value = it.status || 'published';
+    document.getElementById('test-description-input').value = it.description || '';
+    lessonObjectives = JSON.parse(JSON.stringify(it.objectives||[]));
     qbQuestions = JSON.parse(JSON.stringify(it.questions));
     lessonBlocks = JSON.parse(JSON.stringify(it.content||[])).map(migrateLessonBlock);
     qbFiles = (it.files||[]).map(f=>({ label:f.label, file:null, existingPath:f.path, fileName:f.fileName, dataUrl:f.dataUrl }));
   } else {
     document.getElementById('test-name-input').value = '';
     document.getElementById('test-type-input').value = 'practice';
+    document.getElementById('test-status-input').value = 'published';
+    document.getElementById('test-description-input').value = '';
+    lessonObjectives = [];
     qbQuestions = [];
     lessonBlocks = [];
     qbFiles = [];
   }
+  renderObjectivesList();
+  lbHistory = []; lbHistoryIndex = -1;
   renderQbList();
   renderLessonBlockList();
   renderFileVersionList();
@@ -4669,13 +4907,70 @@ function hintsEditorHTML(bi, hints){
     <button class="btn-sm" type="button" data-hint-add="${bi}">+ Add hint</button>
   </div>`;
 }
+// Reusable block-template library (educators save any block, insert it into any lesson later).
+let blockTemplates = [];
+async function loadBlockTemplates(){
+  if(!currentProfile || !currentProfile.school_id) return;
+  const { data, error } = await db.from('block_templates').select('*').eq('school_id', currentProfile.school_id).order('created_at', { ascending:false });
+  if(!error) blockTemplates = data || [];
+}
+const BLOCK_TYPE_META = {
+  text:{icon:'📝',label:'Text'}, image:{icon:'🖼️',label:'Image'}, video:{icon:'🎬',label:'Video'},
+  callout:{icon:'💬',label:'Callout'}, embed:{icon:'📄',label:'Embed'}, divider:{icon:'➖',label:'Divider'},
+  quote:{icon:'❝',label:'Quote'}, accordion:{icon:'📂',label:'Accordion'}, audio:{icon:'🔊',label:'Audio'},
+  filedownload:{icon:'⬇️',label:'File download'}, fillblank:{icon:'✍️',label:'Fill in the blank'}, flashcards:{icon:'🗂️',label:'Flashcards'},
+  check:{icon:'✅',label:'Multiple choice'}, slider:{icon:'🎚️',label:'Slider check'}, simulate:{icon:'🎲',label:'Simulator'},
+  sequence:{icon:'🔢',label:'Sequence'}, compose:{icon:'🧩',label:'Composition'}, inverse:{icon:'🔁',label:'Inverse'},
+  graph:{icon:'📈',label:'Grapher'}, points:{icon:'📍',label:'Point plotter'}, table:{icon:'🧮',label:'Table'},
+  domainrange:{icon:'📏',label:'Domain/range'}, machine:{icon:'⚙️',label:'Function machine'}, piecewise:{icon:'🪜',label:'Piecewise'},
+  rate:{icon:'📐',label:'Rate of change'}, factory:{icon:'🏭',label:'Function factory'}, vlt:{icon:'📊',label:'Vertical line test'},
+  spoterror:{icon:'🔍',label:'Spot the error'}, describe:{icon:'✏️',label:'Build from description'}, mapping:{icon:'🗺️',label:'Mapping diagram'}
+};
+function saveTemplateBtn(bi){
+  return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
+}
+let lbHistory = [];
+let lbHistoryIndex = -1;
+let lbSuppressSnapshot = false;
+function lbUndo(){
+  if(lbHistoryIndex<=0) return;
+  lbHistoryIndex--;
+  lbSuppressSnapshot = true;
+  lessonBlocks = JSON.parse(lbHistory[lbHistoryIndex]);
+  renderLessonBlockList();
+  lbSuppressSnapshot = false;
+}
+function lbRedo(){
+  if(lbHistoryIndex>=lbHistory.length-1) return;
+  lbHistoryIndex++;
+  lbSuppressSnapshot = true;
+  lessonBlocks = JSON.parse(lbHistory[lbHistoryIndex]);
+  renderLessonBlockList();
+  lbSuppressSnapshot = false;
+}
 function renderLessonBlockList(){
+  if(!lbSuppressSnapshot){
+    const snap = JSON.stringify(lessonBlocks);
+    if(lbHistory[lbHistoryIndex] !== snap){
+      lbHistory = lbHistory.slice(0, lbHistoryIndex+1);
+      lbHistory.push(snap);
+      lbHistoryIndex++;
+      if(lbHistory.length>60){ lbHistory.shift(); lbHistoryIndex--; }
+    }
+  }
+  const undoBtn = document.getElementById('lb-undo-btn'); if(undoBtn) undoBtn.disabled = lbHistoryIndex<=0;
+  const redoBtn = document.getElementById('lb-redo-btn'); if(redoBtn) redoBtn.disabled = lbHistoryIndex>=lbHistory.length-1;
   const list = document.getElementById('lesson-block-list');
+  const statsEl = document.getElementById('lb-toolbar-stats');
+  if(statsEl) statsEl.textContent = `${lessonBlocks.length} block${lessonBlocks.length===1?'':'s'} · ~${Math.max(1,Math.round(lessonBlocks.length*0.75))} min`;
   if(!lessonBlocks.length){ list.innerHTML = `<div class="empty-note" style="padding:1rem;">No blocks yet — add text, images, or interactive checks below.</div>`; return; }
   list.innerHTML = lessonBlocks.map((b,bi)=>{
+    const meta = BLOCK_TYPE_META[b.type] || {icon:'▫️',label:b.type};
     const moveBtns = `<div class="lb-move-btns">
+      <span class="lb-drag-handle" draggable="true" data-lb-drag="${bi}" title="Drag to reorder">⠿</span>
       <button data-lb-up="${bi}" type="button" title="Move up">↑</button>
       <button data-lb-down="${bi}" type="button" title="Move down">↓</button>
+      <button data-lb-dup="${bi}" type="button" title="Duplicate">⎘</button>
     </div>`;
     if(b.type==='text'){
       return `<div class="qb-item" data-bi="${bi}">
@@ -4689,6 +4984,106 @@ function renderLessonBlockList(){
         <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="Image URL (https://...)" value="${esc(b.url)}"></div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:caption" placeholder="Caption (optional)" value="${esc(b.caption)}"></div>
         ${b.url ? `<img class="lb-img-preview" src="${esc(b.url)}">` : ''}
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='video'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Video embed</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="YouTube or Vimeo URL" value="${esc(b.url||'')}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:caption" placeholder="Caption (optional)" value="${esc(b.caption||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='callout'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Callout box</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><label style="font-size:.65rem;">Style</label>
+          <select data-lb-select="${bi}:style">
+            <option value="info" ${b.style==='info'?'selected':''}>Info</option>
+            <option value="warning" ${b.style==='warning'?'selected':''}>Warning</option>
+            <option value="tip" ${b.style==='tip'?'selected':''}>Tip</option>
+          </select>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:title" placeholder="Title (optional)" value="${esc(b.title||'')}"></div>
+        <div class="form-group"><textarea class="tp-textarea" style="min-height:60px;" data-lb-field="${bi}:text" placeholder="Callout text">${esc(b.text||'')}</textarea></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='embed'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Embed / PDF</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="URL to embed (PDF, Google Slides, etc.)" value="${esc(b.url||'')}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:caption" placeholder="Caption (optional)" value="${esc(b.caption||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='divider'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Divider</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:label" placeholder="Label (optional, e.g. 'Practice')" value="${esc(b.label||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='quote'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Quote</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><textarea class="tp-textarea" style="min-height:55px;" data-lb-field="${bi}:text" placeholder="Quote text">${esc(b.text||'')}</textarea></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:attribution" placeholder="Attribution (optional, e.g. Isaac Newton)" value="${esc(b.attribution||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='accordion'){
+      const items_ = b.items || [];
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Accordion / FAQ</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:title" placeholder="Section title (optional)" value="${esc(b.title||'')}"></div>
+        <div id="accordion-items-${bi}">${items_.map((it,ii)=>`<div style="border:1px solid var(--rule);border-radius:8px;padding:.5rem;margin-bottom:.4rem;">
+          <input type="text" data-acc-q="${bi}:${ii}" placeholder="Question / heading" value="${esc(it.q||'')}" style="margin-bottom:.3rem;">
+          <textarea class="tp-textarea" style="min-height:45px;" data-acc-a="${bi}:${ii}" placeholder="Answer / content">${esc(it.a||'')}</textarea>
+          <button class="qb-remove" data-acc-remove="${bi}:${ii}" type="button" style="margin-top:.3rem;">✕ Remove item</button>
+        </div>`).join('')}</div>
+        <button class="btn-sm" type="button" data-acc-add="${bi}">+ Add item</button>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='audio'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Audio embed</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="Audio file URL (mp3, etc.)" value="${esc(b.url||'')}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:caption" placeholder="Caption (optional)" value="${esc(b.caption||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='filedownload'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">File download</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:url" placeholder="File URL" value="${esc(b.url||'')}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:filename" placeholder="Display name (e.g. Worksheet.pdf)" value="${esc(b.filename||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='fillblank'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Fill in the blank</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><label style="font-size:.65rem;">Sentence — use ___ where the blank goes</label><input type="text" data-lb-field="${bi}:text" placeholder="The mitochondria is the ___ of the cell." value="${esc(b.text||'')}"></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:answer" placeholder="Correct answer" value="${esc(b.answer||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;"><input type="checkbox" data-lb-check="${bi}:caseSensitive" ${b.caseSensitive?'checked':''}> Case sensitive</label></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='flashcards'){
+      const cards = b.cards || [];
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Flashcards</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div id="flashcards-items-${bi}">${cards.map((c,ci)=>`<div style="display:flex;gap:.4rem;margin-bottom:.35rem;align-items:center;">
+          <input type="text" data-fc-front="${bi}:${ci}" placeholder="Front" value="${esc(c.front||'')}">
+          <input type="text" data-fc-back="${bi}:${ci}" placeholder="Back" value="${esc(c.back||'')}">
+          <button class="qb-remove" data-fc-remove="${bi}:${ci}" type="button">✕</button>
+        </div>`).join('')}</div>
+        <button class="btn-sm" type="button" data-fc-add="${bi}">+ Add card</button>
+        ${saveTemplateBtn(bi)}
       </div>`;
     }
     if(b.type==='check'){
@@ -5101,8 +5496,50 @@ function renderLessonBlockList(){
     }
   }).join('');
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-lb-savetpl]').forEach(b=>b.onclick=async ()=>{
+    const bi = +b.dataset.lbSavetpl;
+    const block = lessonBlocks[bi];
+    const name = prompt('Name this template (e.g. "Boiling point slider"):', block.type);
+    if(!name) return;
+    const { error } = await db.from('block_templates').insert({
+      school_id: currentProfile.school_id, created_by: currentUser.id, name, block_type: block.type, block_data: block
+    });
+    if(error){ alert('Could not save template: ' + error.message); return; }
+    await loadBlockTemplates();
+    renderTemplatesPanel();
+    b.textContent = '✓ Saved';
+    setTimeout(()=>{ b.textContent = '💾 Save as template'; }, 1500);
+  });
   list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
   list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
+  list.querySelectorAll('[data-lb-dup]').forEach(b=>b.onclick=()=>{
+    const bi = +b.dataset.lbDup;
+    lessonBlocks.splice(bi+1, 0, JSON.parse(JSON.stringify(lessonBlocks[bi])));
+    renderLessonBlockList();
+  });
+  let dragFromIndex = null;
+  list.querySelectorAll('[data-lb-drag]').forEach(handle=>{
+    handle.addEventListener('dragstart', e=>{
+      dragFromIndex = +handle.dataset.lbDrag;
+      e.dataTransfer.effectAllowed = 'move';
+      handle.closest('.qb-item').classList.add('lb-dragging');
+    });
+    handle.addEventListener('dragend', ()=>{ handle.closest('.qb-item')?.classList.remove('lb-dragging'); });
+  });
+  list.querySelectorAll('.qb-item').forEach(item=>{
+    item.addEventListener('dragover', e=>{ e.preventDefault(); item.classList.add('lb-drag-over'); });
+    item.addEventListener('dragleave', ()=>item.classList.remove('lb-drag-over'));
+    item.addEventListener('drop', e=>{
+      e.preventDefault();
+      item.classList.remove('lb-drag-over');
+      const toIndex = +item.dataset.bi;
+      if(dragFromIndex===null || dragFromIndex===toIndex) return;
+      const [moved] = lessonBlocks.splice(dragFromIndex, 1);
+      lessonBlocks.splice(toIndex, 0, moved);
+      dragFromIndex = null;
+      renderLessonBlockList();
+    });
+  });
   list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbField.split(':');
     const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2','sides','targetFace','trials'].includes(field);
@@ -5128,6 +5565,16 @@ function renderLessonBlockList(){
     const bi = inp.dataset.lbXvals;
     lessonBlocks[+bi].xValues = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
   }));
+  // Accordion items
+  list.querySelectorAll('[data-acc-add]').forEach(b=>b.onclick=()=>{ const bi=+b.dataset.accAdd; (lessonBlocks[bi].items = lessonBlocks[bi].items||[]).push({q:'',a:''}); renderLessonBlockList(); });
+  list.querySelectorAll('[data-acc-remove]').forEach(b=>b.onclick=()=>{ const [bi,ii]=b.dataset.accRemove.split(':').map(Number); lessonBlocks[bi].items.splice(ii,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-acc-q]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,ii]=inp.dataset.accQ.split(':').map(Number); lessonBlocks[bi].items[ii].q = inp.value; }));
+  list.querySelectorAll('[data-acc-a]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,ii]=inp.dataset.accA.split(':').map(Number); lessonBlocks[bi].items[ii].a = inp.value; }));
+  // Flashcards
+  list.querySelectorAll('[data-fc-add]').forEach(b=>b.onclick=()=>{ const bi=+b.dataset.fcAdd; (lessonBlocks[bi].cards = lessonBlocks[bi].cards||[]).push({front:'',back:''}); renderLessonBlockList(); });
+  list.querySelectorAll('[data-fc-remove]').forEach(b=>b.onclick=()=>{ const [bi,ci]=b.dataset.fcRemove.split(':').map(Number); lessonBlocks[bi].cards.splice(ci,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-fc-front]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,ci]=inp.dataset.fcFront.split(':').map(Number); lessonBlocks[bi].cards[ci].front = inp.value; }));
+  list.querySelectorAll('[data-fc-back]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,ci]=inp.dataset.fcBack.split(':').map(Number); lessonBlocks[bi].cards[ci].back = inp.value; }));
   // Domain/range checkboxes (∞ toggles, inclusive toggles)
   list.querySelectorAll('[data-lb-check]').forEach(inp=>inp.addEventListener('change',()=>{
     const [bi, field] = inp.dataset.lbCheck.split(':');
@@ -5232,6 +5679,87 @@ function renderLessonBlockList(){
 }
 document.getElementById('lb-add-text').onclick = ()=>{ lessonBlocks.push({type:'text', text:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-image').onclick = ()=>{ lessonBlocks.push({type:'image', url:'', caption:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-video').onclick = ()=>{ lessonBlocks.push({type:'video', url:'', caption:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-callout').onclick = ()=>{ lessonBlocks.push({type:'callout', style:'info', title:'', text:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-embed').onclick = ()=>{ lessonBlocks.push({type:'embed', url:'', caption:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-divider').onclick = ()=>{ lessonBlocks.push({type:'divider', label:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-quote').onclick = ()=>{ lessonBlocks.push({type:'quote', text:'', attribution:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-accordion').onclick = ()=>{ lessonBlocks.push({type:'accordion', title:'', items:[{q:'',a:''}]}); renderLessonBlockList(); };
+document.getElementById('lb-add-audio').onclick = ()=>{ lessonBlocks.push({type:'audio', url:'', caption:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-filedownload').onclick = ()=>{ lessonBlocks.push({type:'filedownload', url:'', filename:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-fillblank').onclick = ()=>{ lessonBlocks.push({type:'fillblank', text:'', answer:'', caseSensitive:false, explanation:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-flashcards').onclick = ()=>{ lessonBlocks.push({type:'flashcards', cards:[{front:'',back:''}]}); renderLessonBlockList(); };
+
+function renderTemplatesPanel(){
+  const list = document.getElementById('lb-templates-list');
+  if(!blockTemplates.length){ list.innerHTML = `<div class="empty-note">No saved templates yet.</div>`; return; }
+  list.innerHTML = blockTemplates.map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:.45rem .65rem;">
+    <div><span style="font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;">${esc(t.name)}</span> <span class="mono" style="font-size:.65rem;color:var(--ink-faint);">· ${esc(t.block_type)}</span></div>
+    <div style="display:flex;gap:.4rem;">
+      <button class="btn-sm" type="button" data-tpl-insert="${t.id}">+ Insert</button>
+      <button class="btn-sm danger" type="button" data-tpl-delete="${t.id}">✕</button>
+    </div>
+  </div>`).join('');
+  list.querySelectorAll('[data-tpl-insert]').forEach(b=>b.onclick=()=>{
+    const t = blockTemplates.find(x=>x.id===b.dataset.tplInsert);
+    if(t) lessonBlocks.push(JSON.parse(JSON.stringify(t.block_data)));
+    renderLessonBlockList();
+  });
+  list.querySelectorAll('[data-tpl-delete]').forEach(b=>b.onclick=async ()=>{
+    if(!confirm('Delete this template?')) return;
+    const { error } = await db.from('block_templates').delete().eq('id', b.dataset.tplDelete);
+    if(error){ alert(error.message); return; }
+    await loadBlockTemplates();
+    renderTemplatesPanel();
+  });
+}
+document.getElementById('lb-undo-btn').onclick = lbUndo;
+document.getElementById('lb-redo-btn').onclick = lbRedo;
+document.getElementById('lb-export-btn').onclick = ()=>{
+  const payload = {
+    title: document.getElementById('test-name-input').value.trim() || 'lesson',
+    description: document.getElementById('test-description-input').value.trim(),
+    objectives: lessonObjectives,
+    blocks: lessonBlocks
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${payload.title.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+document.getElementById('lb-import-btn').onclick = ()=>document.getElementById('lb-import-file').click();
+document.getElementById('lb-import-file').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!Array.isArray(parsed.blocks)) throw new Error('No "blocks" array found in file.');
+    lessonBlocks = lessonBlocks.concat(parsed.blocks);
+    if(parsed.objectives && Array.isArray(parsed.objectives)) lessonObjectives = lessonObjectives.concat(parsed.objectives);
+    renderObjectivesList();
+    renderLessonBlockList();
+  } catch(err){
+    alert('Could not import file: ' + err.message);
+  }
+  e.target.value = '';
+});
+document.getElementById('lb-open-templates').onclick = async ()=>{
+  const panel = document.getElementById('lb-templates-panel');
+  const opening = panel.style.display==='none';
+  panel.style.display = opening ? '' : 'none';
+  if(opening){ await loadBlockTemplates(); renderTemplatesPanel(); }
+};
+document.getElementById('lb-preview-btn').onclick = ()=>{
+  if(!lessonBlocks.length){ alert('Add at least one block first.'); return; }
+  const tempItem = { id:'__preview__', content: JSON.parse(JSON.stringify(lessonBlocks)) };
+  lpPreviewMode = true;
+  closeModal('test-overlay');
+  openLessonPlayer(tempItem);
+  document.getElementById('test-page').classList.add('visible');
+};
 document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:'check', text:'', options:['','','',''], correct:0, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-simulate').onclick = ()=>{ lessonBlocks.push({type:'simulate', prompt:'', kind:'dice', sides:6, targetFace:1, trials:30, tolerance:null, explanation:''}); renderLessonBlockList(); };
@@ -5371,18 +5899,18 @@ document.getElementById('test-save-btn').onclick = async ()=>{
   }
 
   const payload = type==='lesson'
-    ? { title, type, questions: [], content: cleanContent, files: finalFiles }
-    : { title, type, questions: cleanQuestions, content: [], files: finalFiles };
+    ? { title, type, questions: [], content: cleanContent, files: finalFiles, description: document.getElementById('test-description-input').value.trim(), objectives: lessonObjectives.filter(o=>o.trim()), status: document.getElementById('test-status-input').value }
+    : { title, type, questions: cleanQuestions, content: [], files: finalFiles, description: document.getElementById('test-description-input').value.trim(), objectives: lessonObjectives.filter(o=>o.trim()), status: document.getElementById('test-status-input').value };
 
   if(editingItemId){
     const { error } = await db.from('items').update(payload).eq('id', editingItemId);
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
     const it = items.find(i=>i.id===editingItemId);
-    Object.assign(it, { title, type, questions: payload.questions, content: payload.content, files: finalFiles });
+    Object.assign(it, { title, type, questions: payload.questions, content: payload.content, files: finalFiles, description: payload.description, objectives: payload.objectives, status: payload.status });
   } else {
     const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, ...payload }).select().single();
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
-    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, content:data.content||[], files:data.files });
+    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, content:data.content||[], files:data.files, description:data.description||'', objectives:data.objectives||[], status:data.status||'published' });
   }
   saveBtn.disabled = false; saveBtn.textContent = 'Save Item';
   closeModal('test-overlay'); renderUnitNav(); renderUnitContent();
