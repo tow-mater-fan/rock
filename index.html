@@ -1113,12 +1113,30 @@
 <div class="modal-overlay" id="educator-overlay">
   <div class="modal">
     <button class="modal-close" id="educator-close">✕</button>
-    <div class="modal-eyebrow">Educator Access</div>
-    <h2>Educator sign in</h2>
-    <p class="desc">Educator accounts are created by the site owner in Supabase — sign in with the email and password you were given.</p>
+    <div class="modal-eyebrow" id="educator-modal-eyebrow">Educator Access</div>
+    <h2 id="educator-modal-title">Educator sign in</h2>
+    <p class="desc" id="educator-modal-desc">Sign in with your educator email and password.</p>
     <div class="form-group"><label for="educator-email">Email</label><input type="email" id="educator-email" placeholder="you@school.example" autocomplete="off"></div>
     <div class="form-group"><label for="educator-pass">Password</label><input type="password" id="educator-pass" placeholder="••••••••" autocomplete="off"></div>
+    <div id="educator-school-fields" style="display:none;">
+      <div class="form-group">
+        <label>School setup</label>
+        <div style="display:flex;gap:.6rem;margin-bottom:.6rem;">
+          <button type="button" class="btn-sm" id="educator-school-mode-create" style="flex:1;">Create new school</button>
+          <button type="button" class="btn-sm" id="educator-school-mode-join" style="flex:1;">Join with code</button>
+        </div>
+      </div>
+      <div class="form-group" id="educator-school-name-group" style="display:none;">
+        <label for="educator-school-name">School name</label>
+        <input type="text" id="educator-school-name" placeholder="e.g. Riverdale Collegiate" autocomplete="off">
+      </div>
+      <div class="form-group" id="educator-join-code-group" style="display:none;">
+        <label for="educator-join-code">School join code</label>
+        <input type="text" id="educator-join-code" placeholder="e.g. DEMO2026" autocomplete="off">
+      </div>
+    </div>
     <button class="modal-btn" id="educator-confirm-btn">Sign in</button>
+    <button class="modal-btn secondary" id="educator-toggle-mode-btn">Need an account? Sign up</button>
     <div class="modal-error" id="educator-error"></div>
   </div>
 </div>
@@ -1136,6 +1154,7 @@
     <div style="text-align:center;color:var(--ink-faint);font-size:.8rem;margin:.6rem 0;">or</div>
     <div class="form-group"><label for="student-email-input">Email</label><input type="email" id="student-email-input" placeholder="you@example.com" autocomplete="off"></div>
     <div class="form-group"><label for="student-password-input">Password</label><input type="password" id="student-password-input" placeholder="••••••••" autocomplete="off"></div>
+    <div class="form-group" id="student-join-code-group" style="display:none;"><label for="student-join-code">School join code</label><input type="text" id="student-join-code" placeholder="e.g. DEMO2026" autocomplete="off"></div>
     <button class="modal-btn" id="student-confirm-btn">Sign in</button>
     <button class="modal-btn secondary" id="student-toggle-mode-btn">Need an account? Sign up</button>
     <div class="modal-error" id="student-error"></div>
@@ -4171,13 +4190,75 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   if(currentCourseId) openCourseDetail(currentCourseId);
 };
 
-/* ── Educator sign-in (real account, created by site owner in Supabase) ── */
-document.getElementById('educator-signin-btn').onclick = ()=>{ document.getElementById('educator-error').textContent=''; openModal('educator-overlay'); };
+/* ── Educator sign-in / sign-up (with school create-or-join) ── */
+let educatorModalMode = 'signin';
+let educatorSchoolMode = 'create';
+function renderEducatorModal(){
+  const isSignup = educatorModalMode==='signup';
+  document.getElementById('educator-modal-title').textContent = isSignup ? 'Create educator account' : 'Educator sign in';
+  document.getElementById('educator-modal-desc').textContent = isSignup
+    ? 'Set up a new school or join an existing one with a code.'
+    : 'Sign in with your educator email and password.';
+  document.getElementById('educator-confirm-btn').textContent = isSignup ? 'Sign up' : 'Sign in';
+  document.getElementById('educator-toggle-mode-btn').textContent = isSignup ? 'Already have an account? Sign in' : 'Need an account? Sign up';
+  document.getElementById('educator-school-fields').style.display = isSignup ? '' : 'none';
+  document.getElementById('educator-error').textContent = '';
+  renderEducatorSchoolMode();
+}
+function renderEducatorSchoolMode(){
+  const createBtn = document.getElementById('educator-school-mode-create');
+  const joinBtn = document.getElementById('educator-school-mode-join');
+  createBtn.style.borderColor = educatorSchoolMode==='create' ? 'var(--blue)' : '';
+  createBtn.style.color = educatorSchoolMode==='create' ? 'var(--blue)' : '';
+  joinBtn.style.borderColor = educatorSchoolMode==='join' ? 'var(--blue)' : '';
+  joinBtn.style.color = educatorSchoolMode==='join' ? 'var(--blue)' : '';
+  document.getElementById('educator-school-name-group').style.display = educatorSchoolMode==='create' ? '' : 'none';
+  document.getElementById('educator-join-code-group').style.display = educatorSchoolMode==='join' ? '' : 'none';
+}
+document.getElementById('educator-school-mode-create').onclick = ()=>{ educatorSchoolMode='create'; renderEducatorSchoolMode(); };
+document.getElementById('educator-school-mode-join').onclick = ()=>{ educatorSchoolMode='join'; renderEducatorSchoolMode(); };
+document.getElementById('educator-toggle-mode-btn').onclick = ()=>{ educatorModalMode = educatorModalMode==='signin' ? 'signup' : 'signin'; renderEducatorModal(); };
+document.getElementById('educator-signin-btn').onclick = ()=>{ educatorModalMode='signin'; renderEducatorModal(); openModal('educator-overlay'); };
 document.getElementById('educator-close').onclick = ()=>closeModal('educator-overlay');
 document.getElementById('educator-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('educator-email').value.trim();
   const password = document.getElementById('educator-pass').value;
   if(!email || !password){ document.getElementById('educator-error').textContent='Email and password are required.'; return; }
+
+  if(educatorModalMode==='signup'){
+    let schoolId;
+    if(educatorSchoolMode==='create'){
+      const schoolName = document.getElementById('educator-school-name').value.trim();
+      if(!schoolName){ document.getElementById('educator-error').textContent = 'Enter a school name.'; return; }
+      const genCode = ()=> schoolName.replace(/[^A-Za-z]/g,'').slice(0,5).toUpperCase() + Math.floor(1000+Math.random()*9000);
+      const { data: newSchool, error: createErr } = await sbAuth.from('schools').insert({ name: schoolName, join_code: genCode() }).select().single();
+      if(createErr){ document.getElementById('educator-error').textContent = createErr.message; return; }
+      schoolId = newSchool.id;
+    } else {
+      const joinCode = document.getElementById('educator-join-code').value.trim().toUpperCase();
+      if(!joinCode){ document.getElementById('educator-error').textContent = 'Enter a school join code.'; return; }
+      const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
+      if(schoolErr || !school){ document.getElementById('educator-error').textContent = 'Invalid school join code.'; return; }
+      schoolId = school.id;
+    }
+    const { data, error } = await sbAuth.auth.signUp({ email, password });
+    if(error){ document.getElementById('educator-error').textContent = error.message; return; }
+    if(!data.session){
+      document.getElementById('educator-error').textContent = 'Check your email to confirm your account, then sign in.';
+      return;
+    }
+    db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
+    const { error: profileErr } = await db.from('profiles').insert({ id: data.user.id, role: 'educator', school_id: schoolId });
+    if(profileErr){ document.getElementById('educator-error').textContent = profileErr.message; return; }
+    const { data: profile } = await db.from('profiles').select('*').eq('id', data.user.id).single();
+    currentUser = data.user; currentProfile = profile; isEducator = true;
+    document.getElementById('educator-pass').value='';
+    closeModal('educator-overlay');
+    await loadResponses(); await loadProgress(); await loadReviewLog();
+    updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('courses'); }
+    return;
+  }
+
   const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
   if(error){ document.getElementById('educator-error').textContent = error.message; return; }
   db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
@@ -4197,7 +4278,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
 };
 document.getElementById('educator-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('educator-confirm-btn').click(); });
 document.getElementById('courses-gate-signin-btn').onclick = ()=>{ studentModalMode='signin'; renderStudentModal(); openModal('student-overlay'); };
-document.getElementById('courses-gate-educator-btn').onclick = ()=>{ document.getElementById('educator-error').textContent=''; openModal('educator-overlay'); };
+document.getElementById('courses-gate-educator-btn').onclick = ()=>{ educatorModalMode='signin'; renderEducatorModal(); openModal('educator-overlay'); };
 document.getElementById('home-cta-signin-btn').onclick = ()=>{ studentModalMode='signup'; renderStudentModal(); openModal('student-overlay'); };
 
 /* ── Student sign-in / sign-up ── */
@@ -4206,6 +4287,7 @@ function renderStudentModal(){
   document.getElementById('student-modal-title').textContent = studentModalMode==='signin' ? 'Sign in' : 'Create account';
   document.getElementById('student-confirm-btn').textContent = studentModalMode==='signin' ? 'Sign in' : 'Sign up';
   document.getElementById('student-toggle-mode-btn').textContent = studentModalMode==='signin' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
+  document.getElementById('student-join-code-group').style.display = studentModalMode==='signup' ? '' : 'none';
   document.getElementById('student-error').textContent='';
 }
 document.getElementById('student-auth-btn').onclick = ()=>{ studentModalMode='signin'; renderStudentModal(); openModal('student-overlay'); };
@@ -4221,10 +4303,21 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     // Prime the exchanged token cache before any query fires.
     await getStudentAccessToken();
     // Make sure a profile row exists for this student (first login only inserts).
-    await db.from('profiles').upsert(
-      { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null },
-      { onConflict: 'id', ignoreDuplicates: true }
-    );
+    const { data: existingProfile } = await db.from('profiles').select('id').eq('id', firebaseUser.uid).maybeSingle();
+    if(!existingProfile){
+      const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
+      if(!joinCode){
+        document.getElementById('student-join-code-group').style.display = '';
+        document.getElementById('student-error').textContent = 'Enter your school join code, then continue with Google again.';
+        return;
+      }
+      const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
+      if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
+      await db.from('profiles').upsert(
+        { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null, school_id: school.id },
+        { onConflict: 'id', ignoreDuplicates: true }
+      );
+    }
     const { data: profile, error: profileErr } = await db.from('profiles').select('*').eq('id', firebaseUser.uid).single();
     if(profileErr){ document.getElementById('student-error').textContent = profileErr.message; return; }
     currentUser = { id: firebaseUser.uid, email: firebaseUser.email };
@@ -4246,6 +4339,10 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
   let user;
   if(studentModalMode==='signup'){
+    const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
+    if(!joinCode){ document.getElementById('student-error').textContent = 'A school join code is required to sign up.'; return; }
+    const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
+    if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
     const { data, error } = await sbAuth.auth.signUp({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
     if(!data.session){
@@ -4253,7 +4350,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
       return;
     }
     user = data.user;
-    await db.from('profiles').insert({ id: user.id, role: 'student' });
+    await db.from('profiles').insert({ id: user.id, role: 'student', school_id: school.id });
   } else {
     const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
@@ -5352,6 +5449,7 @@ function waitForFirebaseUser(){
 }
 
 (async function init(){
+  renderEducatorModal();
   const [{ data: { session } }, fbUser] = await Promise.all([
     sbAuth.auth.getSession(),
     waitForFirebaseUser(),
