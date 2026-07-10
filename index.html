@@ -1296,6 +1296,7 @@
             <button class="btn-sm" id="lb-add-reftable" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Reference table</button>
             <button class="btn-sm" id="lb-add-timeline" style="border-color:var(--gold);color:#946200;">+ Timeline</button>
             <button class="btn-sm" id="lb-add-tabs" style="border-color:var(--teal);color:var(--teal);">+ Tabs</button>
+            <button class="btn-sm" id="lb-add-customhtml" style="border-color:#8e44ad;color:#8e44ad;">+ Custom HTML/JS block</button>
           </div>
         </div>
         <div class="lb-palette-cat">
@@ -3394,6 +3395,32 @@ function renderLpBlockInner(){
     });
     return;
   }
+  if(block.type==='customhtml'){
+    const frameId = `lp-ch-frame-${lpIndex}`;
+    slot.innerHTML = `<div class="lp-block">
+      ${block.title ? `<div class="lp-caption" style="margin-bottom:.5rem;">${esc(block.title)}</div>` : ''}
+      <iframe id="${frameId}" sandbox="allow-scripts" style="width:100%;height:${block.height||400}px;border:1px solid var(--rule);border-radius:var(--radius-md);background:#fff;" srcdoc="${esc(block.code||'')}"></iframe>
+      <div id="lp-ch-feedback"></div>
+    </div>`;
+    if(block.graded && !alreadyAnswered){
+      lpSetContinueEnabled(false);
+      const handler = (e)=>{
+        if(!e.data || e.data.type!=='lb-custom-result') return;
+        const correct = !!e.data.correct;
+        window.removeEventListener('message', handler);
+        const fb = document.getElementById('lp-ch-feedback');
+        if(fb) fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        sfx[correct?'correct':'incorrect']();
+        lpAnswered[lpIndex] = true;
+        lpSetContinueEnabled(true);
+        lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.title||'Custom block', hint: block.explanation });
+      };
+      window.addEventListener('message', handler);
+    } else {
+      lpSetContinueEnabled(true);
+    }
+    return;
+  }
   if(block.type==='fillblank'){
     const parts = (block.text||'').split('___');
     slot.innerHTML = `<div class="lp-block">
@@ -5068,7 +5095,8 @@ const BLOCK_TYPE_META = {
   rate:{icon:'📐',label:'Rate of change'}, factory:{icon:'🏭',label:'Function factory'}, vlt:{icon:'📊',label:'Vertical line test'},
   spoterror:{icon:'🔍',label:'Spot the error'}, describe:{icon:'✏️',label:'Build from description'}, mapping:{icon:'🗺️',label:'Mapping diagram'},
   code:{icon:'💻',label:'Code block'}, reftable:{icon:'📋',label:'Reference table'}, timeline:{icon:'🕒',label:'Timeline'},
-  tabs:{icon:'🗃️',label:'Tabs'}, checklist:{icon:'☑️',label:'Self-check'}, matching:{icon:'🔗',label:'Matching pairs'}
+  tabs:{icon:'🗃️',label:'Tabs'}, checklist:{icon:'☑️',label:'Self-check'}, matching:{icon:'🔗',label:'Matching pairs'},
+  customhtml:{icon:'🧬',label:'Custom HTML/JS'}
 };
 function saveTemplateBtn(bi){
   return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
@@ -5724,6 +5752,27 @@ function renderLessonBlockList(){
         ${hintsEditorHTML(bi, b.hints)}
       </div>`;
     }
+    if(b.type==='customhtml'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Custom HTML/JS block</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-bottom:.4rem;line-height:1.5;">
+          Write any HTML/CSS/JS. It runs in a sandboxed, isolated frame — it can't read or touch the rest of the page. To mark a graded interaction correct/incorrect from inside your script, call:<br>
+          <code>parent.postMessage({type:'lb-custom-result', correct:true}, '*')</code>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:title" placeholder="Block title / label (optional, shown to you only)" value="${esc(b.title||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">HTML / CSS / JS source</label><textarea class="tp-textarea mono" style="min-height:220px;" data-lb-field="${bi}:code" placeholder="<div style='padding:1rem;text-align:center;'>
+  <h3>Your custom widget</h3>
+  <button onclick=\\"parent.postMessage({type:'lb-custom-result',correct:true}, '*')\\">I understand</button>
+</div>">${esc(b.code||'')}</textarea></div>
+        <div style="display:flex;gap:.6rem;align-items:flex-end;">
+          <div class="form-group" style="flex:0 0 140px;"><label style="font-size:.65rem;">Height (px)</label><input type="number" data-lb-field="${bi}:height" value="${b.height||400}"></div>
+          <div class="form-group" style="flex:0 0 auto;"><label style="font-size:.65rem;"><input type="checkbox" data-lb-check="${bi}:graded" ${b.graded?'checked':''}> This block is graded (waits for a result message)</label></div>
+        </div>
+        <button class="btn-sm" type="button" data-ch-preview="${bi}">👁 Preview block</button>
+        <div id="ch-preview-${bi}" style="margin-top:.6rem;"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
   }).join('');
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-lb-savetpl]').forEach(b=>b.onclick=async ()=>{
@@ -5825,6 +5874,13 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-mt-remove]').forEach(b=>b.onclick=()=>{ const [bi,pi]=b.dataset.mtRemove.split(':').map(Number); lessonBlocks[bi].pairs.splice(pi,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-mt-left]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,pi]=inp.dataset.mtLeft.split(':').map(Number); lessonBlocks[bi].pairs[pi].left = inp.value; }));
   list.querySelectorAll('[data-mt-right]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,pi]=inp.dataset.mtRight.split(':').map(Number); lessonBlocks[bi].pairs[pi].right = inp.value; }));
+  // Custom HTML/JS
+  list.querySelectorAll('[data-ch-preview]').forEach(b=>b.onclick=()=>{
+    const bi = +b.dataset.chPreview;
+    const block = lessonBlocks[bi];
+    const holder = document.getElementById('ch-preview-'+bi);
+    holder.innerHTML = `<iframe sandbox="allow-scripts" style="width:100%;height:${block.height||400}px;border:1px solid var(--rule);border-radius:var(--radius-sm);background:#fff;" srcdoc="${esc(block.code||'')}"></iframe>`;
+  });
   // Domain/range checkboxes (∞ toggles, inclusive toggles)
   list.querySelectorAll('[data-lb-check]').forEach(inp=>inp.addEventListener('change',()=>{
     const [bi, field] = inp.dataset.lbCheck.split(':');
@@ -5943,6 +5999,7 @@ document.getElementById('lb-add-timeline').onclick = ()=>{ lessonBlocks.push({ty
 document.getElementById('lb-add-tabs').onclick = ()=>{ lessonBlocks.push({type:'tabs', tabs:[{title:'Tab 1',content:''}]}); renderLessonBlockList(); };
 document.getElementById('lb-add-checklist').onclick = ()=>{ lessonBlocks.push({type:'checklist', title:'', items:[{text:''}]}); renderLessonBlockList(); };
 document.getElementById('lb-add-matching').onclick = ()=>{ lessonBlocks.push({type:'matching', prompt:'', pairs:[{left:'',right:''},{left:'',right:''}], explanation:'', hints:[]}); renderLessonBlockList(); };
+document.getElementById('lb-add-customhtml').onclick = ()=>{ lessonBlocks.push({type:'customhtml', title:'', code:'', height:400, graded:false}); renderLessonBlockList(); };
 document.getElementById('lb-add-fillblank').onclick = ()=>{ lessonBlocks.push({type:'fillblank', text:'', answer:'', caseSensitive:false, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-flashcards').onclick = ()=>{ lessonBlocks.push({type:'flashcards', cards:[{front:'',back:''}]}); renderLessonBlockList(); };
 
