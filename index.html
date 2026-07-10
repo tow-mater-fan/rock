@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Applied before first paint so switching to dark mode doesn't flash light.
+  try {
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('modilix-theme') || 'light');
+    document.documentElement.setAttribute('data-accent', localStorage.getItem('modilix-accent') || 'sunset');
+  } catch(e) {}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Modilix — Ontario High School Course Hub</title>
@@ -29,6 +36,33 @@
     --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --radius-xl: 28px;
     --ease-premium: cubic-bezier(.22,1,.36,1);
   }
+  /* ── Dark mode ── swaps the paper/ink surface tokens; every component
+     already reads from these vars, so this cascades app-wide with no
+     per-component overrides needed. */
+  html[data-theme="dark"] {
+    --paper: #14161f; --paper-2: #1c1f2c; --rule: #2c3040;
+    --ink: #eef0f6; --ink-soft: #b7bccb; --ink-faint: #7d8299;
+    --white: #1a1d29;
+    --blue-bg: #3a2018; --gold-bg: #3a2f10; --green-bg: #103326; --purple-bg: #241f3f; --teal-bg: #0f2d2c; --red-bg: #3a1616;
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.3); --shadow-sm: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.3);
+    --shadow-md: 0 8px 24px -6px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3); --shadow-lg: 0 20px 48px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.3);
+    color-scheme: dark;
+  }
+  html[data-theme="dark"] img, html[data-theme="dark"] .lp-image { filter: brightness(.92); }
+  /* ── Accent personalization ── swaps the --blue token, which drives
+     primary buttons, active states, and highlights across the app. */
+  html[data-accent="ocean"] { --blue:#2563eb; --blue-dark:#1d4ed8; --blue-bg:#dbe8fe; }
+  html[data-theme="dark"][data-accent="ocean"] { --blue-bg:#122240; }
+  html[data-accent="forest"] { --blue:#159a63; --blue-dark:#0f7d50; --blue-bg:#e3f7ee; }
+  html[data-theme="dark"][data-accent="forest"] { --blue-bg:#103326; }
+  html[data-accent="grape"] { --blue:#7c5cff; --blue-dark:#6440e8; --blue-bg:#efeaff; }
+  html[data-theme="dark"][data-accent="grape"] { --blue-bg:#241f3f; }
+  html[data-accent="sunset"] { --blue:#ff5a36; --blue-dark:#e2431f; --blue-bg:#ffe6de; }
+  html[data-theme="dark"][data-accent="sunset"] { --blue-bg:#3a2018; }
+  html[data-accent="rose"] { --blue:#e5487a; --blue-dark:#c72f61; --blue-bg:#fde3ec; }
+  html[data-theme="dark"][data-accent="rose"] { --blue-bg:#3a1826; }
+  html { transition: background .2s var(--ease-premium); }
+  body { transition: background .2s var(--ease-premium), color .2s var(--ease-premium); }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
   body { font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); overflow-x:hidden; }
@@ -360,6 +394,15 @@
   .lb-palette { display:flex; flex-direction:column; gap:.6rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:.85rem; margin-bottom:.9rem; }
   .lb-palette-cat { display:flex; flex-direction:column; gap:.4rem; }
   .lb-palette-cat-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+  .math-help-inline-btn { font-family:'Sora',sans-serif; font-weight:700; font-size:.6rem; text-transform:none; letter-spacing:0; background:none; border:none; color:var(--purple); cursor:pointer; text-decoration:underline; }
+  .tour-dot { width:7px; height:7px; border-radius:50%; background:var(--rule); transition:background .2s; }
+  .tour-dot.active { background:var(--blue); }
+  .math-help-item { border:1px solid var(--rule); border-radius:var(--radius-sm); overflow:hidden; }
+  .math-help-item summary { cursor:pointer; padding:.7rem .9rem; font-family:'Sora',sans-serif; font-weight:700; background:var(--paper-2); list-style:none; display:flex; align-items:center; gap:.5rem; }
+  .math-help-item summary::-webkit-details-marker { display:none; }
+  .math-help-item[open] summary { border-bottom:1px solid var(--rule); }
+  .math-help-item-body { padding:.8rem .9rem; }
+  .math-help-item-body ol { padding-left:1.1rem; color:var(--ink-soft); line-height:1.7; font-size:.85rem; }
   .lb-palette-btns { display:flex; flex-wrap:wrap; gap:.4rem; }
   .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem; }
   .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); }
@@ -839,6 +882,24 @@
     </div>
 
     <div class="acct-card">
+      <h3>Appearance</h3>
+      <div class="acct-settings-row">
+        <div>
+          <div class="acct-settings-label">Dark mode</div>
+          <div class="acct-settings-sub">Easier on the eyes for evening study sessions.</div>
+        </div>
+        <button class="btn-sm" id="acct-theme-toggle-btn">🌙 Dark</button>
+      </div>
+      <div class="acct-settings-row" style="border-bottom:none;flex-direction:column;align-items:flex-start;gap:.6rem;">
+        <div>
+          <div class="acct-settings-label">Accent color</div>
+          <div class="acct-settings-sub">Personalize buttons, highlights, and progress bars across the site.</div>
+        </div>
+        <div id="acct-accent-swatches" style="display:flex;gap:.6rem;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+
+    <div class="acct-card">
       <h3>Settings</h3>
       <div class="acct-settings-row">
         <div>
@@ -853,6 +914,13 @@
           <div class="acct-settings-sub" id="acct-signin-method">Google</div>
         </div>
         <button class="btn-sm danger" id="acct-signout-btn">Sign out</button>
+      </div>
+      <div class="acct-settings-row" style="border-bottom:none;">
+        <div>
+          <div class="acct-settings-label">Replay tutorial</div>
+          <div class="acct-settings-sub">Take the welcome tour again.</div>
+        </div>
+        <button class="btn-sm" id="acct-replay-tour-btn">▶ Replay tour</button>
       </div>
     </div>
 
@@ -1156,6 +1224,32 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="tour-overlay">
+  <div class="modal" style="max-width:460px;">
+    <button class="modal-close" id="tour-skip-x">✕</button>
+    <div class="modal-eyebrow" id="tour-eyebrow">Welcome</div>
+    <div style="font-size:2rem;margin-bottom:.5rem;" id="tour-icon">👋</div>
+    <h2 id="tour-title">Welcome to Modilix</h2>
+    <p style="color:var(--ink-soft);line-height:1.6;margin-bottom:1.2rem;" id="tour-text"></p>
+    <div style="display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem;" id="tour-dots"></div>
+    <div style="display:flex;gap:.6rem;">
+      <button class="btn-sm" id="tour-back-btn" style="visibility:hidden;">← Back</button>
+      <button class="btn btn-primary" id="tour-next-btn" style="flex:1;">Next</button>
+    </div>
+    <button class="btn-sm" id="tour-skip-btn" style="margin-top:.7rem;width:100%;border:none;color:var(--ink-faint);">Skip tutorial</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="math-help-overlay">
+  <div class="modal wide">
+    <button class="modal-close" id="math-help-close">✕</button>
+    <div class="modal-eyebrow">Educator · Setup guide</div>
+    <h2>Math module setup guide</h2>
+    <p style="color:var(--ink-soft);margin-bottom:1rem;">Quick, step-by-step instructions for every interactive math block. Click a module to expand it.</p>
+    <div id="math-help-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:65vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="student-overlay">
   <div class="modal">
     <button class="modal-close" id="student-close">✕</button>
@@ -1267,6 +1361,7 @@
           <button class="btn-sm" id="lb-import-btn" type="button" title="Import lesson JSON">⬆ Import</button>
           <input type="file" id="lb-import-file" accept="application/json" style="display:none;">
           <button class="btn-sm" id="lb-preview-btn" type="button" style="border-color:var(--blue);color:var(--blue);">👁 Preview lesson</button>
+          <button class="btn-sm" id="lb-math-help-btn" type="button" style="border-color:var(--purple);color:var(--purple);">❓ Math module guide</button>
         </div>
       </div>
       <div class="qb-list" id="lesson-block-list"></div>
@@ -1315,7 +1410,7 @@
           </div>
         </div>
         <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Interactive math</div>
+          <div class="lb-palette-cat-label">Interactive math <button type="button" class="math-help-inline-btn" data-help-cat="math">❓ guide</button></div>
           <div class="lb-palette-btns">
             <button class="btn-sm" id="lb-add-graph" style="border-color:var(--purple);color:var(--purple);">+ Function grapher</button>
             <button class="btn-sm" id="lb-add-points" style="border-color:var(--purple);color:var(--purple);">+ Point plotter</button>
@@ -1326,7 +1421,7 @@
           </div>
         </div>
         <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Functions &amp; analysis</div>
+          <div class="lb-palette-cat-label">Functions &amp; analysis <button type="button" class="math-help-inline-btn" data-help-cat="functions">❓ guide</button></div>
           <div class="lb-palette-btns">
             <button class="btn-sm" id="lb-add-domainrange" style="border-color:var(--green-dark);color:var(--green-dark);">+ Domain &amp; range</button>
             <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
@@ -4641,6 +4736,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
     closeModal('educator-overlay');
     await loadResponses(); await loadProgress(); await loadReviewLog();
     updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('courses'); }
+    startTour('educator');
     return;
   }
 
@@ -4689,6 +4785,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     await getStudentAccessToken();
     // Make sure a profile row exists for this student (first login only inserts).
     const { data: existingProfile } = await db.from('profiles').select('id').eq('id', firebaseUser.uid).maybeSingle();
+    const isNewGoogleSignup = !existingProfile;
     if(!existingProfile){
       const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
       if(!joinCode){
@@ -4712,6 +4809,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
   await loadProgress();
   await loadReviewLog();
     updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('dashboard'); }
+    if(isNewGoogleSignup) startTour('student');
   } catch(err){
     console.error(err);
     document.getElementById('student-error').textContent = err.message || 'Google sign-in failed.';
@@ -4749,6 +4847,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   await loadProgress();
   await loadReviewLog();
   updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('dashboard'); }
+  if(studentModalMode==='signup') startTour('student');
 };
 
 /* ── Shared sign-out ── */
@@ -4853,6 +4952,41 @@ renderSoundToggle = function(){
   if(btn) btn.textContent = soundsOn ? '🔊 On' : '🔇 Off';
 };
 document.getElementById('acct-sound-toggle-btn').onclick = toggleSound;
+
+/* ── Appearance: dark mode + accent color ─────────────────────────────
+   Applied to <html> as data-theme / data-accent attributes, which the
+   CSS above reads. Persisted in localStorage (device-level, not tied to
+   any one account) and applied immediately on load to avoid a flash. */
+const ACCENT_OPTIONS = [
+  { id:'sunset', label:'Sunset', swatch:'#ff5a36' },
+  { id:'ocean',  label:'Ocean',  swatch:'#2563eb' },
+  { id:'forest', label:'Forest', swatch:'#159a63' },
+  { id:'grape',  label:'Grape',  swatch:'#7c5cff' },
+  { id:'rose',   label:'Rose',   swatch:'#e5487a' }
+];
+function getTheme(){ return localStorage.getItem('modilix-theme') || 'light'; }
+function getAccent(){ return localStorage.getItem('modilix-accent') || 'sunset'; }
+function applyAppearance(){
+  document.documentElement.setAttribute('data-theme', getTheme());
+  document.documentElement.setAttribute('data-accent', getAccent());
+  const themeBtn = document.getElementById('acct-theme-toggle-btn');
+  if(themeBtn) themeBtn.textContent = getTheme()==='dark' ? '☀️ Light' : '🌙 Dark';
+  const swatchWrap = document.getElementById('acct-accent-swatches');
+  if(swatchWrap){
+    swatchWrap.innerHTML = ACCENT_OPTIONS.map(a=>`<button type="button" class="accent-swatch-btn" data-accent-id="${a.id}"
+      title="${a.label}" style="width:34px;height:34px;border-radius:50%;background:${a.swatch};cursor:pointer;
+      border:3px solid ${getAccent()===a.id ? 'var(--ink)' : 'transparent'};box-shadow:var(--shadow-xs);transition:transform .15s;"></button>`).join('');
+    swatchWrap.querySelectorAll('[data-accent-id]').forEach(b=>b.onclick=()=>{
+      localStorage.setItem('modilix-accent', b.dataset.accentId);
+      applyAppearance();
+    });
+  }
+}
+applyAppearance();
+document.getElementById('acct-theme-toggle-btn').onclick = ()=>{
+  localStorage.setItem('modilix-theme', getTheme()==='dark' ? 'light' : 'dark');
+  applyAppearance();
+};
 
 /* ── Display name edit ── */
 document.getElementById('acct-name-edit-btn').onclick = ()=>{
@@ -6073,6 +6207,153 @@ document.getElementById('lb-preview-btn').onclick = ()=>{
   openLessonPlayer(tempItem);
   document.getElementById('test-page').classList.add('visible');
 };
+
+/* ── Math module setup guide ────────────────────────────────────────── */
+const MATH_HELP_GUIDES = [
+  { type:'graph', cat:'math', title:'📈 Function grapher', steps:[
+    'Pick a parent function (linear, quadratic, sqrt, etc.) — this is the shape students will transform.',
+    'Set "range" to how far the graph extends on each axis (e.g. 10 shows -10 to 10).',
+    'Set the target a/k/d/c values — these define the gold "answer" graph students must match by dragging sliders.',
+    'Set tolerance — how close (in graph units) the student\'s curve must get to count as correct.',
+    'Preview the block before saving: click "Preview lesson" to drag the sliders yourself and sanity-check the target is reachable.'
+  ]},
+  { type:'points', cat:'math', title:'📍 Point plotter', steps:[
+    'Set range for the grid size.',
+    'Add target points — these are the (x,y) coordinates students must click/plot.',
+    'Preview to confirm the points land where you expect on the grid.'
+  ]},
+  { type:'table', cat:'math', title:'🧮 Table of values', steps:[
+    'Enter the x-values students will fill in a y-value for, comma-separated (e.g. -2, -1, 0, 1, 2).',
+    'The block auto-computes correct y-values from your function definition — double check the function matches what you taught.',
+    'Keep the list short (5-7 values) so the table stays quick to complete.'
+  ]},
+  { type:'compose', cat:'math', title:'🧩 Composition f(g(x))', steps:[
+    'Define f and g separately using the parent-function + a/k/d/c pattern (same as the grapher).',
+    'Set the x-value(s) students evaluate the composition at.',
+    'Set a tolerance for rounding/decimal answers.'
+  ]},
+  { type:'inverse', cat:'math', title:'🔁 Inverse function', steps:[
+    'Pick the parent function whose inverse the student must find or evaluate.',
+    'Set a/d/c to define the exact transformed function.',
+    'Set x0 — the input value used to check the student\'s inverse.',
+    'Tolerance controls how close a numeric answer needs to be.'
+  ]},
+  { type:'mapping', cat:'math', title:'🗺️ Mapping diagram', steps:[
+    'Each "diagram" is one mapping students judge as a function or not.',
+    'pairs is a list of [input, output] arrows — write these as [[1,4],[2,5]] etc.',
+    'Set isFunction to true/false to mark the correct answer for that diagram.',
+    'Add a short note explaining why — this is shown as feedback after answering.',
+    'Add 2-4 diagrams per block so students see both function and non-function examples.'
+  ]},
+  { type:'domainrange', cat:'functions', title:'📏 Domain & range', steps:[
+    'Define the function students are analyzing (parent + a/k/d/c).',
+    'Toggle the ∞ switches on if the domain/range should be unbounded on that side.',
+    'Toggle inclusive/exclusive per boundary — this controls whether the answer uses ≤ or <.',
+    'Double-check by working out the domain/range yourself first — the block grades against exactly what you enter.'
+  ]},
+  { type:'machine', cat:'functions', title:'⚙️ Function machine', steps:[
+    'Add steps in order — each step is one operation (add, subtract, multiply, etc.) with a value.',
+    'Students see the input go through each step in sequence and must find the output (or a missing step).',
+    'Keep to 2-4 steps so the chain stays followable.'
+  ]},
+  { type:'piecewise', cat:'functions', title:'🪜 Piecewise builder', steps:[
+    'Add one "piece" per interval of the function.',
+    'For each piece: choose the parent shape, set a/k/d/c, and set the from/to interval bounds.',
+    'Toggle inclusive on each boundary to control open vs. closed endpoints (matters for correctness!).',
+    'Make sure pieces don\'t overlap and together cover the domain you intend to test.'
+  ]},
+  { type:'rate', cat:'functions', title:'📐 Rate of change', steps:[
+    'Define the function, then set the two x-values (x1, x2) between which students calculate average rate of change.',
+    'Set a tolerance for rounding.',
+    'Pick x-values with a "clean" resulting slope where possible — easier to grade and less frustrating for students.'
+  ]},
+  { type:'factory', cat:'functions', title:'🏭 Function factory', steps:[
+    'Build the target function the same way as the function machine — a sequence of steps.',
+    'Add example input numbers — students test their guessed rule against these until it matches your function.',
+    'Provide at least 3 example inputs so a unique rule can be inferred.'
+  ]},
+  { type:'vlt', cat:'functions', title:'📊 Vertical line test', steps:[
+    'Relations are edited as raw JSON — each relation is a set of points or a curve description.',
+    'A red textarea border means the JSON is invalid and won\'t save — fix syntax before continuing.',
+    'Mark each relation as a function or not; students apply the vertical line test to decide.',
+    'If you\'re not comfortable hand-writing JSON, start from "Insert from library" and edit an existing saved template instead.'
+  ]}
+];
+function renderMathHelpList(filterCat){
+  const list = document.getElementById('math-help-list');
+  const items = MATH_HELP_GUIDES.filter(g => !filterCat || g.cat===filterCat);
+  list.innerHTML = items.map(g => `<details class="math-help-item">
+    <summary>${g.title}</summary>
+    <div class="math-help-item-body"><ol>${g.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>
+  </details>`).join('');
+}
+function openMathHelp(filterCat){
+  renderMathHelpList(filterCat);
+  openModal('math-help-overlay');
+}
+document.getElementById('lb-math-help-btn').onclick = ()=>openMathHelp(null);
+document.getElementById('math-help-close').onclick = ()=>closeModal('math-help-overlay');
+document.querySelectorAll('.math-help-inline-btn').forEach(b=>b.addEventListener('click', (e)=>{
+  e.preventDefault();
+  openMathHelp(b.dataset.helpCat);
+}));
+
+/* ── First-run tutorial tour ──────────────────────────────────────────
+   Shown once per account right after signup, and replayable any time
+   from Account → Settings → Replay tour. Steps differ by role. */
+const TOUR_STEPS = {
+  student: [
+    { icon:'👋', title:'Welcome to Modilix!', text:'This quick tour covers the basics of learning here — it takes about 30 seconds.' },
+    { icon:'📚', title:'Courses', text:'Head to "Courses" to see everything your teacher has assigned — lessons, quizzes, worksheets, and unit tests.' },
+    { icon:'🧠', title:'Interactive lessons', text:'Lessons step you through one block at a time — text, videos, and interactive checks. Wrong answers trigger extra hints automatically.' },
+    { icon:'🔁', title:'Daily Review', text:'Check "Daily Review" regularly — it resurfaces questions you got wrong before, timed with spaced repetition so they actually stick.' },
+    { icon:'⚡', title:'XP & streaks', text:'You earn XP and build a streak by practicing daily. Track both from your Account page.' },
+    { icon:'🎨', title:'Make it yours', text:'Head to Account → Appearance any time to switch to dark mode or pick an accent color.' }
+  ],
+  educator: [
+    { icon:'👋', title:'Welcome to Modilix!', text:'This quick tour covers how to set up your first course as an educator.' },
+    { icon:'📁', title:'Courses & units', text:'Create a course, then add units inside it to organize your content chronologically or by topic.' },
+    { icon:'🧱', title:'The lesson builder', text:'Inside a unit, create an item and set its type to "Lesson" to open the full-screen block builder — over 30 content and interactive block types.' },
+    { icon:'❓', title:'Stuck on a math module?', text:'Every interactive math block category has a "❓ guide" link right in the builder with exact step-by-step setup instructions.' },
+    { icon:'📊', title:'Student analytics', text:'The misconception log and review queue show you exactly where students are struggling, automatically — no extra setup needed.' },
+    { icon:'🎨', title:'Make it yours', text:'Head to Account → Appearance any time to switch to dark mode or pick an accent color for your whole site view.' }
+  ]
+};
+let tourStepIndex = 0;
+let tourRole = 'student';
+function renderTourStep(){
+  const steps = TOUR_STEPS[tourRole];
+  const s = steps[tourStepIndex];
+  document.getElementById('tour-eyebrow').textContent = tourRole==='educator' ? 'Educator tour' : 'Student tour';
+  document.getElementById('tour-icon').textContent = s.icon;
+  document.getElementById('tour-title').textContent = s.title;
+  document.getElementById('tour-text').textContent = s.text;
+  document.getElementById('tour-dots').innerHTML = steps.map((_,i)=>`<div class="tour-dot ${i===tourStepIndex?'active':''}"></div>`).join('');
+  document.getElementById('tour-back-btn').style.visibility = tourStepIndex===0 ? 'hidden' : 'visible';
+  document.getElementById('tour-next-btn').textContent = tourStepIndex===steps.length-1 ? 'Get started' : 'Next';
+}
+function startTour(role){
+  tourRole = role==='educator' ? 'educator' : 'student';
+  tourStepIndex = 0;
+  renderTourStep();
+  openModal('tour-overlay');
+}
+function markTourSeen(userId){
+  try{ localStorage.setItem('modilix-tour-seen-'+userId, '1'); } catch(e){}
+}
+function hasTourBeenSeen(userId){
+  try{ return localStorage.getItem('modilix-tour-seen-'+userId) === '1'; } catch(e){ return true; }
+}
+document.getElementById('tour-next-btn').onclick = ()=>{
+  const steps = TOUR_STEPS[tourRole];
+  if(tourStepIndex < steps.length-1){ tourStepIndex++; renderTourStep(); }
+  else { closeModal('tour-overlay'); if(currentUser) markTourSeen(currentUser.id); }
+};
+document.getElementById('tour-back-btn').onclick = ()=>{ if(tourStepIndex>0){ tourStepIndex--; renderTourStep(); } };
+function skipTour(){ closeModal('tour-overlay'); if(currentUser) markTourSeen(currentUser.id); }
+document.getElementById('tour-skip-btn').onclick = skipTour;
+document.getElementById('tour-skip-x').onclick = skipTour;
+document.getElementById('acct-replay-tour-btn').onclick = ()=>startTour(isEducator ? 'educator' : 'student');
 document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:'check', text:'', options:['','','',''], correct:0, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-simulate').onclick = ()=>{ lessonBlocks.push({type:'simulate', prompt:'', kind:'dice', sides:6, targetFace:1, trials:30, tolerance:null, explanation:''}); renderLessonBlockList(); };
