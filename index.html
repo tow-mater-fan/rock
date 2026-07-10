@@ -30,6 +30,13 @@
        palette buttons — these need a lighter counterpart in dark mode since
        they were originally tuned for a light card/button background. */
     --gold-ink: #946200; --red-ink: #c0392b; --purple-ink: #8e44ad; --code-ink: #2c3e50;
+    /* Nav, hero, and a few other sections (course/test headers, the recommend
+       card, xp toasts, flashcard backs) always sit on the fixed-dark --board
+       color regardless of light/dark mode — so their text needs a color that
+       never flips with the theme. Using var(--paper)/var(--white) there was
+       the bug: those tokens intentionally invert in dark mode, which made
+       the text turn dark-on-dark and disappear. */
+    --board-ink: #f6f4ef;
 
     /* premium elevation scale */
     --shadow-xs: 0 1px 2px rgba(20,20,30,.05);
@@ -108,21 +115,25 @@
   nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
     display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:60px;
     border-bottom:1px solid rgba(255,255,255,.08); }
-  .nav-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.25rem; color:var(--paper); cursor:pointer; display:flex; align-items:center; gap:.55rem; }
+  .nav-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.25rem; color:var(--board-ink); cursor:pointer; display:flex; align-items:center; gap:.55rem; }
   .brand-mark { width:30px; height:30px; flex-shrink:0; display:block; }
   .nav-links { display:flex; gap:1.75rem; list-style:none; align-items:center; }
   .nav-links a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.75); text-decoration:none; cursor:pointer; transition:color .2s; }
-  .nav-links a:hover, .nav-links a.active { color:var(--white); }
+  .nav-links a:hover, .nav-links a.active { color:var(--board-ink); }
   .nav-toggle { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
-  .nav-toggle span { display:block; width:22px; height:2px; background:var(--paper); border-radius:2px; }
+  .nav-toggle span { display:block; width:22px; height:2px; background:var(--board-ink); border-radius:2px; }
   .nav-toggle.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
   .nav-toggle.open span:nth-child(2) { opacity:0; }
   .nav-toggle.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
   .btn { border-radius:100px; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; padding:.65rem 1.4rem; cursor:pointer; transition:all .18s; border:1.5px solid transparent; text-decoration:none; display:inline-block; }
   .btn-primary { background:var(--blue); color:var(--white); }
   .btn-primary:hover { background:var(--blue-dark); }
-  .btn-ghost { background:transparent; color:var(--paper); border-color:rgba(246,244,239,.35); }
-  .btn-ghost:hover { border-color:var(--paper); background:rgba(246,244,239,.08); }
+  .btn-ghost { background:transparent; color:var(--ink); border-color:var(--rule); }
+  .btn-ghost:hover { border-color:var(--ink-soft); background:var(--paper-2); }
+  /* .btn-ghost also appears in the hero, which always sits on the fixed-dark
+     --board color — so it needs its own light, non-theme-flipping styling. */
+  .hero .btn-ghost { color:var(--board-ink); border-color:rgba(246,244,239,.35); }
+  .hero .btn-ghost:hover { border-color:var(--board-ink); background:rgba(246,244,239,.08); }
   .btn-outline { background:transparent; color:var(--blue); border-color:var(--blue); }
   .btn-outline:hover { background:var(--blue-bg); }
   .btn-sm { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; padding:.35rem .85rem; border-radius:100px; border:1.5px solid var(--rule); background:var(--white); color:var(--ink-soft); cursor:pointer; transition:all .18s; }
@@ -166,17 +177,17 @@
   .home-feature-card p { font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
   .home-steps-section { background:var(--board); padding:4rem 1.5rem; }
   .home-steps-section .home-section-head .eyebrow { color:var(--gold); }
-  .home-steps-section .home-section-head h2 { color:var(--white); }
+  .home-steps-section .home-section-head h2 { color:var(--board-ink); }
   .home-steps-row { max-width:1080px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:2rem; }
   .home-step { color:rgba(246,244,239,.85); }
   .home-step-num { width:36px; height:36px; border-radius:50%; background:var(--blue); color:var(--white); font-family:'Sora',sans-serif; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:.9rem; }
-  .home-step h3 { color:var(--white); font-size:1rem; margin-bottom:.4rem; }
+  .home-step h3 { color:var(--board-ink); font-size:1rem; margin-bottom:.4rem; }
   .home-step p { font-size:.85rem; color:rgba(246,244,239,.65); line-height:1.6; }
   .home-cta-banner { text-align:center; padding:4.5rem 1.5rem; max-width:640px; margin:0 auto; }
   .home-cta-banner h2 { font-size:1.6rem; margin-bottom:.6rem; }
   .home-cta-banner p { color:var(--ink-soft); margin-bottom:1.5rem; }
   .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
-  .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--paper); line-height:1.15; margin-bottom:1rem; }
+  .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--board-ink); line-height:1.15; margin-bottom:1rem; }
   .hero h1 em { color:var(--blue); font-style:normal; }
   .hero p { font-size:1rem; color:rgba(246,244,239,.62); line-height:1.7; max-width:560px; }
   .hero-cta-row { display:flex; gap:.9rem; margin-top:1.75rem; flex-wrap:wrap; align-items:center; }
@@ -281,7 +292,7 @@
   .cd-ring-wrap svg { transform:rotate(-90deg); }
   .cd-ring-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-weight:800; font-size:.85rem; color:var(--white); }
   .cd-code { font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:var(--gold); }
-  .cd-title-row h1 { font-size:clamp(1.5rem,3.5vw,2.1rem); color:var(--paper); }
+  .cd-title-row h1 { font-size:clamp(1.5rem,3.5vw,2.1rem); color:var(--board-ink); }
   .cd-sub { font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; color:rgba(246,244,239,.5); margin-top:.4rem; }
 
   .cd-layout { display:grid; grid-template-columns:260px 1fr; gap:2rem; max-width:1150px; margin:0 auto; padding:2.25rem 2.5rem 4rem; align-items:start; }
@@ -335,7 +346,7 @@
   #test-page { display:none; min-height:100vh; background:var(--paper); }
   #test-page.visible { display:block; }
   .tp-header { background:var(--board); padding:7rem 2.5rem 2rem; }
-  .tp-header h1 { font-size:clamp(1.4rem,3vw,2rem); color:var(--paper); margin-top:.6rem; }
+  .tp-header h1 { font-size:clamp(1.4rem,3vw,2rem); color:var(--board-ink); margin-top:.6rem; }
   .tp-header .cd-code { color:var(--gold); }
   .tp-body { padding:2.5rem 2.5rem 4rem; max-width:720px; margin:0 auto; }
   .tp-question { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.4rem 1.6rem; margin-bottom:1.1rem; }
@@ -421,6 +432,18 @@
   .fx-svg { width:100%; height:auto; display:block; background:var(--white); border-radius:8px; touch-action:none; }
   .fx-grid-line { stroke:#e4e9f4; stroke-width:1; }
   .fx-axis { stroke:#aab4c8; stroke-width:1.5; }
+  /* Dark mode: the .fx-svg canvas background is var(--white), which flips to a
+     dark navy — the original light-gray grid/axis strokes were tuned for a
+     white canvas and become nearly invisible against it, so give them a
+     lighter, higher-contrast pair for dark mode. */
+  html[data-theme="dark"] .fx-grid-line { stroke:#333a4d; }
+  html[data-theme="dark"] .fx-axis { stroke:#8b96b3; }
+  /* The hero "try it" demo graph sits on a translucent card over the nav's
+     permanently-dark board color (not the theme-flipping page background),
+     in both light and dark mode — so it needs its own fixed, always-light
+     stroke colors rather than following either of the rules above. */
+  .hero-demo-svg-wrap .fx-grid-line { stroke:rgba(246,244,239,.16) !important; }
+  .hero-demo-svg-wrap .fx-axis { stroke:rgba(246,244,239,.6) !important; stroke-width:1.5; }
   .fx-curve { fill:none; stroke:var(--blue); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
   .fx-curve-target { fill:none; stroke:var(--gold); stroke-width:2.5; stroke-dasharray:6 5; stroke-linecap:round; }
   .fx-asymptote { stroke:#000; stroke-width:1.5; stroke-dasharray:3 4; }
@@ -586,7 +609,7 @@
   }
   /* ── STREAK / XP ── */
   .nav-progress { display:flex; align-items:center; gap:.6rem; }
-  .nav-streak, .nav-xp { font-family:'Sora',sans-serif; font-weight:800; font-size:.82rem; color:var(--paper);
+  .nav-streak, .nav-xp { font-family:'Sora',sans-serif; font-weight:800; font-size:.82rem; color:var(--board-ink);
     background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:100px; padding:.35rem .75rem;
     display:flex; align-items:center; gap:.3rem; transition:transform .2s; }
   .nav-streak.bump, .nav-xp.bump { animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
@@ -597,10 +620,10 @@
   .nav-sound-btn:active { transform:scale(.9); }
 
   .fx-coord-tooltip { position:fixed; z-index:2000; pointer-events:none; display:none;
-    background:var(--board); color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:.72rem;
+    background:var(--board); color:var(--board-ink); font-family:'IBM Plex Mono',monospace; font-size:.72rem;
     padding:.25rem .55rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.25); }
   .xp-toast { position:fixed; top:70px; right:1.5rem; z-index:950; display:flex; flex-direction:column; gap:.5rem; pointer-events:none; }
-  .xp-toast-item { background:var(--board); color:var(--paper); font-family:'Sora',sans-serif; font-weight:800; font-size:.85rem;
+  .xp-toast-item { background:var(--board); color:var(--board-ink); font-family:'Sora',sans-serif; font-weight:800; font-size:.85rem;
     padding:.6rem 1.1rem; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.25); animation:xpToastIn .3s ease both, xpToastOut .4s ease 1.8s forwards; }
   @keyframes xpToastIn { from{opacity:0; transform:translateX(30px);} to{opacity:1; transform:translateX(0);} }
   @keyframes xpToastOut { to{opacity:0; transform:translateX(30px);} }
@@ -701,10 +724,10 @@
   .dash-recommend-card { background:var(--board); border-radius:22px; padding:2.5rem 2.5rem 2rem; min-height:420px; display:flex; flex-direction:column; }
   .dash-rec-eyebrow { font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase;
     color:var(--blue); background:var(--blue-bg); display:inline-block; padding:.35rem .8rem; border-radius:100px; margin:0 auto 1rem; }
-  .dash-rec-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.9rem; color:var(--paper); text-align:center; }
+  .dash-rec-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.9rem; color:var(--board-ink); text-align:center; }
   .dash-rec-sub { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:var(--gold); text-align:center; letter-spacing:.03em; text-transform:uppercase; margin-top:.4rem; }
   .dash-rec-visual { flex:1; display:flex; align-items:center; justify-content:center; font-size:5rem; margin:1.5rem 0; }
-  .dash-rec-meta { display:flex; align-items:center; gap:.75rem; color:var(--paper); font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; margin-bottom:1.25rem; }
+  .dash-rec-meta { display:flex; align-items:center; gap:.75rem; color:var(--board-ink); font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; margin-bottom:1.25rem; }
   .dash-rec-meta-dot { width:10px; height:10px; border-radius:50%; }
   .dash-rec-empty { color:rgba(246,244,239,.7); text-align:center; margin:auto; font-family:'Sora',sans-serif; font-weight:700; }
 
@@ -3607,7 +3630,7 @@ function renderLpBlockInner(){
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;">
         ${cards.map((c,ci)=>`<div class="lp-flashcard" data-fc-flip="${ci}" style="cursor:pointer;perspective:800px;height:120px;">
           <div class="lp-flashcard-inner" style="position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;">
-            <div style="position:absolute;inset:0;backface-visibility:hidden;background:var(--board);color:var(--paper);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;padding:.8rem;text-align:center;font-family:'Sora',sans-serif;font-weight:700;">${esc(c.front||'')}</div>
+            <div style="position:absolute;inset:0;backface-visibility:hidden;background:var(--board);color:var(--board-ink);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;padding:.8rem;text-align:center;font-family:'Sora',sans-serif;font-weight:700;">${esc(c.front||'')}</div>
             <div style="position:absolute;inset:0;backface-visibility:hidden;background:var(--blue-bg);color:var(--blue-dark);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;padding:.8rem;text-align:center;font-family:'Sora',sans-serif;font-weight:700;transform:rotateY(180deg);">${esc(c.back||'')}</div>
           </div>
         </div>`).join('')}
