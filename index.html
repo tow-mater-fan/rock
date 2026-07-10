@@ -1215,6 +1215,7 @@
         <button class="btn-sm" id="lb-add-image">+ Image</button>
         <button class="btn-sm" id="lb-add-check">+ Check (multiple choice)</button>
         <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
+        <button class="btn-sm" id="lb-add-simulate" style="border-color:var(--teal);color:var(--teal);">+ Probability simulator</button>
         <button class="btn-sm" id="lb-add-graph" style="border-color:var(--purple);color:var(--purple);">+ Function grapher</button>
         <button class="btn-sm" id="lb-add-points" style="border-color:var(--purple);color:var(--purple);">+ Point plotter</button>
         <button class="btn-sm" id="lb-add-table" style="border-color:var(--purple);color:var(--purple);">+ Table of values</button>
@@ -2814,6 +2815,9 @@ function buildReviewBank(){
       } else if(b.type==='slider'){
         bank.push({ key:`${it.id}:${bi}`, itemId:it.id, itemTitle:it.title, kind:'slider', text:b.prompt, min:b.min, max:b.max, target:b.target, tolerance:b.tolerance||0, explanation:b.explanation||'' });
       }
+      // 'simulate' blocks are intentionally excluded from Daily Review: their
+      // "correct answer" is a fresh random trial each time, not a fixed fact,
+      // so replaying them for spaced repetition doesn't make sense.
     });
   });
   return bank;
@@ -3120,6 +3124,81 @@ function renderLpBlockInner(){
       lpAnswered[lpIndex] = true;
       lpSetContinueEnabled(true);
       lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt, hint: block.explanation });
+    });
+    return;
+  }
+
+  if(block.type==='simulate'){
+    const kind = block.kind || 'dice';
+    const sides = kind==='coin' ? 2 : (block.sides || 6);
+    const targetFace = kind==='coin' ? 1 : (block.targetFace || 1);
+    const trials = block.trials || 30;
+    const faceLabel = f => kind==='coin' ? (f===1?'Heads':'Tails') : String(f);
+    let predicted = null, running = false, results = [];
+    const renderSim = ()=>{
+      const tally = Array.from({length:sides}, (_,i)=>results.filter(r=>r===i+1).length);
+      const maxTally = Math.max(1, ...tally);
+      const bars = tally.map((c,i)=>{
+        const isTarget = (i+1)===targetFace;
+        const h = Math.round((c/maxTally)*100);
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;flex:1;">
+          <div class="mono" style="font-size:.68rem;color:${isTarget?'var(--blue)':'var(--ink-faint)'};font-weight:${isTarget?700:400};">${c}</div>
+          <div style="width:100%;max-width:34px;height:90px;display:flex;align-items:flex-end;">
+            <div style="width:100%;height:${h}%;background:${isTarget?'var(--blue)':'var(--paper-2)'};border:1.5px solid ${isTarget?'var(--blue-dark)':'var(--rule)'};border-radius:4px 4px 0 0;transition:height .18s ease;"></div>
+          </div>
+          <div class="mono" style="font-size:.62rem;color:var(--ink-faint);">${esc(faceLabel(i+1))}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('sim-bars').innerHTML = bars;
+      document.getElementById('sim-count').textContent = `${results.length} / ${trials} trials`;
+    };
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || `Out of ${trials} ${kind==='coin'?'flips':'rolls'}, how many times do you predict we'll get ${faceLabel(targetFace)}?`)}</div>
+      <div class="fx-wrap">
+        <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.9rem;flex-wrap:wrap;">
+          <input type="number" id="sim-predict" min="0" max="${trials}" placeholder="Your prediction" ${alreadyAnswered?'disabled':''} style="max-width:120px;">
+          <button class="btn-sm" id="sim-run" ${alreadyAnswered?'style="display:none;"':''}>▶ Run ${trials} trials</button>
+        </div>
+        <div id="sim-bars" style="display:flex;gap:.5rem;align-items:flex-end;min-height:120px;"></div>
+        <div class="mono" id="sim-count" style="font-size:.68rem;color:var(--ink-faint);margin-top:.5rem;">0 / ${trials} trials</div>
+      </div>
+      <div id="sim-feedback"></div>
+    </div>`;
+    renderSim();
+    lpSetContinueEnabled(alreadyAnswered);
+    const runBtn = document.getElementById('sim-run');
+    if(runBtn) runBtn.addEventListener('click', ()=>{
+      if(running) return;
+      const predictInput = document.getElementById('sim-predict');
+      const pred = Number(predictInput.value);
+      if(!predictInput.value || Number.isNaN(pred)){
+        document.getElementById('sim-feedback').innerHTML = `<div class="lp-feedback incorrect">Enter your prediction first.</div>`;
+        return;
+      }
+      predicted = pred; running = true; results = [];
+      predictInput.disabled = true; runBtn.disabled = true;
+      let i = 0;
+      const step = ()=>{
+        if(i>=trials){
+          running = false;
+          const actual = results.filter(r=>r===targetFace).length;
+          const tol = block.tolerance!==undefined && block.tolerance!==null && block.tolerance!=='' ? Number(block.tolerance) : Math.max(2, Math.round(trials*0.15));
+          const correct = Math.abs(predicted-actual) <= tol;
+          const fb = document.getElementById('sim-feedback');
+          sfx[correct?'correct':'incorrect']();
+          fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?`✓ Close! You predicted ${predicted}, actual was ${actual}.`:`Actual result: ${actual} (you predicted ${predicted}).`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+          runBtn.style.display='none';
+          lpAnswered[lpIndex] = true;
+          lpSetContinueEnabled(true);
+          lpRecordResult(correct, { key:`${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt, hint: block.explanation });
+          return;
+        }
+        const batch = Math.max(1, Math.round(trials/20));
+        for(let k=0;k<batch && i<trials;k++,i++){ results.push(1+Math.floor(Math.random()*sides)); }
+        renderSim();
+        setTimeout(step, 40);
+      };
+      step();
     });
     return;
   }
@@ -4538,6 +4617,25 @@ function renderLessonBlockList(){
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
       </div>`;
     }
+    if(b.type==='simulate'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Probability simulator</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div class="form-row" style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">Kind</label>
+            <select data-lb-select="${bi}:kind">
+              <option value="dice" ${b.kind==='dice'?'selected':''}>Dice roll</option>
+              <option value="coin" ${b.kind==='coin'?'selected':''}>Coin flip</option>
+            </select>
+          </div>
+          ${b.kind!=='coin' ? `<div class="form-group"><label style="font-size:.65rem;">Sides</label><input type="number" data-lb-field="${bi}:sides" value="${b.sides||6}"></div>` : ''}
+          <div class="form-group"><label style="font-size:.65rem;">${b.kind==='coin'?'Target (1=Heads,2=Tails)':'Target face'}</label><input type="number" data-lb-field="${bi}:targetFace" value="${b.targetFace||1}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Trials</label><input type="number" data-lb-field="${bi}:trials" value="${b.trials||30}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" data-lb-field="${bi}:tolerance" value="${b.tolerance!==undefined&&b.tolerance!==null?b.tolerance:''}" placeholder="auto"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+      </div>`;
+    }
     if(b.type==='sequence'){
       return `<div class="qb-item" data-bi="${bi}">
         <div class="qb-item-head"><span class="qb-type-tag mono">Sequence explorer</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
@@ -4910,7 +5008,7 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
   list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbField.split(':');
-    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2'].includes(field);
+    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2','sides','targetFace','trials'].includes(field);
     lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
   }));
   list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
@@ -5039,6 +5137,7 @@ document.getElementById('lb-add-text').onclick = ()=>{ lessonBlocks.push({type:'
 document.getElementById('lb-add-image').onclick = ()=>{ lessonBlocks.push({type:'image', url:'', caption:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:'check', text:'', options:['','','',''], correct:0, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-simulate').onclick = ()=>{ lessonBlocks.push({type:'simulate', prompt:'', kind:'dice', sides:6, targetFace:1, trials:30, tolerance:null, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-graph').onclick = ()=>{ lessonBlocks.push({
   type:'graph', mode:'match', parent:'quadratic', range:10,
   prompt:'Drag the sliders so the blue graph lines up with the gold target graph.',
