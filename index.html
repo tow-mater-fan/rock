@@ -26,6 +26,11 @@
     --red: #e5484d; --red-bg: #fdecec;
     --white: #ffffff;
 
+    /* Ink tones used for text/borders on colored badges & the lesson-builder
+       palette buttons — these need a lighter counterpart in dark mode since
+       they were originally tuned for a light card/button background. */
+    --gold-ink: #946200; --red-ink: #c0392b; --purple-ink: #8e44ad; --code-ink: #2c3e50;
+
     /* premium elevation scale */
     --shadow-xs: 0 1px 2px rgba(20,20,30,.05);
     --shadow-sm: 0 2px 6px rgba(20,20,30,.06), 0 1px 2px rgba(20,20,30,.05);
@@ -44,6 +49,7 @@
     --ink: #eef0f6; --ink-soft: #b7bccb; --ink-faint: #7d8299;
     --white: #1a1d29;
     --blue-bg: #3a2018; --gold-bg: #3a2f10; --green-bg: #103326; --purple-bg: #241f3f; --teal-bg: #0f2d2c; --red-bg: #3a1616;
+    --gold-ink: #ffcf5c; --red-ink: #ff6b6b; --purple-ink: #c9a6f5; --code-ink: #c9d3e0;
     --shadow-xs: 0 1px 2px rgba(0,0,0,.3); --shadow-sm: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.3);
     --shadow-md: 0 8px 24px -6px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3); --shadow-lg: 0 20px 48px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.3);
     color-scheme: dark;
@@ -232,7 +238,7 @@
   .ring-pct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; color:var(--ink); }
   .course-tile-text { min-width:0; }
   .stream-U { background:var(--green-bg); color:var(--green-dark); }
-  .stream-C { background:var(--gold-bg); color:#a5710a; }
+  .stream-C { background:var(--gold-bg); color:var(--gold-ink); }
   .stream-M { background:var(--blue-bg); color:var(--blue); }
   .empty-note { text-align:center; padding:2.5rem 1rem; color:var(--ink-faint); font-family:'Sora',sans-serif; font-weight:600; font-size:.88rem; }
   .add-course-tile { border:2px dashed var(--rule); background:transparent; display:flex; align-items:center; justify-content:center;
@@ -487,13 +493,13 @@
 
   /* ── Hints (generic, any lesson block) ── */
   .hint-box { margin-top: .9rem; }
-  .hint-btn { background: var(--gold-bg); color: #946200; border: 1.5px solid var(--gold); border-radius: 100px;
+  .hint-btn { background: var(--gold-bg); color: var(--gold-ink); border: 1.5px solid var(--gold); border-radius: 100px;
     font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; padding:.45rem 1rem; cursor:pointer; }
   .hint-btn:hover { background: var(--gold); color: var(--white); }
   .hint-btn:disabled { opacity:.4; cursor:default; }
   .hint-revealed { background: var(--paper-2); border-radius:10px; padding:.6rem .85rem; margin-top:.5rem;
     font-size:.85rem; color: var(--ink-soft); animation: fadeInUp .3s ease both; }
-  .hint-revealed b { color:#946200; }
+  .hint-revealed b { color:var(--gold-ink); }
 
   /* ── Function factory ── */
   .ff-wrap { display:flex; flex-direction:column; align-items:center; gap:1.2rem; padding:1rem 0; }
@@ -619,7 +625,7 @@
   .dash-week-row { display:flex; justify-content:space-between; gap:.4rem; }
   .dash-day { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
   .dash-day-ring { width:38px; height:38px; border-radius:50%; border:2px solid var(--rule); display:flex; align-items:center; justify-content:center; font-size:.85rem; color:var(--ink-faint); }
-  .dash-day.active .dash-day-ring { border-color:var(--gold); background:var(--gold-bg); color:#946200; }
+  .dash-day.active .dash-day-ring { border-color:var(--gold); background:var(--gold-bg); color:var(--gold-ink); }
   .dash-day.today .dash-day-ring { border-width:3px; border-color:var(--blue); }
   .dash-day-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem; color:var(--ink-faint); }
   .dash-league-card { display:flex; align-items:center; gap:1rem; }
@@ -1046,7 +1052,7 @@
         <p>Daily Review resurfaces exactly the questions you're close to forgetting, using the same idea behind flashcard apps like Anki.</p>
       </div>
       <div class="home-feature-card">
-        <div class="home-feature-icon" style="background:var(--gold-bg); color:#a5710a;">📊</div>
+        <div class="home-feature-icon" style="background:var(--gold-bg); color:var(--gold-ink);">📊</div>
         <h3>Real unit structure</h3>
         <p>Every course is organized the way your class actually is — by unit, with worksheets building up to a proper unit test.</p>
       </div>
@@ -1425,19 +1431,19 @@
           <div class="lb-palette-btns">
             <button class="btn-sm" id="lb-add-text">+ Text</button>
             <button class="btn-sm" id="lb-add-image">+ Image</button>
-            <button class="btn-sm" id="lb-add-video" style="border-color:#c0392b;color:#c0392b;">+ Video embed</button>
-            <button class="btn-sm" id="lb-add-callout" style="border-color:var(--gold);color:#946200;">+ Callout box</button>
+            <button class="btn-sm" id="lb-add-video" style="border-color:var(--red-ink);color:var(--red-ink);">+ Video embed</button>
+            <button class="btn-sm" id="lb-add-callout" style="border-color:var(--gold);color:var(--gold-ink);">+ Callout box</button>
             <button class="btn-sm" id="lb-add-embed" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Embed / PDF</button>
             <button class="btn-sm" id="lb-add-divider" style="border-color:var(--rule);color:var(--ink-faint);">+ Divider</button>
             <button class="btn-sm" id="lb-add-quote" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Quote</button>
             <button class="btn-sm" id="lb-add-accordion" style="border-color:var(--teal);color:var(--teal);">+ Accordion / FAQ</button>
-            <button class="btn-sm" id="lb-add-audio" style="border-color:#c0392b;color:#c0392b;">+ Audio embed</button>
+            <button class="btn-sm" id="lb-add-audio" style="border-color:var(--red-ink);color:var(--red-ink);">+ Audio embed</button>
             <button class="btn-sm" id="lb-add-filedownload" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ File download</button>
-            <button class="btn-sm" id="lb-add-code" style="border-color:#2c3e50;color:#2c3e50;">+ Code block</button>
+            <button class="btn-sm" id="lb-add-code" style="border-color:var(--code-ink);color:var(--code-ink);">+ Code block</button>
             <button class="btn-sm" id="lb-add-reftable" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Reference table</button>
-            <button class="btn-sm" id="lb-add-timeline" style="border-color:var(--gold);color:#946200;">+ Timeline</button>
+            <button class="btn-sm" id="lb-add-timeline" style="border-color:var(--gold);color:var(--gold-ink);">+ Timeline</button>
             <button class="btn-sm" id="lb-add-tabs" style="border-color:var(--teal);color:var(--teal);">+ Tabs</button>
-            <button class="btn-sm" id="lb-add-customhtml" style="border-color:#8e44ad;color:#8e44ad;">+ Custom HTML/JS block</button>
+            <button class="btn-sm" id="lb-add-customhtml" style="border-color:var(--purple-ink);color:var(--purple-ink);">+ Custom HTML/JS block</button>
           </div>
         </div>
         <div class="lb-palette-cat">
@@ -1445,11 +1451,11 @@
           <div class="lb-palette-btns">
             <button class="btn-sm" id="lb-add-check">+ Multiple choice</button>
             <button class="btn-sm" id="lb-add-fillblank" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Fill in the blank</button>
-            <button class="btn-sm" id="lb-add-flashcards" style="border-color:var(--gold);color:#946200;">+ Flashcards</button>
+            <button class="btn-sm" id="lb-add-flashcards" style="border-color:var(--gold);color:var(--gold-ink);">+ Flashcards</button>
             <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
             <button class="btn-sm" id="lb-add-simulate" style="border-color:var(--teal);color:var(--teal);">+ Probability simulator</button>
             <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
-            <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:#946200;">+ Spot the error</button>
+            <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:var(--gold-ink);">+ Spot the error</button>
             <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
             <button class="btn-sm" id="lb-add-matching" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Matching pairs</button>
             <button class="btn-sm" id="lb-add-checklist" style="border-color:var(--green-dark);color:var(--green-dark);">+ Self-check checklist</button>
@@ -1473,7 +1479,7 @@
             <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
             <button class="btn-sm" id="lb-add-piecewise" style="border-color:var(--green-dark);color:var(--green-dark);">+ Piecewise builder</button>
             <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
-            <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:#946200;">+ Function factory</button>
+            <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:var(--gold-ink);">+ Function factory</button>
             <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
           </div>
         </div>
