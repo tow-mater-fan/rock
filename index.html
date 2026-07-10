@@ -777,6 +777,7 @@
     <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()">Daily Review</a></li>
     <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()">Analytics</a></li>
     <li id="nav-account-li" style="display:none;"><a data-page="account" onclick="showPage('account');closeNav()">Account</a></li>
+    <li id="nav-educator-account-li" style="display:none;"><a data-page="educator-account" onclick="showPage('educator-account');closeNav()">Account</a></li>
     <li><a data-page="about" onclick="showPage('about');closeNav()">About</a></li>
   </ul>
 </nav>
@@ -935,6 +936,51 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══════ EDUCATOR ACCOUNT ═══════ -->
+<div id="educator-account-page" style="display:none; min-height:100vh; background:var(--paper);">
+  <div class="acct-wrap">
+
+    <div class="acct-header">
+      <div class="acct-avatar-wrap">
+        <div class="acct-avatar" id="edu-acct-avatar"></div>
+      </div>
+      <div class="acct-id">
+        <h2 class="acct-name" id="edu-acct-name">Educator</h2>
+        <div class="acct-email" id="edu-acct-email"></div>
+        <span class="acct-role-chip" id="edu-acct-role-chip">Educator</span>
+      </div>
+    </div>
+
+    <div class="acct-card">
+      <h3>School</h3>
+      <div class="acct-settings-row">
+        <div>
+          <div class="acct-settings-label" id="edu-acct-school-name">—</div>
+          <div class="acct-settings-sub">The school associated with your educator account.</div>
+        </div>
+      </div>
+      <div class="acct-settings-row" style="border-bottom:none;">
+        <div>
+          <div class="acct-settings-label">Join code</div>
+          <div class="acct-settings-sub">Share this with other educators at your school so they can join it when signing up.</div>
+        </div>
+        <span class="mono" id="edu-acct-join-code" style="font-weight:700; background:var(--paper-2); padding:.35rem .7rem; border-radius:8px;">—</span>
+      </div>
+    </div>
+
+    <div class="acct-card">
+      <h3>Settings</h3>
+      <div class="acct-settings-row" style="border-bottom:none;">
+        <div>
+          <div class="acct-settings-label">Signed in with</div>
+          <div class="acct-settings-sub">Email &amp; password</div>
+        </div>
+        <button class="btn-sm danger" id="edu-acct-signout-btn">Sign out</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2162,6 +2208,7 @@ function showPage(page){
   document.getElementById('review-page').style.display='none';
   document.getElementById('analytics-page').style.display='none';
   document.getElementById('account-page').style.display='none';
+  document.getElementById('educator-account-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
   document.getElementById('tool-graphbuilder-page').classList.remove('visible');
@@ -2206,6 +2253,13 @@ function showPage(page){
     const el = document.getElementById('account-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
     renderAccountPage();
+  }
+  if(page==='educator-account'){
+    // Educator-only account/settings page — mirrors the student account page's guard pattern.
+    if(!currentUser || !isEducator){ showPage('home'); return; }
+    const el = document.getElementById('educator-account-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderEducatorAccountPage();
   }
   window.scrollTo(0,0);
 }
@@ -2334,7 +2388,8 @@ function updateAccountUI(){
   document.getElementById('nav-review-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-analytics-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   document.getElementById('nav-account-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
-  text.onclick = (currentUser && !isEducator) ? ()=>showPage('account') : null;
+  document.getElementById('nav-educator-account-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
+  text.onclick = currentUser ? (()=>showPage(isEducator ? 'educator-account' : 'account')) : null;
   if(!currentUser){ studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null }; }
   renderNavProgress();
 }
@@ -4859,10 +4914,36 @@ async function doSignOut(){
     await sbAuth.auth.signOut();
   }
   currentUser=null; currentProfile=null; isEducator=false; studentResponses={};
+  resetAppearance();
   updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('home'); }
 }
 document.getElementById('account-signout-btn').onclick = doSignOut;
 document.getElementById('acct-signout-btn').onclick = doSignOut;
+document.getElementById('edu-acct-signout-btn').onclick = doSignOut;
+
+/* ══════════════════════════════════════
+   EDUCATOR ACCOUNT PAGE
+   ══════════════════════════════════════ */
+async function renderEducatorAccountPage(){
+  if(!currentUser || !isEducator) return;
+
+  const name = currentProfile?.display_name || 'Educator';
+  document.getElementById('edu-acct-name').textContent = name;
+  document.getElementById('edu-acct-email').textContent = currentUser.email || '';
+  document.getElementById('edu-acct-avatar').innerHTML = esc(acctInitials(name, currentUser.email));
+
+  const schoolNameEl = document.getElementById('edu-acct-school-name');
+  const joinCodeEl = document.getElementById('edu-acct-join-code');
+  schoolNameEl.textContent = '—';
+  joinCodeEl.textContent = '—';
+  if(currentProfile?.school_id){
+    const { data: school, error } = await db.from('schools').select('name, join_code').eq('id', currentProfile.school_id).single();
+    if(!error && school){
+      schoolNameEl.textContent = school.name || '—';
+      joinCodeEl.textContent = school.join_code || '—';
+    }
+  }
+}
 
 /* ══════════════════════════════════════
    ACCOUNT PAGE
@@ -4964,8 +5045,19 @@ const ACCENT_OPTIONS = [
   { id:'grape',  label:'Grape',  swatch:'#7c5cff' },
   { id:'rose',   label:'Rose',   swatch:'#e5487a' }
 ];
-function getTheme(){ return localStorage.getItem('modilix-theme') || 'light'; }
-function getAccent(){ return localStorage.getItem('modilix-accent') || 'sunset'; }
+const DEFAULT_THEME = 'light';
+const DEFAULT_ACCENT = 'sunset';
+function getTheme(){ return localStorage.getItem('modilix-theme') || DEFAULT_THEME; }
+function getAccent(){ return localStorage.getItem('modilix-accent') || DEFAULT_ACCENT; }
+// Personalized appearance (dark mode + accent color) is tied to the signed-in
+// account, not the device — so it's cleared back to the site default on sign-out.
+// This matters on shared/lab computers so one student's preferences don't leak
+// into the next person's (logged-out) session.
+function resetAppearance(){
+  localStorage.removeItem('modilix-theme');
+  localStorage.removeItem('modilix-accent');
+  applyAppearance();
+}
 function applyAppearance(){
   document.documentElement.setAttribute('data-theme', getTheme());
   document.documentElement.setAttribute('data-accent', getAccent());
