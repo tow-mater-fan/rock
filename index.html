@@ -459,22 +459,36 @@
   .fx-eq { font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:var(--purple-bg); color:var(--purple); display:inline-block; padding:.35rem .75rem; border-radius:8px; margin-bottom:.75rem; }
   .fx-hint { font-family:'Sora',sans-serif; font-size:.78rem; color:var(--ink-faint); margin-top:.5rem; text-align:center; }
 
-  /* ── Domain/range notation builder (drag-and-drop tiles) ── */
-  .drb-wrap { background:var(--paper); border:1px solid var(--rule); border-radius:12px; padding:1rem; }
-  .drb-bank-label, .drb-slots-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.5rem; }
-  .drb-bank { display:flex; flex-wrap:wrap; gap:.5rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:.9rem; margin-bottom:1.1rem; min-height:3.4rem; }
-  .drb-tile { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:1rem; background:var(--purple-bg); color:var(--purple); border:1.5px solid transparent; border-radius:8px; padding:.5rem .85rem; cursor:pointer; user-select:none; transition:transform .12s var(--ease-premium), box-shadow .12s, border-color .12s; }
-  .drb-tile:hover { transform:translateY(-2px); }
-  .drb-tile.selected { border-color:var(--purple); box-shadow:0 0 0 3px var(--purple-bg); }
-  .drb-tile.used { display:none; }
-  .drb-slots { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:1rem .9rem; }
-  .drb-slot { min-width:2.6rem; height:2.6rem; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:1.05rem; background:var(--white); border:1.5px dashed var(--rule); border-radius:8px; cursor:pointer; color:var(--ink); padding:0 .3rem; transition:border-color .12s, background .12s; }
-  .drb-slot:hover { border-color:var(--purple); }
-  .drb-slot.filled { border-style:solid; border-color:var(--purple); background:var(--purple-bg); }
+  /* ── Domain/range notation builder (drag-and-drop tiles) ──
+     Signature idea: the slot rail reads like a typesetter's composing stick —
+     a physical row of blanks the student sets type into — and a live
+     "chalk line" above it renders the notation as they build it, so the
+     abstract symbol-pushing always has an immediate, readable payoff. */
+  .drb-wrap { background:linear-gradient(180deg, var(--paper) 0%, var(--paper) 100%); border:1px solid var(--rule); border-radius:14px; padding:1.15rem 1.15rem 1.3rem; }
+  .drb-preview { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; padding:.85rem 1rem; margin-bottom:1.1rem; min-height:1.4em; display:flex; align-items:center; gap:.15rem; flex-wrap:wrap; }
+  .drb-preview .drb-ghost { color:var(--ink-faint); opacity:.45; }
+  .drb-preview .drb-set-symbol { font-family:'STIX Two Text','Georgia',serif; }
+  .drb-slots-label, .drb-bank-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.55rem; display:flex; align-items:center; gap:.4rem; }
+  .drb-slots-label::before, .drb-bank-label::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+  .drb-slots { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.3rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:12px; padding:1.15rem .9rem .9rem; position:relative; }
+  .drb-slot-cell { display:flex; flex-direction:column; align-items:center; gap:.3rem; }
+  .drb-slot { min-width:2.5rem; height:2.7rem; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.15rem; background:var(--white); border:none; border-bottom:3px solid var(--rule); border-radius:6px 6px 3px 3px; cursor:pointer; color:var(--ink); padding:0 .35rem; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), transform .12s var(--ease-premium), box-shadow .16s; box-shadow:0 1px 0 var(--rule); }
+  .drb-slot:hover { border-color:var(--purple); transform:translateY(-1px); }
+  .drb-slot.filled { background:var(--purple-bg); border-color:var(--purple); color:var(--purple); animation:drb-settle .22s var(--ease-premium); }
   .drb-slot.wide { min-width:3.4rem; }
-  .drb-slot.correct { border-style:solid; border-color:var(--green-dark); background:var(--green-bg); color:var(--green-dark); }
-  .drb-slot.incorrect { border-style:solid; border-color:var(--red); background:var(--red-bg); color:var(--red); }
-  .drb-gap { width:.15rem; }
+  .drb-slot-hint { font-family:'Sora',sans-serif; font-size:.56rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); opacity:.55; height:.8em; }
+  .drb-slot.correct { background:var(--green-bg); border-color:var(--green-dark); color:var(--green-dark); animation:drb-pop .32s var(--ease-premium); }
+  .drb-slot.incorrect { background:var(--red-bg); border-color:var(--red); color:var(--red); animation:drb-shake .32s var(--ease-premium); }
+  @keyframes drb-settle { 0%{ transform:scale(.82); } 60%{ transform:scale(1.06); } 100%{ transform:scale(1); } }
+  @keyframes drb-pop { 0%{ transform:translateY(0); } 40%{ transform:translateY(-5px); } 100%{ transform:translateY(0); } }
+  @keyframes drb-shake { 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
+  .drb-bank { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.15rem; }
+  .drb-tile { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.02rem; background:var(--white); color:var(--ink); border:1.5px solid var(--rule); border-bottom:3px solid var(--rule); border-radius:8px 8px 6px 6px; padding:.5rem .9rem; cursor:pointer; user-select:none; transition:transform .1s var(--ease-premium), box-shadow .12s var(--ease-premium), border-color .12s, background .12s; }
+  .drb-tile:hover { transform:translateY(-2px); border-color:var(--purple); box-shadow:0 4px 10px -4px rgba(124,92,255,.35); }
+  .drb-tile:active { transform:translateY(1px); border-bottom-width:1.5px; }
+  .drb-tile.selected { background:var(--purple); border-color:var(--purple); color:var(--white); box-shadow:0 0 0 4px var(--purple-bg); transform:translateY(-2px); }
+  .drb-tile.used { display:none; }
+  .drb-checkbtn-row { display:flex; align-items:center; gap:.7rem; margin-top:1rem; }
   .fx-table { width:100%; border-collapse:collapse; margin-top:.25rem; }
   .fx-table th, .fx-table td { border:1px solid var(--rule); padding:.55rem .5rem; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.85rem; }
   .fx-table th { background:var(--paper-2); color:var(--ink-soft); font-weight:600; }
@@ -4151,16 +4165,16 @@ function renderLpBlockInner(){
     const setSymDisplay = block.setSym==='Z' ? 'ℤ' : 'ℝ';
     const slotDefs = (()=>{
       const base = [
-        {key:'dr'}, {key:'colon'}, {key:'bopen'}, {key:'var'}, {key:'elem'}, {key:'set', wide:true}
+        {key:'dr', hint:'D / R'}, {key:'colon', hint:''}, {key:'bopen', hint:''}, {key:'var', hint:'var'}, {key:'elem', hint:''}, {key:'set', wide:true, hint:'set'}
       ];
-      if(restriction==='none'){ base.push({key:'bclose'}); return base; }
-      base.push({key:'bar'});
+      if(restriction==='none'){ base.push({key:'bclose', hint:''}); return base; }
+      base.push({key:'bar', hint:''});
       if(restriction==='two'){
-        base.push({key:'num1', wide:true}, {key:'ineq1'}, {key:'var2'}, {key:'ineq2'}, {key:'num2', wide:true});
+        base.push({key:'num1', wide:true, hint:'number'}, {key:'ineq1', hint:'ineq'}, {key:'var2', hint:'var'}, {key:'ineq2', hint:'ineq'}, {key:'num2', wide:true, hint:'number'});
       } else {
-        base.push({key:'var2'}, {key:'ineq2'}, {key:'num2', wide:true});
+        base.push({key:'var2', hint:'var'}, {key:'ineq2', hint:'ineq'}, {key:'num2', wide:true, hint:'number'});
       }
-      base.push({key:'bclose'});
+      base.push({key:'bclose', hint:''});
       return base;
     })();
     const correctMap = (()=>{
@@ -4199,13 +4213,19 @@ function renderLpBlockInner(){
     const tileValue = id => { const t = tiles.find(t=>t.id===id); return t ? t.value : ''; };
     const isUsed = id => Object.values(slotVals).includes(id);
     const paint = ()=>{
+      document.getElementById('drb-preview').innerHTML = slotDefs.map(s=>{
+        const v = slotVals[s.key] ? tileValue(slotVals[s.key]) : null;
+        const isSet = s.key==='set';
+        if(v) return `<span class="${isSet?'drb-set-symbol':''}">${esc(v)}</span>`;
+        return `<span class="drb-ghost">${esc(s.hint||'_')}</span>`;
+      }).join(' ');
       document.getElementById('drb-bank').innerHTML = tiles.map(t=>
         `<div class="drb-tile ${t.id===selectedTileId?'selected':''} ${isUsed(t.id)?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
       ).join('');
       document.getElementById('drb-slots').innerHTML = slotDefs.map(s=>{
         let cls = 'drb-slot' + (s.wide?' wide':'') + (slotVals[s.key]?' filled':'');
         if(checked){ cls += (tileValue(slotVals[s.key])===correctMap[s.key]) ? ' correct' : ' incorrect'; }
-        return `<div class="${cls}" data-slotkey="${s.key}">${slotVals[s.key]?esc(tileValue(slotVals[s.key])):''}</div>`;
+        return `<div class="drb-slot-cell"><div class="${cls}" data-slotkey="${s.key}">${slotVals[s.key]?esc(tileValue(slotVals[s.key])):''}</div><div class="drb-slot-hint">${!slotVals[s.key]&&!checked?esc(s.hint||''):''}</div></div>`;
       }).join('');
       if(checked) return;
       document.querySelectorAll('.drb-tile').forEach(el=>el.addEventListener('click', ()=>{
@@ -4228,12 +4248,15 @@ function renderLpBlockInner(){
     slot.innerHTML = `<div class="lp-block">
       <div class="lp-check-q">${esc(block.prompt)}</div>
       <div class="drb-wrap">
-        <div class="drb-slots-label">Build it here — click a tile, then click a slot to place it:</div>
+        <div class="drb-preview" id="drb-preview"></div>
+        <div class="drb-slots-label">Build it here — click a tile, then click a slot to place it</div>
         <div class="drb-slots" id="drb-slots"></div>
-        <div class="drb-bank-label" style="margin-top:1rem;">Tile bank:</div>
+        <div class="drb-bank-label" style="margin-top:1.15rem;">Tile bank</div>
         <div class="drb-bank" id="drb-bank"></div>
       </div>
-      <button class="btn-sm" id="drb-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      <div class="drb-checkbtn-row">
+        <button class="btn-sm" id="drb-check" style="${alreadyAnswered?'display:none;':''}">Check</button>
+      </div>
       <div id="drb-feedback"></div>
     </div>`;
     paint();
