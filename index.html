@@ -465,13 +465,14 @@
      "chalk line" above it renders the notation as they build it, so the
      abstract symbol-pushing always has an immediate, readable payoff. */
   .drb-wrap { background:linear-gradient(180deg, var(--paper) 0%, var(--paper) 100%); border:1px solid var(--rule); border-radius:14px; padding:1.15rem 1.15rem 1.3rem; }
-  .drb-preview { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; padding:.85rem 1rem; margin-bottom:1.1rem; min-height:1.4em; display:flex; align-items:center; gap:.15rem; flex-wrap:wrap; }
+  .drb-preview { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; padding:.85rem 1rem; margin-bottom:1.1rem; min-height:1.4em; display:flex; align-items:center; gap:.15rem; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin; }
+  .drb-preview span { flex-shrink:0; white-space:nowrap; }
   .drb-preview .drb-ghost { color:var(--ink-faint); opacity:.45; }
   .drb-preview .drb-set-symbol { font-family:'STIX Two Text','Georgia',serif; }
   .drb-slots-label, .drb-bank-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.55rem; display:flex; align-items:center; gap:.4rem; }
   .drb-slots-label::before, .drb-bank-label::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; }
-  .drb-slots { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.3rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:12px; padding:1.15rem .9rem .9rem; position:relative; }
-  .drb-slot-cell { display:flex; flex-direction:column; align-items:center; gap:.3rem; }
+  .drb-slots { display:flex; flex-wrap:nowrap; overflow-x:auto; align-items:flex-end; gap:.3rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:12px; padding:1.15rem .9rem 1rem; position:relative; scrollbar-width:thin; }
+  .drb-slot-cell { display:flex; flex-direction:column; align-items:center; gap:.3rem; flex-shrink:0; }
   .drb-slot { min-width:2.5rem; height:2.7rem; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.15rem; background:var(--white); border:none; border-bottom:3px solid var(--rule); border-radius:6px 6px 3px 3px; cursor:pointer; color:var(--ink); padding:0 .35rem; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), transform .12s var(--ease-premium), box-shadow .16s; box-shadow:0 1px 0 var(--rule); }
   .drb-slot:hover { border-color:var(--purple); transform:translateY(-1px); }
   .drb-slot.filled { background:var(--purple-bg); border-color:var(--purple); color:var(--purple); animation:drb-settle .22s var(--ease-premium); }
@@ -482,12 +483,14 @@
   @keyframes drb-settle { 0%{ transform:scale(.82); } 60%{ transform:scale(1.06); } 100%{ transform:scale(1); } }
   @keyframes drb-pop { 0%{ transform:translateY(0); } 40%{ transform:translateY(-5px); } 100%{ transform:translateY(0); } }
   @keyframes drb-shake { 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
-  .drb-bank { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.15rem; }
-  .drb-tile { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.02rem; background:var(--white); color:var(--ink); border:1.5px solid var(--rule); border-bottom:3px solid var(--rule); border-radius:8px 8px 6px 6px; padding:.5rem .9rem; cursor:pointer; user-select:none; transition:transform .1s var(--ease-premium), box-shadow .12s var(--ease-premium), border-color .12s, background .12s; }
+  .drb-bank { display:flex; flex-wrap:nowrap; overflow-x:auto; gap:.5rem; margin-top:1.15rem; padding-bottom:.3rem; scrollbar-width:thin; }
+  .drb-tile { flex-shrink:0; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.02rem; background:var(--white); color:var(--ink); border:1.5px solid var(--rule); border-bottom:3px solid var(--rule); border-radius:8px 8px 6px 6px; padding:.5rem .9rem; cursor:pointer; user-select:none; transition:transform .1s var(--ease-premium), box-shadow .12s var(--ease-premium), border-color .12s, background .12s; }
   .drb-tile:hover { transform:translateY(-2px); border-color:var(--purple); box-shadow:0 4px 10px -4px rgba(124,92,255,.35); }
   .drb-tile:active { transform:translateY(1px); border-bottom-width:1.5px; }
   .drb-tile.selected { background:var(--purple); border-color:var(--purple); color:var(--white); box-shadow:0 0 0 4px var(--purple-bg); transform:translateY(-2px); }
   .drb-tile.used { display:none; }
+  .drb-tile.wildcard { background:var(--gold-bg); border-style:dashed; border-color:var(--gold); color:#8a6412; font-size:.82rem; font-weight:800; }
+  .drb-tile.wildcard:hover { border-color:var(--gold); box-shadow:0 4px 10px -4px rgba(245,166,35,.45); }
   .drb-checkbtn-row { display:flex; align-items:center; gap:.7rem; margin-top:1rem; }
   .fx-table { width:100%; border-collapse:collapse; margin-top:.25rem; }
   .fx-table th, .fx-table td { border:1px solid var(--rule); padding:.55rem .5rem; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.85rem; }
@@ -4193,20 +4196,20 @@ function renderLpBlockInner(){
     })();
     let tid = 0;
     const tiles = [];
-    const addTile = v => tiles.push({ id:'t'+(tid++), value:v });
+    const addTile = (v, wildcard)=> tiles.push({ id:'t'+(tid++), value:v, wildcard: wildcard||null });
+    // The palette is always the same, regardless of the question — students
+    // learn one consistent set of pieces rather than a different bank each time.
     addTile('D'); addTile('R');
     addTile(':');
     addTile('{'); addTile('}');
     addTile('x'); addTile('x'); addTile('y'); addTile('y');
     addTile('∈');
     addTile('ℝ'); addTile('ℤ');
-    if(restriction!=='none'){
-      addTile('|');
-      ['≤','≥','<','>'].forEach(sym=>{ addTile(sym); addTile(sym); });
-      addTile('='); addTile('≠');
-      (block.numberTiles||[]).forEach(n=>addTile(String(n)));
-      (block.distractorNumbers||[]).forEach(n=>addTile(String(n)));
-    }
+    addTile('|');
+    ['≤','≥','<','>'].forEach(sym=>{ addTile(sym); addTile(sym); });
+    addTile('='); addTile('≠');
+    addTile('+ #', 'number');
+    addTile('+ abc', 'var');
     let slotVals = {}; slotDefs.forEach(s=>slotVals[s.key]=null);
     let selectedTileId = null;
     let checked = false;
@@ -4220,7 +4223,7 @@ function renderLpBlockInner(){
         return `<span class="drb-ghost">${esc(s.hint||'_')}</span>`;
       }).join(' ');
       document.getElementById('drb-bank').innerHTML = tiles.map(t=>
-        `<div class="drb-tile ${t.id===selectedTileId?'selected':''} ${isUsed(t.id)?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
+        `<div class="drb-tile ${t.wildcard?'wildcard':''} ${t.id===selectedTileId?'selected':''} ${(!t.wildcard&&isUsed(t.id))?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
       ).join('');
       document.getElementById('drb-slots').innerHTML = slotDefs.map(s=>{
         let cls = 'drb-slot' + (s.wide?' wide':'') + (slotVals[s.key]?' filled':'');
@@ -4230,6 +4233,16 @@ function renderLpBlockInner(){
       if(checked) return;
       document.querySelectorAll('.drb-tile').forEach(el=>el.addEventListener('click', ()=>{
         const id = el.dataset.tile;
+        const t = tiles.find(t=>t.id===id);
+        if(t.wildcard){
+          const typed = prompt(t.wildcard==='number' ? 'Type the number:' : 'Type the variable letter:');
+          if(typed===null || typed.trim()==='') return;
+          const newTile = { id:'ct'+(tid++), value:typed.trim(), wildcard:null };
+          tiles.push(newTile);
+          selectedTileId = newTile.id;
+          paint();
+          return;
+        }
         if(isUsed(id)) return;
         selectedTileId = (selectedTileId===id) ? null : id;
         paint();
@@ -5964,10 +5977,7 @@ function renderLessonBlockList(){
           <div class="form-group"><label style="font-size:.65rem;">Upper bound value</label><input type="number" step="0.5" data-lb-field="${bi}:hi" value="${b.hi}"></div>
           <label style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;"><input type="checkbox" data-lb-check="${bi}:hiIncl" ${b.hiIncl?'checked':''}> upper is included (≤/≥)</label>
         </div>
-        <div class="form-group"><label style="font-size:.65rem;">Extra number tiles to offer, comma separated (should include the correct value(s) above; add a decoy or two to make it a real challenge)</label>
-          <input type="text" data-lb-numtiles="${bi}" value="${(b.numberTiles||[]).join(', ')}"></div>
-        <div class="form-group"><label style="font-size:.65rem;">Decoy numbers (optional, comma separated)</label>
-          <input type="text" data-lb-distractors="${bi}" value="${(b.distractorNumbers||[]).join(', ')}"></div>
+        <div style="font-family:'Sora',sans-serif;font-size:.68rem;color:var(--ink-faint);margin:.2rem 0 .3rem;">The tile bank is always the same set of pieces (D/R, x/y, ∈, ℝ/ℤ, {, }, |, comparisons) plus a "+ #" and "+ abc" tile students use to type in whatever number or letter the question needs — nothing to configure here.</div>
         ` : ''}
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after checking (optional)" value="${esc(b.explanation)}"></div>
       </div>`;
@@ -6337,14 +6347,6 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-lb-discrete-points]').forEach(inp=>inp.addEventListener('input',()=>{
     const bi = inp.dataset.lbDiscretePoints;
     lessonBlocks[+bi].discretePoints = inp.value.split(';').map(pair=>pair.split(',').map(s=>Number(s.trim()))).filter(p=>p.length===2 && p.every(Number.isFinite));
-  }));
-  list.querySelectorAll('[data-lb-numtiles]').forEach(inp=>inp.addEventListener('input',()=>{
-    const bi = inp.dataset.lbNumtiles;
-    lessonBlocks[+bi].numberTiles = inp.value.split(',').map(s=>s.trim()).filter(s=>s!=='').map(Number).filter(Number.isFinite);
-  }));
-  list.querySelectorAll('[data-lb-distractors]').forEach(inp=>inp.addEventListener('input',()=>{
-    const bi = inp.dataset.lbDistractors;
-    lessonBlocks[+bi].distractorNumbers = inp.value.split(',').map(s=>s.trim()).filter(s=>s!=='').map(Number).filter(Number.isFinite);
   }));
   // Accordion items
   list.querySelectorAll('[data-acc-add]').forEach(b=>b.onclick=()=>{ const bi=+b.dataset.accAdd; (lessonBlocks[bi].items = lessonBlocks[bi].items||[]).push({q:'',a:''}); renderLessonBlockList(); });
@@ -6763,7 +6765,6 @@ document.getElementById('lb-add-drbuilder').onclick = ()=>{ lessonBlocks.push({
   prompt:'Build the domain of this relation.',
   which:'D', varName:'x', setSym:'R', restriction:'two', side:'hi',
   lo:-2, hi:4, loIncl:true, hiIncl:false,
-  numberTiles:[-2,4], distractorNumbers:[],
   explanation:''
 }); renderLessonBlockList(); };
 document.getElementById('lb-add-machine').onclick = ()=>{ lessonBlocks.push({
