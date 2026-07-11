@@ -450,6 +450,7 @@
   .fx-hover-dot { fill:var(--blue); stroke:#fff; stroke-width:2; pointer-events:none; opacity:0; transition:opacity .08s ease; }
   .fx-point { fill:var(--purple); stroke:var(--white); stroke-width:2; cursor:pointer; }
   .fx-point-target { fill:none; stroke:var(--gold); stroke-width:2; stroke-dasharray:4 3; }
+  .fx-point-open { fill:var(--paper); stroke:var(--blue); stroke-width:2.5; }
   .fx-controls { display:flex; flex-direction:column; gap:.7rem; margin-top:1rem; }
   .fx-control-row { display:flex; align-items:center; gap:.8rem; }
   .fx-control-label { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.82rem; color:var(--ink); width:1.6rem; flex-shrink:0; }
@@ -2152,6 +2153,7 @@ function fxBuildSVG(id, range, curves, points, yRange){
   let pointEls = '';
   (points||[]).forEach(p=>{
     if(p.target){ pointEls += `<circle class="fx-point-target" cx="${sx(p.x)}" cy="${sy(p.y)}" r="9"/>`; }
+    else if(p.open){ pointEls += `<circle class="fx-point-open" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
     else { pointEls += `<circle class="fx-point" data-fxpt="${p.i}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="7"/>`; }
   });
   return `<svg class="fx-svg" id="${id}" viewBox="0 0 ${W} ${H}" data-range="${range}" data-yrange="${yRange}">${defs}${grid}${axes}${asymptotePaths}${curvePaths}${pointEls}<circle class="fx-hover-dot" r="5" cx="-100" cy="-100"/></svg>`;
@@ -4019,11 +4021,14 @@ function renderLpBlockInner(){
 
   if(block.type==='domainrange'){
     const range = block.range || 10;
+    const isDiscrete = block.kind==='discrete';
+    const snap = isDiscrete ? 1 : 0.5;
     let st = { lo:-range/2, hi:range/2, loInf:false, hiInf:false, loIncl:true, hiIncl:true };
     const fmt = v => Math.round(v*10)/10;
     const intervalText = ()=>{
       const v = block.askFor==='domain' ? 'x' : 'y';
-      return `${block.askFor==='domain'?'Domain: ':'Range: '}${fxInequalityStr(v, st.lo, st.loInf, st.loIncl, st.hi, st.hiInf, st.hiIncl)}`;
+      const setSym = isDiscrete ? 'Z' : 'R';
+      return `${block.askFor==='domain'?'Domain: ':'Range: '}${fxInequalityStr(v, st.lo, st.loInf, st.loIncl, st.hi, st.hiInf, st.hiIncl).replace(/∈ R/, '∈ '+setSym)}`;
     };
     const paintTrack = ()=>{
       const pct = v => ((v-(-range))/(2*range))*100;
@@ -4061,8 +4066,18 @@ function renderLpBlockInner(){
       <button class="btn-sm" id="nl-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
       <div id="nl-feedback"></div>
     </div>`;
-    const curves = [{ fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x), parent:block.parent }];
-    document.getElementById('fx-dr-svg-slot').innerHTML = fxBuildSVG('fx-dr-svg', range, curves, []);
+    const curves = isDiscrete ? [] : [{ fn:x=>fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), x), parent:block.parent }];
+    const graphPoints = [];
+    if(isDiscrete && Array.isArray(block.discretePoints)){
+      block.discretePoints.forEach((p,i)=>graphPoints.push({ x:p[0], y:p[1], i }));
+    }
+    if(!isDiscrete && block.showEndpoints){
+      // Static teaching circles baked into the graph itself — open for a strict
+      // inequality, filled/closed for ≥ or ≤ — mirroring the worksheet convention.
+      if(!block.loInf) graphPoints.push({ x: block.lo, y: fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), block.lo), i:'lo', open: !block.loIncl });
+      if(!block.hiInf) graphPoints.push({ x: block.hi, y: fxEval(block.parent, Number(block.a), Number(block.k), Number(block.d), Number(block.c), block.hi), i:'hi', open: !block.hiIncl });
+    }
+    document.getElementById('fx-dr-svg-slot').innerHTML = fxBuildSVG('fx-dr-svg', range, curves, graphPoints);
     paintTrack();
     lpSetContinueEnabled(alreadyAnswered);
     if(alreadyAnswered){
@@ -4078,7 +4093,7 @@ function renderLpBlockInner(){
             let pct = (ev.clientX - rect.left) / rect.width;
             pct = Math.max(0, Math.min(1, pct));
             let val = -range + pct*2*range;
-            val = Math.round(val*2)/2;
+            val = Math.round(val/snap)*snap;
             if(which==='lo') val = Math.min(val, st.hiInf ? range : st.hi);
             else val = Math.max(val, st.loInf ? -range : st.lo);
             st[which] = val;
@@ -5707,7 +5722,12 @@ function renderLessonBlockList(){
         <div class="qb-item-head"><span class="qb-type-tag mono">Domain &amp; range picker</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt e.g. State the domain of the function" value="${esc(b.prompt)}"></div>
         <div class="form-row">
-          <div class="form-group"><label style="font-size:.65rem;">Function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <div class="form-group"><label style="font-size:.65rem;">Relation type</label>
+            <select data-lb-select="${bi}:kind">
+              <option value="continuous" ${b.kind!=='discrete'?'selected':''}>Continuous (R)</option>
+              <option value="discrete" ${b.kind==='discrete'?'selected':''}>Discrete (Z, dots)</option>
+            </select>
+          </div>
           <div class="form-group"><label style="font-size:.65rem;">Ask for</label>
             <select data-lb-select="${bi}:askFor">
               <option value="domain" ${b.askFor==='domain'?'selected':''}>Domain</option>
@@ -5715,13 +5735,21 @@ function renderLessonBlockList(){
             </select>
           </div>
         </div>
+        ${b.kind==='discrete' ? `
+        <div class="form-group"><label style="font-size:.65rem;">Discrete points, as x,y pairs separated by semicolons e.g. -3,-11; -1,-8; 0,0</label>
+          <input type="text" data-lb-discrete-points="${bi}" value="${esc((b.discretePoints||[]).map(p=>p.join(',')).join('; '))}"></div>
+        ` : `
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:.65rem;">Function</label><select data-lb-select="${bi}:parent">${parentOptions}</select></div>
+          <label style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;margin-top:1.2rem;"><input type="checkbox" data-lb-check="${bi}:showEndpoints" ${b.showEndpoints?'checked':''}> show open/closed circles on the graph itself</label>
+        </div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
           <div class="form-group"><label style="font-size:.65rem;">Grid range ±</label><input type="number" data-lb-field="${bi}:range" value="${b.range}"></div>
           <div class="form-group"><label style="font-size:.65rem;">a</label><input type="number" step="0.25" data-lb-field="${bi}:a" value="${b.a}"></div>
           <div class="form-group"><label style="font-size:.65rem;">k</label><input type="number" step="0.25" data-lb-field="${bi}:k" value="${b.k}"></div>
           <div class="form-group"><label style="font-size:.65rem;">d</label><input type="number" step="0.5" data-lb-field="${bi}:d" value="${b.d}"></div>
           <div class="form-group"><label style="font-size:.65rem;">c</label><input type="number" step="0.5" data-lb-field="${bi}:c" value="${b.c}"></div>
-        </div>
+        </div>`}
         <div style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--ink-faint);margin:.3rem 0;">Correct interval (leave lo/hi as-is when the matching ∞ box below is checked):</div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;">
           <div class="form-group"><label style="font-size:.65rem;">Lower bound</label><input type="number" step="0.5" data-lb-field="${bi}:lo" value="${b.lo}" ${b.loInf?'disabled':''}></div>
@@ -6099,6 +6127,10 @@ function renderLessonBlockList(){
     const bi = inp.dataset.lbXvals;
     lessonBlocks[+bi].xValues = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
   }));
+  list.querySelectorAll('[data-lb-discrete-points]').forEach(inp=>inp.addEventListener('input',()=>{
+    const bi = inp.dataset.lbDiscretePoints;
+    lessonBlocks[+bi].discretePoints = inp.value.split(';').map(pair=>pair.split(',').map(s=>Number(s.trim()))).filter(p=>p.length===2 && p.every(Number.isFinite));
+  }));
   // Accordion items
   list.querySelectorAll('[data-acc-add]').forEach(b=>b.onclick=()=>{ const bi=+b.dataset.accAdd; (lessonBlocks[bi].items = lessonBlocks[bi].items||[]).push({q:'',a:''}); renderLessonBlockList(); });
   list.querySelectorAll('[data-acc-remove]').forEach(b=>b.onclick=()=>{ const [bi,ii]=b.dataset.accRemove.split(':').map(Number); lessonBlocks[bi].items.splice(ii,1); renderLessonBlockList(); });
@@ -6367,9 +6399,11 @@ const MATH_HELP_GUIDES = [
     'Add 2-4 diagrams per block so students see both function and non-function examples.'
   ]},
   { type:'domainrange', cat:'functions', title:'📏 Domain & range', steps:[
-    'Define the function students are analyzing (parent + a/k/d/c).',
+    'Choose "Continuous" for a curve (set parent + a/k/d/c) or "Discrete" to plot separate dots (enter x,y pairs like -3,-11; -1,-8; 0,0).',
     'Toggle the ∞ switches on if the domain/range should be unbounded on that side.',
-    'Toggle inclusive/exclusive per boundary — this controls whether the answer uses ≤ or <.',
+    'Toggle inclusive/exclusive per boundary — this controls whether the answer uses ≤ or < (and shows a closed/open dot when "show circles" is on).',
+    'For continuous blocks, turn on "show open/closed circles on the graph" so students see the exact convention before dragging the number-line handles to match.',
+    'Discrete blocks automatically snap the drag handles to whole numbers (Z) instead of halves (R).',
     'Double-check by working out the domain/range yourself first — the block grades against exactly what you enter.'
   ]},
   { type:'machine', cat:'functions', title:'⚙️ Function machine', steps:[
