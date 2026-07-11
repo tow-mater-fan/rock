@@ -261,6 +261,8 @@
   #course-detail-page.visible { display:block; }
   #tool-graphbuilder-page { display:none; min-height:100vh; background:var(--paper); }
   #tool-graphbuilder-page.visible { display:block; }
+  #tool-drbuilder-page { display:none; min-height:100vh; background:var(--paper); }
+  #tool-drbuilder-page.visible { display:block; }
   .tool-tile { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.1rem 1.2rem; display:flex; gap:.9rem; align-items:flex-start; cursor:pointer; transition:transform .18s, box-shadow .18s, border-color .18s; }
   .tool-tile:hover { transform:translateY(-3px); box-shadow:0 14px 30px -12px rgba(15,48,96,.2); border-color:transparent; }
   .tool-tile-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; }
@@ -465,10 +467,10 @@
      "chalk line" above it renders the notation as they build it, so the
      abstract symbol-pushing always has an immediate, readable payoff. */
   .drb-wrap { background:linear-gradient(180deg, var(--paper) 0%, var(--paper) 100%); border:1px solid var(--rule); border-radius:14px; padding:1.15rem 1.15rem 1.3rem; }
-  .drb-preview { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; padding:.85rem 1rem; margin-bottom:1.1rem; min-height:1.4em; display:flex; align-items:center; gap:.15rem; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin; }
+  .drb-preview { font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; padding:.85rem 1rem; margin-bottom:1.1rem; min-height:1.4em; display:flex; align-items:baseline; gap:.4rem; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:thin; }
   .drb-preview span { flex-shrink:0; white-space:nowrap; }
   .drb-preview .drb-ghost { color:var(--ink-faint); opacity:.45; }
-  .drb-preview .drb-set-symbol { font-family:'STIX Two Text','Georgia',serif; }
+  .drb-preview .drb-set-symbol { font-family:'STIX Two Text','Georgia',serif; font-size:1.05em; line-height:1; vertical-align:baseline; position:relative; top:0.03em; }
   .drb-slots-label, .drb-bank-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.55rem; display:flex; align-items:center; gap:.4rem; }
   .drb-slots-label::before, .drb-bank-label::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--gold); flex-shrink:0; }
   .drb-slots { display:flex; flex-wrap:nowrap; overflow-x:auto; align-items:flex-end; gap:.3rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:12px; padding:1.15rem .9rem 1rem; position:relative; scrollbar-width:thin; }
@@ -1278,6 +1280,73 @@
   </div>
 </div>
 
+<!-- ═══════ TOOL: DOMAIN & RANGE RESTRICTION BUILDER (math) ═══════ -->
+<div id="tool-drbuilder-page">
+  <div class="gb-hero">
+    <button class="gb-back" id="drbtool-back-btn">← Back to courses</button>
+    <div class="eyebrow" style="color:var(--purple);">Math Tool</div>
+    <h1 style="font-size:1.7rem; margin-bottom:.3rem;">Domain &amp; Range Restriction Builder</h1>
+    <p style="color:var(--ink-soft); font-size:.9rem; max-width:640px;">Set up a domain or range restriction below, then build the matching notation out of tiles — just like the notation builder inside a lesson, but with settings you control.</p>
+  </div>
+  <div class="gb-layout">
+    <div class="gb-controls">
+      <h3>Setup</h3>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>Building</label></div>
+        <select class="gb-select" id="drbtool-which" style="margin-bottom:0;">
+          <option value="domain">Domain</option>
+          <option value="range">Range</option>
+        </select>
+      </div>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>Variable</label></div>
+        <select class="gb-select" id="drbtool-var" style="margin-bottom:0;">
+          <option value="x">x</option>
+          <option value="y">y</option>
+        </select>
+      </div>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>Set</label></div>
+        <select class="gb-select" id="drbtool-setsym" style="margin-bottom:0;">
+          <option value="R">ℝ — real numbers</option>
+          <option value="Z">ℤ — integers</option>
+        </select>
+      </div>
+      <div class="gb-param-row">
+        <div class="gb-param-label-row"><label>Restriction</label></div>
+        <select class="gb-select" id="drbtool-restriction" style="margin-bottom:0;">
+          <option value="two">Two-sided (a ≤ x ≤ b)</option>
+          <option value="one">One-sided (x ≥ a)</option>
+          <option value="none">None (all reals)</option>
+        </select>
+      </div>
+      <div class="gb-param-row" id="drbtool-side-row">
+        <div class="gb-param-label-row"><label>Which side</label></div>
+        <select class="gb-select" id="drbtool-side" style="margin-bottom:0;">
+          <option value="lo">Lower bound only</option>
+          <option value="hi">Upper bound only</option>
+        </select>
+      </div>
+      <div class="gb-param-row" id="drbtool-lo-row">
+        <div class="gb-param-label-row"><label>Lower bound</label></div>
+        <div class="gb-param-inputs">
+          <input type="number" id="drbtool-lo" value="-3" style="width:5em;">
+          <label style="font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; display:flex; align-items:center; gap:.3rem;"><input type="checkbox" id="drbtool-lo-incl" checked> inclusive</label>
+        </div>
+      </div>
+      <div class="gb-param-row" id="drbtool-hi-row">
+        <div class="gb-param-label-row"><label>Upper bound</label></div>
+        <div class="gb-param-inputs">
+          <input type="number" id="drbtool-hi" value="5" style="width:5em;">
+          <label style="font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; display:flex; align-items:center; gap:.3rem;"><input type="checkbox" id="drbtool-hi-incl" checked> inclusive</label>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm gb-reset-btn" id="drbtool-newround-btn">↻ New round (clear tiles)</button>
+    </div>
+    <div class="gb-graph-wrap" id="drbtool-wrap"></div>
+  </div>
+</div>
+
 <!-- ═══════ TEST TAKING ═══════ -->
 <div id="test-page">
   <div class="tp-header">
@@ -1750,6 +1819,12 @@ async function dbWrite(queryFn, { label='Saving', retries=2, queueKind=null, que
 }
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// Keeps any {...} set-builder notation inside a prompt from line-breaking in an
+// awkward spot (e.g. right before the closing bound) by replacing the spaces
+// inside braces with non-breaking spaces, so the whole expression wraps as one unit.
+function escKeepNotation(s){
+  return esc(s).replace(/\{[^{}]*\}/g, m=>m.replace(/ /g,'\u00A0'));
+}
 function shuffleArray(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
 
@@ -1942,6 +2017,7 @@ function openGraphBuilder(){
   document.getElementById('about-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('tool-drbuilder-page').classList.remove('visible');
   const el = document.getElementById('tool-graphbuilder-page');
   el.classList.add('visible');
   el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
@@ -1980,6 +2056,173 @@ document.getElementById('gb-reset-btn').onclick = ()=>{
   gbSyncControlsFromState();
   gbRedraw();
 };
+
+// ── Domain & Range Restriction Builder tool (math) — standalone version of the
+//    'drbuilder' lesson block: builds the same drag-and-drop notation tiles, but
+//    settings (domain/range, variable, set, bounds) are configurable and it can
+//    always be reset/re-checked rather than locking after one attempt. ──
+let drbToolCfg = { which:'domain', varName:'x', setSym:'R', restriction:'two', side:'lo', lo:-3, hi:5, loIncl:true, hiIncl:true };
+function drbToolSyncVisibility(){
+  const isOne = drbToolCfg.restriction==='one';
+  const isNone = drbToolCfg.restriction==='none';
+  document.getElementById('drbtool-side-row').style.display = isOne ? '' : 'none';
+  document.getElementById('drbtool-lo-row').style.display = isNone ? 'none' : (isOne && drbToolCfg.side==='hi' ? 'none' : '');
+  document.getElementById('drbtool-hi-row').style.display = isNone ? 'none' : (isOne && drbToolCfg.side==='lo' ? 'none' : '');
+}
+function drbToolReadCfgFromControls(){
+  drbToolCfg.which = document.getElementById('drbtool-which').value;
+  drbToolCfg.varName = document.getElementById('drbtool-var').value;
+  drbToolCfg.setSym = document.getElementById('drbtool-setsym').value;
+  drbToolCfg.restriction = document.getElementById('drbtool-restriction').value;
+  drbToolCfg.side = document.getElementById('drbtool-side').value;
+  drbToolCfg.lo = parseFloat(document.getElementById('drbtool-lo').value) || 0;
+  drbToolCfg.hi = parseFloat(document.getElementById('drbtool-hi').value) || 0;
+  drbToolCfg.loIncl = document.getElementById('drbtool-lo-incl').checked;
+  drbToolCfg.hiIncl = document.getElementById('drbtool-hi-incl').checked;
+  drbToolSyncVisibility();
+}
+function drbToolRender(){
+  const cfg = drbToolCfg;
+  const setSymDisplay = cfg.setSym==='Z' ? 'ℤ' : 'ℝ';
+  const restriction = cfg.restriction;
+  const slotDefs = (()=>{
+    const base = [
+      {key:'dr', hint:'D / R'}, {key:'colon', hint:''}, {key:'bopen', hint:''}, {key:'var', hint:'var'}, {key:'elem', hint:''}, {key:'set', wide:true, hint:'set'}
+    ];
+    if(restriction==='none'){ base.push({key:'bclose', hint:''}); return base; }
+    base.push({key:'bar', hint:''});
+    if(restriction==='two'){
+      base.push({key:'num1', wide:true, hint:'number'}, {key:'ineq1', hint:'ineq'}, {key:'var2', hint:'var'}, {key:'ineq2', hint:'ineq'}, {key:'num2', wide:true, hint:'number'});
+    } else {
+      base.push({key:'var2', hint:'var'}, {key:'ineq2', hint:'ineq'}, {key:'num2', wide:true, hint:'number'});
+    }
+    base.push({key:'bclose', hint:''});
+    return base;
+  })();
+  const correctMap = (()=>{
+    const which = cfg.which==='range' ? 'R' : 'D';
+    const map = { dr:which, colon:':', bopen:'{', bclose:'}', var:cfg.varName, elem:'∈', set:setSymDisplay };
+    if(restriction==='none') return map;
+    map.bar = '|';
+    if(restriction==='two'){
+      map.num1 = String(cfg.lo); map.ineq1 = cfg.loIncl ? '≤' : '<';
+      map.var2 = cfg.varName; map.ineq2 = cfg.hiIncl ? '≤' : '<'; map.num2 = String(cfg.hi);
+    } else if(cfg.side==='lo'){
+      map.var2 = cfg.varName; map.ineq2 = cfg.loIncl ? '≥' : '>'; map.num2 = String(cfg.lo);
+    } else {
+      map.var2 = cfg.varName; map.ineq2 = cfg.hiIncl ? '≤' : '<'; map.num2 = String(cfg.hi);
+    }
+    return map;
+  })();
+  let tid = 0;
+  const tiles = [];
+  const addTile = (v, wildcard)=> tiles.push({ id:'dt'+(tid++), value:v, wildcard: wildcard||null });
+  addTile('D'); addTile('R');
+  addTile(':');
+  addTile('{'); addTile('}');
+  addTile('x'); addTile('x'); addTile('y'); addTile('y');
+  addTile('∈');
+  addTile('ℝ'); addTile('ℤ');
+  addTile('|');
+  ['≤','≥','<','>'].forEach(sym=>{ addTile(sym); addTile(sym); });
+  addTile('='); addTile('≠');
+  addTile('+ #', 'number');
+  addTile('+ abc', 'var');
+  let slotVals = {}; slotDefs.forEach(s=>slotVals[s.key]=null);
+  let selectedTileId = null;
+  let checked = false;
+  const tileValue = id => { const t = tiles.find(t=>t.id===id); return t ? t.value : ''; };
+  const isUsed = id => Object.values(slotVals).includes(id);
+  const paint = ()=>{
+    document.getElementById('drbtool-preview').innerHTML = slotDefs.map(s=>{
+      const v = slotVals[s.key] ? tileValue(slotVals[s.key]) : null;
+      const isSet = s.key==='set';
+      if(v) return `<span class="${isSet?'drb-set-symbol':''}">${esc(v)}</span>`;
+      return `<span class="drb-ghost">_</span>`;
+    }).join('');
+    document.getElementById('drbtool-bank').innerHTML = tiles.map(t=>
+      `<div class="drb-tile ${t.wildcard?'wildcard':''} ${t.id===selectedTileId?'selected':''} ${(!t.wildcard&&isUsed(t.id))?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
+    ).join('');
+    document.getElementById('drbtool-slots').innerHTML = slotDefs.map(s=>{
+      let cls = 'drb-slot' + (s.wide?' wide':'') + (slotVals[s.key]?' filled':'');
+      if(checked){ cls += (tileValue(slotVals[s.key])===correctMap[s.key]) ? ' correct' : ' incorrect'; }
+      return `<div class="drb-slot-cell"><div class="${cls}" data-slotkey="${s.key}">${slotVals[s.key]?esc(tileValue(slotVals[s.key])):''}</div><div class="drb-slot-hint">${!slotVals[s.key]&&!checked?esc(s.hint||''):''}</div></div>`;
+    }).join('');
+    document.querySelectorAll('#drbtool-bank .drb-tile').forEach(el=>el.addEventListener('click', ()=>{
+      const id = el.dataset.tile;
+      const t = tiles.find(t=>t.id===id);
+      if(t.wildcard){
+        const typed = prompt(t.wildcard==='number' ? 'Type the number:' : 'Type the variable letter:');
+        if(typed===null || typed.trim()==='') return;
+        const newTile = { id:'dct'+(tid++), value:typed.trim(), wildcard:null };
+        tiles.push(newTile);
+        selectedTileId = newTile.id;
+        checked = false;
+        paint();
+        return;
+      }
+      if(isUsed(id)) return;
+      selectedTileId = (selectedTileId===id) ? null : id;
+      paint();
+    }));
+    document.querySelectorAll('#drbtool-slots .drb-slot').forEach(el=>el.addEventListener('click', ()=>{
+      const key = el.dataset.slotkey;
+      checked = false;
+      if(slotVals[key]){
+        if(selectedTileId){ slotVals[key] = selectedTileId; selectedTileId = null; }
+        else { slotVals[key] = null; }
+      } else if(selectedTileId){
+        slotVals[key] = selectedTileId; selectedTileId = null;
+      }
+      paint();
+    }));
+  };
+  document.getElementById('drbtool-wrap').innerHTML = `
+    <div class="drb-wrap">
+      <div class="drb-preview" id="drbtool-preview"></div>
+      <div class="drb-slots-label">Build it here — click a tile, then click a slot to place it</div>
+      <div class="drb-slots" id="drbtool-slots"></div>
+      <div class="drb-bank-label" style="margin-top:1.15rem;">Tile bank</div>
+      <div class="drb-bank" id="drbtool-bank"></div>
+    </div>
+    <div class="drb-checkbtn-row">
+      <button class="btn-sm" id="drbtool-check">Check</button>
+    </div>
+    <div id="drbtool-feedback"></div>`;
+  paint();
+  document.getElementById('drbtool-check').onclick = ()=>{
+    checked = true;
+    const correct = slotDefs.every(s=>tileValue(slotVals[s.key])===correctMap[s.key]);
+    paint();
+    const fb = document.getElementById('drbtool-feedback');
+    sfx[correct?'correct':'incorrect']();
+    fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite — check the green vs. red slots above.'}</div>`;
+  };
+}
+function openDRBuilderTool(){
+  document.getElementById('home-page').style.display='none';
+  document.getElementById('dashboard-page').style.display='none';
+  document.getElementById('courses-page').style.display='none';
+  document.getElementById('about-page').style.display='none';
+  document.getElementById('course-detail-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('tool-graphbuilder-page').classList.remove('visible');
+  const el = document.getElementById('tool-drbuilder-page');
+  el.classList.add('visible');
+  el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+  drbToolReadCfgFromControls();
+  drbToolRender();
+  window.scrollTo(0,0);
+}
+document.getElementById('drbtool-back-btn').onclick = ()=>{
+  document.getElementById('tool-drbuilder-page').classList.remove('visible');
+  showPage('courses');
+};
+['drbtool-which','drbtool-var','drbtool-setsym','drbtool-restriction','drbtool-side','drbtool-lo','drbtool-hi','drbtool-lo-incl','drbtool-hi-incl'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ drbToolReadCfgFromControls(); drbToolRender(); });
+  document.getElementById(id).addEventListener('change', ()=>{ drbToolReadCfgFromControls(); drbToolRender(); });
+});
+document.getElementById('drbtool-newround-btn').onclick = ()=>{ drbToolReadCfgFromControls(); drbToolRender(); };
 
 // ── Landing hero interactive demo (uses the same FX engine as lessons) ──
 function initHeroDemo(){
@@ -2278,6 +2521,7 @@ function showPage(page){
   document.getElementById('course-detail-page').classList.remove('visible');
   document.getElementById('test-page').classList.remove('visible');
   document.getElementById('tool-graphbuilder-page').classList.remove('visible');
+  document.getElementById('tool-drbuilder-page').classList.remove('visible');
   updateNavActive(page);
   if(page==='home'){
     // Home is the public marketing page — same content whether you're signed in or not.
@@ -2472,7 +2716,8 @@ const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', u
 // ── Per-subject tools shown on the Courses page (above the course catalog) ──
 const TOOLS_BY_SUBJECT = {
   math: [
-    { id:'graph-builder', name:'Graph Builder', icon:'📈', desc:'Pick a base function and transform it with sliders or by typing values — see the equation and graph update live.' }
+    { id:'graph-builder', name:'Graph Builder', icon:'📈', desc:'Pick a base function and transform it with sliders or by typing values — see the equation and graph update live.' },
+    { id:'domain-range-builder', name:'Domain & Range Restriction Builder', icon:'🧩', desc:'Set up a domain or range restriction, then build the matching inequality notation out of tiles.' }
   ],
 };
 function renderTools(){
@@ -2494,6 +2739,7 @@ function renderTools(){
 }
 function openTool(toolId){
   if(toolId==='graph-builder') openGraphBuilder();
+  if(toolId==='domain-range-builder') openDRBuilderTool();
 }
 
 function itemMastery(response){
@@ -4220,8 +4466,8 @@ function renderLpBlockInner(){
         const v = slotVals[s.key] ? tileValue(slotVals[s.key]) : null;
         const isSet = s.key==='set';
         if(v) return `<span class="${isSet?'drb-set-symbol':''}">${esc(v)}</span>`;
-        return `<span class="drb-ghost">${esc(s.hint||'_')}</span>`;
-      }).join(' ');
+        return `<span class="drb-ghost">_</span>`;
+      }).join('');
       document.getElementById('drb-bank').innerHTML = tiles.map(t=>
         `<div class="drb-tile ${t.wildcard?'wildcard':''} ${t.id===selectedTileId?'selected':''} ${(!t.wildcard&&isUsed(t.id))?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
       ).join('');
@@ -4259,7 +4505,7 @@ function renderLpBlockInner(){
       }));
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${escKeepNotation(block.prompt)}</div>
       <div class="drb-wrap">
         <div class="drb-preview" id="drb-preview"></div>
         <div class="drb-slots-label">Build it here — click a tile, then click a slot to place it</div>
