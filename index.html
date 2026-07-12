@@ -3297,6 +3297,8 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
 /* ── Lesson player (interactive, Brilliant-style) ── */
 let lpItem = null, lpIndex = 0, lpAnswered = [];
 let lpPreviewMode = false;
+let lpWorkAnswers = {}; // { [blockIndex]: {text, sketch} } — free-form work (e.g. scratchpad blocks), persisted to responses.answers
+let lpWorkSaveTimer = null;
 let hintState = {}; // { blockIndex: revealedCount } — resets per lesson
 let lpWrongStreak = 0; // adaptive difficulty: consecutive wrong checks in this lesson
 
@@ -3304,9 +3306,42 @@ function openLessonPlayer(it, prior){
   lpItem = it;
   lpIndex = 0;
   lpAnswered = new Array(it.content.length).fill(false);
+  lpWorkAnswers = (prior && prior.answers && typeof prior.answers==='object') ? JSON.parse(JSON.stringify(prior.answers)) : {};
   hintState = {};
   lpWrongStreak = 0;
   renderLpBlock();
+}
+
+// Pulls the current block's typed work + sketch (if it's a scratchpad block)
+// into lpWorkAnswers, so it survives navigation and gets persisted.
+function lpCaptureScratchpad(){
+  if(!lpItem || !lpItem.content[lpIndex] || lpItem.content[lpIndex].type!=='scratchpad') return false;
+  const ta = document.getElementById('sp-textarea');
+  const canvas = document.getElementById('sp-canvas');
+  if(!ta && !canvas) return false;
+  const text = ta ? ta.value : '';
+  let sketch = null;
+  if(canvas){
+    // Only store the sketch if something was actually drawn (avoid saving blank white canvases).
+    const blank = document.createElement('canvas');
+    blank.width = canvas.width; blank.height = canvas.height;
+    if(canvas.toDataURL() !== blank.toDataURL()) sketch = canvas.toDataURL('image/png');
+  }
+  if(!text && !sketch){ delete lpWorkAnswers[lpIndex]; return true; }
+  lpWorkAnswers[lpIndex] = { text, sketch };
+  return true;
+}
+// Fire-and-forget autosave of in-progress work, debounced so rapid Next/Prev
+// clicks don't spam the database. Doesn't block navigation or show errors —
+// the authoritative save still happens when the lesson is finished.
+function lpAutosaveWork(){
+  if(!currentUser || !currentItemId) return;
+  clearTimeout(lpWorkSaveTimer);
+  lpWorkSaveTimer = setTimeout(()=>{
+    const existing = studentResponses[currentItemId] || {};
+    const payload = { student_id: currentUser.id, item_id: currentItemId, answers: lpWorkAnswers, score: existing.score ?? null, total: existing.total ?? null, submitted: !!existing.submitted, submitted_at: existing.submitted ? (existing.submitted_at||new Date().toISOString()) : null };
+    db.from('responses').upsert(payload, { onConflict:'student_id,item_id' }).then(()=>{}).catch(()=>{});
+  }, 600);
 }
 
 /* ── Adaptive difficulty + spaced repetition, called from every gradable
@@ -3735,6 +3770,8 @@ function renderLpBlockInner(){
     const symbols = ['x','y','+','−','×','÷','=','≠','≤','≥','±','√','π','x²','x³','(',')','∈','ℝ','ℤ','∞','Δ','θ','°'];
     document.getElementById('sp-symbols').innerHTML = symbols.map(s=>`<button type="button" class="scratchpad-symbol-btn" data-sym="${esc(s)}">${esc(s)}</button>`).join('');
     const ta = document.getElementById('sp-textarea');
+    const savedWork = lpWorkAnswers[lpIndex];
+    if(savedWork && savedWork.text) ta.value = savedWork.text;
     document.querySelectorAll('.scratchpad-symbol-btn').forEach(btn=>btn.addEventListener('click', ()=>{
       const sym = btn.dataset.sym;
       const start = ta.selectionStart, end = ta.selectionEnd;
@@ -3753,6 +3790,11 @@ function renderLpBlockInner(){
     }
     fitCanvas();
     window.addEventListener('resize', fitCanvas);
+    if(savedWork && savedWork.sketch){
+      const img = new Image();
+      img.onload = ()=>{ ctx.drawImage(img, 0, 0, canvas.width, canvas.height); };
+      img.src = savedWork.sketch;
+    }
     let drawing=false, mode='pen', color='#1a1a1a', lastPos=null;
     const colors = ['#1a1a1a','#c0392b','#1f6f4a','#2554a8'];
     document.getElementById('sp-colors').innerHTML = colors.map((c,i)=>`<button type="button" class="scratchpad-color-dot ${i===0?'active':''}" data-color="${c}" style="background:${c};"></button>`).join('');
@@ -5218,7 +5260,7 @@ function renderLpBlockInner(){
   });
 }
 
-document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
+document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpCaptureScratchpad(); lpAutosaveWork(); lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
 // Small celebratory confetti burst — used when a student finishes a lesson.
 function fireConfetti(){
   const colors = ['#f5a623','#ff5a36','#159a63','#7c5cff','#0ea5a0'];
@@ -5235,7 +5277,9 @@ function fireConfetti(){
   }
 }
 document.getElementById('lp-next-btn').onclick = async ()=>{
+  lpCaptureScratchpad();
   if(lpIndex < lpItem.content.length-1){
+    lpAutosaveWork();
     lpIndex++; renderLpBlock(); window.scrollTo(0,0);
     return;
   }
@@ -5250,14 +5294,14 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   btn.disabled = true; btn.textContent = 'Saving…';
   const lessonPayload = {
     student_id: currentUser.id, item_id: currentItemId,
-    answers: {}, score: null, total: null, submitted: true, submitted_at: new Date().toISOString()
+    answers: lpWorkAnswers, score: null, total: null, submitted: true, submitted_at: new Date().toISOString()
   };
   const { error } = await dbWrite(
     ()=>db.from('responses').upsert(lessonPayload, { onConflict: 'student_id,item_id' }),
     { label:'Saving lesson progress', queueKind:'response', queuePayload:lessonPayload }
   );
   if(error && !/network|fetch|timeout/i.test(error.message||'')){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
-  studentResponses[currentItemId] = { answers:{}, score:null, total:null, submitted:true };
+  studentResponses[currentItemId] = { answers:lpWorkAnswers, score:null, total:null, submitted:true };
   fireConfetti(); sfx.lessonComplete();
   await awardXp(20);
   document.getElementById('test-page').classList.remove('visible');
