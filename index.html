@@ -622,9 +622,36 @@
   .vlt-progress { font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--ink-faint); }
   /* Intersection markers drawn/updated as the vertical line sweeps across a
      graph or a set of plotted points during the VLT check. */
-  .vlt-intersect-dot { fill:var(--blue); stroke:var(--white); stroke-width:2; opacity:0; transition:opacity .12s ease; pointer-events:none; }
+  .vlt-intersect-dot { fill:var(--blue); stroke:var(--white); stroke-width:2; opacity:0; transition:opacity .12s ease; pointer-events:none; animation:vltPulseGlow 1s ease-in-out infinite; }
   .fx-point.vlt-hit, .fx-point-open.vlt-hit { stroke:var(--blue); stroke-width:3.5; }
   .fx-point.vlt-hit-multi, .fx-point-open.vlt-hit-multi { fill:var(--red); stroke:var(--red-ink); stroke-width:3.5; }
+  .vlt-trail { stroke:var(--blue); stroke-width:2; opacity:.3; animation:vltTrailFade .5s ease forwards; pointer-events:none; }
+  @keyframes vltTrailFade { from{ opacity:.3; } to{ opacity:0; } }
+  @keyframes vltPulseGlow { 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,90,54,0)); } 50%{ filter:drop-shadow(0 0 6px rgba(255,90,54,.6)); } }
+  @keyframes vltDemoPulse { 0%,100%{ r:6; } 50%{ r:7.5; } }
+  @keyframes vltDemoSweep { 0%,100%{ transform:translateX(-14px); } 50%{ transform:translateX(14px); } }
+  .vlt-demo-dot { animation:vltDemoPulse 1.4s ease-in-out infinite; }
+  .vlt-demo-line { animation:vltDemoSweep 2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+  .vlt-legend { display:flex; gap:1.1rem; justify-content:center; flex-wrap:wrap; margin-top:.3rem; }
+  .vlt-legend-chip { display:flex; align-items:center; gap:.4rem; font-family:'Sora',sans-serif; font-weight:600; font-size:.76rem; color:var(--ink-soft); }
+  .vlt-legend-dot { width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0; }
+  .vlt-progress-track { width:240px; height:8px; border-radius:100px; background:var(--paper-2); overflow:hidden; }
+  .vlt-progress-fill { height:100%; width:0%; border-radius:100px; background:linear-gradient(90deg, var(--blue), var(--purple)); transition:width .45s var(--ease-premium); }
+  .vlt-progress-label { font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--ink-faint); text-align:center; }
+  .vlt-intro-card { background:linear-gradient(160deg, var(--purple-bg), var(--blue-bg)); border-radius:var(--radius-lg); padding:1.75rem 1.5rem; text-align:center; border:1px solid var(--rule); animation:fadeInUp .5s var(--ease-premium) both; }
+  .vlt-intro-title { font-size:1.15rem; margin-bottom:.6rem; }
+  .vlt-intro-desc { color:var(--ink-soft); font-size:.88rem; line-height:1.55; max-width:440px; margin:0 auto 1.35rem; }
+  .vlt-demo-row { display:flex; gap:1.25rem; justify-content:center; flex-wrap:wrap; margin-bottom:1.35rem; }
+  .vlt-demo-card { background:var(--white); border-radius:var(--radius-md); padding:.85rem; box-shadow:var(--shadow-sm); width:170px; animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .vlt-demo-card:nth-child(2){ animation-delay:.1s; }
+  .vlt-demo-svg { width:100%; height:auto; display:block; }
+  .vlt-demo-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.76rem; margin-top:.55rem; }
+  .vlt-demo-label.good { color:var(--green); }
+  .vlt-demo-label.bad { color:var(--red); }
+  .vlt-score-card { display:flex; align-items:center; gap:1.25rem; background:linear-gradient(160deg, var(--green-bg), var(--teal-bg)); border-radius:var(--radius-lg); padding:1.1rem 1.4rem; margin-top:.85rem; animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .vlt-score-card.low { background:linear-gradient(160deg, var(--gold-bg), var(--blue-bg)); }
+  .vlt-score-text-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.05rem; }
+  .vlt-score-text-sub { color:var(--ink-soft); font-size:.83rem; margin-top:.2rem; }
 
   /* ── Mapping diagram ── */
   .map-svg { background:var(--white); border-radius:12px; border:1px solid var(--rule); }
@@ -4936,6 +4963,7 @@ function renderLpBlockInner(){
     const relations = block.relations || [];
     const range = block.range || 8;
     let idx = 0, correctCount = 0, answered = alreadyAnswered;
+    let introDone = alreadyAnswered || relations.length===0;
 
     const drawRelation = (rel)=>{
       if(rel.kind==='graph'){
@@ -4946,10 +4974,22 @@ function renderLpBlockInner(){
       return fxBuildSVG('vlt-svg', range, [], pts);
     };
 
+    const paintProgress = ()=>{
+      const fill = document.getElementById('vlt-progress-fill');
+      const label = document.getElementById('vlt-progress-label');
+      if(fill) fill.style.width = `${(idx/relations.length)*100}%`;
+      if(label) label.textContent = `Question ${idx+1} of ${relations.length}`;
+    };
+    const finishProgress = ()=>{
+      const fill = document.getElementById('vlt-progress-fill');
+      const label = document.getElementById('vlt-progress-label');
+      if(fill) fill.style.width = '100%';
+      if(label) label.textContent = 'Complete!';
+    };
+
     const paint = ()=>{
       const rel = relations[idx];
-      const prog = document.getElementById('vlt-progress');
-      if(prog) prog.textContent = `${idx+1} / ${relations.length}`;
+      paintProgress();
       const svgSlot = document.getElementById('vlt-svg-slot');
       if(svgSlot) svgSlot.innerHTML = drawRelation(rel);
       const fb = document.getElementById('vlt-feedback');
@@ -4959,6 +4999,19 @@ function renderLpBlockInner(){
       if(notfnBtn) notfnBtn.disabled = false;
       const nextBtn = document.getElementById('vlt-next-btn');
       if(nextBtn) nextBtn.style.display = 'none';
+    };
+
+    // A faint duplicate of the sweep line, dropped every few frames and left
+    // to fade out — gives the sweep a short motion trail instead of a single
+    // static line snapping across the graph.
+    const spawnTrail = (svg, x)=>{
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const ghost = document.createElementNS(svgNS,'line');
+      ghost.setAttribute('class','vlt-trail');
+      ghost.setAttribute('y1','24'); ghost.setAttribute('y2','316');
+      ghost.setAttribute('x1',x); ghost.setAttribute('x2',x);
+      svg.appendChild(ghost);
+      setTimeout(()=>ghost.remove(), 520);
     };
 
     const answer = (choseFunction)=>{
@@ -4990,9 +5043,11 @@ function renderLpBlockInner(){
           dot.setAttribute('r','5.5');
           svg.appendChild(dot);
           const fn = x2 => fxEval(rel.parent, Number(rel.a), Number(rel.k), Number(rel.d), Number(rel.c), x2);
-          let x = 24;
+          let x = 24, frame = 0;
           const step = ()=>{
-            x+=6; sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
+            x+=6; frame++;
+            sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
+            if(frame%3===0) spawnTrail(svg, x);
             const dataX = pxToDataX(x);
             const y = fn(dataX);
             if(y!==null && Math.abs(y) <= range*1.1){
@@ -5013,9 +5068,11 @@ function renderLpBlockInner(){
           const xGroups = {};
           pts.forEach((p,i)=>{ (xGroups[p[0]] = xGroups[p[0]]||[]).push(i); });
           const epsData = range * (7/(W/2-24));
-          let x = 24;
+          let x = 24, frame = 0;
           const step = ()=>{
-            x+=6; sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
+            x+=6; frame++;
+            sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
+            if(frame%3===0) spawnTrail(svg, x);
             const dataX = pxToDataX(x);
             let multiHit = false;
             Object.keys(xGroups).forEach(kx=>{
@@ -5040,37 +5097,93 @@ function renderLpBlockInner(){
       document.getElementById('vlt-next-btn').style.display = 'inline-block';
     };
 
+    const legendHTML = `<div class="vlt-legend">
+      <span class="vlt-legend-chip"><span class="vlt-legend-dot" style="background:var(--blue);"></span>One crossing → function</span>
+      <span class="vlt-legend-chip"><span class="vlt-legend-dot" style="background:var(--red);"></span>Two+ crossings → not a function</span>
+    </div>`;
+
+    const quizHTML = `<div class="vlt-wrap">
+      <div class="vlt-progress-track"><div class="vlt-progress-fill" id="vlt-progress-fill"></div></div>
+      <div class="vlt-progress-label" id="vlt-progress-label"></div>
+      <div id="vlt-svg-slot"></div>
+      ${legendHTML}
+      <div class="vlt-btn-row">
+        <button class="vlt-btn fn" id="vlt-fn-btn">✓ Function</button>
+        <button class="vlt-btn notfn" id="vlt-notfn-btn">✗ Not a function</button>
+      </div>
+      <div id="vlt-feedback"></div>
+      <button class="btn-sm" id="vlt-next-btn" style="display:none;">Next →</button>
+    </div>`;
+
+    const introHTML = `<div class="vlt-intro-card" id="vlt-intro">
+      <div class="vlt-intro-title">📊 The Vertical Line Test</div>
+      <div class="vlt-intro-desc">Slide an imaginary vertical line across a graph, left to right. If it ever crosses the relation <strong>more than once</strong>, one input maps to two different outputs — so it isn't a function.</div>
+      <div class="vlt-demo-row">
+        <div class="vlt-demo-card">
+          <svg viewBox="0 0 160 120" class="vlt-demo-svg">
+            <line class="vlt-demo-line" x1="80" y1="10" x2="80" y2="110" stroke="var(--ink-faint)" stroke-dasharray="4 3" stroke-width="2"/>
+            <path d="M20 100 Q80 10 140 100" fill="none" stroke="var(--blue)" stroke-width="3"/>
+            <circle class="vlt-demo-dot" cx="80" cy="32" r="6" fill="var(--green)" stroke="white" stroke-width="2"/>
+          </svg>
+          <div class="vlt-demo-label good">✓ Function — 1 crossing</div>
+        </div>
+        <div class="vlt-demo-card">
+          <svg viewBox="0 0 160 120" class="vlt-demo-svg">
+            <line class="vlt-demo-line" x1="80" y1="10" x2="80" y2="110" stroke="var(--ink-faint)" stroke-dasharray="4 3" stroke-width="2"/>
+            <ellipse cx="80" cy="60" rx="52" ry="44" fill="none" stroke="var(--purple)" stroke-width="3"/>
+            <circle class="vlt-demo-dot" cx="80" cy="17" r="6" fill="var(--red)" stroke="white" stroke-width="2"/>
+            <circle class="vlt-demo-dot" cx="80" cy="103" r="6" fill="var(--red)" stroke="white" stroke-width="2"/>
+          </svg>
+          <div class="vlt-demo-label bad">✗ Not a function — 2 crossings</div>
+        </div>
+      </div>
+      <button class="btn-primary btn-sm" id="vlt-start-btn">Start practice →</button>
+    </div>`;
+
     slot.innerHTML = `<div class="lp-block">
       <div class="lp-check-q">${esc(block.prompt)}</div>
-      <div class="vlt-wrap">
-        <div class="vlt-progress" id="vlt-progress"></div>
-        <div id="vlt-svg-slot"></div>
-        <div class="vlt-btn-row">
-          <button class="vlt-btn fn" id="vlt-fn-btn">✓ Function</button>
-          <button class="vlt-btn notfn" id="vlt-notfn-btn">✗ Not a function</button>
-        </div>
-        <div id="vlt-feedback"></div>
-        <button class="btn-sm" id="vlt-next-btn" style="display:none;">Next →</button>
-      </div>
+      ${introDone ? quizHTML : introHTML}
     </div>`;
+
     if(!relations.length){
       lpSetContinueEnabled(true);
       return;
     }
-    paint();
-    document.getElementById('vlt-fn-btn').onclick = ()=>answer(true);
-    document.getElementById('vlt-notfn-btn').onclick = ()=>answer(false);
-    document.getElementById('vlt-next-btn').onclick = ()=>{
-      if(idx < relations.length-1){ idx++; paint(); }
-      else {
-        lpAnswered[lpIndex] = true;
-        document.getElementById('vlt-svg-slot').insertAdjacentHTML('afterend',
-          `<div class="lp-feedback correct">You got ${correctCount}/${relations.length} correct.</div>`);
-        lpSetContinueEnabled(true);
-        document.getElementById('vlt-next-btn').style.display='none';
-      }
+
+    const beginQuiz = ()=>{
+      const container = slot.querySelector('.lp-block');
+      container.innerHTML = `<div class="lp-check-q">${esc(block.prompt)}</div>${quizHTML}`;
+      paint();
+      document.getElementById('vlt-fn-btn').onclick = ()=>answer(true);
+      document.getElementById('vlt-notfn-btn').onclick = ()=>answer(false);
+      document.getElementById('vlt-next-btn').onclick = ()=>{
+        if(idx < relations.length-1){ idx++; paint(); }
+        else {
+          lpAnswered[lpIndex] = true;
+          finishProgress();
+          const pct = Math.round((correctCount/relations.length)*100);
+          const good = pct>=70;
+          if(pct===100) fireConfetti();
+          document.getElementById('vlt-svg-slot').insertAdjacentHTML('afterend',
+            `<div class="vlt-score-card ${good?'':'low'}">
+              ${ringSVG(pct, 64, 7, good?'var(--green)':'var(--gold)', 'var(--paper-2)')}
+              <div><div class="vlt-score-text-title">${correctCount}/${relations.length} correct</div>
+              <div class="vlt-score-text-sub">${good?"Nice work — you've got the vertical line test down!":'Review the crossings above and try similar ones again.'}</div></div>
+            </div>`);
+          animateRingsIn(slot);
+          lpSetContinueEnabled(true);
+          document.getElementById('vlt-next-btn').style.display='none';
+        }
+      };
+      lpSetContinueEnabled(alreadyAnswered);
     };
-    lpSetContinueEnabled(alreadyAnswered);
+
+    if(introDone){
+      beginQuiz();
+    } else {
+      document.getElementById('vlt-start-btn').onclick = ()=>{ sfx.click(); beginQuiz(); };
+      lpSetContinueEnabled(false);
+    }
     return;
   }
 
