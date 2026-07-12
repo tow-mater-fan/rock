@@ -118,7 +118,9 @@
   .nav-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.25rem; color:var(--board-ink); cursor:pointer; display:flex; align-items:center; gap:.55rem; }
   .brand-mark { width:30px; height:30px; flex-shrink:0; display:block; }
   .nav-links { display:flex; gap:1.75rem; list-style:none; align-items:center; }
-  .nav-links a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.75); text-decoration:none; cursor:pointer; transition:color .2s; }
+  .nav-links a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.75); text-decoration:none; cursor:pointer; transition:color .2s; position:relative; }
+  .nav-links a::after { content:''; position:absolute; left:0; right:100%; bottom:-4px; height:2px; background:var(--blue); border-radius:2px; transition:right .22s var(--ease-premium); }
+  .nav-links a:hover::after, .nav-links a.active::after { right:0; }
   .nav-links a:hover, .nav-links a.active { color:var(--board-ink); }
   .nav-toggle { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
   .nav-toggle span { display:block; width:22px; height:2px; background:var(--board-ink); border-radius:2px; }
@@ -184,7 +186,8 @@
   .home-feature-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:1.5rem; }
   .home-feature-card { background:var(--white); border:1px solid var(--rule); border-radius:var(--radius-md); padding:1.75rem 1.5rem; box-shadow:var(--shadow-xs); transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
   .home-feature-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
-  .home-feature-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:1rem; }
+  .home-feature-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:1rem; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+  .home-feature-card:hover .home-feature-icon { transform:scale(1.15) rotate(-6deg); }
   .home-feature-card h3 { font-size:1rem; margin-bottom:.5rem; }
   .home-feature-card p { font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
   .home-steps-section { background:var(--board); padding:4rem 1.5rem; }
@@ -214,7 +217,8 @@
   .subject-head h2 { font-size:1.4rem; color:var(--ink); display:flex; align-items:center; gap:.6rem; }
   .subject-dot { width:12px; height:12px; border-radius:50%; display:inline-block; }
   .subject-icon-badge { width:34px; height:34px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center;
-    font-size:1rem; color:#fff; box-shadow:var(--shadow-sm); flex-shrink:0; }
+    font-size:1rem; color:#fff; box-shadow:var(--shadow-sm); flex-shrink:0; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+  .subject-head h2:hover .subject-icon-badge { transform:scale(1.1) rotate(-4deg); }
   .subject-new-course-btn { display:none; }
   .course-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.15rem; }
 
@@ -246,7 +250,8 @@
   .course-tile:hover .course-tile-shimmer { transform:translateX(120%); }
   .course-tile-stream { position:relative; z-index:1; font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.05em; text-transform:uppercase;
     padding:.22rem .6rem; border-radius:100px; display:inline-block; background:rgba(255,255,255,.22); color:#fff; backdrop-filter:blur(2px); }
-  .course-tile-glyph { position:relative; z-index:1; font-size:1.6rem; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
+  .course-tile-glyph { position:relative; z-index:1; font-size:1.6rem; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.15)); transition:transform .35s cubic-bezier(.34,1.56,.64,1); }
+  .course-tile:hover .course-tile-glyph { transform:scale(1.2) rotate(8deg); }
   .course-tile-body { padding:1.1rem 1.15rem 1.2rem; display:flex; flex-direction:column; gap:.7rem; flex:1; }
   .course-tile-code { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); letter-spacing:.02em; }
   .course-tile-name { font-family:'Sora',sans-serif; font-weight:800; font-size:1.02rem; color:var(--ink); line-height:1.28; }
@@ -284,7 +289,8 @@
   #tool-drbuilder-page.visible { display:block; }
   .tool-tile { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.1rem 1.2rem; display:flex; gap:.9rem; align-items:flex-start; cursor:pointer; transition:transform .18s, box-shadow .18s, border-color .18s; }
   .tool-tile:hover { transform:translateY(-3px); box-shadow:0 14px 30px -12px rgba(15,48,96,.2); border-color:transparent; }
-  .tool-tile-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; }
+  .tool-tile-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+  .tool-tile:hover .tool-tile-icon { transform:scale(1.15) rotate(-6deg); }
   .tool-tile-name { font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; margin-bottom:.25rem; }
   .tool-tile-desc { font-size:.8rem; color:var(--ink-soft); line-height:1.5; }
   .gb-hero { padding:5.5rem 2.5rem 0; max-width:1120px; margin:0 auto; }
@@ -412,7 +418,7 @@
   .form-group input, .form-group select, .form-group textarea {
     width:100%; padding:.6rem .8rem; border:1.5px solid var(--rule); border-radius:10px; background:var(--paper);
     font-family:'Inter',sans-serif; font-size:.87rem; color:var(--ink); outline:none; transition:border-color .2s; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--blue); }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg); transition:border-color .18s var(--ease-premium), box-shadow .18s var(--ease-premium); }
   .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
   .modal-btn { width:100%; padding:.75rem; background:var(--blue); color:var(--white); border:none; border-radius:100px;
     font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; cursor:pointer; transition:background .2s; margin-top:.4rem; }
@@ -733,7 +739,7 @@
   .nav-xp span, .nav-streak span { color:var(--gold); }
   .nav-sound-btn { background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:50%;
     width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; transition:transform .15s, background .15s; }
-  .nav-sound-btn:hover { background:rgba(246,244,239,.16); }
+  .nav-sound-btn:hover { background:rgba(246,244,239,.16); transform:scale(1.12); }
   .nav-sound-btn:active { transform:scale(.9); }
 
   .fx-coord-tooltip { position:fixed; z-index:2000; pointer-events:none; display:none;
@@ -5070,9 +5076,9 @@ function renderLpBlockInner(){
           const fn = x2 => fxEval(rel.parent, Number(rel.a), Number(rel.k), Number(rel.d), Number(rel.c), x2);
           let x = 24, frame = 0;
           const step = ()=>{
-            x+=6; frame++;
+            x+=2; frame++;
             sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
-            if(frame%3===0) spawnTrail(svg, x);
+            if(frame%8===0) spawnTrail(svg, x);
             const dataX = pxToDataX(x);
             const y = fn(dataX);
             if(y!==null && Math.abs(y) <= range*1.1){
@@ -5095,9 +5101,9 @@ function renderLpBlockInner(){
           const epsData = range * (7/(W/2-24));
           let x = 24, frame = 0;
           const step = ()=>{
-            x+=6; frame++;
+            x+=2; frame++;
             sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
-            if(frame%3===0) spawnTrail(svg, x);
+            if(frame%8===0) spawnTrail(svg, x);
             const dataX = pxToDataX(x);
             let multiHit = false;
             Object.keys(xGroups).forEach(kx=>{
