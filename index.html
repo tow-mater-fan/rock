@@ -554,10 +554,13 @@
   .lp-progress-track { height:6px; background:var(--paper-2); border-radius:4px; overflow:hidden; margin-bottom:1.6rem; }
   .lp-progress-fill { height:100%; background:var(--blue); border-radius:4px; transition:width .25s; }
   .lp-block { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.6rem 1.7rem; margin-bottom:0; }
-  .lp-text { font-size:1.02rem; line-height:1.65; }
   .lp-image { max-width:100%; border-radius:var(--radius-md); display:block; margin-bottom:.6rem; box-shadow:var(--shadow-sm); }
   .lp-caption { font-size:.8rem; color:var(--ink-faint); text-align:center; letter-spacing:.01em; }
+  .lp-text-card { background:var(--paper-2); border-radius:var(--radius-sm); padding:1.05rem 1.25rem; border-left:4px solid var(--blue); position:relative; margin:-.2rem 0; }
+  .lp-text-card-lead { border-left-width:5px; padding:1.2rem 1.4rem; }
   .lp-text { font-size:1rem; line-height:1.75; color:var(--ink); }
+  .lp-text-lead { font-size:1.09rem; }
+  .lp-text-lead::first-letter { font-family:'Sora',sans-serif; font-weight:800; font-size:2.7em; line-height:.82; float:left; padding:.04em .1em 0 0; color:var(--blue); }
   .lp-check-q { font-size:1.08rem; font-weight:700; font-family:'Sora',sans-serif; margin-bottom:1.1rem; line-height:1.5; letter-spacing:-.005em; }
   .lp-feedback { margin-top:1rem; padding:.85rem 1.1rem; border-radius:12px; font-size:.88rem; font-weight:600; line-height:1.55; border-left:3px solid transparent; box-shadow:var(--shadow-xs); }
   .lp-feedback.correct { background:var(--green-bg); color:var(--green-dark); border-left-color:var(--green); }
@@ -3701,7 +3704,10 @@ function renderLpBlockInner(){
   const alreadyAnswered = lpAnswered[lpIndex];
 
   if(block.type==='text'){
-    slot.innerHTML = `<div class="lp-block"><div class="lp-text">${esc(block.text).replace(/\n/g,'<br>')}</div></div>`;
+    const isLead = lpIndex===0;
+    slot.innerHTML = `<div class="lp-block"><div class="lp-text-card${isLead?' lp-text-card-lead':''}">
+      <div class="lp-text${isLead?' lp-text-lead':''}">${esc(block.text).replace(/\n/g,'<br>')}</div>
+    </div></div>`;
     lpSetContinueEnabled(true);
     return;
   }
