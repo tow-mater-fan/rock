@@ -612,6 +612,7 @@
   .vlt-svg { background:var(--white); border-radius:12px; border:1px solid var(--rule); }
   .vlt-sweep { stroke:var(--red); stroke-width:2.5; opacity:0; transition:opacity .2s; }
   .vlt-sweep.active { opacity:1; }
+  .vlt-sweep.vlt-sweep-fail { stroke-width:4; filter:drop-shadow(0 0 3px rgba(229,72,77,.6)); }
   .vlt-btn-row { display:flex; gap:.8rem; }
   .vlt-btn { border-radius:100px; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem;
     padding:.6rem 1.4rem; cursor:pointer; border:1.5px solid var(--rule); background:var(--white); }
@@ -619,6 +620,11 @@
   .vlt-btn.notfn { border-color:var(--red); }
   .vlt-btn:disabled { opacity:.5; cursor:default; }
   .vlt-progress { font-family:'IBM Plex Mono',monospace; font-size:.75rem; color:var(--ink-faint); }
+  /* Intersection markers drawn/updated as the vertical line sweeps across a
+     graph or a set of plotted points during the VLT check. */
+  .vlt-intersect-dot { fill:var(--blue); stroke:var(--white); stroke-width:2; opacity:0; transition:opacity .12s ease; pointer-events:none; }
+  .fx-point.vlt-hit, .fx-point-open.vlt-hit { stroke:var(--blue); stroke-width:3.5; }
+  .fx-point.vlt-hit-multi, .fx-point-open.vlt-hit-multi { fill:var(--red); stroke:var(--red-ink); stroke-width:3.5; }
 
   /* ── Mapping diagram ── */
   .map-svg { background:var(--white); border-radius:12px; border:1px solid var(--rule); }
@@ -4963,14 +4969,71 @@ function renderLpBlockInner(){
       document.getElementById('vlt-notfn-btn').disabled = true;
       sfx[correct?'correct':'incorrect']();
       const svg = document.getElementById('vlt-svg');
-      if(svg && rel.kind==='graph'){
-        const sweep = document.createElementNS('http://www.w3.org/2000/svg','line');
+      if(svg){
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const W=520,H=340;
+        const sxPx = dataX => (dataX/range)*(W/2-24) + W/2;
+        const syPx = dataY => H/2 - (dataY/range)*(H/2-24);
+        const pxToDataX = px => ((px - W/2) / (W/2-24)) * range;
+
+        const sweep = document.createElementNS(svgNS,'line');
         sweep.setAttribute('class','vlt-sweep active');
         sweep.setAttribute('y1','24'); sweep.setAttribute('y2','316'); sweep.setAttribute('x1','24'); sweep.setAttribute('x2','24');
         svg.appendChild(sweep);
-        let x = 24;
-        const step = ()=>{ x+=6; sweep.setAttribute('x1',x); sweep.setAttribute('x2',x); if(x<496) requestAnimationFrame(step); };
-        requestAnimationFrame(step);
+
+        if(rel.kind==='graph'){
+          // Continuous graph: a genuine function can only ever cross the
+          // sweep line once, so track and show that single intersection
+          // point as it travels along the curve.
+          const dot = document.createElementNS(svgNS,'circle');
+          dot.setAttribute('class','vlt-intersect-dot');
+          dot.setAttribute('r','5.5');
+          svg.appendChild(dot);
+          const fn = x2 => fxEval(rel.parent, Number(rel.a), Number(rel.k), Number(rel.d), Number(rel.c), x2);
+          let x = 24;
+          const step = ()=>{
+            x+=6; sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
+            const dataX = pxToDataX(x);
+            const y = fn(dataX);
+            if(y!==null && Math.abs(y) <= range*1.1){
+              dot.setAttribute('cx', sxPx(dataX)); dot.setAttribute('cy', syPx(y));
+              dot.style.opacity = '1';
+            } else {
+              dot.style.opacity = '0';
+            }
+            if(x<496) requestAnimationFrame(step); else dot.style.opacity='0';
+          };
+          requestAnimationFrame(step);
+        } else {
+          // Discrete points (mapping-style relations): light each point up
+          // blue as the sweep line reaches its x-value, or red — plus a red
+          // sweep line — the moment two or more points share that x, which
+          // is the visual proof the vertical line test just failed.
+          const pts = rel.pts || [];
+          const xGroups = {};
+          pts.forEach((p,i)=>{ (xGroups[p[0]] = xGroups[p[0]]||[]).push(i); });
+          const epsData = range * (7/(W/2-24));
+          let x = 24;
+          const step = ()=>{
+            x+=6; sweep.setAttribute('x1',x); sweep.setAttribute('x2',x);
+            const dataX = pxToDataX(x);
+            let multiHit = false;
+            Object.keys(xGroups).forEach(kx=>{
+              const idxs = xGroups[kx];
+              const hit = Math.abs(Number(kx)-dataX) <= epsData;
+              if(hit && idxs.length>1) multiHit = true;
+              idxs.forEach(i=>{
+                const el = svg.querySelector(`[data-fxpt="${i}"]`);
+                if(!el) return;
+                el.classList.toggle('vlt-hit', hit);
+                el.classList.toggle('vlt-hit-multi', hit && idxs.length>1);
+              });
+            });
+            sweep.classList.toggle('vlt-sweep-fail', multiHit);
+            if(x<496) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }
       }
       document.getElementById('vlt-feedback').innerHTML =
         `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'} ${esc(rel.note||'')}</div>`;
