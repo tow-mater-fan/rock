@@ -165,7 +165,10 @@
   .hero-flex .hero-inner { flex:1; max-width:520px; }
   .hero-demo { flex:1; max-width:460px; }
   .hero-demo-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:var(--radius-lg);
-    padding:1.35rem 1.5rem 1.5rem; backdrop-filter:blur(10px); box-shadow:var(--shadow-glow-board), inset 0 1px 0 rgba(255,255,255,.08); }
+    padding:1.35rem 1.5rem 1.5rem; backdrop-filter:blur(10px); box-shadow:var(--shadow-glow-board), inset 0 1px 0 rgba(255,255,255,.08);
+    animation:heroDemoEnter .6s var(--ease-premium) both, heroDemoFloat 5s ease-in-out .6s infinite; }
+  @keyframes heroDemoEnter { 0% { opacity:0; transform:translateY(18px) scale(.96) rotate(-1.5deg); } 100% { opacity:1; transform:translateY(0) scale(1) rotate(0); } }
+  @keyframes heroDemoFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
   .hero-demo-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
   .hero-demo-eq { font-family:'IBM Plex Mono',monospace; font-size:.92rem; color:#fff; background:rgba(24,101,242,.22); border:1px solid rgba(24,101,242,.4);
     border-radius:10px; padding:.5rem .75rem; margin-bottom:.85rem; min-height:1.4em; }
@@ -221,7 +224,10 @@
   .home-cta-card .btn-primary:hover { background:#fff; filter:brightness(.96); }
   .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
   .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--board-ink); line-height:1.15; margin-bottom:1rem; }
-  .hero h1 em { color:var(--blue); font-style:normal; }
+  .hero-mascot-badge { display:inline-flex; align-items:center; gap:.5rem; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+    border-radius:100px; padding:.4rem .8rem .4rem .5rem; margin-bottom:1rem; font-family:'Sora',sans-serif; font-weight:700; font-size:.74rem; color:var(--board-ink);
+    animation:fadeInUp .45s var(--ease-premium) both; }
+  .hero h1 em { font-style:normal; background:linear-gradient(100deg, var(--blue), var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .hero p { font-size:1rem; color:rgba(246,244,239,.62); line-height:1.7; max-width:560px; }
   .hero-cta-row { display:flex; gap:.9rem; margin-top:1.75rem; flex-wrap:wrap; align-items:center; }
   .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.75rem; background:rgba(255,177,0,.16); color:#ffcf5c;
@@ -423,6 +429,22 @@
   .tp-score { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:#7fe0b8; }
   .tp-mascot { position:fixed; left:1.75rem; bottom:1.75rem; width:52px; height:52px; z-index:120; filter:drop-shadow(0 6px 16px rgba(0,0,0,.35)); animation:tpMascotBob 3.2s ease-in-out infinite; }
   @keyframes tpMascotBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+  #test-page.tp-flash-good::before, #test-page.tp-flash-bad::before {
+    content:''; position:fixed; inset:0; z-index:110; pointer-events:none; border-radius:0;
+    box-shadow:inset 0 0 0 3px var(--flash-c), inset 0 0 90px -20px var(--flash-c-glow);
+    animation:tpFlashRing 1.1s var(--ease-premium) both;
+  }
+  #test-page.tp-flash-good::before { --flash-c:var(--green); --flash-c-glow:rgba(21,154,99,.55); }
+  #test-page.tp-flash-bad::before { --flash-c:var(--red); --flash-c-glow:rgba(229,72,77,.5); }
+  @keyframes tpFlashRing { 0% { opacity:0; } 20% { opacity:1; } 70% { opacity:1; } 100% { opacity:0; } }
+  .tp-feedback-bubble { position:fixed; left:5.5rem; bottom:2.1rem; z-index:125; max-width:260px;
+    background:var(--green); color:#0b2318; font-family:'Sora',sans-serif; font-weight:800; font-size:.92rem;
+    padding:.75rem 1.05rem; border-radius:16px 16px 16px 4px; box-shadow:var(--shadow-lg);
+    animation:tpBubbleIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+  .tp-feedback-bubble.bad { background:var(--red); color:#3a0e0e; }
+  .tp-feedback-bubble.fade-out { animation:tpBubbleOut .3s ease both; }
+  @keyframes tpBubbleIn { 0% { opacity:0; transform:translateY(10px) scale(.9); } 100% { opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes tpBubbleOut { to { opacity:0; transform:translateY(6px) scale(.94); } }
   .lesson-intro-overlay { position:fixed; inset:0; z-index:2000; background:var(--board); display:flex; align-items:center; justify-content:center; animation:fadeIn .18s ease both; }
   .lesson-intro-overlay.fade-out { animation:fadeOutIntro .22s ease both; }
   @keyframes fadeOutIntro { from { opacity:1; } to { opacity:0; } }
@@ -1213,6 +1235,17 @@
     </div>
     <div class="hero-flex">
       <div class="hero-inner">
+        <div class="hero-mascot-badge" aria-hidden="true">
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;">
+            <defs><linearGradient id="heroMascotGrad" x1="0" y1="0" x2="40" y2="40">
+              <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
+            </linearGradient></defs>
+            <rect width="40" height="40" rx="12" fill="url(#heroMascotGrad)"/>
+            <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
+          </svg>
+          <span>Built for Ontario students</span>
+        </div>
         <div class="eyebrow">Ontario Secondary Curriculum</div>
         <h1>Practice built for your <em>real</em> courses</h1>
         <p>Original unit tests, worksheets, and quizzes for grade 11 and 12 Ontario high school courses — organized the way you'd expect a course to be organized: by unit, with a test at the end of each one.</p>
@@ -3703,7 +3736,35 @@ document.getElementById('tp-submit-btn').onclick = async ()=>{
     : `Responses saved for self-review.`;
   // XP: 5 per correct MC answer, plus a flat completion bonus.
   await awardXp(mcCorrect*5 + 10);
+  if(mcTotal) showTpFeedbackFlourish(mcCorrect/mcTotal);
 };
+
+/* ── Brilliant-style full-screen feedback flourish: a colored ring pulses
+   around the whole test screen, and a speech-bubble pops up by the mascot
+   with a short reaction, echoing the "Yep, that's it." pattern. Purely a
+   celebratory/encouraging layer on top of the existing scoring — it never
+   blocks interaction and clears itself automatically. ── */
+function showTpFeedbackFlourish(pctCorrect){
+  const page = document.getElementById('test-page');
+  const good = pctCorrect >= 0.7;
+  const flashClass = good ? 'tp-flash-good' : 'tp-flash-bad';
+  page.classList.remove('tp-flash-good','tp-flash-bad'); void page.offsetWidth;
+  page.classList.add(flashClass);
+  setTimeout(()=>page.classList.remove(flashClass), 1150);
+
+  const messages = good
+    ? ["Nice work!", "You've got this.", "Solid run.", "Great instincts."]
+    : ["Let's review a few.", "Close — check those again.", "Worth a second look."];
+  const msg = messages[Math.floor(Math.random()*messages.length)];
+  const existing = document.querySelector('.tp-feedback-bubble');
+  if(existing) existing.remove();
+  const bubble = document.createElement('div');
+  bubble.className = 'tp-feedback-bubble' + (good ? '' : ' bad');
+  bubble.textContent = msg;
+  document.body.appendChild(bubble);
+  sfx[good ? 'correct' : 'incorrect']();
+  setTimeout(()=>{ bubble.classList.add('fade-out'); setTimeout(()=>bubble.remove(), 320); }, 2600);
+}
 
 /* ── Lesson player (interactive, Brilliant-style) ── */
 let lpItem = null, lpIndex = 0, lpAnswered = [];
