@@ -141,7 +141,15 @@
   .btn-sm.danger:hover { border-color:var(--red); color:var(--red); }
 
   /* ── HERO ── */
-  .hero { background:var(--board); padding:8.5rem 2.5rem 3.5rem; }
+  .hero { background:var(--board); padding:8.5rem 2.5rem 3.5rem; position:relative; overflow:hidden; }
+  .hero::before, .hero::after {
+    content:''; position:absolute; border-radius:50%; filter:blur(60px); opacity:.35; pointer-events:none; z-index:0;
+    animation:heroBlobFloat 14s ease-in-out infinite;
+  }
+  .hero::before { width:420px; height:420px; top:-160px; right:-80px; background:radial-gradient(circle, var(--blue), transparent 70%); }
+  .hero::after { width:380px; height:380px; bottom:-200px; left:-60px; background:radial-gradient(circle, var(--purple), transparent 70%); animation-delay:-7s; }
+  .hero-flex, .hero-inner { position:relative; z-index:1; }
+  @keyframes heroBlobFloat { 0%,100% { transform:translate(0,0) scale(1); } 50% { transform:translate(30px,-20px) scale(1.08); } }
   .hero-inner { max-width:820px; }
   .hero-flex { display:flex; gap:3rem; align-items:center; max-width:1200px; margin:0 auto; }
   .hero-flex .hero-inner { flex:1; max-width:520px; }
@@ -165,6 +173,10 @@
   .home-stats-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:2.5rem; background:var(--paper-2); padding:2rem 1.5rem; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
   .home-stat { text-align:center; }
   .home-stat-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.4rem; color:var(--blue); }
+  .home-stat:nth-child(1) .home-stat-num { color:var(--blue); }
+  .home-stat:nth-child(2) .home-stat-num { color:var(--purple); }
+  .home-stat:nth-child(3) .home-stat-num { color:var(--teal); }
+  .home-stat:nth-child(4) .home-stat-num { color:var(--gold-ink); }
   .home-stat-label { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:var(--ink-soft); margin-top:.2rem; }
   .home-section { max-width:1080px; margin:0 auto; padding:4rem 1.5rem; }
   .home-section-head { max-width:640px; margin:0 auto 2.5rem; text-align:center; }
@@ -201,6 +213,8 @@
   .subject-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:.75rem; }
   .subject-head h2 { font-size:1.4rem; color:var(--ink); display:flex; align-items:center; gap:.6rem; }
   .subject-dot { width:12px; height:12px; border-radius:50%; display:inline-block; }
+  .subject-icon-badge { width:34px; height:34px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center;
+    font-size:1rem; color:#fff; box-shadow:var(--shadow-sm); flex-shrink:0; }
   .subject-new-course-btn { display:none; }
   .course-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.15rem; }
 
@@ -225,6 +239,11 @@
     background:rgba(255,255,255,.09);
   }
   .course-tile:hover .course-tile-top::after { transform:scale(1.15) translate(-6px,-6px); }
+  .course-tile-top::before, .course-tile-top::after { z-index:0; }
+  .course-tile-top { isolation:isolate; }
+  .course-tile-shimmer { position:absolute; inset:0; z-index:0; background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.32) 50%, transparent 70%);
+    transform:translateX(-120%); transition:transform .6s var(--ease-premium); pointer-events:none; }
+  .course-tile:hover .course-tile-shimmer { transform:translateX(120%); }
   .course-tile-stream { position:relative; z-index:1; font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.05em; text-transform:uppercase;
     padding:.22rem .6rem; border-radius:100px; display:inline-block; background:rgba(255,255,255,.22); color:#fff; backdrop-filter:blur(2px); }
   .course-tile-glyph { position:relative; z-index:1; font-size:1.6rem; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
@@ -355,7 +374,11 @@
   .tp-q-num { font-family:'IBM Plex Mono',monospace; font-size:.65rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.5rem; }
   .tp-q-text { font-size:1rem; margin-bottom:1rem; line-height:1.5; font-family:'Sora',sans-serif; font-weight:700; }
   .tp-options { display:flex; flex-direction:column; gap:.5rem; }
-  .tp-option { display:flex; align-items:center; gap:.7rem; padding:.7rem .95rem; border-radius:12px; border:1.5px solid var(--rule); cursor:pointer; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), transform .16s var(--ease-premium), box-shadow .16s var(--ease-premium); font-size:.87rem; background:var(--paper); box-shadow:var(--shadow-xs); }
+  .tp-option { display:flex; align-items:center; gap:.7rem; padding:.7rem .95rem; border-radius:12px; border:1.5px solid var(--rule); border-left-width:4px; cursor:pointer; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), transform .16s var(--ease-premium), box-shadow .16s var(--ease-premium); font-size:.87rem; background:var(--paper); box-shadow:var(--shadow-xs); }
+  .tp-option:nth-of-type(4n+1) { border-left-color:var(--blue); }
+  .tp-option:nth-of-type(4n+2) { border-left-color:var(--purple); }
+  .tp-option:nth-of-type(4n+3) { border-left-color:var(--teal); }
+  .tp-option:nth-of-type(4n+4) { border-left-color:var(--gold); }
   .tp-option:hover { border-color:var(--blue); transform:translateY(-1px); box-shadow:var(--shadow-sm); }
   .tp-option:active { transform:translateY(0); }
   .tp-option input { accent-color:var(--blue); }
@@ -561,7 +584,8 @@
   .lp-text { font-size:1rem; line-height:1.75; color:var(--ink); }
   .lp-text-lead { font-size:1.09rem; }
   .lp-text-lead::first-letter { font-family:'Sora',sans-serif; font-weight:800; font-size:2.7em; line-height:.82; float:left; padding:.04em .1em 0 0; color:var(--blue); }
-  .lp-check-q { font-size:1.08rem; font-weight:700; font-family:'Sora',sans-serif; margin-bottom:1.1rem; line-height:1.5; letter-spacing:-.005em; }
+  .lp-check-q { font-size:1.08rem; font-weight:700; font-family:'Sora',sans-serif; margin-bottom:1.1rem; line-height:1.5; letter-spacing:-.005em;
+    padding-left:1rem; border-left:4px solid; border-image:linear-gradient(180deg, var(--blue), var(--purple)) 1; }
   .lp-feedback { margin-top:1rem; padding:.85rem 1.1rem; border-radius:12px; font-size:.88rem; font-weight:600; line-height:1.55; border-left:3px solid transparent; box-shadow:var(--shadow-xs); }
   .lp-feedback.correct { background:var(--green-bg); color:var(--green-dark); border-left-color:var(--green); }
   .lp-feedback.incorrect { background:var(--red-bg); color:var(--red); border-left-color:var(--red); }
@@ -2793,7 +2817,7 @@ function renderTools(){
         <div><div class="tool-tile-name">${esc(t.name)}</div><div class="tool-tile-desc">${esc(t.desc)}</div></div>
       </div>`).join('');
     return `<div class="subject-section" style="padding-bottom:0;">
-      <div class="subject-head"><h2><span class="subject-dot" style="background:${SUBJECT_COLORS[subj]||'var(--ink-faint)'}"></span>${SUBJECT_LABELS[subj]||subj} tools</h2></div>
+      <div class="subject-head"><h2><span class="subject-icon-badge" style="background:linear-gradient(135deg, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[0]}, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[1]});">${SUBJECT_GLYPHS[subj]||'✦'}</span>${SUBJECT_LABELS[subj]||subj} tools</h2></div>
       <div class="course-row">${tiles}</div>
     </div>`;
   }).join('');
@@ -2964,6 +2988,7 @@ function renderCourses(){
       const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
       return `<div class="course-tile stagger-in" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
         <div class="course-tile-top">
+          <div class="course-tile-shimmer"></div>
           <span class="course-tile-stream">Gr. ${c.grade} · ${c.stream}</span>
           <span class="course-tile-glyph">${glyph}</span>
           ${isEducator ? `<button class="course-tile-delete" data-course-delete="${c.id}" title="Delete course" onclick="event.stopPropagation(); confirmDelete('course','${c.id}');">✕</button>` : ''}
@@ -2985,7 +3010,7 @@ function renderCourses(){
     }).join('');
     return `<div class="subject-section">
       <div class="subject-head">
-        <h2><span class="subject-dot" style="background:${SUBJECT_COLORS[subj]||'var(--ink-faint)'}"></span>${SUBJECT_LABELS[subj]||subj}</h2>
+        <h2><span class="subject-icon-badge" style="background:linear-gradient(135deg, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[0]}, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[1]});">${SUBJECT_GLYPHS[subj]||'✦'}</span>${SUBJECT_LABELS[subj]||subj}</h2>
       </div>
       <div class="course-row">${tiles}</div>
     </div>`;
