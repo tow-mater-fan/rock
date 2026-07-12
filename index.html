@@ -423,6 +423,17 @@
   .math-help-item-body { padding:.8rem .9rem; }
   .math-help-item-body ol { padding-left:1.1rem; color:var(--ink-soft); line-height:1.7; font-size:.85rem; }
   .lb-palette-btns { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .scratchpad-wrap { border:1px solid var(--rule); border-radius:var(--radius-md); background:var(--paper-2); padding:1rem; }
+  .scratchpad-symbols { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:.75rem; }
+  .scratchpad-symbol-btn { font-family:'IBM Plex Mono',monospace; font-size:.95rem; font-weight:700; padding:.3rem .6rem; border:1px solid var(--rule); border-radius:8px; background:var(--white); cursor:pointer; color:var(--ink); }
+  .scratchpad-symbol-btn:hover { background:var(--paper); border-color:var(--purple); color:var(--purple); }
+  .scratchpad-textarea { width:100%; min-height:180px; font-family:'IBM Plex Mono',monospace; font-size:1rem; padding:.85rem; border:1px solid var(--rule); border-radius:10px; resize:vertical; background:var(--white); color:var(--ink); line-height:1.6; box-sizing:border-box; }
+  .scratchpad-canvas-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:.9rem 0 .5rem; }
+  .scratchpad-canvas-toolbar { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; flex-wrap:wrap; }
+  .scratchpad-canvas-toolbar .btn-sm.active { background:var(--purple); color:var(--white); border-color:var(--purple); }
+  .scratchpad-canvas-wrap { border:1px solid var(--rule); border-radius:10px; background:var(--white); overflow:hidden; touch-action:none; }
+  .scratchpad-color-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--rule); cursor:pointer; padding:0; }
+  .scratchpad-color-dot.active { box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--ink); }
   .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem; }
   .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); }
   .lb-move-btns { display:flex; gap:.25rem; }
@@ -1586,6 +1597,12 @@
             <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
             <button class="btn-sm" id="lb-add-matching" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Matching pairs</button>
             <button class="btn-sm" id="lb-add-checklist" style="border-color:var(--green-dark);color:var(--green-dark);">+ Self-check checklist</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat">
+          <div class="lb-palette-cat-label">Student work</div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-scratchpad" style="border-color:var(--purple);color:var(--purple);">+ Work area (show your work)</button>
           </div>
         </div>
         <div class="lb-palette-cat">
@@ -3699,6 +3716,75 @@ function renderLpBlockInner(){
     lpSetContinueEnabled(true);
     return;
   }
+  if(block.type==='scratchpad'){
+    slot.innerHTML = `<div class="lp-block">
+      ${block.prompt ? `<div class="lp-check-q">${escKeepNotation(block.prompt)}</div>` : ''}
+      <div class="scratchpad-wrap">
+        <div class="scratchpad-symbols" id="sp-symbols"></div>
+        <textarea class="scratchpad-textarea" id="sp-textarea" placeholder="${esc(block.placeholder||'Show your work here...')}"></textarea>
+        <div class="scratchpad-canvas-label">✏️ Sketch / diagram (optional)</div>
+        <div class="scratchpad-canvas-toolbar">
+          <button class="btn-sm active" id="sp-pen-btn" type="button">✏️ Pen</button>
+          <button class="btn-sm" id="sp-eraser-btn" type="button">🧽 Eraser</button>
+          <button class="btn-sm" id="sp-clear-btn" type="button">🗑️ Clear sketch</button>
+          <div style="display:flex;gap:.35rem;margin-left:.4rem;" id="sp-colors"></div>
+        </div>
+        <div class="scratchpad-canvas-wrap"><canvas id="sp-canvas" style="width:100%;height:260px;display:block;cursor:crosshair;"></canvas></div>
+      </div>
+    </div>`;
+    const symbols = ['x','y','+','−','×','÷','=','≠','≤','≥','±','√','π','x²','x³','(',')','∈','ℝ','ℤ','∞','Δ','θ','°'];
+    document.getElementById('sp-symbols').innerHTML = symbols.map(s=>`<button type="button" class="scratchpad-symbol-btn" data-sym="${esc(s)}">${esc(s)}</button>`).join('');
+    const ta = document.getElementById('sp-textarea');
+    document.querySelectorAll('.scratchpad-symbol-btn').forEach(btn=>btn.addEventListener('click', ()=>{
+      const sym = btn.dataset.sym;
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.slice(0,start) + sym + ta.value.slice(end);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = start + sym.length;
+    }));
+    const canvas = document.getElementById('sp-canvas');
+    const ctx = canvas.getContext('2d');
+    function fitCanvas(){
+      const rect = canvas.getBoundingClientRect();
+      const saved = canvas.width>0 ? ctx.getImageData(0,0,canvas.width,canvas.height) : null;
+      canvas.width = Math.max(1,Math.round(rect.width));
+      canvas.height = 260;
+      if(saved) ctx.putImageData(saved,0,0);
+    }
+    fitCanvas();
+    window.addEventListener('resize', fitCanvas);
+    let drawing=false, mode='pen', color='#1a1a1a', lastPos=null;
+    const colors = ['#1a1a1a','#c0392b','#1f6f4a','#2554a8'];
+    document.getElementById('sp-colors').innerHTML = colors.map((c,i)=>`<button type="button" class="scratchpad-color-dot ${i===0?'active':''}" data-color="${c}" style="background:${c};"></button>`).join('');
+    document.querySelectorAll('.scratchpad-color-dot').forEach(dot=>dot.addEventListener('click', ()=>{
+      color = dot.dataset.color; mode='pen';
+      document.querySelectorAll('.scratchpad-color-dot').forEach(d=>d.classList.remove('active'));
+      dot.classList.add('active');
+      document.getElementById('sp-pen-btn').classList.add('active');
+      document.getElementById('sp-eraser-btn').classList.remove('active');
+    }));
+    document.getElementById('sp-pen-btn').onclick = ()=>{ mode='pen'; document.getElementById('sp-pen-btn').classList.add('active'); document.getElementById('sp-eraser-btn').classList.remove('active'); };
+    document.getElementById('sp-eraser-btn').onclick = ()=>{ mode='eraser'; document.getElementById('sp-eraser-btn').classList.add('active'); document.getElementById('sp-pen-btn').classList.remove('active'); };
+    document.getElementById('sp-clear-btn').onclick = ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); };
+    function getPos(e){
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX-rect.left, y: e.clientY-rect.top };
+    }
+    canvas.addEventListener('pointerdown', e=>{ drawing=true; lastPos=getPos(e); canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener('pointermove', e=>{
+      if(!drawing) return;
+      const pos = getPos(e);
+      ctx.strokeStyle = mode==='eraser' ? '#ffffff' : color;
+      ctx.lineWidth = mode==='eraser' ? 18 : 2.5;
+      ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(lastPos.x,lastPos.y); ctx.lineTo(pos.x,pos.y); ctx.stroke();
+      lastPos = pos;
+    });
+    canvas.addEventListener('pointerup', ()=>{ drawing=false; });
+    canvas.addEventListener('pointerleave', ()=>{ drawing=false; });
+    lpSetContinueEnabled(true);
+    return;
+  }
   if(block.type==='accordion'){
     const items_ = block.items || [];
     slot.innerHTML = `<div class="lp-block">
@@ -5775,7 +5861,7 @@ const BLOCK_TYPE_META = {
   spoterror:{icon:'🔍',label:'Spot the error'}, describe:{icon:'✏️',label:'Build from description'}, mapping:{icon:'🗺️',label:'Mapping diagram'},
   code:{icon:'💻',label:'Code block'}, reftable:{icon:'📋',label:'Reference table'}, timeline:{icon:'🕒',label:'Timeline'},
   tabs:{icon:'🗃️',label:'Tabs'}, checklist:{icon:'☑️',label:'Self-check'}, matching:{icon:'🔗',label:'Matching pairs'},
-  customhtml:{icon:'🧬',label:'Custom HTML/JS'}
+  customhtml:{icon:'🧬',label:'Custom HTML/JS'}, scratchpad:{icon:'📓',label:'Work area'}
 };
 function saveTemplateBtn(bi){
   return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
@@ -5881,6 +5967,15 @@ function renderLessonBlockList(){
         <div class="qb-item-head"><span class="qb-type-tag mono">Quote</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
         <div class="form-group"><textarea class="tp-textarea" style="min-height:55px;" data-lb-field="${bi}:text" placeholder="Quote text">${esc(b.text||'')}</textarea></div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:attribution" placeholder="Attribution (optional, e.g. Isaac Newton)" value="${esc(b.attribution||'')}"></div>
+        ${saveTemplateBtn(bi)}
+      </div>`;
+    }
+    if(b.type==='scratchpad'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Work area</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><textarea class="tp-textarea" style="min-height:55px;" data-lb-field="${bi}:prompt" placeholder="Prompt / question for students (optional)">${esc(b.prompt||'')}</textarea></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:placeholder" placeholder="Placeholder text shown in the typing area" value="${esc(b.placeholder||'')}"></div>
+        <div class="empty-note" style="margin-top:.3rem;">Students get a typing area with clickable math symbols, plus a sketch pad for drawing/diagrams. It isn't auto-graded — it's a space for them to show their thinking.</div>
         ${saveTemplateBtn(bi)}
       </div>`;
     }
@@ -6740,6 +6835,7 @@ document.getElementById('lb-add-callout').onclick = ()=>{ lessonBlocks.push({typ
 document.getElementById('lb-add-embed').onclick = ()=>{ lessonBlocks.push({type:'embed', url:'', caption:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-divider').onclick = ()=>{ lessonBlocks.push({type:'divider', label:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-quote').onclick = ()=>{ lessonBlocks.push({type:'quote', text:'', attribution:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-scratchpad').onclick = ()=>{ lessonBlocks.push({type:'scratchpad', prompt:'', placeholder:'Show your work here...'}); renderLessonBlockList(); };
 document.getElementById('lb-add-accordion').onclick = ()=>{ lessonBlocks.push({type:'accordion', title:'', items:[{q:'',a:''}]}); renderLessonBlockList(); };
 document.getElementById('lb-add-audio').onclick = ()=>{ lessonBlocks.push({type:'audio', url:'', caption:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-filedownload').onclick = ()=>{ lessonBlocks.push({type:'filedownload', url:'', filename:''}); renderLessonBlockList(); };
