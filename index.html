@@ -288,6 +288,10 @@
     background:rgba(255,255,255,.35); color:#fff; font-size:.7rem; line-height:1; cursor:pointer; flex-shrink:0;
     display:flex; align-items:center; justify-content:center; transition:background .15s; }
   .course-tile-delete:hover { background:var(--red); }
+  .course-tile-level { position:relative; z-index:1; font-family:'Sora',sans-serif; font-weight:800; font-size:.6rem; letter-spacing:.03em;
+    padding:.2rem .55rem; border-radius:100px; display:inline-flex; align-items:center; gap:.28rem; background:rgba(18,23,42,.32); color:#fff; backdrop-filter:blur(2px); }
+  .course-tile-mastered { box-shadow:0 0 0 2px var(--gold), var(--shadow-lg); animation:masteredGlow 2.6s ease-in-out infinite; }
+  @keyframes masteredGlow { 0%,100% { box-shadow:0 0 0 2px var(--gold), 0 8px 24px -6px rgba(245,166,35,.35); } 50% { box-shadow:0 0 0 2px var(--gold), 0 10px 32px -6px rgba(245,166,35,.6); } }
 
   .ring-wrap { position:relative; width:52px; height:52px; flex-shrink:0; }
   .ring-wrap svg { transform:rotate(-90deg); }
@@ -393,8 +397,37 @@
   .unit-admin-row { display:flex; gap:.6rem; margin-top:1.1rem; }
 
   /* ── TEST TAKING ── */
-  #test-page { display:none; min-height:100vh; background:var(--paper); }
+  #test-page { display:none; min-height:100vh; background:var(--board); }
   #test-page.visible { display:block; }
+  .tp-header { background:var(--board); padding:5.25rem 2.5rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.08); }
+  .tp-header h1 { font-size:clamp(1.2rem,2.6vw,1.7rem); color:var(--board-ink); margin-top:1rem; }
+  .tp-header .cd-code { color:var(--gold); }
+  .tp-progress-track { width:100%; height:6px; background:rgba(255,255,255,.1); border-radius:999px; overflow:hidden; margin-top:1rem; }
+  .tp-progress-fill { height:100%; width:0%; background:var(--green); border-radius:999px; transition:width .4s var(--ease-premium); }
+  .tp-body { padding:2.5rem 2.5rem 6rem; max-width:720px; margin:0 auto; }
+  .tp-question { background:var(--board-2); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:1.5rem 1.7rem; margin-bottom:1.1rem; }
+  .tp-q-num { font-family:'IBM Plex Mono',monospace; font-size:.65rem; letter-spacing:.06em; text-transform:uppercase; color:rgba(246,244,239,.5); margin-bottom:.5rem; }
+  .tp-q-text { font-size:1.05rem; margin-bottom:1.1rem; line-height:1.5; font-family:'Sora',sans-serif; font-weight:700; color:var(--board-ink); }
+  .tp-options { display:flex; flex-direction:column; gap:.6rem; }
+  .tp-option { display:flex; align-items:center; gap:.7rem; padding:.85rem 1.15rem; border-radius:999px; border:1.5px solid rgba(255,255,255,.14); cursor:pointer; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), transform .16s var(--ease-premium); font-size:.9rem; background:rgba(255,255,255,.03); color:var(--board-ink); }
+  .tp-option:hover { border-color:var(--green); background:rgba(255,255,255,.06); transform:translateY(-1px); }
+  .tp-option:active { transform:translateY(0); }
+  .tp-option input { accent-color:var(--green); }
+  .tp-option.correct { border-color:var(--green); background:rgba(21,154,99,.18); }
+  .tp-option.incorrect { border-color:var(--red); background:rgba(229,72,77,.18); }
+  .tp-option.correct, .tp-option.incorrect { transform:translateY(0); }
+  .tp-option[disabled], .tp-option:has(input:disabled) { cursor:default; }
+  .tp-textarea { width:100%; min-height:110px; font-family:'Inter',sans-serif; font-size:.88rem; padding:.85rem 1rem; border:1.5px solid rgba(255,255,255,.14); border-radius:14px; background:rgba(255,255,255,.03); color:var(--board-ink); resize:vertical; }
+  .tp-textarea::placeholder { color:rgba(246,244,239,.4); }
+  .tp-submit-row { display:flex; align-items:center; gap:1rem; margin-top:1.25rem; flex-wrap:wrap; }
+  .tp-score { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:#7fe0b8; }
+  .tp-mascot { position:fixed; left:1.75rem; bottom:1.75rem; width:52px; height:52px; z-index:120; filter:drop-shadow(0 6px 16px rgba(0,0,0,.35)); animation:tpMascotBob 3.2s ease-in-out infinite; }
+  @keyframes tpMascotBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+  .lesson-intro-overlay { position:fixed; inset:0; z-index:2000; background:var(--board); display:flex; align-items:center; justify-content:center; animation:fadeIn .18s ease both; }
+  .lesson-intro-overlay.fade-out { animation:fadeOutIntro .22s ease both; }
+  @keyframes fadeOutIntro { from { opacity:1; } to { opacity:0; } }
+  .lesson-intro-mark { width:64px; height:64px; animation:introPulse .7s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes introPulse { 0% { transform:scale(.4) rotate(-8deg); opacity:0; } 60% { transform:scale(1.12) rotate(2deg); opacity:1; } 100% { transform:scale(1) rotate(0); } }
   #print-worksheet { display:none; }
   .pw-header { border-bottom:2px solid #000; padding-bottom:.6rem; margin-bottom:1.2rem; }
   .pw-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.4rem; }
@@ -413,29 +446,6 @@
     body.printing-worksheet #print-worksheet { display:block !important; padding:0.5in; color:#000; background:#fff; }
     @page { margin:0.6in; }
   }
-  .tp-header { background:var(--board); padding:7rem 2.5rem 2rem; }
-  .tp-header h1 { font-size:clamp(1.4rem,3vw,2rem); color:var(--board-ink); margin-top:.6rem; }
-  .tp-header .cd-code { color:var(--gold); }
-  .tp-body { padding:2.5rem 2.5rem 4rem; max-width:720px; margin:0 auto; }
-  .tp-question { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.4rem 1.6rem; margin-bottom:1.1rem; }
-  .tp-q-num { font-family:'IBM Plex Mono',monospace; font-size:.65rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.5rem; }
-  .tp-q-text { font-size:1rem; margin-bottom:1rem; line-height:1.5; font-family:'Sora',sans-serif; font-weight:700; }
-  .tp-options { display:flex; flex-direction:column; gap:.5rem; }
-  .tp-option { display:flex; align-items:center; gap:.7rem; padding:.7rem .95rem; border-radius:12px; border:1.5px solid var(--rule); border-left-width:4px; cursor:pointer; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), transform .16s var(--ease-premium), box-shadow .16s var(--ease-premium); font-size:.87rem; background:var(--paper); box-shadow:var(--shadow-xs); }
-  .tp-option:nth-of-type(4n+1) { border-left-color:var(--blue); }
-  .tp-option:nth-of-type(4n+2) { border-left-color:var(--purple); }
-  .tp-option:nth-of-type(4n+3) { border-left-color:var(--teal); }
-  .tp-option:nth-of-type(4n+4) { border-left-color:var(--gold); }
-  .tp-option:hover { border-color:var(--blue); transform:translateY(-1px); box-shadow:var(--shadow-sm); }
-  .tp-option:active { transform:translateY(0); }
-  .tp-option input { accent-color:var(--blue); }
-  .tp-option.correct { border-color:var(--green); background:var(--green-bg); box-shadow:0 0 0 3px color-mix(in srgb, var(--green) 14%, transparent); }
-  .tp-option.incorrect { border-color:var(--red); background:var(--red-bg); box-shadow:0 0 0 3px color-mix(in srgb, var(--red) 14%, transparent); }
-  .tp-option.correct, .tp-option.incorrect { transform:translateY(0); }
-  .tp-option[disabled], .tp-option:has(input:disabled) { cursor:default; }
-  .tp-textarea { width:100%; min-height:110px; font-family:'Inter',sans-serif; font-size:.88rem; padding:.85rem; border:1.5px solid var(--rule); border-radius:10px; background:var(--paper); resize:vertical; }
-  .tp-submit-row { display:flex; align-items:center; gap:1rem; margin-top:1.25rem; flex-wrap:wrap; }
-  .tp-score { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:var(--green-dark); }
 
   /* ── MODALS ── */
   .modal-overlay { position:fixed; inset:0; z-index:500; background:rgba(15,48,96,.55); backdrop-filter:blur(4px);
@@ -950,8 +960,8 @@
     .subject-section { padding:2rem 1.25rem; }
     .cd-hero { padding:6rem 1.25rem 2rem; }
     .cd-layout { padding:1.75rem 1.25rem 3rem; }
-    .tp-header { padding:6rem 1.25rem 1.75rem; }
-    .tp-body { padding:2rem 1.25rem 3rem; }
+    .tp-header { padding:4.75rem 1.25rem 1.25rem; }
+    .tp-body { padding:2rem 1.25rem 5rem; }
     .modal { padding:1.5rem 1.25rem; }
   }
 </style>
@@ -1518,7 +1528,16 @@
     <button class="cd-back" id="tp-print-btn" style="display:none;" onclick="printCurrentWorksheet()">🖨️ Print / Save PDF</button>
     <span class="cd-code mono" id="tp-code"></span>
     <h1 id="tp-title"></h1>
+    <div class="tp-progress-track"><div class="tp-progress-fill" id="tp-progress-fill"></div></div>
   </div>
+  <svg class="tp-mascot" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><linearGradient id="tpMascotGrad" x1="0" y1="0" x2="40" y2="40">
+      <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
+    </linearGradient></defs>
+    <rect width="40" height="40" rx="12" fill="url(#tpMascotGrad)"/>
+    <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
+  </svg>
   <div class="tp-body">
     <div id="tp-questions"></div>
     <div class="tp-submit-row" id="tp-submit-row">
@@ -3197,6 +3216,17 @@ function renderDashboard(){
   };
 }
 
+/* Game-like level label derived from completion % — same info as the
+   progress bar, but framed the way a game frames rank instead of a raw
+   number, so course cards read more like progress badges than a checklist. */
+function getCourseLevel(pct){
+  if(pct>=100) return { label:'Mastered', icon:'🏆' };
+  if(pct>=66) return { label:'Level 3', icon:'🔥' };
+  if(pct>=33) return { label:'Level 2', icon:'⚡' };
+  if(pct>0) return { label:'Level 1', icon:'🌱' };
+  return null;
+}
+
 function renderCourses(){
   updateAccountUI();
   document.getElementById('btn-new-course').style.display = isEducator ? 'block' : 'none';
@@ -3210,10 +3240,14 @@ function renderCourses(){
       const [c1,c2] = SUBJECT_GRADIENTS[c.subject] || SUBJECT_GRADIENTS.other;
       const glyph = SUBJECT_GLYPHS[c.subject] || '✦';
       const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
-      return `<div class="course-tile stagger-in" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
+      const level = getCourseLevel(pct);
+      return `<div class="course-tile stagger-in ${pct>=100?'course-tile-mastered':''}" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
         <div class="course-tile-top">
           <div class="course-tile-shimmer"></div>
-          <span class="course-tile-stream">Gr. ${c.grade} · ${c.stream}</span>
+          <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:.3rem; align-items:flex-start;">
+            <span class="course-tile-stream">Gr. ${c.grade} · ${c.stream}</span>
+            ${level ? `<span class="course-tile-level">${level.icon} ${level.label}</span>` : ''}
+          </div>
           <span class="course-tile-glyph">${glyph}</span>
           ${isEducator ? `<button class="course-tile-delete" data-course-delete="${c.id}" title="Delete course" onclick="event.stopPropagation(); confirmDelete('course','${c.id}');">✕</button>` : ''}
         </div>
@@ -3493,6 +3527,9 @@ function openTest(itemId){
     studentModalMode = 'signin'; renderStudentModal(); openModal('student-overlay');
     return;
   }
+  showLessonIntro(()=>_openTestInner(itemId));
+}
+function _openTestInner(itemId){
   currentItemId = itemId;
   const it = items.find(i=>i.id===itemId);
   if(!it) return;
@@ -3512,6 +3549,7 @@ function openTest(itemId){
     document.getElementById('tp-questions').style.display='none';
     document.getElementById('tp-submit-row').style.display='none';
     document.getElementById('lp-player').style.display='';
+    document.getElementById('tp-progress-fill').style.width = '0%';
     openLessonPlayer(it, prior);
     window.scrollTo(0,0);
     return;
@@ -3540,9 +3578,49 @@ function openTest(itemId){
   }).join('');
   document.getElementById('tp-score').textContent = prior.submitted && prior.total ? `Last score: ${prior.score}/${prior.total}` : '';
   document.querySelectorAll('.tp-option').forEach(opt=>{
-    opt.addEventListener('click', ()=>{ opt.closest('.tp-question').querySelectorAll('.tp-option input').forEach(i=>i.checked=false); opt.querySelector('input').checked = true; sfx.click(); });
+    opt.addEventListener('click', ()=>{ opt.closest('.tp-question').querySelectorAll('.tp-option input').forEach(i=>i.checked=false); opt.querySelector('input').checked = true; sfx.click(); updateTpProgress(); });
   });
+  document.querySelectorAll('.tp-textarea').forEach(ta=>{ ta.addEventListener('input', updateTpProgress); });
+  updateTpProgress();
   window.scrollTo(0,0);
+}
+
+/* Fraction of questions on the current test-page that have an answer
+   selected/typed — drives the thin progress bar under the test header,
+   the way Brilliant fills its bar as you work through a lesson. */
+function updateTpProgress(){
+  const qEls = document.querySelectorAll('.tp-question');
+  if(!qEls.length){ document.getElementById('tp-progress-fill').style.width = '0%'; return; }
+  let answered = 0;
+  qEls.forEach(qEl=>{
+    if(qEl.querySelector('.tp-option input:checked')) answered++;
+    else { const ta = qEl.querySelector('.tp-textarea'); if(ta && ta.value.trim()) answered++; }
+  });
+  document.getElementById('tp-progress-fill').style.width = Math.round((answered/qEls.length)*100) + '%';
+}
+
+/* ── Brief branded intro animation shown right before a lesson/test opens —
+   a quick pulse-and-sweep on the brand mark, purely cosmetic, capped short
+   so it never feels like it's blocking the student. ── */
+let lessonIntroSeen = false;
+function showLessonIntro(callback){
+  const overlay = document.createElement('div');
+  overlay.className = 'lesson-intro-overlay';
+  overlay.innerHTML = `<svg class="lesson-intro-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><linearGradient id="liGrad" x1="0" y1="0" x2="40" y2="40">
+      <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
+    </linearGradient></defs>
+    <rect width="40" height="40" rx="12" fill="url(#liGrad)"/>
+    <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
+  </svg>`;
+  document.body.appendChild(overlay);
+  const duration = lessonIntroSeen ? 420 : 700;
+  lessonIntroSeen = true;
+  setTimeout(()=>{
+    overlay.classList.add('fade-out');
+    setTimeout(()=>{ overlay.remove(); callback(); }, 220);
+  }, duration);
 }
 document.getElementById('tp-back-btn').onclick = ()=>{
   document.getElementById('test-page').classList.remove('visible');
