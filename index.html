@@ -5390,6 +5390,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
   currentUser = data.user; currentProfile = profile; isEducator = true;
   document.getElementById('educator-pass').value='';
   closeModal('educator-overlay');
+  await loadCatalog();
   await loadResponses();
   await loadProgress();
   await loadReviewLog();
@@ -5443,6 +5444,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     currentUser = { id: firebaseUser.uid, email: firebaseUser.email };
     currentProfile = profile; isEducator = false;
     closeModal('student-overlay');
+    await loadCatalog();
     await loadResponses();
   await loadProgress();
   await loadReviewLog();
@@ -5481,6 +5483,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   currentUser = user; currentProfile = profile; isEducator = false;
   document.getElementById('student-email-input').value=''; document.getElementById('student-password-input').value='';
   closeModal('student-overlay');
+  await loadCatalog();
   await loadResponses();
   await loadProgress();
   await loadReviewLog();
