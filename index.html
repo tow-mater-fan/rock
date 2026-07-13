@@ -213,19 +213,25 @@
   .home-step-num { width:36px; height:36px; border-radius:50%; background:var(--blue); color:var(--white); font-family:'Sora',sans-serif; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:.9rem; }
   .home-step h3 { color:var(--board-ink); font-size:1rem; margin-bottom:.4rem; }
   .home-step p { font-size:.85rem; color:rgba(246,244,239,.65); line-height:1.6; }
-  .home-cta-banner { text-align:center; padding:4.5rem 1.5rem; max-width:640px; margin:0 auto; }
+  .home-cta-banner { text-align:center; padding:4.5rem 1.5rem; max-width:680px; margin:0 auto; }
   .home-cta-banner h2 { font-size:1.6rem; margin-bottom:.6rem; }
   .home-cta-banner p { color:var(--ink-soft); margin-bottom:1.5rem; }
-  .home-cta-card { background:linear-gradient(135deg, var(--blue), var(--purple)); border-radius:var(--radius-xl); padding:3.5rem 2rem;
-    position:relative; overflow:hidden; box-shadow:var(--shadow-lg); }
-  .home-cta-card::before { content:''; position:absolute; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.12);
-    top:-100px; right:-60px; }
-  .home-cta-card::after { content:''; position:absolute; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.1);
-    bottom:-90px; left:-40px; }
+  .home-cta-card { background:linear-gradient(120deg, #2eb872 0%, #3b7fd6 45%, #6d5cf7 100%);
+    background-size:180% 180%; animation:gradientDrift 9s ease-in-out infinite;
+    border-radius:28px; padding:3.75rem 2.25rem; position:relative; overflow:hidden;
+    box-shadow:0 24px 60px -16px rgba(70,60,180,.4), 0 4px 14px rgba(0,0,0,.08); }
+  @keyframes gradientDrift { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+  .home-cta-card::before { content:''; position:absolute; width:280px; height:280px; border-radius:50%;
+    background:rgba(255,255,255,.16); filter:blur(6px); top:-130px; right:-70px; }
+  .home-cta-card::after { content:''; position:absolute; width:200px; height:200px; border-radius:50%;
+    background:rgba(255,255,255,.1); filter:blur(6px); bottom:-110px; left:-50px; }
   .home-cta-card h2, .home-cta-card p { position:relative; z-index:1; color:#fff; }
-  .home-cta-card p { color:rgba(255,255,255,.85); }
-  .home-cta-card .btn-primary { position:relative; z-index:1; background:#fff; color:var(--blue-dark); }
-  .home-cta-card .btn-primary:hover { background:#fff; filter:brightness(.96); }
+  .home-cta-card h2 { font-size:clamp(1.5rem,3.4vw,2.1rem); letter-spacing:-.01em; }
+  .home-cta-card p { color:rgba(255,255,255,.88); }
+  .home-cta-card .btn-primary { position:relative; z-index:1; background:#fff; color:#1e8a52; border-radius:999px;
+    font-weight:800; padding:.85rem 1.9rem; box-shadow:0 10px 24px -6px rgba(0,0,0,.25);
+    transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
+  .home-cta-card .btn-primary:hover { background:#fff; transform:translateY(-2px) scale(1.03); box-shadow:0 14px 30px -6px rgba(0,0,0,.32); }
   .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
   .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--board-ink); line-height:1.15; margin-bottom:1rem; }
   .hero-mascot-badge { display:inline-flex; align-items:center; gap:.5rem; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
@@ -374,14 +380,19 @@
   .add-unit-row { padding:.75rem 1.1rem; }
 
   .cd-main { min-width:0; }
-  .upnext-card { background:linear-gradient(135deg, var(--blue), #3f7ff5); border-radius:16px; padding:1.5rem 1.75rem; color:var(--white);
-    display:flex; align-items:center; justify-content:space-between; gap:1.25rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+  .upnext-card { background:linear-gradient(120deg, var(--blue) 0%, #3f7ff5 55%, #7c5cff 100%);
+    background-size:180% 180%; animation:gradientDrift 10s ease-in-out infinite;
+    border-radius:20px; padding:1.5rem 1.75rem; color:var(--white); position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:space-between; gap:1.25rem; flex-wrap:wrap; margin-bottom:1.75rem;
+    box-shadow:0 16px 36px -14px rgba(37,99,235,.4); }
+  .upnext-card::before { content:''; position:absolute; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.14); filter:blur(4px); top:-70px; right:-30px; z-index:0; }
+  .upnext-card > * { position:relative; z-index:1; }
   .upnext-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; opacity:.8; margin-bottom:.35rem; }
   .upnext-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.15rem; }
   .upnext-sub { font-family:'Inter',sans-serif; font-size:.82rem; opacity:.85; margin-top:.25rem; }
-  .upnext-card .btn { background:var(--white); color:var(--blue-dark); flex-shrink:0; }
+  .upnext-card .btn { background:var(--white); color:var(--blue-dark); flex-shrink:0; border-radius:999px; font-weight:800; }
   .upnext-card .btn:hover { background:#eef4ff; }
-  .upnext-card.done { background:linear-gradient(135deg, var(--green), #22d18f); }
+  .upnext-card.done { background:linear-gradient(120deg, var(--green) 0%, #22d18f 55%, #2eb872 100%); background-size:180% 180%; box-shadow:0 16px 36px -14px rgba(21,154,99,.4); }
 
   .unit-content-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:1.1rem; flex-wrap:wrap; gap:.75rem; }
   .unit-content-head h2 { font-size:1.35rem; }
@@ -705,7 +716,18 @@
   /* ── Full-screen lesson mode ── condensed header + a vertically-centered
      stage that fills the viewport, so a lesson feels like one focused
      screen at a time (Brilliant-style) instead of a long scrolling page. */
-  #test-page.lp-mode { display:flex; flex-direction:column; min-height:100vh; background:var(--board) !important; }
+  #test-page.lp-mode { display:flex; flex-direction:column; min-height:100vh; background:var(--board) !important; position:relative; }
+  /* Ambient glow that fills the whole screen edge-to-edge, like Brilliant's
+     lesson chrome, rather than a glow confined to one diagram. */
+  #test-page.lp-mode::before, #test-page.lp-mode::after { content:''; position:fixed; border-radius:50%; pointer-events:none; z-index:0; }
+  #test-page.lp-mode::before { width:60vw; height:60vw; max-width:900px; max-height:900px;
+    background:radial-gradient(circle, rgba(37,99,235,.22), transparent 68%); filter:blur(40px);
+    top:-15vw; left:50%; transform:translateX(-50%); animation:lpAmbientPulse 6s ease-in-out infinite; }
+  #test-page.lp-mode::after { width:46vw; height:46vw; max-width:700px; max-height:700px;
+    background:radial-gradient(circle, rgba(21,154,99,.16), transparent 70%); filter:blur(50px);
+    bottom:-14vw; right:-8vw; animation:lpAmbientPulse 7s ease-in-out infinite 1s; }
+  @keyframes lpAmbientPulse { 0%,100% { opacity:.7; } 50% { opacity:1; } }
+  #test-page.lp-mode .tp-header, #test-page.lp-mode .tp-body { position:relative; z-index:1; }
   #test-page.lp-mode .tp-header { padding:1.1rem 1.75rem .9rem; flex-shrink:0; background:transparent; border-bottom:none; }
   #test-page.lp-mode .tp-header h1 { display:none; }
   #test-page.lp-mode .tp-code, #test-page.lp-mode .cd-code { display:none; }
@@ -715,21 +737,21 @@
     font-size:1rem; color:rgba(246,244,239,.75); font-family:'Sora',sans-serif; }
   #test-page.lp-mode #tp-back-btn:hover { background:rgba(255,255,255,.14); transform:scale(1.08); }
   #test-page.lp-mode #tp-back-btn:hover::before { color:var(--board-ink); }
-  #test-page.lp-mode .tp-progress-track { margin-top:0; height:8px; background:rgba(255,255,255,.1); border-radius:999px; max-width:900px; margin-left:auto; margin-right:auto; }
+  #test-page.lp-mode .tp-progress-track { margin-top:0; height:8px; background:rgba(255,255,255,.1); border-radius:999px; max-width:1100px; margin-left:auto; margin-right:auto; }
   #test-page.lp-mode .tp-progress-fill { background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:999px; box-shadow:0 0 12px rgba(34,197,94,.5); }
   #test-page.lp-mode .tp-body { flex:1; display:flex; flex-direction:column; padding:0; max-width:none; }
   #test-page.lp-mode #lp-player { flex:1; display:flex; flex-direction:column; }
-  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 1.5rem; overflow-y:auto; }
-  #test-page.lp-mode #lp-block-slot { width:100%; max-width:640px; }
+  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 3vw; overflow-y:auto; }
+  #test-page.lp-mode #lp-block-slot { width:100%; max-width:1020px; }
   #test-page.lp-mode .lp-block { background:transparent; border:none; box-shadow:none; padding:0; }
-  #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.045); border-left-color:var(--green); }
+  #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.045); border-left-color:var(--green); padding:1.6rem 1.9rem; }
   #test-page.lp-mode .lp-text, #test-page.lp-mode .lp-caption { color:rgba(246,244,239,.92); }
-  #test-page.lp-mode .lp-text { font-size:1.2rem; line-height:1.85; }
-  #test-page.lp-mode .lp-text-lead { font-size:1.32rem; }
+  #test-page.lp-mode .lp-text { font-size:1.35rem; line-height:1.9; }
+  #test-page.lp-mode .lp-text-lead { font-size:1.5rem; }
   #test-page.lp-mode .lp-text-lead::first-letter { color:var(--green); }
-  #test-page.lp-mode .lp-check-q { font-size:1.28rem; color:var(--board-ink); border-image:none; border-left-color:var(--green); }
-  #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); }
-  #test-page.lp-mode .lp-nav-row { max-width:640px; margin:0 auto; width:100%; padding:1.1rem 1.5rem 1.8rem; flex-shrink:0; }
+  #test-page.lp-mode .lp-check-q { font-size:1.45rem; color:var(--board-ink); border-image:none; border-left-color:var(--green); }
+  #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; }
+  #test-page.lp-mode .lp-nav-row { max-width:1020px; margin:0 auto; width:100%; padding:1.1rem 3vw 1.8rem; flex-shrink:0; }
   #test-page.lp-mode #lp-prev-btn { color:rgba(246,244,239,.55); background:transparent; }
   #test-page.lp-mode #lp-prev-btn:hover { color:var(--board-ink); }
   #test-page.lp-mode #lp-next-btn { background:#fff; color:#12172a; border-radius:999px; padding:1rem 2.4rem; font-size:1rem;
@@ -743,11 +765,57 @@
     background:radial-gradient(circle, rgba(37,99,235,.55), transparent 70%); filter:blur(18px); z-index:0;
     animation:lpDiagramGlow 3.5s ease-in-out infinite; }
   @keyframes lpDiagramGlow { 0%,100% { opacity:.55; transform:scale(1); } 50% { opacity:.85; transform:scale(1.08); } }
+  @media (max-width:900px){
+    #test-page.lp-mode #lp-block-slot, #test-page.lp-mode .lp-nav-row { max-width:680px; }
+  }
   @media (max-width:640px){
     #test-page.lp-mode .lp-stage { padding:1.5rem 1rem; }
     #test-page.lp-mode .lp-block { padding:1.5rem 1.4rem; }
-    #test-page.lp-mode .lp-text { font-size:1.06rem; }
+    #test-page.lp-mode .lp-text { font-size:1.1rem; }
+    #test-page.lp-mode .lp-check-q { font-size:1.15rem; }
   }
+
+  /* ── AI tutor widget ── only shown while inside a lesson (#lp-player). */
+  #tutor-launcher { display:none; position:fixed; right:1.75rem; bottom:1.75rem; width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg, var(--purple), #4b6bff); border:none; color:#fff; font-size:1.35rem; cursor:pointer;
+    box-shadow:0 12px 28px -6px rgba(80,60,220,.55); z-index:130; transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
+  #test-page.lp-mode #tutor-launcher { display:flex; align-items:center; justify-content:center; }
+  #tutor-launcher:hover { transform:scale(1.08) translateY(-2px); box-shadow:0 16px 34px -6px rgba(80,60,220,.65); }
+  #tutor-launcher.has-pulse { animation:tutorPulse 2.4s ease-in-out infinite; }
+  @keyframes tutorPulse { 0%,100% { box-shadow:0 12px 28px -6px rgba(80,60,220,.55), 0 0 0 0 rgba(124,92,255,.5); } 50% { box-shadow:0 12px 28px -6px rgba(80,60,220,.55), 0 0 0 10px rgba(124,92,255,0); } }
+
+  #tutor-panel { display:none; position:fixed; right:1.75rem; bottom:1.75rem; width:360px; max-width:calc(100vw - 2.5rem);
+    height:min(520px, 70vh); background:var(--board-2); border:1px solid rgba(255,255,255,.1); border-radius:20px;
+    box-shadow:0 24px 60px -12px rgba(0,0,0,.55); z-index:131; flex-direction:column; overflow:hidden;
+    animation:tutorPanelIn .3s var(--ease-premium) both; }
+  #tutor-panel.open { display:flex; }
+  @keyframes tutorPanelIn { from { opacity:0; transform:translateY(16px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+  #tutor-panel-head { display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.1rem;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; color:var(--board-ink); border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0; }
+  #tutor-close-btn { background:none; border:none; color:rgba(246,244,239,.6); cursor:pointer; font-size:.95rem; transition:color .18s, transform .18s var(--ease-premium); }
+  #tutor-counter { font-family:'Inter',sans-serif; font-weight:600; font-size:.7rem; color:rgba(246,244,239,.5);
+    background:rgba(255,255,255,.08); border-radius:999px; padding:.2rem .55rem; margin-left:auto; margin-right:.6rem; transition:color .2s, background .2s; }
+  #tutor-counter.low { color:#ffb3b3; background:rgba(229,72,77,.18); }
+  #tutor-close-btn:hover { color:var(--board-ink); transform:rotate(90deg); }
+  #tutor-messages { flex:1; overflow-y:auto; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.7rem; }
+  .tutor-msg { max-width:85%; padding:.65rem .9rem; border-radius:14px; font-size:.85rem; line-height:1.5; animation:lpFeedbackPop .3s var(--ease-premium) both; }
+  .tutor-msg.user { align-self:flex-end; background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; border-bottom-right-radius:4px; }
+  .tutor-msg.bot { align-self:flex-start; background:rgba(255,255,255,.06); color:rgba(246,244,239,.92); border-bottom-left-radius:4px; }
+  .tutor-msg.bot.error { background:rgba(229,72,77,.15); color:#ffb3b3; }
+  .tutor-msg.typing { display:flex; gap:4px; align-items:center; padding:.75rem .9rem; }
+  .tutor-msg.typing span { width:6px; height:6px; border-radius:50%; background:rgba(246,244,239,.55); animation:tutorTyping 1s ease-in-out infinite; }
+  .tutor-msg.typing span:nth-child(2) { animation-delay:.15s; } .tutor-msg.typing span:nth-child(3) { animation-delay:.3s; }
+  @keyframes tutorTyping { 0%,60%,100% { transform:translateY(0); opacity:.5; } 30% { transform:translateY(-4px); opacity:1; } }
+  #tutor-input-row { display:flex; gap:.5rem; padding:.85rem; border-top:1px solid rgba(255,255,255,.08); flex-shrink:0; }
+  #tutor-input { flex:1; resize:none; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1); border-radius:12px;
+    padding:.6rem .8rem; color:var(--board-ink); font-family:'Inter',sans-serif; font-size:.85rem; outline:none; max-height:90px; transition:border-color .18s; }
+  #tutor-input:focus { border-color:var(--purple); }
+  #tutor-send-btn { width:38px; height:38px; border-radius:50%; border:none; background:var(--purple); color:#fff; font-size:1.1rem; cursor:pointer;
+    flex-shrink:0; transition:transform .18s var(--ease-premium), background .18s; }
+  #tutor-send-btn:hover { background:#6440e8; transform:scale(1.06); }
+  #tutor-send-btn:disabled { opacity:.5; cursor:not-allowed; }
+  @media (max-width:480px){ #tutor-panel { right:.9rem; bottom:5.2rem; } #tutor-launcher { right:1.1rem; bottom:1.1rem; } }
+
 
   /* ── Block-to-block transition ── the slot fades/slides briefly before
      new content swaps in, giving each step its own beat instead of an
@@ -1025,7 +1093,14 @@
   .dash-cta-title { font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; color:var(--ink); }
   .dash-cta-sub { font-size:.82rem; color:var(--ink-soft); margin-top:.25rem; line-height:1.5; }
 
-  .dash-recommend-card { background:var(--board); border-radius:22px; padding:2.5rem 2.5rem 2rem; min-height:420px; display:flex; flex-direction:column; }
+  .dash-recommend-card { background:var(--board); border-radius:26px; padding:2.5rem 2.5rem 2rem; min-height:420px; display:flex; flex-direction:column;
+    position:relative; overflow:hidden; box-shadow:0 20px 50px -18px rgba(0,0,0,.4); transition:transform .25s var(--ease-premium), box-shadow .25s var(--ease-premium); }
+  .dash-recommend-card:hover { transform:translateY(-3px); box-shadow:0 26px 60px -16px rgba(0,0,0,.48); }
+  .dash-recommend-card::before { content:''; position:absolute; width:260px; height:260px; border-radius:50%;
+    background:radial-gradient(circle, rgba(124,92,255,.35), transparent 70%); top:-120px; right:-90px; z-index:0; }
+  .dash-recommend-card::after { content:''; position:absolute; width:220px; height:220px; border-radius:50%;
+    background:radial-gradient(circle, rgba(21,154,99,.3), transparent 70%); bottom:-110px; left:-80px; z-index:0; }
+  .dash-recommend-card > * { position:relative; z-index:1; }
   .dash-rec-eyebrow { font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase;
     color:var(--blue); background:var(--blue-bg); display:inline-block; padding:.35rem .8rem; border-radius:100px; margin:0 auto 1rem; }
   .dash-rec-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.9rem; color:var(--board-ink); text-align:center; }
@@ -1678,6 +1753,19 @@
       <div class="lp-nav-row">
         <button class="btn-sm" id="lp-prev-btn">← Back</button>
         <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
+      </div>
+      <!-- AI tutor: floating launcher + slide-in chat panel, scoped to the lesson player -->
+      <button id="tutor-launcher" title="Ask the AI tutor" aria-label="Ask the AI tutor">💬</button>
+      <div id="tutor-panel">
+        <div id="tutor-panel-head">
+          <span>🤖 Lesson tutor</span>
+          <button id="tutor-close-btn" aria-label="Close">✕</button>
+        </div>
+        <div id="tutor-messages"></div>
+        <div id="tutor-input-row">
+          <textarea id="tutor-input" rows="1" placeholder="Ask about this problem…"></textarea>
+          <button id="tutor-send-btn" aria-label="Send">↑</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3680,6 +3768,7 @@ function _openTestInner(itemId){
     document.getElementById('tp-progress-fill').style.width = '0%';
     document.getElementById('test-page').classList.add('lp-mode');
     openLessonPlayer(it, prior);
+    tutorResetForNewLesson();
     window.scrollTo(0,0);
     return;
   }
@@ -8069,6 +8158,138 @@ document.getElementById('del-confirm-btn').onclick = async ()=>{
   }
   pendingDelete=null; closeModal('del-overlay'); renderUnitNav(); renderUnitContent();
 };
+
+/* ── AI tutor widget ──
+   Reads whatever's on screen in the current lesson block as context, sends
+   the student's question to the ai-tutor Supabase Edge Function (which
+   proxies to Claude), and streams the reply into the chat panel. */
+let tutorHistory = [];
+let tutorBusy = false;
+let tutorMsgCount = 0;
+const TUTOR_MSG_LIMIT = 5; // per lesson, per student — keeps free-tier API usage safe
+
+function tutorGetBlockContext(){
+  const slot = document.getElementById('lp-block-slot');
+  if(!slot) return '';
+  // innerText gives a reasonable plain-text snapshot of whatever block is showing
+  // (question prompt, options, current values, etc.) without leaking HTML noise.
+  return slot.innerText.trim().slice(0, 2000);
+}
+
+function tutorAppendMessage(role, text){
+  const host = document.getElementById('tutor-messages');
+  const el = document.createElement('div');
+  el.className = `tutor-msg ${role}`;
+  el.textContent = text;
+  host.appendChild(el);
+  host.scrollTop = host.scrollHeight;
+  return el;
+}
+
+function tutorShowTyping(){
+  const host = document.getElementById('tutor-messages');
+  const el = document.createElement('div');
+  el.className = 'tutor-msg bot typing';
+  el.id = 'tutor-typing';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  host.appendChild(el);
+  host.scrollTop = host.scrollHeight;
+}
+function tutorHideTyping(){ document.getElementById('tutor-typing')?.remove(); }
+
+function tutorUpdateCounter(){
+  const remaining = Math.max(0, TUTOR_MSG_LIMIT - tutorMsgCount);
+  const head = document.getElementById('tutor-panel-head');
+  let badge = document.getElementById('tutor-counter');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'tutor-counter';
+    head.insertBefore(badge, document.getElementById('tutor-close-btn'));
+  }
+  badge.textContent = `${remaining} left`;
+  badge.classList.toggle('low', remaining<=1);
+}
+
+function tutorLockInput(){
+  document.getElementById('tutor-input').disabled = true;
+  document.getElementById('tutor-input').placeholder = "You've used all your questions for this lesson";
+  document.getElementById('tutor-send-btn').disabled = true;
+}
+
+async function tutorSend(){
+  const input = document.getElementById('tutor-input');
+  const text = input.value.trim();
+  if(!text || tutorBusy) return;
+  if(tutorMsgCount >= TUTOR_MSG_LIMIT){
+    tutorAppendMessage('bot error', `You've used all ${TUTOR_MSG_LIMIT} tutor questions for this lesson. Move on to the next lesson to get a fresh set!`);
+    tutorLockInput();
+    return;
+  }
+  tutorBusy = true;
+  document.getElementById('tutor-send-btn').disabled = true;
+  input.value = ''; input.style.height = 'auto';
+  tutorAppendMessage('user', text);
+  tutorShowTyping();
+  try {
+    const { data, error } = await db.functions.invoke('ai-tutor', {
+      body: {
+        message: text,
+        lessonTitle: lpItem ? lpItem.title : '',
+        blockContext: tutorGetBlockContext(),
+        history: tutorHistory,
+      },
+    });
+    tutorHideTyping();
+    if(error || !data || data.error){
+      tutorAppendMessage('bot error', "Sorry, I couldn't reach the tutor right now. " + (data?.error || error?.message || ''));
+    } else {
+      tutorAppendMessage('bot', data.reply || "Hmm, I didn't get a response — try asking again.");
+      tutorHistory.push({ role:'user', content:text }, { role:'assistant', content:data.reply || '' });
+      tutorMsgCount++;
+      tutorUpdateCounter();
+      if(tutorMsgCount >= TUTOR_MSG_LIMIT){
+        tutorAppendMessage('bot', `That was your last question for this lesson (${TUTOR_MSG_LIMIT}/${TUTOR_MSG_LIMIT} used). You can ask more once you move to the next lesson.`);
+        tutorLockInput();
+      }
+    }
+  } catch(err){
+    tutorHideTyping();
+    tutorAppendMessage('bot error', 'Something went wrong reaching the tutor: ' + err.message);
+  }
+  tutorBusy = false;
+  if(tutorMsgCount < TUTOR_MSG_LIMIT) document.getElementById('tutor-send-btn').disabled = false;
+}
+
+document.getElementById('tutor-launcher').onclick = ()=>{
+  const panel = document.getElementById('tutor-panel');
+  panel.classList.add('open');
+  document.getElementById('tutor-launcher').classList.remove('has-pulse');
+  if(!document.getElementById('tutor-messages').childElementCount){
+    tutorAppendMessage('bot', `Hi! I'm your lesson tutor. Ask me anything about what's on screen — I won't just hand you the answer, but I'll help you get there. You've got ${TUTOR_MSG_LIMIT} questions for this lesson.`);
+    tutorUpdateCounter();
+  }
+  document.getElementById('tutor-input').focus();
+};
+document.getElementById('tutor-close-btn').onclick = ()=>{ document.getElementById('tutor-panel').classList.remove('open'); };
+document.getElementById('tutor-send-btn').onclick = tutorSend;
+document.getElementById('tutor-input').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); tutorSend(); }
+});
+document.getElementById('tutor-input').addEventListener('input', function(){
+  this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 90) + 'px';
+});
+// Reset the chat, message limit, + give the launcher a gentle pulse whenever a new lesson opens.
+function tutorResetForNewLesson(){
+  tutorHistory = [];
+  tutorMsgCount = 0;
+  document.getElementById('tutor-messages').innerHTML = '';
+  document.getElementById('tutor-panel').classList.remove('open');
+  document.getElementById('tutor-launcher').classList.add('has-pulse');
+  const input = document.getElementById('tutor-input');
+  input.disabled = false; input.placeholder = 'Ask about this problem…';
+  document.getElementById('tutor-send-btn').disabled = false;
+  document.getElementById('tutor-counter')?.remove();
+}
 
 /* ── Init ── */
 // Firebase resolves its persisted session asynchronously, so we wait for
