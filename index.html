@@ -677,6 +677,39 @@
   .lp-flashcard:hover .lp-flashcard-inner { box-shadow:var(--shadow-md); }
   .lp-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; }
 
+  /* ── Full-screen lesson mode ── condensed header + a vertically-centered
+     stage that fills the viewport, so a lesson feels like one focused
+     screen at a time (Brilliant-style) instead of a long scrolling page. */
+  #test-page.lp-mode { display:flex; flex-direction:column; min-height:100vh; }
+  #test-page.lp-mode .tp-header { padding:1.05rem 1.75rem .9rem; flex-shrink:0; }
+  #test-page.lp-mode .tp-header h1 { font-size:.95rem; margin-top:.4rem; opacity:.72; letter-spacing:.01em; }
+  #test-page.lp-mode .tp-progress-track { margin-top:.75rem; }
+  #test-page.lp-mode .tp-body { flex:1; display:flex; flex-direction:column; padding:0; max-width:none; }
+  #test-page.lp-mode #lp-player { flex:1; display:flex; flex-direction:column; }
+  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 1.5rem; overflow-y:auto; }
+  #test-page.lp-mode #lp-block-slot { width:100%; max-width:640px; }
+  #test-page.lp-mode .lp-block { padding:2.1rem 2.2rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-lg); }
+  #test-page.lp-mode .lp-text { font-size:1.2rem; line-height:1.85; }
+  #test-page.lp-mode .lp-text-lead { font-size:1.32rem; }
+  #test-page.lp-mode .lp-check-q { font-size:1.28rem; }
+  #test-page.lp-mode .lp-nav-row { max-width:640px; margin:0 auto; width:100%; padding:1.1rem 1.5rem 1.6rem; flex-shrink:0; }
+  @media (max-width:640px){
+    #test-page.lp-mode .lp-stage { padding:1.5rem 1rem; }
+    #test-page.lp-mode .lp-block { padding:1.5rem 1.4rem; }
+    #test-page.lp-mode .lp-text { font-size:1.06rem; }
+  }
+
+  /* ── Block-to-block transition ── the slot fades/slides briefly before
+     new content swaps in, giving each step its own beat instead of an
+     instant cut. Re-triggered on every navigation via JS. */
+  #lp-block-slot.lp-leaving { animation:lpLeave .16s var(--ease-premium) both; }
+  #lp-block-slot.lp-leaving-back { animation:lpLeaveBack .16s var(--ease-premium) both; }
+  @keyframes lpLeave { to { opacity:0; transform:translateY(-10px) scale(.985); } }
+  @keyframes lpLeaveBack { to { opacity:0; transform:translateY(10px) scale(.985); } }
+  .lp-block { animation:lpEnter .38s var(--ease-premium) both; }
+  @keyframes lpEnter { from { opacity:0; transform:translateY(14px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .lp-progress-fill { transition:width .45s var(--ease-premium); }
+
   /* ── Hints (generic, any lesson block) ── */
   .hint-box { margin-top: .9rem; }
   .hint-btn { background: var(--gold-bg); color: var(--gold-ink); border: 1.5px solid var(--gold); border-radius: 100px;
@@ -1579,7 +1612,7 @@
     </div>
     <div id="lp-player" style="display:none;">
       <div class="lp-progress-track"><div class="lp-progress-fill" id="lp-progress-fill"></div></div>
-      <div id="lp-block-slot"></div>
+      <div class="lp-stage"><div id="lp-block-slot"></div></div>
       <div class="lp-nav-row">
         <button class="btn-sm" id="lp-prev-btn">← Back</button>
         <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
@@ -2239,7 +2272,7 @@ function openGraphBuilder(){
   document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
-  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
   document.getElementById('tool-drbuilder-page').classList.remove('visible');
   const el = document.getElementById('tool-graphbuilder-page');
   el.classList.add('visible');
@@ -2428,7 +2461,7 @@ function openDRBuilderTool(){
   document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
-  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
   document.getElementById('tool-graphbuilder-page').classList.remove('visible');
   const el = document.getElementById('tool-drbuilder-page');
   el.classList.add('visible');
@@ -2743,7 +2776,7 @@ function showPage(page){
   document.getElementById('account-page').style.display='none';
   document.getElementById('educator-account-page').style.display='none';
   document.getElementById('course-detail-page').classList.remove('visible');
-  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
   document.getElementById('tool-graphbuilder-page').classList.remove('visible');
   document.getElementById('tool-drbuilder-page').classList.remove('visible');
   updateNavActive(page);
@@ -3343,7 +3376,7 @@ function openCourseDetail(courseId){
   document.getElementById('dashboard-page').style.display='none';
   document.getElementById('courses-page').style.display='none';
   document.getElementById('about-page').style.display='none';
-  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
   document.getElementById('course-detail-page').classList.add('visible');
   document.getElementById('course-detail-page').classList.remove('page-fade'); void document.getElementById('course-detail-page').offsetWidth; document.getElementById('course-detail-page').classList.add('page-fade');
   document.getElementById('cd-code').textContent = c.code;
@@ -3583,10 +3616,12 @@ function _openTestInner(itemId){
     document.getElementById('tp-submit-row').style.display='none';
     document.getElementById('lp-player').style.display='';
     document.getElementById('tp-progress-fill').style.width = '0%';
+    document.getElementById('test-page').classList.add('lp-mode');
     openLessonPlayer(it, prior);
     window.scrollTo(0,0);
     return;
   }
+  document.getElementById('test-page').classList.remove('lp-mode');
   document.getElementById('tp-questions').style.display='';
   document.getElementById('tp-submit-row').style.display='';
   document.getElementById('lp-player').style.display='none';
@@ -3656,7 +3691,7 @@ function showLessonIntro(callback){
   }, duration);
 }
 document.getElementById('tp-back-btn').onclick = ()=>{
-  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
   if(lpPreviewMode){ lpPreviewMode=false; openModal('test-overlay'); return; }
   if(currentCourseId) openCourseDetail(currentCourseId);
 };
@@ -5881,7 +5916,20 @@ function renderLpBlockInner(){
   });
 }
 
-document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpCaptureScratchpad(); lpAutosaveWork(); lpIndex--; renderLpBlock(); window.scrollTo(0,0); } };
+// Plays a quick leave animation on the block slot before swapping content,
+// so each Continue/Back feels like a discrete step rather than an instant cut.
+function lpTransitionTo(renderFn, direction){
+  const slot = document.getElementById('lp-block-slot');
+  const leaveClass = direction==='back' ? 'lp-leaving-back' : 'lp-leaving';
+  slot.classList.add(leaveClass);
+  setTimeout(()=>{
+    slot.classList.remove(leaveClass);
+    renderFn();
+    const stage = slot.closest('.lp-stage');
+    if(stage) stage.scrollTop = 0;
+  }, 150);
+}
+document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpCaptureScratchpad(); lpAutosaveWork(); lpIndex--; lpTransitionTo(renderLpBlock,'back'); window.scrollTo(0,0); } };
 // Small celebratory confetti burst — used when a student finishes a lesson.
 function fireConfetti(){
   const colors = ['#f5a623','#ff5a36','#159a63','#7c5cff','#0ea5a0'];
@@ -5901,11 +5949,11 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   lpCaptureScratchpad();
   if(lpIndex < lpItem.content.length-1){
     lpAutosaveWork();
-    lpIndex++; renderLpBlock(); window.scrollTo(0,0);
+    lpIndex++; lpTransitionTo(renderLpBlock,'forward'); window.scrollTo(0,0);
     return;
   }
   if(lpPreviewMode){
-    document.getElementById('test-page').classList.remove('visible');
+    document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
     lpPreviewMode = false;
     openModal('test-overlay');
     return;
@@ -5925,7 +5973,7 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
   studentResponses[currentItemId] = { answers:lpWorkAnswers, score:null, total:null, submitted:true };
   fireConfetti(); sfx.lessonComplete();
   await awardXp(20);
-  document.getElementById('test-page').classList.remove('visible');
+  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
   if(currentCourseId) openCourseDetail(currentCourseId);
 };
 
