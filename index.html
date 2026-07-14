@@ -558,6 +558,37 @@
   .premium-subscribe-btn { background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
     width:100%; max-width:360px; }
   @media (max-width:720px){ .premium-plans { grid-template-columns:1fr; } .premium-modal { padding:2rem 1.25rem 1.75rem; } }
+
+  /* ── EMBEDDED CHECKOUT (Stripe Elements, stays on-page) ── */
+  .pc-overlay { position:fixed; inset:0; z-index:600; display:none; opacity:0; transition:opacity .25s;
+    background:linear-gradient(120deg, #1a1330 0%, #241a2e 45%, #3a2412 100%); }
+  .pc-overlay.open { display:flex; opacity:1; }
+  .pc-panel { flex:1; min-width:0; padding:3rem 3.5rem; overflow-y:auto; }
+  .pc-left { display:flex; flex-direction:column; justify-content:center; color:#f6f4ef; position:relative; }
+  .pc-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; position:absolute; top:2.5rem; left:3.5rem; }
+  .pc-hero-icon { font-size:3rem; margin-bottom:1rem; filter:drop-shadow(0 10px 24px rgba(124,92,255,.4)); }
+  .pc-hero-title { font-size:2.6rem; line-height:1.15; margin-bottom:2rem; }
+  .pc-feature-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:1rem; font-size:.95rem; color:rgba(246,244,239,.85); }
+  .pc-powered { margin-top:2.5rem; font-size:.72rem; color:rgba(246,244,239,.4); }
+  .pc-right { max-width:520px; background:#14161f; color:#f6f4ef; box-shadow:-20px 0 60px rgba(0,0,0,.35); position:relative; display:flex; flex-direction:column; }
+  .pc-back { align-self:flex-start; background:none; border:none; color:rgba(246,244,239,.6); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; margin-bottom:1.5rem; padding:0; }
+  .pc-back:hover { color:#fff; }
+  .pc-total-row { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:1.25rem; border-bottom:1px solid rgba(255,255,255,.1); margin-bottom:1.5rem; }
+  .pc-total-label { font-family:'Sora',sans-serif; font-weight:700; font-size:1.1rem; }
+  .pc-total-detail { font-size:.78rem; color:rgba(246,244,239,.55); margin-top:.3rem; }
+  .pc-total-amt { font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; }
+  .pc-section-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; margin-bottom:.85rem; }
+  #pc-payment-element { min-height:220px; margin-bottom:1.25rem; }
+  .pc-loading { font-size:.85rem; color:rgba(246,244,239,.5); padding:2rem 0; text-align:center; }
+  .pc-check-row { display:flex; gap:.6rem; align-items:flex-start; font-size:.76rem; line-height:1.5; color:rgba(246,244,239,.65); margin-bottom:.9rem; cursor:pointer; }
+  .pc-check-row input { margin-top:.15rem; accent-color:var(--blue); flex-shrink:0; }
+  .pc-check-row a { color:#8ab4ff; text-decoration:underline; }
+  .pc-error { background:var(--red-bg); color:var(--red-ink,var(--red)); font-size:.8rem; padding:.7rem .9rem; border-radius:var(--radius-sm); margin-bottom:1rem; }
+  .pc-subscribe-btn { margin-top:auto; width:100%; padding:.9rem; border:none; border-radius:100px; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem;
+    background:linear-gradient(180deg, var(--blue), var(--blue-dark)); color:#fff; cursor:pointer; transition:filter .18s, opacity .18s; }
+  .pc-subscribe-btn:disabled { opacity:.45; cursor:not-allowed; }
+  .pc-subscribe-btn:not(:disabled):hover { filter:brightness(1.06); }
+  @media (max-width:900px){ .pc-overlay { flex-direction:column; overflow-y:auto; } .pc-panel { padding:2.25rem 1.5rem; } .pc-logo { position:static; margin-bottom:1.5rem; } .pc-right { max-width:none; box-shadow:none; } }
   .modal-eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--blue); margin-bottom:.4rem; }
   .modal h2 { font-size:1.4rem; margin-bottom:.35rem; }
   .modal > p.desc { font-size:.83rem; color:var(--ink-soft); margin-bottom:1.3rem; line-height:1.5; }
@@ -1338,8 +1369,50 @@
       <li><span>📊</span> Deeper personal analytics</li>
     </ul>
 
-    <button class="modal-btn premium-subscribe-btn" id="premium-activate-btn" onclick="startPremiumCheckout()">Subscribe now</button>
+    <button class="modal-btn premium-subscribe-btn" id="premium-activate-btn" onclick="openPremiumCheckout()">Subscribe now</button>
     <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">*Billed as one payment. Renews annually, cancel anytime. You can turn off auto-renew from your settings.</p>
+  </div>
+</div>
+
+<!-- ── Embedded checkout screen (Stripe Elements, no redirect off Modilix) ── -->
+<div class="pc-overlay" id="premium-checkout-overlay">
+  <div class="pc-panel pc-left">
+    <div class="pc-logo"><span class="brand-mark" style="display:inline-flex;vertical-align:middle;">✨</span> Modilix</div>
+    <div class="pc-hero-icon">🔑</div>
+    <h2 class="pc-hero-title">Supercharge<br>your learning</h2>
+    <ul class="pc-feature-list">
+      <li>📈 Unlimited access to all courses</li>
+      <li>💬 Unlimited AI tutor questions</li>
+      <li>🚫 No in-app purchases or ads</li>
+      <li>✨ New content added regularly</li>
+    </ul>
+    <div class="pc-powered">Powered by <strong>Stripe</strong></div>
+  </div>
+
+  <div class="pc-panel pc-right">
+    <button class="pc-back" onclick="closePremiumCheckout()">← Back</button>
+    <div class="pc-total-row">
+      <div>
+        <div class="pc-total-label">Total due today</div>
+        <div class="pc-total-detail" id="pc-plan-detail">Annual plan · 20% discount applied</div>
+      </div>
+      <div class="pc-total-amt" id="pc-total-amt">—</div>
+    </div>
+
+    <div class="pc-section-label">Payment method</div>
+    <div id="pc-payment-element"><div class="pc-loading">Loading payment form…</div></div>
+
+    <label class="pc-check-row">
+      <input type="checkbox" id="pc-agree-terms">
+      <span>By checking this box and clicking "Subscribe now", I agree to the <a href="#" onclick="return false;">Terms of Service</a> and <a href="#" onclick="return false;">Privacy Policy</a>.</span>
+    </label>
+    <label class="pc-check-row">
+      <input type="checkbox" id="pc-agree-renew">
+      <span>By checking this box and clicking "Subscribe now", I understand my subscription begins immediately, will renew automatically at the plan price until I cancel, and I can cancel any time in my account settings.</span>
+    </label>
+
+    <div id="pc-error" class="pc-error hidden"></div>
+    <button class="pc-subscribe-btn" id="pc-subscribe-btn" onclick="confirmPremiumCheckout()" disabled>🔒 Subscribe now</button>
   </div>
 </div>
 
@@ -2298,6 +2371,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <script>
 /* ══════════════════════════════════════
    SUPABASE CONFIG — paste your values here
@@ -2307,6 +2381,15 @@ const SUPABASE_URL = 'https://oohclfpwffhrlwwseotz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vaGNsZnB3ZmZocmx3d3Nlb3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjg2MzYsImV4cCI6MjA5ODg0NDYzNn0.iW_1x03_-77E2QnM_C2Dg10SIY_f1Tcz3tsojz2UU1s';
 const FILES_BUCKET = 'course-files';
 const AVATAR_BUCKET = 'avatars';
+
+/* ══════════════════════════════════════
+   STRIPE CONFIG — paste your publishable key here
+   Stripe Dashboard → Developers → API keys → Publishable key
+   (starts with pk_test_... or pk_live_...). This is safe to expose
+   client-side — it's the secret key that must never appear here.
+   ══════════════════════════════════════ */
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TtCvr1hLjCr18dTJhHOdosjLMUZJEA5gpf2GjX6ANwMNlBEDPSnTptFdAvqoWPNEzuZe8afr2R0xH2kFBuSwEo800OfCCOO9f';
+const stripeClient = window.Stripe ? window.Stripe(STRIPE_PUBLISHABLE_KEY) : null;
 
 /* ══════════════════════════════════════
    FIREBASE CONFIG — paste your values here
@@ -3316,51 +3399,88 @@ function openPremiumModal(){
 }
 function closePremiumModal(){ document.getElementById('premium-modal-overlay').classList.remove('open'); }
 
-// Calls the create-checkout-session Edge Function, which creates/reuses a
-// Stripe Customer for this student and returns a Stripe Checkout URL for
-// the selected plan. Stripe's webhook (stripe-webhook function) is the only
-// thing that ever flips student_progress.is_premium to true — this function
-// just gets the student to Stripe, it never grants access itself.
-async function startPremiumCheckout(){
+const PREMIUM_PLAN_INFO = {
+  monthly: { label: 'Monthly plan', detail: 'Billed monthly' },
+  annual:  { label: 'Annual plan',  detail: 'Billed as one payment · 20% discount applied' },
+  family:  { label: 'Family plan',  detail: '4 seats included' },
+};
+
+async function getCurrentAccessToken(){
+  const { data: { session } } = await sbAuth.auth.getSession();
+  return session?.access_token || (await getStudentAccessToken?.());
+}
+
+// Opens the embedded checkout screen (Stripe Elements Payment Element, no
+// redirect off Modilix) for whichever plan is currently selected in the
+// pricing modal, and asks create-subscription for a PaymentIntent to confirm.
+let pcElements = null;
+let pcPaymentElement = null;
+
+async function openPremiumCheckout(){
   if(!currentUser || isEducator) return;
   if(isPremiumUser()){ closePremiumModal(); return; }
-  const btn = document.getElementById('premium-activate-btn');
-  btn.disabled = true; btn.textContent = 'Redirecting…';
+  closePremiumModal();
+
+  const info = PREMIUM_PLAN_INFO[selectedPremiumPlan];
+  document.getElementById('pc-plan-detail').textContent = info.detail;
+  document.getElementById('pc-total-amt').textContent = '—';
+  document.getElementById('pc-payment-element').innerHTML = '<div class="pc-loading">Loading payment form…</div>';
+  document.getElementById('pc-error').classList.add('hidden');
+  document.getElementById('pc-agree-terms').checked = false;
+  document.getElementById('pc-agree-renew').checked = false;
+  const subBtn = document.getElementById('pc-subscribe-btn');
+  subBtn.disabled = true; subBtn.textContent = '🔒 Subscribe now';
+  document.getElementById('premium-checkout-overlay').classList.add('open');
+
   try{
-    const { data: { session } } = await sbAuth.auth.getSession();
-    const accessToken = session?.access_token || (await getStudentAccessToken?.());
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout-session`, {
+    if(!stripeClient) throw new Error('Stripe.js failed to load');
+    const accessToken = await getCurrentAccessToken();
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-subscription`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
         'apikey': SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({
-        plan: selectedPremiumPlan,
-        success_url: window.location.origin + window.location.pathname + '?premium=success',
-        cancel_url: window.location.origin + window.location.pathname + '?premium=cancelled',
-      }),
+      body: JSON.stringify({ plan: selectedPremiumPlan }),
     });
     const data = await res.json();
-    if(!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
-    window.location.href = data.url; // hand off to Stripe Checkout
+    if(!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start checkout');
+
+    document.getElementById('pc-total-amt').textContent =
+      (data.amount/100).toLocaleString(undefined, { style:'currency', currency:(data.currency||'cad').toUpperCase() });
+
+    pcElements = stripeClient.elements({ clientSecret: data.clientSecret, appearance: {
+      theme: 'night',
+      variables: { colorPrimary:'#ff5a36', colorBackground:'#1c1f2c', colorText:'#f6f4ef', borderRadius:'10px' },
+    }});
+    document.getElementById('pc-payment-element').innerHTML = '';
+    pcPaymentElement = pcElements.create('payment');
+    pcPaymentElement.mount('#pc-payment-element');
+    subBtn.disabled = false;
   }catch(err){
-    alert('Could not start checkout: ' + err.message);
-    btn.disabled = false; btn.textContent = 'Subscribe now';
+    document.getElementById('pc-payment-element').innerHTML = '';
+    const errEl = document.getElementById('pc-error');
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
   }
 }
 
-// If Stripe redirected back here after a successful checkout, the webhook
-// may take a moment to land — re-check the student's premium flag a couple
-// times so the UI updates without needing a manual refresh.
+function closePremiumCheckout(){
+  document.getElementById('premium-checkout-overlay').classList.remove('open');
+  pcPaymentElement = null; pcElements = null;
+}
+
+// Covers the rare case where a payment method (not a card) required leaving
+// the page and coming back — most students confirm without ever leaving,
+// but if they do, this catches the webhook landing on return.
 async function checkPremiumRedirectResult(){
   const params = new URLSearchParams(window.location.search);
   if(params.get('premium') !== 'success') return;
   window.history.replaceState({}, '', window.location.pathname);
   for(let i=0; i<5; i++){
     await new Promise(r=>setTimeout(r, 1500));
-    const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).single();
+    const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
     if(data?.is_premium){
       studentProgress.is_premium = true;
       renderPremiumUI();
@@ -3369,6 +3489,58 @@ async function checkPremiumRedirectResult(){
       return;
     }
   }
+}
+
+// Confirms the PaymentIntent right here on Modilix using Elements.
+// redirect:'if_required' means card payments never leave the page; only a
+// payment method that mandates a redirect (e.g. certain bank/wallet methods)
+// would briefly hand off, then return automatically.
+async function confirmPremiumCheckout(){
+  const errEl = document.getElementById('pc-error');
+  errEl.classList.add('hidden');
+  if(!document.getElementById('pc-agree-terms').checked || !document.getElementById('pc-agree-renew').checked){
+    errEl.textContent = 'Please check both boxes above to continue.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  const btn = document.getElementById('pc-subscribe-btn');
+  btn.disabled = true; btn.textContent = 'Processing…';
+
+  const { error, paymentIntent } = await stripeClient.confirmPayment({
+    elements: pcElements,
+    redirect: 'if_required',
+    confirmParams: {
+      return_url: window.location.origin + window.location.pathname + '?premium=success',
+    },
+  });
+
+  if(error){
+    errEl.textContent = error.message || 'Payment failed. Please check your details and try again.';
+    errEl.classList.remove('hidden');
+    btn.disabled = false; btn.textContent = '🔒 Subscribe now';
+    return;
+  }
+
+  // Payment succeeded (or is processing) without leaving the page — Stripe's
+  // webhook will flip is_premium shortly; poll briefly so the UI updates
+  // without a manual refresh.
+  btn.textContent = 'Activating…';
+  for(let i=0; i<6; i++){
+    await new Promise(r=>setTimeout(r, 1200));
+    const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
+    if(data?.is_premium){
+      studentProgress.is_premium = true;
+      renderPremiumUI();
+      closePremiumCheckout();
+      showXpToast(0);
+      document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Premium activated!');
+      return;
+    }
+  }
+  // Webhook hasn't landed yet — close out anyway, it'll catch up shortly.
+  closePremiumCheckout();
+  showXpToast(0);
+  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Payment received — activating…');
 }
 
 function showXpToast(amount){
