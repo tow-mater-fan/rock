@@ -532,6 +532,32 @@
   .modal-overlay.open .modal { transform:translateY(0) scale(1); }
   .modal-close { position:absolute; top:1rem; right:1.1rem; background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--ink-faint); transition:transform .18s var(--ease-premium), color .18s; }
   .modal-close:hover { color:var(--ink); transform:rotate(90deg); }
+
+  /* ── PREMIUM MODAL (Brilliant-style pricing tiers) ── */
+  .premium-modal { padding:2.5rem 2.75rem 2.25rem; }
+  .premium-modal-key { font-size:2.6rem; margin-bottom:.3rem; filter:drop-shadow(0 6px 16px rgba(124,92,255,.35)); }
+  .premium-modal-title { font-size:1.7rem; margin-bottom:.5rem; }
+  .premium-modal .desc { max-width:520px; margin:0 auto 1.6rem; color:var(--ink-soft); }
+  .premium-plans { display:grid; grid-template-columns:repeat(3, 1fr); gap:1.1rem; margin:0 0 1.6rem; }
+  .premium-plan-card { position:relative; background:var(--paper-2); border:1.5px solid var(--rule); border-radius:var(--radius-lg);
+    padding:1.5rem 1rem 1.25rem; cursor:pointer; font-family:inherit; text-align:center; transition:all .18s var(--ease-premium); }
+  .premium-plan-card:hover { transform:translateY(-2px); border-color:var(--blue); box-shadow:var(--shadow-md); }
+  .premium-plan-card.is-selected { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg); }
+  .premium-plan-card.is-popular { border:2px solid transparent; background:linear-gradient(var(--paper-2), var(--paper-2)) padding-box,
+    linear-gradient(120deg,#7c5cff,#ff5a36,#f5a623) border-box; }
+  .premium-plan-badge { position:absolute; top:-.7rem; left:50%; transform:translateX(-50%); background:linear-gradient(120deg,#7c5cff,#ff5a36);
+    color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:.62rem; letter-spacing:.04em; padding:.3rem .7rem; border-radius:100px; white-space:nowrap; }
+  .premium-plan-name { font-family:'Sora',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:.5rem; }
+  .premium-plan-price { display:flex; align-items:baseline; justify-content:center; gap:.35rem; flex-wrap:wrap; margin-bottom:.35rem; }
+  .premium-plan-price .amt { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; color:var(--ink); }
+  .premium-plan-price .was { font-size:.85rem; color:var(--ink-faint); text-decoration:line-through; }
+  .premium-plan-price .per { font-size:.78rem; color:var(--ink-faint); }
+  .premium-plan-note { font-size:.72rem; color:var(--ink-faint); }
+  .premium-feature-list { text-align:left; list-style:none; padding:0; margin:0 auto 1.6rem; max-width:420px; display:flex; flex-direction:column; gap:.6rem; }
+  .premium-feature-list li { display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft); }
+  .premium-subscribe-btn { background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
+    width:100%; max-width:360px; }
+  @media (max-width:720px){ .premium-plans { grid-template-columns:1fr; } .premium-modal { padding:2rem 1.25rem 1.75rem; } }
   .modal-eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--blue); margin-bottom:.4rem; }
   .modal h2 { font-size:1.4rem; margin-bottom:.35rem; }
   .modal > p.desc { font-size:.83rem; color:var(--ink-soft); margin-bottom:1.3rem; line-height:1.5; }
@@ -1277,20 +1303,43 @@
 </div>
 
 <div class="modal-overlay" id="premium-modal-overlay">
-  <div class="modal" style="max-width:420px; text-align:center; overflow:visible;">
+  <div class="modal premium-modal" style="max-width:920px; text-align:center; overflow:visible;">
     <button class="modal-close" onclick="closePremiumModal()">✕</button>
-    <div style="font-size:2.2rem; margin-bottom:.4rem;">✨</div>
-    <h2 style="margin-bottom:.3rem;">Modilix Premium</h2>
-    <p class="desc" id="premium-modal-offer">A few nice extras for students who want them — every lesson and unit test stays free either way.</p>
+    <div class="premium-modal-key" aria-hidden="true">🔑</div>
+    <h2 class="premium-modal-title">Unlock the full Modilix experience</h2>
+    <p class="desc" id="premium-modal-offer">Premium gives you a higher AI tutor limit, unlimited test downloads, and more. Every lesson and unit test stays free either way.</p>
     <p class="desc hidden" id="premium-modal-active" style="color:var(--green-ink,var(--green));">You're on Premium — thanks for supporting Modilix!</p>
-    <ul style="text-align:left; list-style:none; padding:0; margin:0 0 1.4rem; display:flex; flex-direction:column; gap:.6rem;">
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>📥</span> Unlimited unit test downloads/prints</li>
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>💬</span> A much higher AI tutor question limit</li>
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>🎨</span> Exclusive accent themes</li>
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>📊</span> Deeper personal analytics</li>
+
+    <div class="premium-plans" id="premium-plans">
+      <button class="premium-plan-card" data-plan="monthly" onclick="selectPremiumPlan('monthly')">
+        <div class="premium-plan-name">Monthly</div>
+        <div class="premium-plan-price"><span class="amt">CA$12</span><span class="per">/month</span></div>
+        <div class="premium-plan-note">Billed monthly, cancel anytime</div>
+      </button>
+
+      <button class="premium-plan-card is-popular" data-plan="annual" onclick="selectPremiumPlan('annual')">
+        <div class="premium-plan-badge">MOST POPULAR</div>
+        <div class="premium-plan-name">Annual</div>
+        <div class="premium-plan-price"><span class="was">CA$12</span><span class="amt">CA$8</span><span class="per">/month*</span></div>
+        <div class="premium-plan-note">Billed as one payment</div>
+      </button>
+
+      <button class="premium-plan-card" data-plan="family" onclick="selectPremiumPlan('family')">
+        <div class="premium-plan-name">Family</div>
+        <div class="premium-plan-price"><span class="was">CA$30</span><span class="amt">CA$22</span><span class="per">/month</span></div>
+        <div class="premium-plan-note">4 seats included</div>
+      </button>
+    </div>
+
+    <ul class="premium-feature-list">
+      <li><span>📥</span> Unlimited unit test downloads/prints</li>
+      <li><span>💬</span> A much higher AI tutor question limit</li>
+      <li><span>🎨</span> Exclusive accent themes</li>
+      <li><span>📊</span> Deeper personal analytics</li>
     </ul>
-    <button class="modal-btn" id="premium-activate-btn" onclick="activatePremiumDemo()" style="background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;">Explore Premium</button>
-    <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">Demo mode — this flips your account's premium flag for testing. No payment is processed yet.</p>
+
+    <button class="modal-btn premium-subscribe-btn" id="premium-activate-btn" onclick="startPremiumCheckout()">Subscribe now</button>
+    <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">*Billed as one payment. Renews annually, cancel anytime. You can turn off auto-renew from your settings.</p>
   </div>
 </div>
 
@@ -3206,9 +3255,22 @@ let usePathView = true; // toggled per-course by the little switch above the uni
 
 async function loadProgress(){
   if(!currentUser || isEducator) return;
-  const { data, error } = await db.from('student_progress').select('*').eq('student_id', currentUser.id).single();
+  const { data, error } = await db.from('student_progress').select('*').eq('student_id', currentUser.id).maybeSingle();
   if(!error && data){
     studentProgress = { xp:data.xp||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date, is_premium:!!data.is_premium };
+  } else if(!error && !data){
+    // First time we've seen this student — seed their row so later reads/writes
+    // (streaks, XP, premium flag) have something to attach to.
+    const { data: created, error: insertErr } = await db.from('student_progress')
+      .insert({ student_id: currentUser.id, xp:0, current_streak:0, longest_streak:0 })
+      .select().maybeSingle();
+    if(!insertErr && created){
+      studentProgress = { xp:created.xp||0, current_streak:created.current_streak||0, longest_streak:created.longest_streak||0, last_active_date:created.last_active_date, is_premium:!!created.is_premium };
+    } else if(insertErr){
+      console.error('student_progress seed error', insertErr);
+    }
+  } else if(error){
+    console.error('student_progress load error', error);
   }
   renderNavProgress();
   renderPremiumUI();
@@ -3236,30 +3298,77 @@ function renderPremiumUI(){
   if(typeof applyAppearance === 'function' && document.getElementById('acct-accent-swatches')) applyAppearance();
 }
 
+let selectedPremiumPlan = 'annual'; // annual pre-selected as the "most popular" default, matches the card highlight
+
+function selectPremiumPlan(plan){
+  selectedPremiumPlan = plan;
+  document.querySelectorAll('#premium-plans .premium-plan-card').forEach(card=>{
+    card.classList.toggle('is-selected', card.dataset.plan === plan);
+  });
+}
+
 function openPremiumModal(){
   renderPremiumUI();
   const offerEl = document.getElementById('premium-modal-offer');
-  if(offerEl) offerEl.textContent = "A few nice extras for students who want them — every lesson and unit test stays free either way.";
+  if(offerEl) offerEl.textContent = "Premium gives you a higher AI tutor limit, unlimited test downloads, and more. Every lesson and unit test stays free either way.";
+  selectPremiumPlan(selectedPremiumPlan);
   document.getElementById('premium-modal-overlay').classList.add('open');
 }
 function closePremiumModal(){ document.getElementById('premium-modal-overlay').classList.remove('open'); }
 
-// NOTE: this scaffolds the premium tier end-to-end (DB flag, gating helper,
-// nav/dashboard UI) but does NOT charge anyone — there's no payment
-// processor wired up. This button flips the flag directly so you can build
-// and test premium-gated features; swap it for a real Stripe Checkout flow
-// (or similar) before charging real students.
-async function activatePremiumDemo(){
+// Calls the create-checkout-session Edge Function, which creates/reuses a
+// Stripe Customer for this student and returns a Stripe Checkout URL for
+// the selected plan. Stripe's webhook (stripe-webhook function) is the only
+// thing that ever flips student_progress.is_premium to true — this function
+// just gets the student to Stripe, it never grants access itself.
+async function startPremiumCheckout(){
   if(!currentUser || isEducator) return;
+  if(isPremiumUser()){ closePremiumModal(); return; }
   const btn = document.getElementById('premium-activate-btn');
-  btn.disabled = true; btn.textContent = 'Activating…';
-  const { error } = await db.from('student_progress').update({ is_premium:true }).eq('student_id', currentUser.id);
-  btn.disabled = false; btn.textContent = 'Explore Premium';
-  if(error){ alert('Could not activate premium: ' + error.message); return; }
-  studentProgress.is_premium = true;
-  renderPremiumUI();
-  showXpToast(0); // reuse the toast host for a quick confirmation pulse
-  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Premium activated!');
+  btn.disabled = true; btn.textContent = 'Redirecting…';
+  try{
+    const { data: { session } } = await sbAuth.auth.getSession();
+    const accessToken = session?.access_token || (await getStudentAccessToken?.());
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'apikey': SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({
+        plan: selectedPremiumPlan,
+        success_url: window.location.origin + window.location.pathname + '?premium=success',
+        cancel_url: window.location.origin + window.location.pathname + '?premium=cancelled',
+      }),
+    });
+    const data = await res.json();
+    if(!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
+    window.location.href = data.url; // hand off to Stripe Checkout
+  }catch(err){
+    alert('Could not start checkout: ' + err.message);
+    btn.disabled = false; btn.textContent = 'Subscribe now';
+  }
+}
+
+// If Stripe redirected back here after a successful checkout, the webhook
+// may take a moment to land — re-check the student's premium flag a couple
+// times so the UI updates without needing a manual refresh.
+async function checkPremiumRedirectResult(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('premium') !== 'success') return;
+  window.history.replaceState({}, '', window.location.pathname);
+  for(let i=0; i<5; i++){
+    await new Promise(r=>setTimeout(r, 1500));
+    const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).single();
+    if(data?.is_premium){
+      studentProgress.is_premium = true;
+      renderPremiumUI();
+      showXpToast(0);
+      document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Premium activated!');
+      return;
+    }
+  }
 }
 
 function showXpToast(amount){
@@ -8663,6 +8772,7 @@ function waitForFirebaseUser(){
   updateAccountUI();
   renderSoundToggle();
   showPage('home');
+  if(currentUser && !isEducator) checkPremiumRedirectResult();
 })();
 </script>
 </body>
