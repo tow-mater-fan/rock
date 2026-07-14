@@ -206,6 +206,40 @@
   .home-feature-card h3 { font-size:1rem; margin-bottom:.5rem; }
   .home-feature-card p { font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
   .home-steps-section { background:var(--board); padding:4rem 1.5rem; }
+
+  /* ── Pricing comparison ── */
+  .pricing-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.5rem; max-width:840px; margin:0 auto; }
+  .pricing-card { background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius-xl); padding:2rem;
+    display:flex; flex-direction:column; transition:transform .22s var(--ease-premium), box-shadow .22s var(--ease-premium); }
+  .pricing-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .pricing-card-head h3 { font-size:1.15rem; display:flex; align-items:center; gap:.5rem; }
+  .pricing-badge { font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:#fff;
+    background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
+    padding:.2rem .55rem; border-radius:999px; }
+  .pricing-price { font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; margin:.5rem 0 .3rem; color:var(--ink); }
+  .pricing-price span { font-size:.75rem; font-weight:600; color:var(--ink-faint); }
+  .pricing-sub { font-size:.85rem; color:var(--ink-soft); margin-bottom:1.2rem; line-height:1.5; }
+  .pricing-list { list-style:none; padding:0; margin:0 0 1.5rem; display:flex; flex-direction:column; gap:.65rem; font-size:.86rem; color:var(--ink); }
+  .pricing-card-premium { background:linear-gradient(160deg, var(--paper) 60%, var(--purple-bg)); border-color:var(--purple); position:relative; overflow:hidden; }
+  .pricing-card-premium::before { content:''; position:absolute; width:180px; height:180px; border-radius:50%;
+    background:radial-gradient(circle, rgba(124,92,255,.18), transparent 70%); top:-70px; right:-50px; }
+
+  /* ── Testimonials ── */
+  .home-quotes-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:1.5rem; }
+  .home-quote-card { background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius-lg); padding:1.75rem;
+    transition:transform .22s var(--ease-premium); }
+  .home-quote-card:hover { transform:translateY(-3px); }
+  .home-quote-card p { font-size:.92rem; line-height:1.65; color:var(--ink); margin-bottom:1rem; font-style:italic; }
+  .home-quote-name { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); }
+
+  /* ── FAQ ── */
+  .home-faq-list { max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:.75rem; }
+  .home-faq-item { background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius-md); padding:1.1rem 1.4rem; }
+  .home-faq-item summary { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--ink); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  .home-faq-item summary::-webkit-details-marker { display:none; }
+  .home-faq-item summary::after { content:'+'; font-size:1.2rem; color:var(--ink-faint); transition:transform .2s var(--ease-premium); }
+  .home-faq-item[open] summary::after { transform:rotate(45deg); }
+  .home-faq-item p { margin-top:.7rem; font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
   .home-steps-section .home-section-head .eyebrow { color:var(--gold); }
   .home-steps-section .home-section-head h2 { color:var(--board-ink); }
   .home-steps-row { max-width:1080px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:2rem; }
@@ -1247,13 +1281,13 @@
     <button class="modal-close" onclick="closePremiumModal()">✕</button>
     <div style="font-size:2.2rem; margin-bottom:.4rem;">✨</div>
     <h2 style="margin-bottom:.3rem;">Modilix Premium</h2>
-    <p class="desc" id="premium-modal-offer">Unlock every course, unlimited AI tutoring, and deeper progress analytics.</p>
+    <p class="desc" id="premium-modal-offer">A few nice extras for students who want them — every lesson and unit test stays free either way.</p>
     <p class="desc hidden" id="premium-modal-active" style="color:var(--green-ink,var(--green));">You're on Premium — thanks for supporting Modilix!</p>
     <ul style="text-align:left; list-style:none; padding:0; margin:0 0 1.4rem; display:flex; flex-direction:column; gap:.6rem;">
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>🔓</span> Every course &amp; unit test, no waitlist</li>
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>💬</span> Unlimited AI tutor questions per lesson</li>
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>📊</span> Deeper analytics &amp; weak-skill tracking</li>
-      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>🎨</span> Exclusive themes &amp; profile flair</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>💬</span> A much higher AI tutor question limit</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>🎨</span> Exclusive accent themes</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>📊</span> Deeper personal analytics</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>💚</span> Helps keep Modilix free for everyone else</li>
     </ul>
     <button class="modal-btn" id="premium-activate-btn" onclick="activatePremiumDemo()" style="background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;">Explore Premium</button>
     <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">Demo mode — this flips your account's premium flag for testing. No payment is processed yet.</p>
@@ -1280,8 +1314,8 @@
       </div>
       <div class="dash-card dash-premium-upsell" id="dash-premium-upsell">
         <div class="dash-premium-icon">✨</div>
-        <div class="dash-premium-title">Unlock all learning with Premium</div>
-        <div class="dash-premium-sub">Get smarter, faster — unlimited AI tutoring, every course, and deeper analytics.</div>
+        <div class="dash-premium-title">A little extra, if you want it</div>
+        <div class="dash-premium-sub">Every lesson stays free forever. Premium just adds a higher AI tutor limit, exclusive themes, and deeper stats.</div>
         <button class="btn dash-premium-btn" onclick="openPremiumModal()">Explore Premium</button>
       </div>
       <div class="dash-card dash-cta-card" id="dash-continue-card" style="display:none;">
@@ -1565,6 +1599,92 @@
         <h3>Take the unit test</h3>
         <p>Check what you actually know before the real one — track XP and streaks along the way.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="home-section-head">
+      <div class="eyebrow">Free vs. Premium</div>
+      <h2>Every lesson, every unit test — free. Always.</h2>
+      <p style="max-width:620px; margin:.75rem auto 0; color:var(--ink-soft); font-size:.92rem; line-height:1.6;">
+        Premium is a nice-to-have for students who want extra support and personalization — it's never required to learn the material. Nothing that helps you actually pass a unit test lives behind a paywall.
+      </p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-card-head">
+          <h3>Free</h3>
+          <div class="pricing-price">$0<span>/forever</span></div>
+        </div>
+        <p class="pricing-sub">Everything you need to actually learn the course.</p>
+        <ul class="pricing-list">
+          <li>✅ Every lesson, worksheet &amp; unit test</li>
+          <li>✅ Full XP, streaks &amp; Daily Review</li>
+          <li>✅ AI tutor — 5 questions per lesson</li>
+          <li>✅ Progress tracking on your account</li>
+        </ul>
+        <button class="btn btn-ghost" style="width:100%;" onclick="document.getElementById('student-auth-btn')?.click()">Start learning free</button>
+      </div>
+      <div class="pricing-card pricing-card-premium">
+        <div class="pricing-card-head">
+          <h3>Premium <span class="pricing-badge">Optional</span></h3>
+          <div class="pricing-price">Extras<span>, not requirements</span></div>
+        </div>
+        <p class="pricing-sub">For students who want a bit more polish and support around the free experience.</p>
+        <ul class="pricing-list">
+          <li>✨ AI tutor — much higher question limit</li>
+          <li>✨ Exclusive accent themes</li>
+          <li>✨ Deeper personal analytics</li>
+          <li>✨ Supports Modilix staying free for everyone else</li>
+        </ul>
+        <button class="btn dash-premium-btn" style="width:100%;" onclick="openPremiumModal()">Explore Premium</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section home-quotes-section">
+    <div class="home-section-head">
+      <div class="eyebrow">Students say</div>
+      <h2>Built with the way real students actually study</h2>
+    </div>
+    <div class="home-quotes-row">
+      <div class="home-quote-card">
+        <p>"I finally have a place that's organized the same way my actual class is — unit by unit, with a real test at the end."</p>
+        <div class="home-quote-name">— Grade 11 Functions student</div>
+      </div>
+      <div class="home-quote-card">
+        <p>"The streak thing is dumb but it works — I've done Daily Review every day for three weeks now."</p>
+        <div class="home-quote-name">— Grade 12 Advanced Functions student</div>
+      </div>
+      <div class="home-quote-card">
+        <p>"Didn't pay for anything and still got through the whole unit test prep. Premium's there if you want it, not if you need it."</p>
+        <div class="home-quote-name">— Grade 11 student</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section home-faq-section">
+    <div class="home-section-head">
+      <div class="eyebrow">Questions</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="home-faq-list">
+      <details class="home-faq-item" open>
+        <summary>Do I need Premium to use Modilix?</summary>
+        <p>No. Every course, lesson, worksheet, and unit test is free for every signed-in student, permanently. Premium only adds optional extras like a higher AI tutor limit and exclusive themes — it never gates actual course content.</p>
+      </details>
+      <details class="home-faq-item">
+        <summary>What courses are covered?</summary>
+        <p>Grade 11 and 12 Ontario high school courses, University and Mixed streams, organized unit by unit the way your class actually runs.</p>
+      </details>
+      <details class="home-faq-item">
+        <summary>Is this made for teachers too?</summary>
+        <p>Yes — educators get their own sign-in with class analytics and the ability to assign content, separate from the student experience.</p>
+      </details>
+      <details class="home-faq-item">
+        <summary>Can I use this on my phone?</summary>
+        <p>Yes, the whole platform is responsive and works in any modern mobile browser — no app install required.</p>
+      </details>
     </div>
   </section>
 
@@ -3113,6 +3233,7 @@ function renderPremiumUI(){
   document.getElementById('dash-premium-upsell')?.classList.toggle('is-premium', isPremiumUser());
   document.getElementById('premium-modal-active')?.classList.toggle('hidden', !isPremiumUser());
   document.getElementById('premium-modal-offer')?.classList.toggle('hidden', isPremiumUser());
+  if(typeof applyAppearance === 'function' && document.getElementById('acct-accent-swatches')) applyAppearance();
 }
 
 function openPremiumModal(){
@@ -6556,7 +6677,9 @@ const ACCENT_OPTIONS = [
   { id:'ocean',  label:'Ocean',  swatch:'#2563eb' },
   { id:'forest', label:'Forest', swatch:'#159a63' },
   { id:'grape',  label:'Grape',  swatch:'#7c5cff' },
-  { id:'rose',   label:'Rose',   swatch:'#e5487a' }
+  { id:'rose',   label:'Rose',   swatch:'#e5487a' },
+  { id:'aurora', label:'Aurora (Premium)', swatch:'linear-gradient(135deg,#2eb872,#7c5cff)', premium:true },
+  { id:'midnight-gold', label:'Midnight Gold (Premium)', swatch:'linear-gradient(135deg,#12172a,#f5a623)', premium:true },
 ];
 const DEFAULT_THEME = 'light';
 const DEFAULT_ACCENT = 'sunset';
@@ -6578,10 +6701,14 @@ function applyAppearance(){
   if(themeBtn) themeBtn.textContent = getTheme()==='dark' ? '☀️ Light' : '🌙 Dark';
   const swatchWrap = document.getElementById('acct-accent-swatches');
   if(swatchWrap){
-    swatchWrap.innerHTML = ACCENT_OPTIONS.map(a=>`<button type="button" class="accent-swatch-btn" data-accent-id="${a.id}"
-      title="${a.label}" style="width:34px;height:34px;border-radius:50%;background:${a.swatch};cursor:pointer;
-      border:3px solid ${getAccent()===a.id ? 'var(--ink)' : 'transparent'};box-shadow:var(--shadow-xs);transition:transform .15s;"></button>`).join('');
+    swatchWrap.innerHTML = ACCENT_OPTIONS.map(a=>{
+      const locked = a.premium && !isPremiumUser();
+      return `<button type="button" class="accent-swatch-btn" data-accent-id="${a.id}" data-locked="${locked}"
+      title="${locked ? a.label + ' — Premium' : a.label}" style="position:relative;width:34px;height:34px;border-radius:50%;background:${a.swatch};cursor:pointer;
+      border:3px solid ${getAccent()===a.id ? 'var(--ink)' : 'transparent'};box-shadow:var(--shadow-xs);transition:transform .15s;opacity:${locked?.55:1};">${locked?'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;">🔒</span>':''}</button>`;
+    }).join('');
     swatchWrap.querySelectorAll('[data-accent-id]').forEach(b=>b.onclick=()=>{
+      if(b.dataset.locked==='true'){ openPremiumModal(); return; }
       localStorage.setItem('modilix-accent', b.dataset.accentId);
       applyAppearance();
     });
@@ -8270,7 +8397,7 @@ document.getElementById('del-confirm-btn').onclick = async ()=>{
 let tutorHistory = [];
 let tutorBusy = false;
 let tutorMsgCount = 0;
-const TUTOR_MSG_LIMIT = 5; // per lesson, per student — keeps free-tier API usage safe
+let tutorMsgLimit = 5; // updated from the server's response — premium students get a higher limit
 
 function tutorGetBlockContext(){
   const slot = document.getElementById('lp-block-slot');
@@ -8302,7 +8429,7 @@ function tutorShowTyping(){
 function tutorHideTyping(){ document.getElementById('tutor-typing')?.remove(); }
 
 function tutorUpdateCounter(){
-  const remaining = Math.max(0, TUTOR_MSG_LIMIT - tutorMsgCount);
+  const remaining = Math.max(0, tutorMsgLimit - tutorMsgCount);
   const head = document.getElementById('tutor-panel-head');
   let badge = document.getElementById('tutor-counter');
   if(!badge){
@@ -8343,16 +8470,21 @@ async function tutorSend(){
     if(error || !data || data.error){
       // The server is the source of truth for the limit, so a 429 lands here too.
       tutorAppendMessage('bot error', data?.error || error?.message || "Sorry, I couldn't reach the tutor right now.");
-      if(data?.limitReached) tutorLockInput();
+      if(data?.limitReached){
+        tutorLockInput();
+        if(!data.isPremium) tutorShowUpsell();
+      }
     } else {
       tutorAppendMessage('bot', data.reply || "Hmm, I didn't get a response — try asking again.");
       tutorHistory.push({ role:'user', content:text }, { role:'assistant', content:data.reply || '' });
+      if(typeof data.limit === 'number') tutorMsgLimit = data.limit;
       if(typeof data.remaining === 'number'){
-        tutorMsgCount = TUTOR_MSG_LIMIT - data.remaining;
+        tutorMsgCount = tutorMsgLimit - data.remaining;
         tutorUpdateCounter();
         if(data.remaining <= 0){
-          tutorAppendMessage('bot', `That was your last question for this lesson (${TUTOR_MSG_LIMIT}/${TUTOR_MSG_LIMIT} used). You can ask more once you move to the next lesson.`);
+          tutorAppendMessage('bot', `That was your last question for this lesson (${tutorMsgLimit}/${tutorMsgLimit} used). You can ask more once you move to the next lesson.`);
           tutorLockInput();
+          if(!data.isPremium) tutorShowUpsell();
         }
       }
     }
@@ -8361,7 +8493,22 @@ async function tutorSend(){
     tutorAppendMessage('bot error', 'Something went wrong reaching the tutor: ' + err.message);
   }
   tutorBusy = false;
-  if(tutorMsgCount < TUTOR_MSG_LIMIT) document.getElementById('tutor-send-btn').disabled = false;
+  if(tutorMsgCount < tutorMsgLimit) document.getElementById('tutor-send-btn').disabled = false;
+}
+
+// Gentle, dismissable nudge — never blocks the free experience, just points
+// out that Premium raises the tutor quota. Learning itself stays untouched.
+function tutorShowUpsell(){
+  if(document.getElementById('tutor-upsell')) return;
+  const host = document.getElementById('tutor-messages');
+  const el = document.createElement('div');
+  el.id = 'tutor-upsell';
+  el.className = 'tutor-msg bot';
+  el.style.cssText = 'background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff);background-size:220% 220%;animation:gradientDrift 9s ease-in-out infinite;color:#fff;cursor:pointer;';
+  el.innerHTML = '✨ Premium gives you a lot more tutor questions per lesson — totally optional, your lessons work exactly the same either way. <u>See Premium →</u>';
+  el.onclick = openPremiumModal;
+  host.appendChild(el);
+  host.scrollTop = host.scrollHeight;
 }
 
 document.getElementById('tutor-launcher').onclick = ()=>{
@@ -8369,7 +8516,7 @@ document.getElementById('tutor-launcher').onclick = ()=>{
   panel.classList.add('open');
   document.getElementById('tutor-launcher').classList.remove('has-pulse');
   if(!document.getElementById('tutor-messages').childElementCount){
-    tutorAppendMessage('bot', `Hi! I'm your lesson tutor. Ask me anything about what's on screen — I won't just hand you the answer, but I'll help you get there. You've got ${TUTOR_MSG_LIMIT} questions for this lesson.`);
+    tutorAppendMessage('bot', `Hi! I'm your lesson tutor. Ask me anything about what's on screen — I won't just hand you the answer, but I'll help you get there. You've got ${tutorMsgLimit} questions for this lesson.`);
     tutorUpdateCounter();
   }
   document.getElementById('tutor-input').focus();
