@@ -718,15 +718,29 @@
      screen at a time (Brilliant-style) instead of a long scrolling page. */
   #test-page.lp-mode { display:flex; flex-direction:column; min-height:100vh; background:var(--board) !important; position:relative; }
   /* Ambient glow that fills the whole screen edge-to-edge, like Brilliant's
-     lesson chrome, rather than a glow confined to one diagram. */
-  #test-page.lp-mode::before, #test-page.lp-mode::after { content:''; position:fixed; border-radius:50%; pointer-events:none; z-index:0; }
+     lesson chrome, rather than a glow confined to one diagram. Colors are
+     driven by CSS vars so JS can shift them on correct/incorrect answers. */
+  #test-page.lp-mode { --lp-glow-a:rgba(37,99,235,.22); --lp-glow-b:rgba(21,154,99,.16); transition:background-color .6s ease; }
+  #test-page.lp-mode::before, #test-page.lp-mode::after { content:''; position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+    transition:background .6s ease; }
   #test-page.lp-mode::before { width:60vw; height:60vw; max-width:900px; max-height:900px;
-    background:radial-gradient(circle, rgba(37,99,235,.22), transparent 68%); filter:blur(40px);
+    background:radial-gradient(circle, var(--lp-glow-a), transparent 68%); filter:blur(40px);
     top:-15vw; left:50%; transform:translateX(-50%); animation:lpAmbientPulse 6s ease-in-out infinite; }
   #test-page.lp-mode::after { width:46vw; height:46vw; max-width:700px; max-height:700px;
-    background:radial-gradient(circle, rgba(21,154,99,.16), transparent 70%); filter:blur(50px);
+    background:radial-gradient(circle, var(--lp-glow-b), transparent 70%); filter:blur(50px);
     bottom:-14vw; right:-8vw; animation:lpAmbientPulse 7s ease-in-out infinite 1s; }
   @keyframes lpAmbientPulse { 0%,100% { opacity:.7; } 50% { opacity:1; } }
+  #test-page.lp-mode.answer-correct { --lp-glow-a:rgba(34,197,94,.38); --lp-glow-b:rgba(34,197,94,.22); }
+  #test-page.lp-mode.answer-incorrect { --lp-glow-a:rgba(239,68,68,.38); --lp-glow-b:rgba(239,68,68,.22); }
+
+  /* Full-viewport edge outline that briefly glows green/red around the
+     border of the screen when a question is answered. */
+  #lp-edge-glow { position:fixed; inset:0; pointer-events:none; z-index:150; opacity:0; }
+  #lp-edge-glow.flash-correct { animation:lpEdgeFlash 1.6s ease both;
+    box-shadow:inset 0 0 44px 6px rgba(34,197,94,.65), inset 0 0 130px 26px rgba(34,197,94,.3); }
+  #lp-edge-glow.flash-incorrect { animation:lpEdgeFlash 1.6s ease both;
+    box-shadow:inset 0 0 44px 6px rgba(239,68,68,.65), inset 0 0 130px 26px rgba(239,68,68,.3); }
+  @keyframes lpEdgeFlash { 0% { opacity:0; } 12% { opacity:1; } 70% { opacity:1; } 100% { opacity:0; } }
   #test-page.lp-mode .tp-header, #test-page.lp-mode .tp-body { position:relative; z-index:1; }
   #test-page.lp-mode .tp-header { padding:1.1rem 1.75rem .9rem; flex-shrink:0; background:transparent; border-bottom:none; }
   #test-page.lp-mode .tp-header h1 { display:none; }
@@ -971,7 +985,16 @@
     .form-row { grid-template-columns:1fr; }
   }
   /* ── STREAK / XP ── */
+  .hidden { display:none !important; }
   .nav-progress { display:flex; align-items:center; gap:.6rem; }
+  .nav-premium-btn { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--board-ink);
+    background:linear-gradient(var(--board), var(--board)) padding-box, linear-gradient(120deg, #2eb872, #ff5a36, #7c5cff) border-box;
+    border:1.5px solid transparent; border-radius:999px; padding:.42rem 1rem; cursor:pointer;
+    transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); background-size:100% 100%, 220% 220%;
+    animation:navPremiumDrift 6s ease-in-out infinite; }
+  @keyframes navPremiumDrift { 0%,100% { background-position:0 0, 0% 50%; } 50% { background-position:0 0, 100% 50%; } }
+  .nav-premium-btn:hover { transform:translateY(-1px) scale(1.03); box-shadow:0 6px 18px -6px rgba(124,92,255,.5); }
+  .nav-premium-btn.is-premium { background:linear-gradient(120deg, #2eb872, #ff5a36, #7c5cff); background-size:220% 220%; color:#fff; animation:navPremiumDrift 6s ease-in-out infinite; }
   .nav-streak, .nav-xp { font-family:'Sora',sans-serif; font-weight:800; font-size:.82rem; color:var(--board-ink);
     background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:100px; padding:.35rem .75rem;
     display:flex; align-items:center; gap:.3rem; transition:transform .2s; }
@@ -1023,10 +1046,24 @@
   .dash-day.active .dash-day-ring { border-color:var(--gold); background:var(--gold-bg); color:var(--gold-ink); }
   .dash-day.today .dash-day-ring { border-width:3px; border-color:var(--blue); }
   .dash-day-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem; color:var(--ink-faint); }
-  .dash-league-card { display:flex; align-items:center; gap:1rem; }
+  .dash-league-card { display:flex; align-items:center; gap:1rem; transition:transform .2s var(--ease-premium), border-color .2s; }
+  .dash-league-card:hover { transform:translateY(-2px); border-color:var(--blue); }
   .dash-league-icon { font-size:1.8rem; }
   .dash-league-title { font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; color:var(--ink); }
   .dash-league-sub { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); margin-top:.1rem; }
+  .dash-league-arrow { margin-left:auto; color:var(--ink-faint); font-size:1.1rem; transition:transform .2s var(--ease-premium); }
+  .dash-league-card:hover .dash-league-arrow { transform:translateX(4px); color:var(--blue); }
+
+  .dash-premium-upsell { background:linear-gradient(120deg, #2eb872 0%, #ff5a36 50%, #7c5cff 100%); background-size:180% 180%;
+    animation:gradientDrift 9s ease-in-out infinite; position:relative; overflow:hidden; color:#fff; }
+  .dash-premium-upsell::before { content:''; position:absolute; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.14); top:-60px; right:-40px; }
+  .dash-premium-upsell > * { position:relative; z-index:1; }
+  .dash-premium-icon { font-size:1.5rem; margin-bottom:.4rem; }
+  .dash-premium-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1rem; line-height:1.3; margin-bottom:.35rem; }
+  .dash-premium-sub { font-size:.8rem; line-height:1.5; color:rgba(255,255,255,.9); margin-bottom:1rem; }
+  .dash-premium-btn { width:100%; background:#fff; color:#7c3aed; border-radius:999px; font-weight:800; padding:.75rem; }
+  .dash-premium-btn:hover { background:#f5f0ff; }
+  #dash-premium-upsell.is-premium { display:none; }
 
   /* ── ACCOUNT PAGE ── */
   .acct-wrap { max-width:920px; margin:0 auto; padding:6.5rem 2.5rem 4rem; display:flex; flex-direction:column; gap:1.5rem; }
@@ -1163,16 +1200,19 @@
 <nav>
   <div class="nav-logo" onclick="showPage('home')">
     <svg class="brand-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40">
-        <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
-      </linearGradient></defs>
-      <rect width="40" height="40" rx="12" fill="url(#brandGrad)"/>
-      <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
+      <defs>
+        <linearGradient id="brandGrad" x1="2" y1="2" x2="38" y2="38">
+          <stop offset="0" stop-color="#ff7a54"/><stop offset=".55" stop-color="#ff5a36"/><stop offset="1" stop-color="#7c5cff"/>
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="13" fill="url(#brandGrad)"/>
+      <path d="M10 28 V13.5 L20 24 L30 13.5 V28" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="31.5" cy="9.5" r="2.9" fill="#f5a623"/>
     </svg>
     Modilix
   </div>
   <div class="nav-progress" id="nav-progress" style="display:none;">
+    <button class="nav-premium-btn" id="nav-premium-btn" onclick="openPremiumModal()">✨ Go Premium</button>
     <span class="nav-streak" id="nav-streak-chip" title="Daily streak">🔥 <span id="nav-streak-count">0</span></span>
     <span class="nav-xp" id="nav-xp-chip" title="Total XP">⚡ <span id="nav-xp-count">0</span> XP</span>
     <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()">🔊</button>
@@ -1202,7 +1242,24 @@
   </div>
 </div>
 
-<!-- ═══════ DASHBOARD (Home) ═══════ -->
+<div class="modal-overlay" id="premium-modal-overlay">
+  <div class="modal" style="max-width:420px; text-align:center; overflow:visible;">
+    <button class="modal-close" onclick="closePremiumModal()">✕</button>
+    <div style="font-size:2.2rem; margin-bottom:.4rem;">✨</div>
+    <h2 style="margin-bottom:.3rem;">Modilix Premium</h2>
+    <p class="desc" id="premium-modal-offer">Unlock every course, unlimited AI tutoring, and deeper progress analytics.</p>
+    <p class="desc hidden" id="premium-modal-active" style="color:var(--green-ink,var(--green));">You're on Premium — thanks for supporting Modilix!</p>
+    <ul style="text-align:left; list-style:none; padding:0; margin:0 0 1.4rem; display:flex; flex-direction:column; gap:.6rem;">
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>🔓</span> Every course &amp; unit test, no waitlist</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>💬</span> Unlimited AI tutor questions per lesson</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>📊</span> Deeper analytics &amp; weak-skill tracking</li>
+      <li style="display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft);"><span>🎨</span> Exclusive themes &amp; profile flair</li>
+    </ul>
+    <button class="modal-btn" id="premium-activate-btn" onclick="activatePremiumDemo()" style="background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;">Explore Premium</button>
+    <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">Demo mode — this flips your account's premium flag for testing. No payment is processed yet.</p>
+  </div>
+</div>
+
 <div id="dashboard-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
   <div class="dash-grid">
     <div class="dash-col-left">
@@ -1213,12 +1270,19 @@
         <div class="dash-streak-sub" id="dash-streak-sub">Solve a lesson to start a streak</div>
         <div class="dash-week-row" id="dash-week-row"></div>
       </div>
-      <div class="dash-card dash-league-card">
-        <div class="dash-league-icon">🏅</div>
+      <div class="dash-card dash-league-card" onclick="showPage('review')" style="cursor:pointer;">
+        <div class="dash-league-icon">📅</div>
         <div>
-          <div class="dash-league-title">XP progress</div>
-          <div class="dash-league-sub" id="dash-xp-sub">0 XP earned</div>
+          <div class="dash-league-title">Daily Review</div>
+          <div class="dash-league-sub" id="dash-review-sub">Keep your skills sharp — review today's set</div>
         </div>
+        <span class="dash-league-arrow">→</span>
+      </div>
+      <div class="dash-card dash-premium-upsell" id="dash-premium-upsell">
+        <div class="dash-premium-icon">✨</div>
+        <div class="dash-premium-title">Unlock all learning with Premium</div>
+        <div class="dash-premium-sub">Get smarter, faster — unlimited AI tutoring, every course, and deeper analytics.</div>
+        <button class="btn dash-premium-btn" onclick="openPremiumModal()">Explore Premium</button>
       </div>
       <div class="dash-card dash-cta-card" id="dash-continue-card" style="display:none;">
         <div class="dash-cta-title" id="dash-continue-title">Continue course</div>
@@ -1748,6 +1812,7 @@
       <span class="tp-score" id="tp-score"></span>
     </div>
     <div id="lp-player" style="display:none;">
+      <div id="lp-edge-glow"></div>
       <div class="lp-progress-track"><div class="lp-progress-fill" id="lp-progress-fill"></div></div>
       <div class="lp-stage"><div id="lp-block-slot"></div></div>
       <div class="lp-nav-row">
@@ -3016,16 +3081,17 @@ let isEducator=false;
 let currentCourseId=null, currentUnitId=null;
 
 /* ── Streak / XP state (see streaks_xp_schema.sql) ── */
-let studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null };
+let studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false };
 let usePathView = true; // toggled per-course by the little switch above the unit content
 
 async function loadProgress(){
   if(!currentUser || isEducator) return;
   const { data, error } = await db.from('student_progress').select('*').eq('student_id', currentUser.id).single();
   if(!error && data){
-    studentProgress = { xp:data.xp||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date };
+    studentProgress = { xp:data.xp||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date, is_premium:!!data.is_premium };
   }
   renderNavProgress();
+  renderPremiumUI();
 }
 
 function renderNavProgress(){
@@ -3034,6 +3100,43 @@ function renderNavProgress(){
   wrap.style.display='flex';
   document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
   document.getElementById('nav-xp-count').textContent = studentProgress.xp;
+}
+
+function isPremiumUser(){ return !!studentProgress.is_premium; }
+
+function renderPremiumUI(){
+  const navBtn = document.getElementById('nav-premium-btn');
+  if(navBtn){
+    navBtn.classList.toggle('is-premium', isPremiumUser());
+    navBtn.textContent = isPremiumUser() ? '✨ Premium' : '✨ Go Premium';
+  }
+  document.getElementById('dash-premium-upsell')?.classList.toggle('is-premium', isPremiumUser());
+  document.getElementById('premium-modal-active')?.classList.toggle('hidden', !isPremiumUser());
+  document.getElementById('premium-modal-offer')?.classList.toggle('hidden', isPremiumUser());
+}
+
+function openPremiumModal(){
+  renderPremiumUI();
+  document.getElementById('premium-modal-overlay').classList.add('open');
+}
+function closePremiumModal(){ document.getElementById('premium-modal-overlay').classList.remove('open'); }
+
+// NOTE: this scaffolds the premium tier end-to-end (DB flag, gating helper,
+// nav/dashboard UI) but does NOT charge anyone — there's no payment
+// processor wired up. This button flips the flag directly so you can build
+// and test premium-gated features; swap it for a real Stripe Checkout flow
+// (or similar) before charging real students.
+async function activatePremiumDemo(){
+  if(!currentUser || isEducator) return;
+  const btn = document.getElementById('premium-activate-btn');
+  btn.disabled = true; btn.textContent = 'Activating…';
+  const { error } = await db.from('student_progress').update({ is_premium:true }).eq('student_id', currentUser.id);
+  btn.disabled = false; btn.textContent = 'Explore Premium';
+  if(error){ alert('Could not activate premium: ' + error.message); return; }
+  studentProgress.is_premium = true;
+  renderPremiumUI();
+  showXpToast(0); // reuse the toast host for a quick confirmation pulse
+  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Premium activated!');
 }
 
 function showXpToast(amount){
@@ -3060,7 +3163,7 @@ async function awardXp(amount){
   const priorDate = studentProgress.last_active_date;
   const { data, error } = await db.rpc('award_progress', { p_student_id: currentUser.id, p_xp: amount });
   if(error){ console.error('award_progress error', error); return; }
-  studentProgress = { xp:data.xp, current_streak:data.current_streak, longest_streak:data.longest_streak, last_active_date:data.last_active_date };
+  studentProgress = { xp:data.xp, current_streak:data.current_streak, longest_streak:data.longest_streak, last_active_date:data.last_active_date, is_premium:studentProgress.is_premium };
   renderNavProgress();
   bumpChip('nav-xp-chip'); showXpToast(amount); sfx.xp();
   // Match the server's day boundary (America/Toronto), not UTC, or this
@@ -3245,7 +3348,7 @@ function updateAccountUI(){
   document.getElementById('nav-account-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-educator-account-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   text.onclick = currentUser ? (()=>showPage(isEducator ? 'educator-account' : 'account')) : null;
-  if(!currentUser){ studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null }; }
+  if(!currentUser){ studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false }; }
   renderNavProgress();
 }
 
@@ -3396,7 +3499,8 @@ function renderDashboard(){
     ? `${studentProgress.current_streak}-day streak — keep it going!`
     : 'Finish a lesson today to start a streak';
   renderDashboardWeek();
-  document.getElementById('dash-xp-sub').textContent = `${studentProgress.xp||0} XP earned · longest streak ${studentProgress.longest_streak||0} days`;
+  document.getElementById('dash-review-sub').textContent = `${studentProgress.xp||0} XP earned so far — review today's set`;
+  renderPremiumUI();
 
   const continueCourse = findContinueCourse();
   const continueCard = document.getElementById('dash-continue-card');
@@ -8290,6 +8394,41 @@ function tutorResetForNewLesson(){
   document.getElementById('tutor-send-btn').disabled = false;
   document.getElementById('tutor-counter')?.remove();
 }
+
+/* ── Correct/incorrect screen glow ──
+   Rather than hook every block type's answer-checking code individually
+   (there are 30+), we watch the lesson player for any `.lp-feedback.correct`
+   or `.lp-feedback.incorrect` node appearing anywhere inside it — every
+   block type already renders one of those — and trigger the ambient
+   background glow + edge-of-screen flash from that single place. */
+let lpFlashTimer = null;
+function lpTriggerAnswerFlash(isCorrect){
+  const testPage = document.getElementById('test-page');
+  const edge = document.getElementById('lp-edge-glow');
+  clearTimeout(lpFlashTimer);
+  testPage.classList.remove('answer-correct','answer-incorrect');
+  edge.classList.remove('flash-correct','flash-incorrect');
+  void edge.offsetWidth; // restart CSS animation even if the same class is reapplied
+  testPage.classList.add(isCorrect ? 'answer-correct' : 'answer-incorrect');
+  edge.classList.add(isCorrect ? 'flash-correct' : 'flash-incorrect');
+  lpFlashTimer = setTimeout(()=>{
+    testPage.classList.remove('answer-correct','answer-incorrect');
+    edge.classList.remove('flash-correct','flash-incorrect');
+  }, 1800);
+}
+const lpFeedbackObserver = new MutationObserver((mutations)=>{
+  for(const m of mutations){
+    for(const node of m.addedNodes){
+      if(node.nodeType !== 1) continue;
+      const fb = node.classList?.contains('lp-feedback') ? node : node.querySelector?.('.lp-feedback');
+      if(fb){
+        if(fb.classList.contains('correct')) lpTriggerAnswerFlash(true);
+        else if(fb.classList.contains('incorrect')) lpTriggerAnswerFlash(false);
+      }
+    }
+  }
+});
+lpFeedbackObserver.observe(document.getElementById('lp-player'), { childList:true, subtree:true });
 
 /* ── Init ── */
 // Firebase resolves its persisted session asynchronously, so we wait for
