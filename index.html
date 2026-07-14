@@ -8220,11 +8220,6 @@ async function tutorSend(){
   const input = document.getElementById('tutor-input');
   const text = input.value.trim();
   if(!text || tutorBusy) return;
-  if(tutorMsgCount >= TUTOR_MSG_LIMIT){
-    tutorAppendMessage('bot error', `You've used all ${TUTOR_MSG_LIMIT} tutor questions for this lesson. Move on to the next lesson to get a fresh set!`);
-    tutorLockInput();
-    return;
-  }
   tutorBusy = true;
   document.getElementById('tutor-send-btn').disabled = true;
   input.value = ''; input.style.height = 'auto';
@@ -8234,6 +8229,7 @@ async function tutorSend(){
     const { data, error } = await db.functions.invoke('ai-tutor', {
       body: {
         message: text,
+        lessonId: lpItem ? String(lpItem.id) : '',
         lessonTitle: lpItem ? lpItem.title : '',
         blockContext: tutorGetBlockContext(),
         history: tutorHistory,
@@ -8241,15 +8237,19 @@ async function tutorSend(){
     });
     tutorHideTyping();
     if(error || !data || data.error){
-      tutorAppendMessage('bot error', "Sorry, I couldn't reach the tutor right now. " + (data?.error || error?.message || ''));
+      // The server is the source of truth for the limit, so a 429 lands here too.
+      tutorAppendMessage('bot error', data?.error || error?.message || "Sorry, I couldn't reach the tutor right now.");
+      if(data?.limitReached) tutorLockInput();
     } else {
       tutorAppendMessage('bot', data.reply || "Hmm, I didn't get a response — try asking again.");
       tutorHistory.push({ role:'user', content:text }, { role:'assistant', content:data.reply || '' });
-      tutorMsgCount++;
-      tutorUpdateCounter();
-      if(tutorMsgCount >= TUTOR_MSG_LIMIT){
-        tutorAppendMessage('bot', `That was your last question for this lesson (${TUTOR_MSG_LIMIT}/${TUTOR_MSG_LIMIT} used). You can ask more once you move to the next lesson.`);
-        tutorLockInput();
+      if(typeof data.remaining === 'number'){
+        tutorMsgCount = TUTOR_MSG_LIMIT - data.remaining;
+        tutorUpdateCounter();
+        if(data.remaining <= 0){
+          tutorAppendMessage('bot', `That was your last question for this lesson (${TUTOR_MSG_LIMIT}/${TUTOR_MSG_LIMIT} used). You can ask more once you move to the next lesson.`);
+          tutorLockInput();
+        }
       }
     }
   } catch(err){
