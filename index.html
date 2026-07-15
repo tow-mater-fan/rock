@@ -121,6 +121,7 @@
   .brand-mark { width:30px; height:30px; flex-shrink:0; display:block; }
   .brand-wordmark { background:linear-gradient(100deg, #ff8a5c 0%, #ff5a36 32%, #b46bff 68%, #7c5cff 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .icon { width:1em; height:1em; display:inline-block; vertical-align:-0.15em; flex-shrink:0; }
   .nav-links { display:flex; gap:1.75rem; list-style:none; align-items:center; }
   .nav-links a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.75); text-decoration:none; cursor:pointer; transition:color .2s; position:relative; }
   .nav-links a::after { content:''; position:absolute; left:0; right:100%; bottom:-4px; height:2px; background:var(--blue); border-radius:2px; transition:right .22s var(--ease-premium); }
@@ -1290,6 +1291,43 @@
 </head>
 <body>
 
+<!-- ══════════════════════════════════════
+     BRAND ICON SPRITE — a consistent set of stroke-based line icons
+     (24x24, currentColor) replacing emoji across the app's primary
+     surfaces. Reference with: <svg class="icon"><use href="#i-flame"/></svg>
+     ══════════════════════════════════════ -->
+<svg width="0" height="0" style="position:absolute;" aria-hidden="true">
+  <defs>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1-.5-2-1-2.5.5 2-.5 3-1.5 3C17 9 18 6 15 3c.3 2-1 3-2 3.5C13.5 4.5 13 3 12 2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 14a4 4 0 1 0 8 0c0-2-1.5-3-2-4.5-.3 2-2 2.5-2 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 12 20 3M17 6l2 2M14 9l2 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-.5-1.5-1-2 .5-1.5 2-1.5h1.5A3.5 3.5 0 0 0 20 12 9 9 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"/><circle cx="9.5" cy="7" r="1.2" fill="currentColor"/><circle cx="14.5" cy="7" r="1.2" fill="currentColor"/><circle cx="16.5" cy="10.5" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 6H4a3 3 0 0 0 3 5M17 6h3a3 3 0 0 1-3 5M12 14v3m-3 3h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9H5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9H5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-idea" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8 14a5 5 0 1 1 8 0c-1 1-1.5 2-1.5 3h-5c0-1-.5-2-1.5-3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-1 5.8A3.5 3.5 0 0 0 8 18a3 3 0 0 0 5-2V6a2 2 0 0 0-4-1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 1 5.8A3.5 3.5 0 0 1 16 18a3 3 0 0 1-3-2V6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 15c2-4 5-6 7-2s5 2 7-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.2-5.4 3.2 1.3-6-4.6-4.1 6.1-.6L12 3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4.5 4.5L19 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 1 5 5 5 9 0 2-1 4-2 5l-3 3-3-3c-1-1-2-3-2-5 0-4 2-8 5-9Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="10" r="1.6" fill="currentColor"/><path d="M9 17l-2 4M15 17l2 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6l7-3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><path d="M7.5 15h9" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h6v18H6a2 2 0 0 1-2-2V5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M20 5a2 2 0 0 0-2-2h-6v18h6a2 2 0 0 0 2-2V5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-sigma" viewBox="0 0 24 24"><path d="M18 5H6l6 7-6 7h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
 <nav>
   <div class="nav-logo" onclick="showPage('home')">
     <svg class="brand-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
@@ -1305,10 +1343,10 @@
     <span class="brand-wordmark">Modilix</span>
   </div>
   <div class="nav-progress" id="nav-progress" style="display:none;">
-    <button class="nav-premium-btn" id="nav-premium-btn" onclick="openPremiumModal()">✨ Go Premium</button>
-    <span class="nav-streak" id="nav-streak-chip" title="Daily streak">🔥 <span id="nav-streak-count">0</span></span>
-    <span class="nav-xp" id="nav-xp-chip" title="Total XP">⚡ <span id="nav-xp-count">0</span> XP</span>
-    <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()">🔊</button>
+    <button class="nav-premium-btn" id="nav-premium-btn" onclick="openPremiumModal()"><svg class="icon"><use href="#i-sparkle"/></svg> Go Premium</button>
+    <span class="nav-streak" id="nav-streak-chip" title="Daily streak"><svg class="icon"><use href="#i-flame"/></svg> <span id="nav-streak-count">0</span></span>
+    <span class="nav-xp" id="nav-xp-chip" title="Total XP"><svg class="icon"><use href="#i-bolt"/></svg> <span id="nav-xp-count">0</span> XP</span>
+    <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button>
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
@@ -1327,7 +1365,7 @@
 <div class="fx-coord-tooltip" id="fx-coord-tooltip"></div>
 <div class="streak-modal-overlay" id="streak-modal-overlay">
   <div class="streak-modal">
-    <div class="streak-modal-flame">🔥</div>
+    <div class="streak-modal-flame"><svg class="icon"><use href="#i-flame"/></svg></div>
     <div class="streak-modal-num" id="streak-modal-num">1</div>
     <div class="streak-modal-label">day streak!</div>
     <p class="streak-modal-sub">Come back tomorrow to keep it going.</p>
@@ -1337,8 +1375,8 @@
 
 <div class="modal-overlay" id="premium-modal-overlay">
   <div class="modal premium-modal" style="max-width:920px; text-align:center; overflow:visible;">
-    <button class="modal-close" onclick="closePremiumModal()">✕</button>
-    <div class="premium-modal-key" aria-hidden="true">🔑</div>
+    <button class="modal-close" onclick="closePremiumModal()"><svg class="icon"><use href="#i-close"/></svg></button>
+    <div class="premium-modal-key" aria-hidden="true"><svg class="icon"><use href="#i-key"/></svg></div>
     <h2 class="premium-modal-title">Unlock the full Modilix experience</h2>
     <p class="desc" id="premium-modal-offer">Premium gives you a higher AI tutor limit, unlimited test downloads, and more. Every lesson and unit test stays free either way.</p>
     <p class="desc hidden" id="premium-modal-active" style="color:var(--green-ink,var(--green));">You're on Premium — thanks for supporting Modilix!</p>
@@ -1365,10 +1403,10 @@
     </div>
 
     <ul class="premium-feature-list">
-      <li><span>📥</span> Unlimited unit test downloads/prints</li>
-      <li><span>💬</span> A much higher AI tutor question limit</li>
-      <li><span>🎨</span> Exclusive accent themes</li>
-      <li><span>📊</span> Deeper personal analytics</li>
+      <li><span><svg class="icon"><use href="#i-download"/></svg></span> Unlimited unit test downloads/prints</li>
+      <li><span><svg class="icon"><use href="#i-chat"/></svg></span> A much higher AI tutor question limit</li>
+      <li><span><svg class="icon"><use href="#i-palette"/></svg></span> Exclusive accent themes</li>
+      <li><span><svg class="icon"><use href="#i-chart"/></svg></span> Deeper personal analytics</li>
     </ul>
 
     <button class="modal-btn premium-subscribe-btn" id="premium-activate-btn" onclick="openPremiumCheckout()">Subscribe now</button>
@@ -1379,14 +1417,14 @@
 <!-- ── Embedded checkout screen (Stripe Elements, no redirect off Modilix) ── -->
 <div class="pc-overlay" id="premium-checkout-overlay">
   <div class="pc-panel pc-left">
-    <div class="pc-logo"><span class="brand-mark" style="display:inline-flex;vertical-align:middle;">✨</span> <span class="brand-wordmark">Modilix</span></div>
-    <div class="pc-hero-icon">🔑</div>
+    <div class="pc-logo"><span class="brand-mark" style="display:inline-flex;vertical-align:middle;"><svg class="icon"><use href="#i-sparkle"/></svg></span> <span class="brand-wordmark">Modilix</span></div>
+    <div class="pc-hero-icon"><svg class="icon"><use href="#i-key"/></svg></div>
     <h2 class="pc-hero-title">Supercharge<br>your learning</h2>
     <ul class="pc-feature-list">
-      <li>📈 Unlimited access to all courses</li>
-      <li>💬 Unlimited AI tutor questions</li>
-      <li>🚫 No in-app purchases or ads</li>
-      <li>✨ New content added regularly</li>
+      <li><svg class="icon"><use href="#i-chart"/></svg> Unlimited access to all courses</li>
+      <li><svg class="icon"><use href="#i-chat"/></svg> Unlimited AI tutor questions</li>
+      <li><svg class="icon"><use href="#i-ban"/></svg> No in-app purchases or ads</li>
+      <li><svg class="icon"><use href="#i-sparkle"/></svg> New content added regularly</li>
     </ul>
     <div class="pc-powered">Powered by <strong>Stripe</strong></div>
   </div>
@@ -1414,7 +1452,7 @@
     </label>
 
     <div id="pc-error" class="pc-error hidden"></div>
-    <button class="pc-subscribe-btn" id="pc-subscribe-btn" onclick="confirmPremiumCheckout()" disabled>🔒 Subscribe now</button>
+    <button class="pc-subscribe-btn" id="pc-subscribe-btn" onclick="confirmPremiumCheckout()" disabled><svg class="icon"><use href="#i-lock"/></svg> Subscribe now</button>
   </div>
 </div>
 
@@ -1423,13 +1461,13 @@
     <div class="dash-col-left">
       <div class="dash-card">
         <div class="dash-streak-head">
-          <span class="dash-streak-num" id="dash-streak-num">0</span><span class="dash-streak-flame">🔥</span>
+          <span class="dash-streak-num" id="dash-streak-num">0</span><span class="dash-streak-flame"><svg class="icon"><use href="#i-flame"/></svg></span>
         </div>
         <div class="dash-streak-sub" id="dash-streak-sub">Solve a lesson to start a streak</div>
         <div class="dash-week-row" id="dash-week-row"></div>
       </div>
       <div class="dash-card dash-league-card" onclick="showPage('review')" style="cursor:pointer;">
-        <div class="dash-league-icon">📅</div>
+        <div class="dash-league-icon"><svg class="icon"><use href="#i-calendar"/></svg></div>
         <div>
           <div class="dash-league-title">Daily Review</div>
           <div class="dash-league-sub" id="dash-review-sub">Keep your skills sharp — review today's set</div>
@@ -1437,7 +1475,7 @@
         <span class="dash-league-arrow">→</span>
       </div>
       <div class="dash-card dash-premium-upsell" id="dash-premium-upsell">
-        <div class="dash-premium-icon">✨</div>
+        <div class="dash-premium-icon"><svg class="icon"><use href="#i-sparkle"/></svg></div>
         <div class="dash-premium-title">A little extra, if you want it</div>
         <div class="dash-premium-sub">Every lesson stays free forever. Premium just adds a higher AI tutor limit, exclusive themes, and deeper stats.</div>
         <button class="btn dash-premium-btn" onclick="openPremiumModal()">Explore Premium</button>
@@ -1489,15 +1527,15 @@
     <div class="acct-stats-row">
       <div class="acct-stat-card">
         <div class="acct-stat-num" id="acct-stat-xp">0</div>
-        <div class="acct-stat-label">⚡ Total XP</div>
+        <div class="acct-stat-label"><svg class="icon"><use href="#i-bolt"/></svg> Total XP</div>
       </div>
       <div class="acct-stat-card">
         <div class="acct-stat-num" id="acct-stat-streak">0</div>
-        <div class="acct-stat-label">🔥 Current streak</div>
+        <div class="acct-stat-label"><svg class="icon"><use href="#i-flame"/></svg> Current streak</div>
       </div>
       <div class="acct-stat-card">
         <div class="acct-stat-num" id="acct-stat-longest">0</div>
-        <div class="acct-stat-label">🏆 Longest streak</div>
+        <div class="acct-stat-label"><svg class="icon"><use href="#i-trophy"/></svg> Longest streak</div>
       </div>
     </div>
 
@@ -1538,7 +1576,7 @@
           <div class="acct-settings-label">Sound effects</div>
           <div class="acct-settings-sub">XP and streak sound cues while you practice.</div>
         </div>
-        <button class="btn-sm" id="acct-sound-toggle-btn">🔊 On</button>
+        <button class="btn-sm" id="acct-sound-toggle-btn"><svg class="icon"><use href="#i-sound"/></svg> On</button>
       </div>
       <div class="acct-settings-row">
         <div>
@@ -1685,17 +1723,17 @@
         <p>Drag sliders, plot points, and watch graphs update live — the same demo you just tried above shows up throughout every lesson.</p>
       </div>
       <div class="home-feature-card">
-        <div class="home-feature-icon" style="background:var(--teal-bg); color:var(--teal);">🔥</div>
+        <div class="home-feature-icon" style="background:var(--teal-bg); color:var(--teal);"><svg class="icon"><use href="#i-flame"/></svg></div>
         <h3>Streaks that keep you consistent</h3>
         <p>A daily streak and XP system built to make five minutes of practice a habit, not a chore.</p>
       </div>
       <div class="home-feature-card">
-        <div class="home-feature-icon" style="background:var(--purple-bg); color:var(--purple);">🧠</div>
+        <div class="home-feature-icon" style="background:var(--purple-bg); color:var(--purple);"><svg class="icon"><use href="#i-brain"/></svg></div>
         <h3>Spaced review, built in</h3>
         <p>Daily Review resurfaces exactly the questions you're close to forgetting, using the same idea behind flashcard apps like Anki.</p>
       </div>
       <div class="home-feature-card">
-        <div class="home-feature-icon" style="background:var(--gold-bg); color:var(--gold-ink);">📊</div>
+        <div class="home-feature-icon" style="background:var(--gold-bg); color:var(--gold-ink);"><svg class="icon"><use href="#i-chart"/></svg></div>
         <h3>Real unit structure</h3>
         <p>Every course is organized the way your class actually is — by unit, with worksheets building up to a proper unit test.</p>
       </div>
@@ -1756,10 +1794,10 @@
         </div>
         <p class="pricing-sub">For students who want a bit more polish and support around the free experience.</p>
         <ul class="pricing-list">
-          <li>✨ Unlimited unit test downloads/prints</li>
-          <li>✨ AI tutor — much higher question limit</li>
-          <li>✨ Exclusive accent themes</li>
-          <li>✨ Deeper personal analytics</li>
+          <li><svg class="icon"><use href="#i-download"/></svg> Unlimited unit test downloads/prints</li>
+          <li><svg class="icon"><use href="#i-chat"/></svg> AI tutor — much higher question limit</li>
+          <li><svg class="icon"><use href="#i-palette"/></svg> Exclusive accent themes</li>
+          <li><svg class="icon"><use href="#i-chart"/></svg> Deeper personal analytics</li>
         </ul>
         <button class="btn dash-premium-btn" style="width:100%;" onclick="openPremiumModal()">Explore Premium</button>
       </div>
@@ -2064,7 +2102,7 @@
         <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
       </div>
       <!-- AI tutor: floating launcher + slide-in chat panel, scoped to the lesson player -->
-      <button id="tutor-launcher" title="Ask the AI tutor" aria-label="Ask the AI tutor">💬</button>
+      <button id="tutor-launcher" title="Ask the AI tutor" aria-label="Ask the AI tutor"><svg class="icon"><use href="#i-chat"/></svg></button>
       <div id="tutor-panel">
         <div id="tutor-panel-head">
           <span>🤖 Lesson tutor</span>
@@ -2083,7 +2121,7 @@
 <!-- ═══════ MODALS ═══════ -->
 <div class="modal-overlay" id="educator-overlay">
   <div class="modal">
-    <button class="modal-close" id="educator-close">✕</button>
+    <button class="modal-close" id="educator-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow" id="educator-modal-eyebrow">Educator Access</div>
     <h2 id="educator-modal-title">Educator sign in</h2>
     <p class="desc" id="educator-modal-desc">Sign in with your educator email and password.</p>
@@ -2114,9 +2152,9 @@
 
 <div class="modal-overlay" id="tour-overlay">
   <div class="modal" style="max-width:460px;">
-    <button class="modal-close" id="tour-skip-x">✕</button>
+    <button class="modal-close" id="tour-skip-x"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow" id="tour-eyebrow">Welcome</div>
-    <div style="font-size:2rem;margin-bottom:.5rem;" id="tour-icon">👋</div>
+    <div style="font-size:2rem;margin-bottom:.5rem;" id="tour-icon"><svg class="icon" style="width:2rem;height:2rem;"><use href="#i-wave"/></svg></div>
     <h2 id="tour-title">Welcome to Modilix</h2>
     <p style="color:var(--ink-soft);line-height:1.6;margin-bottom:1.2rem;" id="tour-text"></p>
     <div style="display:flex;gap:.4rem;justify-content:center;margin-bottom:1.2rem;" id="tour-dots"></div>
@@ -2130,7 +2168,7 @@
 
 <div class="modal-overlay" id="math-help-overlay">
   <div class="modal wide">
-    <button class="modal-close" id="math-help-close">✕</button>
+    <button class="modal-close" id="math-help-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow">Educator · Setup guide</div>
     <h2>Math module setup guide</h2>
     <p style="color:var(--ink-soft);margin-bottom:1rem;">Quick, step-by-step instructions for every interactive math block. Click a module to expand it.</p>
@@ -2140,7 +2178,7 @@
 
 <div class="modal-overlay" id="student-overlay">
   <div class="modal">
-    <button class="modal-close" id="student-close">✕</button>
+    <button class="modal-close" id="student-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow" id="student-modal-eyebrow">Student Account</div>
     <h2 id="student-modal-title">Sign in</h2>
     <p class="desc">Sign in to save your scores and pick up where you left off on any device.</p>
@@ -2160,7 +2198,7 @@
 
 <div class="modal-overlay" id="course-overlay">
   <div class="modal">
-    <button class="modal-close" id="course-close">✕</button>
+    <button class="modal-close" id="course-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow">Educator · Course</div>
     <h2 id="course-modal-title">New Course</h2>
     <p class="desc">Use the real Ontario course code — students recognize these immediately.</p>
@@ -2188,7 +2226,7 @@
 
 <div class="modal-overlay" id="unit-overlay">
   <div class="modal">
-    <button class="modal-close" id="unit-close">✕</button>
+    <button class="modal-close" id="unit-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow">Educator · Unit</div>
     <h2>New Unit</h2>
     <div class="form-group"><label>Unit Name</label><input type="text" id="unit-name-input" placeholder="e.g. Unit 2 — Chemical Bonding"></div>
@@ -2199,7 +2237,7 @@
 
 <div class="modal-overlay" id="test-overlay">
   <div class="modal wide">
-    <button class="modal-close" id="test-close">✕</button>
+    <button class="modal-close" id="test-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow" id="test-modal-eyebrow">Educator · New Item</div>
     <h2 id="test-modal-title">Create Lesson Item</h2>
     <div class="form-row">
@@ -2605,7 +2643,7 @@ function toggleSound(){
 }
 function renderSoundToggle(){
   const btn = document.getElementById('nav-sound-toggle');
-  if(btn) btn.textContent = soundsOn ? '🔊' : '🔇';
+  if(btn) btn.innerHTML = soundsOn ? '<svg class="icon"><use href="#i-sound"/></svg>' : '<svg class="icon"><use href="#i-mute"/></svg>';
 }
 
 /* ── Mastery ring SVG ── */
@@ -3375,7 +3413,7 @@ function renderPremiumUI(){
   const navBtn = document.getElementById('nav-premium-btn');
   if(navBtn){
     navBtn.classList.toggle('is-premium', isPremiumUser());
-    navBtn.textContent = isPremiumUser() ? '✨ Premium' : '✨ Go Premium';
+    navBtn.innerHTML = isPremiumUser() ? '<svg class="icon"><use href="#i-sparkle"/></svg> Premium' : '<svg class="icon"><use href="#i-sparkle"/></svg> Go Premium';
   }
   document.getElementById('dash-premium-upsell')?.classList.toggle('is-premium', isPremiumUser());
   document.getElementById('premium-modal-active')?.classList.toggle('hidden', !isPremiumUser());
@@ -3431,7 +3469,7 @@ async function openPremiumCheckout(){
   document.getElementById('pc-agree-terms').checked = false;
   document.getElementById('pc-agree-renew').checked = false;
   const subBtn = document.getElementById('pc-subscribe-btn');
-  subBtn.disabled = true; subBtn.textContent = '🔒 Subscribe now';
+  subBtn.disabled = true; subBtn.innerHTML = '<svg class="icon"><use href="#i-lock"/></svg> Subscribe now';
   document.getElementById('premium-checkout-overlay').classList.add('open');
 
   try{
@@ -3487,7 +3525,7 @@ async function checkPremiumRedirectResult(){
       studentProgress.is_premium = true;
       renderPremiumUI();
       showXpToast(0);
-      document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Premium activated!');
+      document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Premium activated!');
       return;
     }
   }
@@ -3519,7 +3557,7 @@ async function confirmPremiumCheckout(){
   if(error){
     errEl.textContent = error.message || 'Payment failed. Please check your details and try again.';
     errEl.classList.remove('hidden');
-    btn.disabled = false; btn.textContent = '🔒 Subscribe now';
+    btn.disabled = false; btn.innerHTML = '<svg class="icon"><use href="#i-lock"/></svg> Subscribe now';
     return;
   }
 
@@ -3542,14 +3580,14 @@ async function confirmPremiumCheckout(){
   // Webhook hasn't landed yet — close out anyway, it'll catch up shortly.
   closePremiumCheckout();
   showXpToast(0);
-  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Payment received — activating…');
+  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Payment received — activating…');
 }
 
 function showXpToast(amount){
   const host = document.getElementById('xp-toast');
   const el = document.createElement('div');
   el.className = 'xp-toast-item';
-  el.textContent = amount < 0 ? `⚡ ${amount} XP` : `⚡ +${amount} XP`;
+  el.innerHTML = amount < 0 ? `<svg class="icon"><use href="#i-bolt"/></svg> ${amount} XP` : `<svg class="icon"><use href="#i-bolt"/></svg> +${amount} XP`;
   host.appendChild(el);
   setTimeout(()=>el.remove(), 2200);
 }
@@ -3653,7 +3691,7 @@ function renderSkillsPage(){
         : `Locked · pass ${prog.item ? prog.item.title : 'a test'} at ${skill.passPercent}%+`;
       const clickable = prog.item && !isEducator;
       return `<div class="skill-card ${stateClass}" ${clickable?`onclick="openTest('${skill.unlockItemId}')" style="cursor:pointer;"`:''}>
-        <div class="skill-icon">${prog.unlocked ? skill.icon : '🔒'}</div>
+        <div class="skill-icon">${prog.unlocked ? skill.icon : '<svg class="icon"><use href="#i-lock"/></svg>'}</div>
         <div class="skill-title">${skill.title}</div>
         <div class="skill-desc">${skill.description||''}</div>
         <div class="skill-sub">${sub}</div>
@@ -3760,7 +3798,7 @@ function updateAccountUI(){
 
 const SUBJECT_LABELS = { science:'Science', math:'Mathematics', social:'Social Science / History', english:'English', business:'Business', other:'Other' };
 const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var(--purple)', english:'var(--gold)', business:'var(--teal)', other:'var(--ink-faint)' };
-const SUBJECT_GLYPHS = { science:'🧪', math:'∑', social:'🌍', english:'📖', business:'📊', other:'✦' };
+const SUBJECT_GLYPHS = { science:'flask', math:'sigma', social:'globe', english:'book', business:'briefcase', other:'star' };
 const SUBJECT_GRADIENTS = {
   science: ['#22b573','#0f7d50'], math: ['#ff7a54','#e2431f'], social: ['#9575ff','#6a45e0'],
   english: ['#f5a623','#d98816'], business: ['#14b8b2','#0b8078'], other: ['#5b6272','#3a3f4c']
@@ -3785,7 +3823,7 @@ function renderTools(){
         <div><div class="tool-tile-name">${esc(t.name)}</div><div class="tool-tile-desc">${esc(t.desc)}</div></div>
       </div>`).join('');
     return `<div class="subject-section" style="padding-bottom:0;">
-      <div class="subject-head"><h2><span class="subject-icon-badge" style="background:linear-gradient(135deg, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[0]}, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[1]});">${SUBJECT_GLYPHS[subj]||'✦'}</span>${SUBJECT_LABELS[subj]||subj} tools</h2></div>
+      <div class="subject-head"><h2><span class="subject-icon-badge" style="background:linear-gradient(135deg, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[0]}, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[1]});"><svg class="icon"><use href="#i-${SUBJECT_GLYPHS[subj]||'star'}"/></svg></span>${SUBJECT_LABELS[subj]||subj} tools</h2></div>
       <div class="course-row">${tiles}</div>
     </div>`;
   }).join('');
@@ -3932,7 +3970,7 @@ function renderDashboard(){
     <div class="dash-rec-eyebrow" style="align-self:center;">Recommended</div>
     <div class="dash-rec-title">${esc(item.title)}</div>
     <div class="dash-rec-sub">${esc(course.code)} · ${SUBJECT_LABELS[course.subject]||course.subject}</div>
-    <div class="dash-rec-visual">${item.type==='lesson'?'📘':item.type==='unittest'?'🏆':'📝'}</div>
+    <div class="dash-rec-visual">${item.type==='lesson'?'<svg class="icon"><use href="#i-star"/></svg>':item.type==='unittest'?'<svg class="icon"><use href="#i-trophy"/></svg>':'<svg class="icon"><use href="#i-bolt"/></svg>'}</div>
     <div class="dash-rec-meta"><span class="dash-rec-meta-dot" style="background:${SUBJECT_COLORS[course.subject]||'var(--ink-faint)'}"></span>${meta}</div>
     <button class="btn btn-primary" id="dash-rec-start" style="width:100%; padding:.9rem;">Start</button>
   `;
@@ -3946,9 +3984,9 @@ function renderDashboard(){
    progress bar, but framed the way a game frames rank instead of a raw
    number, so course cards read more like progress badges than a checklist. */
 function getCourseLevel(pct){
-  if(pct>=100) return { label:'Mastered', icon:'🏆' };
-  if(pct>=66) return { label:'Level 3', icon:'🔥' };
-  if(pct>=33) return { label:'Level 2', icon:'⚡' };
+  if(pct>=100) return { label:'Mastered', icon:'<svg class="icon"><use href="#i-trophy"/></svg>' };
+  if(pct>=66) return { label:'Level 3', icon:'<svg class="icon"><use href="#i-flame"/></svg>' };
+  if(pct>=33) return { label:'Level 2', icon:'<svg class="icon"><use href="#i-bolt"/></svg>' };
   if(pct>0) return { label:'Level 1', icon:'🌱' };
   return null;
 }
@@ -3964,7 +4002,7 @@ function renderCourses(){
     const tiles = subjCourses.map((c,ci)=>{
       const pct = courseCompletionPct(c.id);
       const [c1,c2] = SUBJECT_GRADIENTS[c.subject] || SUBJECT_GRADIENTS.other;
-      const glyph = SUBJECT_GLYPHS[c.subject] || '✦';
+      const glyph = `<svg class=\"icon\"><use href=\"#i-${SUBJECT_GLYPHS[c.subject]||'star'}\"/></svg>`;
       const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
       const level = getCourseLevel(pct);
       return `<div class="course-tile stagger-in ${pct>=100?'course-tile-mastered':''}" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
@@ -3994,7 +4032,7 @@ function renderCourses(){
     }).join('');
     return `<div class="subject-section">
       <div class="subject-head">
-        <h2><span class="subject-icon-badge" style="background:linear-gradient(135deg, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[0]}, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[1]});">${SUBJECT_GLYPHS[subj]||'✦'}</span>${SUBJECT_LABELS[subj]||subj}</h2>
+        <h2><span class="subject-icon-badge" style="background:linear-gradient(135deg, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[0]}, ${(SUBJECT_GRADIENTS[subj]||SUBJECT_GRADIENTS.other)[1]});"><svg class="icon"><use href="#i-${SUBJECT_GLYPHS[subj]||'star'}"/></svg></span>${SUBJECT_LABELS[subj]||subj}</h2>
       </div>
       <div class="course-row">${tiles}</div>
     </div>`;
@@ -4222,7 +4260,7 @@ function renderPathHTML(unitItems){
   </svg>`;
 
   const nodesHTML = nodeData.map(({it,ms,state,x,y,isTest})=>{
-    const icon = isTest ? '🏆' : state==='done' ? '✓' : state==='locked' ? '🔒' : '★';
+    const icon = isTest ? '<svg class="icon"><use href="#i-trophy"/></svg>' : state==='done' ? '<svg class="icon"><use href="#i-check"/></svg>' : state==='locked' ? '<svg class="icon"><use href="#i-lock"/></svg>' : '<svg class="icon"><use href="#i-star"/></svg>';
     const star = ms.cls==='ms-mastered' ? `<span class="path-node-star">⭐</span>` : '';
     return `<div class="path-node-wrap ${state}" style="left:${x}px; top:${y}px;">
       <div class="path-node ${state} ${isTest?'test':''}" data-open-item="${it.id}">${icon}${star}</div>
@@ -4574,7 +4612,7 @@ function lpRecordResult(correct, meta={}){
       const hintText = meta.hint || 'Scaffold: before trying the next question, re-read the rule above and name out loud what single thing is changing (a shift, a stretch, or a reflection) — then re-attempt with just that one idea in mind.';
       const already = lpItem.content[lpIndex+1];
       if(!already || !already._adaptive){
-        lpItem.content.splice(lpIndex+1, 0, { type:'text', text:'💡 '+hintText, _adaptive:true });
+        lpItem.content.splice(lpIndex+1, 0, { type:'text', text:'<svg class="icon"><use href="#i-idea"/></svg> '+hintText, _adaptive:true });
         lpAnswered.splice(lpIndex+1, 0, false);
       }
     }
@@ -4684,7 +4722,7 @@ function renderReviewCard(){
   if(idx >= queue.length){
     const pct = Math.round((reviewSession.correctCount/queue.length)*100);
     body.innerHTML = `<div class="lp-block stagger-in" style="text-align:center;">
-      <h2 style="font-size:1.3rem;margin-bottom:.5rem;">Review complete 🎉</h2>
+      <h2 style="font-size:1.3rem;margin-bottom:.5rem;">Review complete <svg class="icon"><use href="#i-star"/></svg></h2>
       <p style="color:var(--ink-soft);">${reviewSession.correctCount}/${queue.length} correct (${pct}%)</p>
       <button class="btn btn-primary" style="margin-top:1rem;" onclick="showPage('home')">Back to dashboard</button>
     </div>`;
@@ -4854,7 +4892,7 @@ function renderHintBox(block, blockIndex){
   const revealedHtml = block.hints.slice(0, revealed).map((h,i)=>
     `<div class="hint-revealed"><b>Hint ${i+1}:</b> ${esc(h)}</div>`).join('');
   const btnHtml = revealed < block.hints.length
-    ? `<button class="hint-btn" id="hint-reveal-btn">💡 ${revealed===0?'Show a hint':'Show another hint'} (−2 XP)</button>`
+    ? `<button class="hint-btn" id="hint-reveal-btn"><svg class="icon"><use href="#i-idea"/></svg> ${revealed===0?'Show a hint':'Show another hint'} (−2 XP)</button>`
     : '';
   return `<div class="hint-box" id="hint-box-${blockIndex}">${revealedHtml}${btnHtml}</div>`;
 }
@@ -4929,7 +4967,7 @@ function renderLpBlockInner(){
     return;
   }
   if(block.type==='callout'){
-    const styles = { info:{bg:'var(--blue-bg)',border:'var(--blue)',ink:'var(--blue-dark)',icon:'ℹ️'}, warning:{bg:'var(--gold-bg)',border:'var(--gold)',ink:'var(--gold-ink)',icon:'⚠️'}, tip:{bg:'var(--green-bg)',border:'var(--green)',ink:'var(--green-dark)',icon:'💡'} };
+    const styles = { info:{bg:'var(--blue-bg)',border:'var(--blue)',ink:'var(--blue-dark)',icon:'<svg class="icon"><use href="#i-shield"/></svg>'}, warning:{bg:'var(--gold-bg)',border:'var(--gold)',ink:'var(--gold-ink)',icon:'<svg class="icon"><use href="#i-star"/></svg>'}, tip:{bg:'var(--green-bg)',border:'var(--green)',ink:'var(--green-dark)',icon:'<svg class="icon"><use href="#i-idea"/></svg>'} };
     const st = styles[block.style] || styles.info;
     slot.innerHTML = `<div class="lp-block">
       <div style="background:${st.bg};border-left:4px solid ${st.border};border-radius:var(--radius-md);padding:1rem 1.2rem;box-shadow:var(--shadow-xs);display:flex;gap:.75rem;align-items:flex-start;">
@@ -6283,7 +6321,7 @@ function renderLpBlockInner(){
     </div>`;
 
     const introHTML = `<div class="vlt-intro-card" id="vlt-intro">
-      <div class="vlt-intro-title">📊 The Vertical Line Test</div>
+      <div class="vlt-intro-title"><svg class="icon"><use href="#i-chart"/></svg> The Vertical Line Test</div>
       <div class="vlt-intro-desc">Slide an imaginary vertical line across a graph, left to right. If it ever crosses the relation <strong>more than once</strong>, one input maps to two different outputs — so it isn't a function.</div>
       <div class="vlt-demo-row">
         <div class="vlt-demo-card">
@@ -6954,7 +6992,7 @@ function renderAccountPage(){
       active = daysBack>=0 && daysBack < streak;
     }
     calHtml += `<div class="acct-cal-day">
-        <div class="acct-cal-dot ${active?'lit':''}">${active?'🔥':''}</div>
+        <div class="acct-cal-dot ${active?'lit':''}">${active?'<svg class="icon"><use href="#i-flame"/></svg>':''}</div>
         <div class="acct-cal-label">${dayLabels[d.getDay()]}</div>
       </div>`;
   }
@@ -6993,7 +7031,7 @@ const _origRenderSoundToggle = renderSoundToggle;
 renderSoundToggle = function(){
   _origRenderSoundToggle();
   const btn = document.getElementById('acct-sound-toggle-btn');
-  if(btn) btn.textContent = soundsOn ? '🔊 On' : '🔇 Off';
+  if(btn) btn.innerHTML = soundsOn ? '<svg class="icon"><use href="#i-sound"/></svg> On' : '<svg class="icon"><use href="#i-mute"/></svg> Off';
 };
 document.getElementById('acct-sound-toggle-btn').onclick = toggleSound;
 
@@ -7034,7 +7072,7 @@ function applyAppearance(){
       const locked = a.premium && !isPremiumUser();
       return `<button type="button" class="accent-swatch-btn" data-accent-id="${a.id}" data-locked="${locked}"
       title="${locked ? a.label + ' — Premium' : a.label}" style="position:relative;width:34px;height:34px;border-radius:50%;background:${a.swatch};cursor:pointer;
-      border:3px solid ${getAccent()===a.id ? 'var(--ink)' : 'transparent'};box-shadow:var(--shadow-xs);transition:transform .15s;opacity:${locked?.55:1};">${locked?'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;">🔒</span>':''}</button>`;
+      border:3px solid ${getAccent()===a.id ? 'var(--ink)' : 'transparent'};box-shadow:var(--shadow-xs);transition:transform .15s;opacity:${locked?.55:1};">${locked?'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;"><svg class="icon"><use href="#i-lock"/></svg></span>':''}</button>`;
     }).join('');
     swatchWrap.querySelectorAll('[data-accent-id]').forEach(b=>b.onclick=()=>{
       if(b.dataset.locked==='true'){ openPremiumModal(); return; }
@@ -8454,20 +8492,20 @@ document.querySelectorAll('.math-help-inline-btn').forEach(b=>b.addEventListener
    from Account → Settings → Replay tour. Steps differ by role. */
 const TOUR_STEPS = {
   student: [
-    { icon:'👋', title:'Welcome to Modilix!', text:'This quick tour covers the basics of learning here — it takes about 30 seconds.' },
+    { icon:'wave', title:'Welcome to Modilix!', text:'This quick tour covers the basics of learning here — it takes about 30 seconds.' },
     { icon:'📚', title:'Courses', text:'Head to "Courses" to see everything your teacher has assigned — lessons, quizzes, worksheets, and unit tests.' },
-    { icon:'🧠', title:'Interactive lessons', text:'Lessons step you through one block at a time — text, videos, and interactive checks. Wrong answers trigger extra hints automatically.' },
+    { icon:'brain', title:'Interactive lessons', text:'Lessons step you through one block at a time — text, videos, and interactive checks. Wrong answers trigger extra hints automatically.' },
     { icon:'🔁', title:'Daily Review', text:'Check "Daily Review" regularly — it resurfaces questions you got wrong before, timed with spaced repetition so they actually stick.' },
-    { icon:'⚡', title:'XP & streaks', text:'You earn XP and build a streak by practicing daily. Track both from your Account page.' },
-    { icon:'🎨', title:'Make it yours', text:'Head to Account → Appearance any time to switch to dark mode or pick an accent color.' }
+    { icon:'bolt', title:'XP & streaks', text:'You earn XP and build a streak by practicing daily. Track both from your Account page.' },
+    { icon:'palette', title:'Make it yours', text:'Head to Account → Appearance any time to switch to dark mode or pick an accent color.' }
   ],
   educator: [
-    { icon:'👋', title:'Welcome to Modilix!', text:'This quick tour covers how to set up your first course as an educator.' },
+    { icon:'wave', title:'Welcome to Modilix!', text:'This quick tour covers how to set up your first course as an educator.' },
     { icon:'📁', title:'Courses & units', text:'Create a course, then add units inside it to organize your content chronologically or by topic.' },
     { icon:'🧱', title:'The lesson builder', text:'Inside a unit, create an item and set its type to "Lesson" to open the full-screen block builder — over 30 content and interactive block types.' },
     { icon:'❓', title:'Stuck on a math module?', text:'Every interactive math block category has a "❓ guide" link right in the builder with exact step-by-step setup instructions.' },
-    { icon:'📊', title:'Student analytics', text:'The misconception log and review queue show you exactly where students are struggling, automatically — no extra setup needed.' },
-    { icon:'🎨', title:'Make it yours', text:'Head to Account → Appearance any time to switch to dark mode or pick an accent color for your whole site view.' }
+    { icon:'chart', title:'Student analytics', text:'The misconception log and review queue show you exactly where students are struggling, automatically — no extra setup needed.' },
+    { icon:'palette', title:'Make it yours', text:'Head to Account → Appearance any time to switch to dark mode or pick an accent color for your whole site view.' }
   ]
 };
 let tourStepIndex = 0;
@@ -8476,7 +8514,7 @@ function renderTourStep(){
   const steps = TOUR_STEPS[tourRole];
   const s = steps[tourStepIndex];
   document.getElementById('tour-eyebrow').textContent = tourRole==='educator' ? 'Educator tour' : 'Student tour';
-  document.getElementById('tour-icon').textContent = s.icon;
+  document.getElementById('tour-icon').innerHTML = '<svg class="icon" style="width:2rem;height:2rem;"><use href="#i-'+s.icon+'"/></svg>';
   document.getElementById('tour-title').textContent = s.title;
   document.getElementById('tour-text').textContent = s.text;
   document.getElementById('tour-dots').innerHTML = steps.map((_,i)=>`<div class="tour-dot ${i===tourStepIndex?'active':''}"></div>`).join('');
@@ -8834,7 +8872,7 @@ function tutorShowUpsell(){
   el.id = 'tutor-upsell';
   el.className = 'tutor-msg bot';
   el.style.cssText = 'background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff);background-size:220% 220%;animation:gradientDrift 9s ease-in-out infinite;color:#fff;cursor:pointer;';
-  el.innerHTML = '✨ Premium gives you a lot more tutor questions per lesson — totally optional, your lessons work exactly the same either way. <u>See Premium →</u>';
+  el.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Premium gives you a lot more tutor questions per lesson — totally optional, your lessons work exactly the same either way. <u>See Premium →</u>';
   el.onclick = openPremiumModal;
   host.appendChild(el);
   host.scrollTop = host.scrollHeight;
