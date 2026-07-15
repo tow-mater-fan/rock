@@ -2090,6 +2090,7 @@
   <div class="cd-hero">
     <button class="cd-back" id="cd-back-btn">← All courses</button>
     <button class="cd-back" id="cd-delete-course-btn" style="display:none;border-color:var(--red);color:var(--red);float:right;">Delete course</button>
+    <button class="cd-back" id="cd-public-toggle-btn" style="display:none;float:right;margin-right:.6rem;">Public course</button>
     <div class="cd-title-row">
       <div class="cd-ring-wrap" id="cd-ring-wrap"></div>
       <div>
@@ -2410,6 +2411,10 @@
       <div class="form-group"><label>Stream</label>
         <select id="course-stream-input"><option value="U">University (U)</option><option value="C">College (C)</option><option value="M">University/College (M)</option></select>
       </div>
+    </div>
+    <div class="form-group" style="display:flex; align-items:center; gap:.5rem;">
+      <input type="checkbox" id="course-public-input" style="width:auto;">
+      <label for="course-public-input" style="margin:0;">Public course — visible to independent students with no school, not just yours</label>
     </div>
     <button class="modal-btn" id="course-save-btn">Save Course</button>
     <div class="modal-error" id="course-error"></div>
@@ -3828,7 +3833,7 @@ async function loadCatalog(){
   if(cErr) console.error('courses load error', cErr);
   if(uErr) console.error('units load error', uErr);
   if(iErr) console.error('items load error', iErr);
-  courses = (cData||[]).map(c=>({ id:c.id, code:c.code, name:c.name, grade:c.grade, subject:c.subject, stream:c.stream }));
+  courses = (cData||[]).map(c=>({ id:c.id, code:c.code, name:c.name, grade:c.grade, subject:c.subject, stream:c.stream, isPublic:!!c.is_public }));
   units = (uData||[]).map(u=>({ id:u.id, courseId:u.course_id, name:u.name }));
   items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[], description:i.description||'', objectives:i.objectives||[], status:i.status||'published' }));
 }
@@ -4504,6 +4509,7 @@ document.getElementById('btn-new-course').onclick = ()=>{
   document.getElementById('course-grade-input').value='11';
   document.getElementById('course-subject-input').value='science';
   document.getElementById('course-stream-input').value='U';
+  document.getElementById('course-public-input').checked=false;
   document.getElementById('course-error').textContent='';
   openModal('course-overlay');
 };
@@ -4514,10 +4520,11 @@ document.getElementById('course-save-btn').onclick = async ()=>{
   const grade = document.getElementById('course-grade-input').value;
   const subject = document.getElementById('course-subject-input').value;
   const stream = document.getElementById('course-stream-input').value;
+  const isPublic = document.getElementById('course-public-input').checked;
   if(!code || !name){ document.getElementById('course-error').textContent='Course code and name are required.'; return; }
-  const { data, error } = await db.from('courses').insert({ code, name, grade, subject, stream }).select().single();
+  const { data, error } = await db.from('courses').insert({ code, name, grade, subject, stream, is_public:isPublic }).select().single();
   if(error){ document.getElementById('course-error').textContent = error.message; return; }
-  courses.push({ id:data.id, code:data.code, name:data.name, grade:data.grade, subject:data.subject, stream:data.stream });
+  courses.push({ id:data.id, code:data.code, name:data.name, grade:data.grade, subject:data.subject, stream:data.stream, isPublic:!!data.is_public });
   closeModal('course-overlay'); renderCourses();
 };
 
@@ -4543,6 +4550,9 @@ function openCourseDetail(courseId){
   animateRingsIn(document.getElementById('cd-ring-wrap'));
   document.getElementById('btn-new-unit').style.display = isEducator ? 'block' : 'none';
   document.getElementById('cd-delete-course-btn').style.display = isEducator ? 'inline-block' : 'none';
+  const pubBtn = document.getElementById('cd-public-toggle-btn');
+  pubBtn.style.display = isEducator ? 'inline-block' : 'none';
+  if(isEducator) renderCdPublicToggle(c);
   const courseUnits = units.filter(u=>u.courseId===courseId);
   if(courseUnits.length) selectUnit(courseUnits[0].id);
   else { currentUnitId=null; renderUnitNav(); renderUnitContent(); }
@@ -4550,6 +4560,22 @@ function openCourseDetail(courseId){
 }
 document.getElementById('cd-back-btn').onclick = ()=>{ document.getElementById('course-detail-page').classList.remove('visible'); showPage('courses'); };
 document.getElementById('cd-delete-course-btn').onclick = ()=>{ if(currentCourseId) confirmDelete('course', currentCourseId); };
+
+function renderCdPublicToggle(c){
+  const btn = document.getElementById('cd-public-toggle-btn');
+  btn.textContent = c.isPublic ? '🌐 Public — click to make private' : '🔒 Private — click to make public';
+  btn.style.borderColor = c.isPublic ? 'var(--green)' : '';
+  btn.style.color = c.isPublic ? 'var(--green-dark, var(--green))' : '';
+}
+document.getElementById('cd-public-toggle-btn').onclick = async ()=>{
+  const c = courses.find(x=>x.id===currentCourseId);
+  if(!c) return;
+  const next = !c.isPublic;
+  const { error } = await db.from('courses').update({ is_public: next }).eq('id', c.id);
+  if(error){ alert(error.message); return; }
+  c.isPublic = next;
+  renderCdPublicToggle(c);
+};
 
 function selectUnit(unitId){ currentUnitId = unitId; renderUnitNav(); renderUnitContent(); }
 
