@@ -1255,12 +1255,13 @@
   .prog-weak-pct { font-family:'Sora',sans-serif; font-weight:800; font-size:1.1rem; color:var(--red); }
 
   /* premium-gated section: content blurred + inert, CTA floats on top */
-  .prog-locked-wrap { position:relative; }
+  .prog-locked-wrap { position:relative; min-height:200px; overflow:hidden; }
   .prog-locked-wrap .prog-locked-content { filter:blur(6px); user-select:none; pointer-events:none; opacity:.75; }
-  .prog-locked-cta { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:.6rem; padding:1.5rem; z-index:2; }
-  .prog-locked-cta .icon { width:1.5rem; height:1.5rem; color:var(--purple); }
-  .prog-locked-cta strong { font-size:.95rem; }
-  .prog-locked-cta p { font-size:.8rem; color:var(--ink-soft); max-width:280px; }
+  .prog-locked-cta { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:.5rem; padding:1.5rem;
+    z-index:2; background:linear-gradient(180deg, rgba(20,22,32,.2), rgba(20,22,32,.75)); }
+  .prog-locked-cta .icon { width:1.4rem; height:1.4rem; color:var(--purple); flex-shrink:0; }
+  .prog-locked-cta strong { font-size:.92rem; }
+  .prog-locked-cta p { font-size:.78rem; color:var(--ink-soft); max-width:280px; line-height:1.4; }
 
   /* Ember's AI insight card — a gradient card in Ember's colours so the recommendation reads as coming from him */
   .prog-ember-card { border-radius:var(--radius-lg); padding:1.35rem 1.5rem; background:linear-gradient(135deg, #1c1f2b, #241d3a);
