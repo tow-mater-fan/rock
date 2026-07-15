@@ -1389,20 +1389,20 @@
     <div class="premium-plans" id="premium-plans">
       <button class="premium-plan-card" data-plan="monthly" onclick="selectPremiumPlan('monthly')">
         <div class="premium-plan-name">Monthly</div>
-        <div class="premium-plan-price"><span class="amt">CA$12</span><span class="per">/month</span></div>
+        <div class="premium-plan-price"><span class="amt">CA$4</span><span class="per">/month</span></div>
         <div class="premium-plan-note">Billed monthly, cancel anytime</div>
       </button>
 
       <button class="premium-plan-card is-popular" data-plan="annual" onclick="selectPremiumPlan('annual')">
         <div class="premium-plan-badge">MOST POPULAR</div>
         <div class="premium-plan-name">Annual</div>
-        <div class="premium-plan-price"><span class="was">CA$12</span><span class="amt">CA$8</span><span class="per">/month*</span></div>
-        <div class="premium-plan-note">Billed as one payment</div>
+        <div class="premium-plan-price"><span class="amt">CA$30</span><span class="per">/year*</span></div>
+        <div class="premium-plan-note">Billed as one payment · save 37% vs. monthly</div>
       </button>
 
       <button class="premium-plan-card" data-plan="family" onclick="selectPremiumPlan('family')">
-        <div class="premium-plan-name">Family</div>
-        <div class="premium-plan-price"><span class="was">CA$30</span><span class="amt">CA$22</span><span class="per">/month</span></div>
+        <div class="premium-plan-name">Group membership</div>
+        <div class="premium-plan-price"><span class="amt">CA$8</span><span class="per">/month</span></div>
         <div class="premium-plan-note">4 seats included</div>
       </button>
     </div>
@@ -1415,7 +1415,7 @@
     </ul>
 
     <button class="modal-btn premium-subscribe-btn" id="premium-activate-btn" onclick="openPremiumCheckout()">Subscribe now</button>
-    <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">*Billed as one payment. Renews annually, cancel anytime. You can turn off auto-renew from your settings.</p>
+    <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">All prices in Canadian dollars (CAD). *Billed as one payment. Renews annually, cancel anytime. You can turn off auto-renew from your settings.</p>
   </div>
 </div>
 
@@ -1439,7 +1439,7 @@
     <div class="pc-total-row">
       <div>
         <div class="pc-total-label">Total due today</div>
-        <div class="pc-total-detail" id="pc-plan-detail">Annual plan · 20% discount applied</div>
+        <div class="pc-total-detail" id="pc-plan-detail">Annual plan · save 37% vs. monthly</div>
       </div>
       <div class="pc-total-amt" id="pc-total-amt">—</div>
     </div>
@@ -1795,7 +1795,7 @@
       <div class="pricing-card pricing-card-premium">
         <div class="pricing-card-head">
           <h3>Premium <span class="pricing-badge">Optional</span></h3>
-          <div class="pricing-price">Extras<span>, not requirements</span></div>
+          <div class="pricing-price">CA$4<span>/month to start</span></div>
         </div>
         <p class="pricing-sub">For students who want a bit more polish and support around the free experience.</p>
         <ul class="pricing-list">
@@ -1807,6 +1807,7 @@
         <button class="btn dash-premium-btn" style="width:100%;" onclick="openPremiumModal()">Explore Premium</button>
       </div>
     </div>
+    <p style="text-align:center; font-size:.75rem; color:var(--ink-faint); margin-top:1rem;">All prices shown in Canadian dollars (CAD).</p>
   </section>
 
   <section class="home-section home-quotes-section">
@@ -3445,9 +3446,9 @@ function openPremiumModal(){
 function closePremiumModal(){ document.getElementById('premium-modal-overlay').classList.remove('open'); }
 
 const PREMIUM_PLAN_INFO = {
-  monthly: { label: 'Monthly plan', detail: 'Billed monthly' },
-  annual:  { label: 'Annual plan',  detail: 'Billed as one payment · 20% discount applied' },
-  family:  { label: 'Family plan',  detail: '4 seats included' },
+  monthly: { label: 'Monthly plan', detail: 'Billed monthly (CA$4/month)' },
+  annual:  { label: 'Annual plan',  detail: 'Billed as one payment (CA$30/year) · save 37% vs. monthly' },
+  family:  { label: 'Group membership', detail: '4 seats included (CA$8/month)' },
 };
 
 async function getCurrentAccessToken(){
