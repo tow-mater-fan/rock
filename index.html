@@ -122,12 +122,16 @@
   .brand-wordmark { background:linear-gradient(100deg, #ff8a5c 0%, #ff5a36 32%, #b46bff 68%, #7c5cff 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent; }
   .icon { width:1em; height:1em; display:inline-block; vertical-align:-0.15em; flex-shrink:0; }
-  .nav-links { display:flex; gap:1.75rem; list-style:none; align-items:center; }
-  .nav-links a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.75); text-decoration:none; cursor:pointer; transition:color .2s; position:relative; }
-  .nav-links a::after { content:''; position:absolute; left:0; right:100%; bottom:-4px; height:2px; background:var(--blue); border-radius:2px; transition:right .22s var(--ease-premium); }
-  .nav-links a:hover::after, .nav-links a.active::after { right:0; }
-  .nav-links a:hover, .nav-links a.active { color:var(--board-ink); }
-  .nav-toggle { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+  .nav-links { display:none; flex-direction:column; gap:2px; list-style:none; position:absolute; top:52px; right:2.5rem;
+    min-width:210px; background:var(--board-2); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:.5rem;
+    box-shadow:0 20px 50px -14px rgba(0,0,0,.55); z-index:150; }
+  .nav-links.open { display:flex; animation:navDropIn .16s var(--ease-premium) both; }
+  @keyframes navDropIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+  .nav-links li a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.8); text-decoration:none; cursor:pointer;
+    display:flex; align-items:center; gap:.6rem; padding:.6rem .85rem; border-radius:9px; transition:background .15s, color .15s; }
+  .nav-links li a .icon { opacity:.75; }
+  .nav-links li a:hover, .nav-links li a.active { background:rgba(255,255,255,.07); color:var(--board-ink); }
+  .nav-toggle { display:flex; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:.4rem; }
   .nav-toggle span { display:block; width:22px; height:2px; background:var(--board-ink); border-radius:2px; }
   .nav-toggle.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
   .nav-toggle.open span:nth-child(2) { opacity:0; }
@@ -1402,10 +1406,7 @@
     .nav-progress { gap:.35rem; }
     .nav-streak, .nav-xp { font-size:.7rem; padding:.3rem .5rem; }
     nav { padding:0 1.25rem; }
-    .nav-links { display:none; position:fixed; top:60px; left:0; right:0; background:var(--board); flex-direction:column; gap:0; padding:.5rem 0; z-index:99; }
-    .nav-links.open { display:flex; }
-    .nav-links li a { display:block; padding:.85rem 1.5rem; }
-    .nav-toggle { display:flex; }
+    .nav-links { right:1.25rem; top:52px; }
     .hero { padding:6.5rem 1.25rem 3rem; }
     .subject-section { padding:2rem 1.25rem; }
     .cd-hero { padding:6rem 1.25rem 2rem; }
@@ -1476,16 +1477,17 @@
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
-    <li><a data-page="home" onclick="showPage('home');closeNav()">Home</a></li>
-    <li id="nav-dashboard-li" style="display:none;"><a data-page="dashboard" onclick="showPage('dashboard');closeNav()">Dashboard</a></li>
-    <li><a data-page="courses" onclick="showPage('courses');closeNav()">Courses</a></li>
-    <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()">Daily Review</a></li>
-    <li id="nav-skills-li" style="display:none;"><a data-page="skills" onclick="showPage('skills');closeNav()">Skills</a></li>
-    <li id="nav-progress-li" style="display:none;"><a data-page="progress" onclick="showPage('progress');closeNav()">Progress</a></li>
-    <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()">Analytics</a></li>
-    <li id="nav-account-li" style="display:none;"><a data-page="account" onclick="showPage('account');closeNav()">Account</a></li>
-    <li id="nav-educator-account-li" style="display:none;"><a data-page="educator-account" onclick="showPage('educator-account');closeNav()">Account</a></li>
-    <li><a data-page="about" onclick="showPage('about');closeNav()">About</a></li>
+    <li><a data-page="home" onclick="showPage('home');closeNav()"><svg class="icon"><use href="#i-globe"/></svg> Home</a></li>
+    <li id="nav-dashboard-li" style="display:none;"><a data-page="dashboard" onclick="showPage('dashboard');closeNav()"><svg class="icon"><use href="#i-chart"/></svg> Dashboard</a></li>
+    <li><a data-page="courses" onclick="showPage('courses');closeNav()"><svg class="icon"><use href="#i-book"/></svg> Courses</a></li>
+    <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()"><svg class="icon"><use href="#i-brain"/></svg> Daily Review</a></li>
+    <li id="nav-skills-li" style="display:none;"><a data-page="skills" onclick="showPage('skills');closeNav()"><svg class="icon"><use href="#i-star"/></svg> Skills</a></li>
+    <li id="nav-progress-li" style="display:none;"><a data-page="progress" onclick="showPage('progress');closeNav()"><svg class="icon"><use href="#i-chart"/></svg> Progress</a></li>
+    <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()"><svg class="icon"><use href="#i-chart"/></svg> Analytics</a></li>
+    <li style="border-top:1px solid rgba(255,255,255,.08); margin:.35rem 0;"></li>
+    <li id="nav-account-li" style="display:none;"><a data-page="account" onclick="showPage('account');closeNav()"><svg class="icon"><use href="#i-key"/></svg> Account</a></li>
+    <li id="nav-educator-account-li" style="display:none;"><a data-page="educator-account" onclick="showPage('educator-account');closeNav()"><svg class="icon"><use href="#i-key"/></svg> Account</a></li>
+    <li><a data-page="about" onclick="showPage('about');closeNav()"><svg class="icon"><use href="#i-idea"/></svg> About</a></li>
   </ul>
 </nav>
 <div class="xp-toast" id="xp-toast"></div>
@@ -1676,6 +1678,28 @@
       <h3>Course progress</h3>
       <div class="acct-progress-list" id="acct-progress-list">
         <div class="acct-empty-note">No courses started yet — head to Courses to begin one.</div>
+      </div>
+    </div>
+
+    <div class="acct-card" id="acct-school-card">
+      <h3>School</h3>
+      <div class="acct-settings-row" id="acct-school-joined-row" style="display:none; border-bottom:none;">
+        <div>
+          <div class="acct-settings-label" id="acct-school-name">—</div>
+          <div class="acct-settings-sub">You're connected to this school's courses and content.</div>
+        </div>
+        <button class="btn-sm" id="acct-school-change-btn">Change</button>
+      </div>
+      <div class="acct-settings-row" id="acct-school-join-row" style="border-bottom:none; flex-direction:column; align-items:flex-start; gap:.6rem;">
+        <div>
+          <div class="acct-settings-label">Join a school</div>
+          <div class="acct-settings-sub">Enter a join code from your teacher to unlock your school's courses. Totally optional — you can use Modilix without one.</div>
+        </div>
+        <div style="display:flex; gap:.5rem; width:100%; max-width:320px;">
+          <input type="text" id="acct-school-join-input" placeholder="e.g. DEMO2026" style="flex:1; padding:.5rem .7rem; border:1.5px solid var(--rule); border-radius:8px; font-family:'Inter',sans-serif; font-size:.85rem;">
+          <button class="btn-sm" id="acct-school-join-btn">Join</button>
+        </div>
+        <div id="acct-school-join-error" style="color:var(--red); font-size:.78rem;"></div>
       </div>
     </div>
 
@@ -2357,7 +2381,7 @@
     <div style="text-align:center;color:var(--ink-faint);font-size:.8rem;margin:.6rem 0;">or</div>
     <div class="form-group"><label for="student-email-input">Email</label><input type="email" id="student-email-input" placeholder="you@example.com" autocomplete="off"></div>
     <div class="form-group"><label for="student-password-input">Password</label><input type="password" id="student-password-input" placeholder="••••••••" autocomplete="off"></div>
-    <div class="form-group" id="student-join-code-group" style="display:none;"><label for="student-join-code">School join code</label><input type="text" id="student-join-code" placeholder="e.g. DEMO2026" autocomplete="off"></div>
+    <div class="form-group" id="student-join-code-group" style="display:none;"><label for="student-join-code">School join code <span style="color:var(--ink-faint); font-weight:500;">(optional)</span></label><input type="text" id="student-join-code" placeholder="e.g. DEMO2026 — or skip, join anytime in Settings" autocomplete="off"></div>
     <button class="modal-btn" id="student-confirm-btn">Sign in</button>
     <button class="modal-btn secondary" id="student-toggle-mode-btn">Need an account? Sign up</button>
     <div class="modal-error" id="student-error"></div>
@@ -4423,7 +4447,12 @@ function renderCourses(){
   document.getElementById('btn-new-course').style.display = isEducator ? 'block' : 'none';
   const subjects = [...new Set(courses.map(c=>c.subject))];
   const cont = document.getElementById('subject-sections');
-  if(!subjects.length){ cont.innerHTML = `<div class="empty-note">No courses yet.</div>`; return; }
+  if(!subjects.length){
+    cont.innerHTML = (currentUser && !isEducator && !currentProfile?.school_id)
+      ? `<div class="empty-note">No courses yet — if your school uses Modilix, add your join code in <a href="#" onclick="showPage('account');return false;" style="color:var(--blue); font-weight:600;">Settings</a> to unlock your school's courses.</div>`
+      : `<div class="empty-note">No courses yet.</div>`;
+    return;
+  }
   cont.innerHTML = subjects.map(subj=>{
     const subjCourses = courses.filter(c=>c.subject===subj);
     const tiles = subjCourses.map((c,ci)=>{
@@ -7267,15 +7296,14 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     const isNewGoogleSignup = !existingProfile;
     if(!existingProfile){
       const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
-      if(!joinCode){
-        document.getElementById('student-join-code-group').style.display = '';
-        document.getElementById('student-error').textContent = 'Enter your school join code, then continue with Google again.';
-        return;
+      let schoolId = null;
+      if(joinCode){
+        const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
+        if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
+        schoolId = school.id;
       }
-      const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
-      if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
       await db.from('profiles').upsert(
-        { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null, school_id: school.id },
+        { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null, school_id: schoolId },
         { onConflict: 'id', ignoreDuplicates: true }
       );
     }
@@ -7304,9 +7332,12 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   let user;
   if(studentModalMode==='signup'){
     const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
-    if(!joinCode){ document.getElementById('student-error').textContent = 'A school join code is required to sign up.'; return; }
-    const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
-    if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
+    let schoolId = null;
+    if(joinCode){
+      const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
+      if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
+      schoolId = school.id;
+    }
     const { data, error } = await sbAuth.auth.signUp({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
     if(!data.session){
@@ -7314,7 +7345,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
       return;
     }
     user = data.user;
-    await db.from('profiles').insert({ id: user.id, role: 'student', school_id: school.id });
+    await db.from('profiles').insert({ id: user.id, role: 'student', school_id: schoolId });
   } else {
     const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
@@ -7348,6 +7379,31 @@ async function doSignOut(){
 document.getElementById('account-signout-btn').onclick = doSignOut;
 document.getElementById('acct-signout-btn').onclick = doSignOut;
 document.getElementById('edu-acct-signout-btn').onclick = doSignOut;
+
+async function acctJoinSchool(){
+  const input = document.getElementById('acct-school-join-input');
+  const errEl = document.getElementById('acct-school-join-error');
+  const btn = document.getElementById('acct-school-join-btn');
+  const code = input.value.trim().toUpperCase();
+  errEl.textContent = '';
+  if(!code){ errEl.textContent = 'Enter a join code.'; return; }
+  btn.disabled = true; btn.textContent = 'Joining…';
+  const { data: school, error } = await db.from('schools').select('id,name').eq('join_code', code).single();
+  if(error || !school){ errEl.textContent = 'Invalid join code.'; btn.disabled = false; btn.textContent = 'Join'; return; }
+  const { error: updErr } = await db.from('profiles').update({ school_id: school.id }).eq('id', currentUser.id);
+  btn.disabled = false; btn.textContent = 'Join';
+  if(updErr){ errEl.textContent = updErr.message; return; }
+  currentProfile.school_id = school.id;
+  input.value = '';
+  await loadCatalog(); await loadSkills();
+  renderAccountPage();
+}
+document.getElementById('acct-school-join-btn').onclick = acctJoinSchool;
+document.getElementById('acct-school-join-input').addEventListener('keydown', e=>{ if(e.key==='Enter') acctJoinSchool(); });
+document.getElementById('acct-school-change-btn').onclick = ()=>{
+  document.getElementById('acct-school-joined-row').style.display = 'none';
+  document.getElementById('acct-school-join-row').style.display = '';
+};
 
 /* ══════════════════════════════════════
    EDUCATOR ACCOUNT PAGE
@@ -7391,6 +7447,21 @@ function renderAccountPage(){
   document.getElementById('acct-email').textContent = currentUser.email || '';
   document.getElementById('acct-role-chip').textContent = 'Student';
   document.getElementById('acct-signin-method').textContent = firebaseUser ? 'Google' : 'Email & password';
+
+  // School join status
+  const schoolJoinedRow = document.getElementById('acct-school-joined-row');
+  const schoolJoinRow = document.getElementById('acct-school-join-row');
+  if(currentProfile?.school_id){
+    schoolJoinedRow.style.display = '';
+    schoolJoinRow.style.display = 'none';
+    document.getElementById('acct-school-name').textContent = 'Loading…';
+    db.from('schools').select('name').eq('id', currentProfile.school_id).single().then(({data})=>{
+      document.getElementById('acct-school-name').textContent = data?.name || '—';
+    });
+  } else {
+    schoolJoinedRow.style.display = 'none';
+    schoolJoinRow.style.display = '';
+  }
 
   // Avatar
   const avatarEl = document.getElementById('acct-avatar');
