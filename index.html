@@ -1212,6 +1212,80 @@
   .dash-premium-btn:hover { background:#f5f0ff; }
   #dash-premium-upsell.is-premium { display:none; }
 
+  /* ── Progress / analytics page ── */
+  .prog-stat-row { display:grid; grid-template-columns:repeat(5, 1fr); gap:1rem; margin-bottom:1.75rem; }
+  @media (max-width:900px){ .prog-stat-row { grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width:560px){ .prog-stat-row { grid-template-columns:repeat(2, 1fr); } }
+  .prog-stat-card { background:var(--white); border:1px solid var(--rule); border-radius:var(--radius-lg); padding:1.1rem 1.25rem; }
+  .prog-stat-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; line-height:1.1; }
+  .prog-stat-label { color:var(--ink-faint); font-size:.78rem; font-weight:600; margin-top:.25rem; }
+
+  .prog-section { background:var(--white); border:1px solid var(--rule); border-radius:var(--radius-lg); padding:1.35rem 1.5rem; margin-bottom:1.5rem; }
+  .prog-section h3 { font-size:1.05rem; margin-bottom:.2rem; }
+  .prog-section .prog-sub { color:var(--ink-soft); font-size:.85rem; margin-bottom:1rem; }
+
+  .prog-course-block { margin-bottom:1.1rem; }
+  .prog-course-block:last-child { margin-bottom:0; }
+  .prog-course-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.4rem; }
+  .prog-course-head strong { font-size:.92rem; }
+  .prog-course-head span { font-size:.78rem; color:var(--ink-faint); font-weight:600; }
+  .prog-bar-track { height:9px; border-radius:999px; background:var(--paper-2); overflow:hidden; }
+  .prog-bar-fill { height:100%; border-radius:999px; transition:width .6s var(--ease-premium); }
+  .prog-bar-fill.mastery-strong { background:linear-gradient(90deg, var(--green), #21c584); }
+  .prog-bar-fill.mastery-mid { background:linear-gradient(90deg, var(--gold), #ffcf5c); }
+  .prog-bar-fill.mastery-weak { background:linear-gradient(90deg, var(--red), #ff8080); }
+  .prog-bar-fill.mastery-none { background:var(--ink-faint); opacity:.4; }
+
+  .prog-unit-row { display:grid; grid-template-columns:1fr auto 90px; align-items:center; gap:.9rem; padding:.55rem 0; border-bottom:1px solid var(--rule); }
+  .prog-unit-row:last-child { border-bottom:none; }
+  .prog-unit-name { font-size:.88rem; font-weight:600; }
+  .prog-unit-course { font-size:.75rem; color:var(--ink-faint); font-weight:500; }
+  .prog-unit-pct { font-size:.85rem; font-weight:700; text-align:right; min-width:42px; }
+  .prog-unit-pct.weak { color:var(--red); } .prog-unit-pct.mid { color:var(--gold-ink); } .prog-unit-pct.strong { color:var(--green-dark); }
+  .prog-weak-track { width:90px; }
+
+  .prog-weak-item { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.7rem 0; border-bottom:1px solid var(--rule); }
+  .prog-weak-item:last-child { border-bottom:none; }
+  .prog-weak-item-name { font-size:.9rem; font-weight:700; }
+  .prog-weak-item-sub { font-size:.78rem; color:var(--ink-faint); }
+  .prog-weak-pct { font-family:'Sora',sans-serif; font-weight:800; font-size:1.1rem; color:var(--red); }
+
+  /* premium-gated section: content blurred + inert, CTA floats on top */
+  .prog-locked-wrap { position:relative; }
+  .prog-locked-wrap .prog-locked-content { filter:blur(6px); user-select:none; pointer-events:none; opacity:.75; }
+  .prog-locked-cta { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:.6rem; padding:1.5rem; z-index:2; }
+  .prog-locked-cta .icon { width:1.5rem; height:1.5rem; color:var(--purple); }
+  .prog-locked-cta strong { font-size:.95rem; }
+  .prog-locked-cta p { font-size:.8rem; color:var(--ink-soft); max-width:280px; }
+
+  /* Ember's AI insight card — a gradient card in Ember's colours so the recommendation reads as coming from him */
+  .prog-ember-card { border-radius:var(--radius-lg); padding:1.35rem 1.5rem; background:linear-gradient(135deg, #1c1f2b, #241d3a);
+    color:var(--board-ink); position:relative; overflow:hidden; margin-bottom:1.5rem; }
+  .prog-ember-card::before { content:''; position:absolute; width:220px; height:220px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,138,92,.35), transparent 70%); top:-90px; right:-60px; filter:blur(6px); }
+  .prog-ember-head { display:flex; align-items:center; gap:.6rem; margin-bottom:.75rem; position:relative; z-index:1; }
+  .prog-ember-head .tutor-avatar { width:30px; height:30px; }
+  .prog-ember-head strong { font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; }
+  .prog-ember-body { font-size:.88rem; line-height:1.6; color:rgba(246,244,239,.92); position:relative; z-index:1; }
+  .prog-ember-body ul { margin:.6rem 0 0 1.1rem; }
+  .prog-ember-body li { margin-bottom:.3rem; }
+  .prog-ember-refresh { margin-top:1rem; position:relative; z-index:1; }
+
+  /* ── Personalized weak-spot practice (premium) ── */
+  .prog-practice-q { border:1px solid var(--rule); border-radius:12px; padding:1rem 1.1rem; margin-bottom:.9rem; }
+  .prog-practice-q:last-child { margin-bottom:0; }
+  .prog-practice-q-text { font-weight:700; font-size:.9rem; margin-bottom:.7rem; }
+  .prog-practice-q-tag { display:inline-block; font-size:.68rem; font-weight:700; color:var(--purple); background:rgba(124,92,255,.1); border-radius:999px; padding:.15rem .55rem; margin-bottom:.5rem; }
+  .prog-practice-opt { display:flex; align-items:center; gap:.55rem; padding:.55rem .7rem; border:1.5px solid var(--rule); border-radius:9px; margin-bottom:.45rem; cursor:pointer; font-size:.85rem; transition:border-color .15s, background .15s; }
+  .prog-practice-opt:hover { border-color:var(--blue); }
+  .prog-practice-opt.selected { border-color:var(--blue); background:rgba(90,120,255,.08); }
+  .prog-practice-opt.correct { border-color:var(--green); background:rgba(33,197,132,.1); }
+  .prog-practice-opt.incorrect { border-color:var(--red); background:rgba(255,90,54,.08); }
+  .prog-practice-opt input { accent-color:var(--blue); }
+  .prog-practice-explain { font-size:.8rem; color:var(--ink-soft); margin-top:.5rem; padding-top:.5rem; border-top:1px dashed var(--rule); display:none; }
+  .prog-practice-explain.show { display:block; }
+  .prog-practice-score { font-family:'Sora',sans-serif; font-weight:800; font-size:1.1rem; margin-top:1rem; }
+
   /* ── ACCOUNT PAGE ── */
   .acct-wrap { max-width:920px; margin:0 auto; padding:6.5rem 2.5rem 4rem; display:flex; flex-direction:column; gap:1.5rem; }
   .acct-header { display:flex; align-items:center; gap:1.5rem; background:var(--white); border:1px solid var(--rule); border-radius:20px; padding:1.75rem; }
@@ -1407,6 +1481,7 @@
     <li><a data-page="courses" onclick="showPage('courses');closeNav()">Courses</a></li>
     <li id="nav-review-li" style="display:none;"><a data-page="review" onclick="showPage('review');closeNav()">Daily Review</a></li>
     <li id="nav-skills-li" style="display:none;"><a data-page="skills" onclick="showPage('skills');closeNav()">Skills</a></li>
+    <li id="nav-progress-li" style="display:none;"><a data-page="progress" onclick="showPage('progress');closeNav()">Progress</a></li>
     <li id="nav-analytics-li" style="display:none;"><a data-page="analytics" onclick="showPage('analytics');closeNav()">Analytics</a></li>
     <li id="nav-account-li" style="display:none;"><a data-page="account" onclick="showPage('account');closeNav()">Account</a></li>
     <li id="nav-educator-account-li" style="display:none;"><a data-page="educator-account" onclick="showPage('educator-account');closeNav()">Account</a></li>
@@ -1430,7 +1505,7 @@
     <button class="modal-close" onclick="closePremiumModal()"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="premium-modal-key" aria-hidden="true"><svg class="icon"><use href="#i-key"/></svg></div>
     <h2 class="premium-modal-title">Unlock the full Modilix experience</h2>
-    <p class="desc" id="premium-modal-offer">Premium gives you a higher AI tutor limit, unlimited test downloads, and more. Every lesson and unit test stays free either way.</p>
+    <p class="desc" id="premium-modal-offer">Premium gives you a higher AI tutor limit, unlimited test downloads, full mastery analytics, AI-generated practice targeting your weak spots, and more. Every lesson and unit test stays free either way.</p>
     <p class="desc hidden" id="premium-modal-active" style="color:var(--green-ink,var(--green));">You're on Premium — thanks for supporting Modilix!</p>
 
     <div class="premium-plans" id="premium-plans">
@@ -1457,8 +1532,9 @@
     <ul class="premium-feature-list">
       <li><span><svg class="icon"><use href="#i-download"/></svg></span> Unlimited unit test downloads/prints</li>
       <li><span><svg class="icon"><use href="#i-chat"/></svg></span> A much higher AI tutor question limit</li>
+      <li><span><svg class="icon"><use href="#i-chart"/></svg></span> Full topic-by-topic mastery breakdown &amp; weak-spot detection</li>
+      <li><span><svg class="icon"><use href="#i-sparkle"/></svg></span> Ember-generated practice sets that target your weak spots</li>
       <li><span><svg class="icon"><use href="#i-palette"/></svg></span> Exclusive accent themes</li>
-      <li><span><svg class="icon"><use href="#i-chart"/></svg></span> Deeper personal analytics</li>
     </ul>
 
     <button class="modal-btn premium-subscribe-btn" id="premium-activate-btn" onclick="openPremiumCheckout()">Subscribe now</button>
@@ -1963,6 +2039,17 @@
     <div id="skills-body"></div>
   </div>
 </div>
+
+<!-- ═══════ STUDENT PROGRESS & ANALYTICS ═══════ -->
+<div id="progress-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+  <div style="max-width:1080px; margin:0 auto;">
+    <div class="eyebrow" style="color:var(--blue);">Your Progress</div>
+    <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Progress &amp; Analytics</h1>
+    <p style="color:var(--ink-soft); font-size:.92rem; margin-bottom:1.5rem;">A look at how you're doing across every course — plus the specific topics worth another pass before you call them mastered.</p>
+    <div id="progress-body"></div>
+  </div>
+</div>
+
 
 <!-- ═══════ EDUCATOR ANALYTICS ═══════ -->
 <div id="analytics-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
@@ -3404,6 +3491,12 @@ function showPage(page){
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
     renderSkillsPage();
   }
+  if(page==='progress'){
+    if(!currentUser || isEducator){ showPage('home'); return; }
+    const el = document.getElementById('progress-page');
+    el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
+    renderProgressPage();
+  }
   if(page==='analytics'){
     const el = document.getElementById('analytics-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
@@ -3721,7 +3814,7 @@ async function loadResponses(){
   if(!currentUser) return;
   const { data, error } = await db.from('responses').select('*').eq('student_id', currentUser.id);
   if(error){ console.error('responses load error', error); return; }
-  (data||[]).forEach(r=>{ studentResponses[r.item_id] = { answers:r.answers||{}, score:r.score, total:r.total, submitted:r.submitted }; });
+  (data||[]).forEach(r=>{ studentResponses[r.item_id] = { answers:r.answers||{}, score:r.score, total:r.total, submitted:r.submitted, submittedAt:r.submitted_at }; });
 }
 
 /* ══════════════════════════════════════
@@ -3855,6 +3948,258 @@ async function saveSkill(){
   renderSkillsPage();
 }
 
+/* ══════════════════════════════════════
+   STUDENT PROGRESS & ANALYTICS ("Progress" tab)
+   Free students get the birds-eye stats + course completion bars. Premium
+   unlocks the full per-topic mastery breakdown, the weak-spot list, and
+   Ember's AI-generated study recommendations (via the student-insights
+   Supabase Edge Function, which proxies to Groq the same way ai-tutor does).
+   Everything here is computed client-side from data already loaded
+   (studentResponses, items, units, courses, skills, reviewLogMap,
+   studentProgress) — no extra tables required.
+   ══════════════════════════════════════ */
+
+function computeProgressAnalytics(){
+  const scored = (it)=>{
+    const r = studentResponses[it.id];
+    if(!r || !r.submitted || !r.total) return null;
+    return Math.round((r.score/r.total)*100);
+  };
+  const courseBlocks = courses.map(course=>{
+    const courseUnits = units.filter(u=>u.courseId===course.id);
+    const unitBlocks = courseUnits.map(unit=>{
+      const unitItems = items.filter(i=>i.unitId===unit.id);
+      const lessons = unitItems.filter(i=>i.type==='lesson');
+      const tests = unitItems.filter(i=>i.type==='quiz' || i.type==='unittest' || i.type==='worksheet' || i.type==='practice');
+      const lessonsDone = lessons.filter(l=>studentResponses[l.id]?.submitted).length;
+      const testPcts = tests.map(scored).filter(p=>p!==null);
+      const testPct = testPcts.length ? Math.round(testPcts.reduce((a,b)=>a+b,0)/testPcts.length) : null;
+      return { unit, lessonsDone, totalLessons:lessons.length, testPct, testCount:testPcts.length, totalItems:unitItems.length };
+    });
+    const attemptedUnits = unitBlocks.filter(u=>u.testPct!==null);
+    const coursePct = attemptedUnits.length ? Math.round(attemptedUnits.reduce((a,u)=>a+u.testPct,0)/attemptedUnits.length) : null;
+    const allItems = items.filter(i=>i.courseId===course.id);
+    const doneItems = allItems.filter(i=>studentResponses[i.id]?.submitted).length;
+    const completionPct = allItems.length ? Math.round((doneItems/allItems.length)*100) : 0;
+    return { course, unitBlocks, coursePct, completionPct, doneItems, totalItems:allItems.length };
+  }).filter(c=>c.totalItems>0);
+
+  const allWeak = [];
+  courseBlocks.forEach(cb=> cb.unitBlocks.forEach(ub=>{
+    if(ub.testPct!==null) allWeak.push({ course:cb.course, unit:ub.unit, pct:ub.testPct, testCount:ub.testCount });
+  }));
+  allWeak.sort((a,b)=>a.pct-b.pct);
+  const weakSpots = allWeak.filter(w=>w.pct<75).slice(0,6);
+
+  const allScored = items.map(scored).filter(p=>p!==null);
+  const overallAccuracy = allScored.length ? Math.round(allScored.reduce((a,b)=>a+b,0)/allScored.length) : null;
+  const totalCompleted = items.filter(i=>studentResponses[i.id]?.submitted).length;
+  const skillsUnlocked = skills.filter(s=>skillProgress(s).unlocked).length;
+  const now = Date.now();
+  const dueForReview = Object.values(reviewLogMap).filter(c=>new Date(c.due_at).getTime()<=now).length;
+
+  return { courseBlocks, weakSpots, overallAccuracy, totalCompleted, skillsUnlocked, totalSkills:skills.length, dueForReview };
+}
+
+function masteryClass(pct){ return pct===null ? 'mastery-none' : pct>=75 ? 'mastery-strong' : pct>=50 ? 'mastery-mid' : 'mastery-weak'; }
+function masteryTextClass(pct){ return pct===null ? '' : pct>=75 ? 'strong' : pct>=50 ? 'mid' : 'weak'; }
+
+function renderProgressPage(){
+  const data = computeProgressAnalytics();
+  const premium = isPremiumUser();
+  const body = document.getElementById('progress-body');
+
+  const statCards = `
+    <div class="prog-stat-row">
+      <div class="prog-stat-card"><div class="prog-stat-num">${studentProgress.xp||0}</div><div class="prog-stat-label">TOTAL XP</div></div>
+      <div class="prog-stat-card"><div class="prog-stat-num">${studentProgress.current_streak||0}🔥</div><div class="prog-stat-label">DAY STREAK</div></div>
+      <div class="prog-stat-card"><div class="prog-stat-num">${data.overallAccuracy===null?'—':data.overallAccuracy+'%'}</div><div class="prog-stat-label">OVERALL ACCURACY</div></div>
+      <div class="prog-stat-card"><div class="prog-stat-num">${data.skillsUnlocked}/${data.totalSkills}</div><div class="prog-stat-label">SKILLS UNLOCKED</div></div>
+      <div class="prog-stat-card"><div class="prog-stat-num">${data.dueForReview}</div><div class="prog-stat-label">CARDS DUE FOR REVIEW</div></div>
+    </div>`;
+
+  const courseBars = data.courseBlocks.length ? data.courseBlocks.map(cb=>`
+    <div class="prog-course-block">
+      <div class="prog-course-head"><strong>${cb.course.code} — ${cb.course.name}</strong><span>${cb.doneItems}/${cb.totalItems} items done${cb.coursePct!==null?` · ${cb.coursePct}% avg score`:''}</span></div>
+      <div class="prog-bar-track"><div class="prog-bar-fill ${masteryClass(cb.coursePct)}" style="width:${cb.completionPct}%;"></div></div>
+    </div>`).join('') : `<div style="color:var(--ink-soft); font-size:.9rem;">Start a course to see your progress here.</div>`;
+
+  const unitRows = data.courseBlocks.flatMap(cb=>cb.unitBlocks.map(ub=>`
+    <div class="prog-unit-row">
+      <div><div class="prog-unit-name">${ub.unit.name}</div><div class="prog-unit-course">${cb.course.code}${ub.totalLessons?` · ${ub.lessonsDone}/${ub.totalLessons} lessons`:''}</div></div>
+      <div class="prog-unit-pct ${masteryTextClass(ub.testPct)}">${ub.testPct===null?'—':ub.testPct+'%'}</div>
+      <div class="prog-weak-track prog-bar-track"><div class="prog-bar-fill ${masteryClass(ub.testPct)}" style="width:${ub.testPct===null?6:ub.testPct}%;"></div></div>
+    </div>`)).join('') || `<div style="color:var(--ink-soft); font-size:.9rem;">No topics yet — take a quiz or unit test to start building your mastery map.</div>`;
+
+  const weakList = data.weakSpots.length ? data.weakSpots.map(w=>`
+    <div class="prog-weak-item">
+      <div><div class="prog-weak-item-name">${w.unit.name}</div><div class="prog-weak-item-sub">${w.course.code} — ${w.course.name} · ${w.testCount} attempt${w.testCount===1?'':'s'} scored</div></div>
+      <div class="prog-weak-pct">${w.pct}%</div>
+    </div>`).join('') : `<div style="color:var(--ink-soft); font-size:.9rem;">No clear weak spots yet — nice work, or you just need to attempt a few more quizzes so Ember has enough data to tell.</div>`;
+
+  body.innerHTML = `
+    ${statCards}
+    <div class="prog-section">
+      <h3>Course completion</h3>
+      <div class="prog-sub">How far you've gotten through each course you're enrolled in.</div>
+      ${courseBars}
+    </div>
+    <div class="prog-section prog-locked-wrap" id="prog-mastery-section">
+      <div class="prog-locked-content">
+        <h3>Topic mastery</h3>
+        <div class="prog-sub">Your average score on quizzes and tests, broken down by topic — this is where you can actually see what's sunk in.</div>
+        ${unitRows}
+      </div>
+      ${premium ? '' : progLockedCTA('See exactly which topics need review')}
+    </div>
+    <div class="prog-section prog-locked-wrap" id="prog-weak-section">
+      <div class="prog-locked-content">
+        <h3>Weak spots to cover</h3>
+        <div class="prog-sub">Your lowest-scoring topics, so you know exactly what to review before calling a course "done."</div>
+        ${weakList}
+      </div>
+      ${premium ? '' : progLockedCTA('Unlock your personalized weak-spot list')}
+    </div>
+    <div class="prog-locked-wrap" id="prog-ai-section">
+      <div class="prog-locked-content">
+        <div class="prog-ember-card">
+          <div class="prog-ember-head"><span class="tutor-avatar"></span><strong>Ember's take</strong></div>
+          <div class="prog-ember-body" id="prog-ember-body">Let me take a look over your stats…</div>
+          <button class="btn-sm prog-ember-refresh" id="prog-ember-btn" onclick="emberGenerateInsights()" style="background:rgba(255,255,255,.12); color:#fff;">Regenerate</button>
+        </div>
+      </div>
+      ${premium ? '' : progLockedCTA("Get Ember's personalized AI study plan")}
+    </div>
+    <div class="prog-section prog-locked-wrap" id="prog-practice-section">
+      <div class="prog-locked-content">
+        <h3>Personalized practice</h3>
+        <div class="prog-sub">A short set of AI-generated questions targeting exactly the topics you're weakest on. Doesn't affect your grades — just extra reps.</div>
+        <div id="prog-practice-body">
+          <button class="btn btn-primary btn-sm" id="prog-practice-btn" onclick="emberGeneratePractice()">Generate practice for my weak spots</button>
+        </div>
+      </div>
+      ${premium ? '' : progLockedCTA('Get personalized practice targeting your weak spots')}
+    </div>
+  `;
+  if(premium && !document.getElementById('prog-ember-body').dataset.loaded){
+    document.getElementById('prog-ember-body').dataset.loaded = '1';
+    emberGenerateInsights();
+  }
+}
+
+function progLockedCTA(headline){
+  return `<div class="prog-locked-cta">
+    <svg class="icon"><use href="#i-lock"/></svg>
+    <strong>${headline}</strong>
+    <p>Free accounts get the birds-eye view. Premium unlocks full topic-by-topic mastery, weak-spot detection, Ember's AI study plan, and personalized practice sets targeting exactly what you're weak on.</p>
+    <button class="btn btn-primary btn-sm" onclick="openPremiumModal()">Explore Premium</button>
+  </div>`;
+}
+
+let emberInsightsBusy = false;
+async function emberGenerateInsights(){
+  if(emberInsightsBusy || !isPremiumUser()) return;
+  const btn = document.getElementById('prog-ember-btn');
+  const out = document.getElementById('prog-ember-body');
+  emberInsightsBusy = true;
+  btn.disabled = true; btn.textContent = 'Thinking…';
+  out.textContent = "Give me a second to look over your stats…";
+  const data = computeProgressAnalytics();
+  const summary = {
+    overallAccuracy: data.overallAccuracy,
+    totalCompleted: data.totalCompleted,
+    streak: studentProgress.current_streak||0,
+    skillsUnlocked: data.skillsUnlocked, totalSkills: data.totalSkills,
+    dueForReview: data.dueForReview,
+    weakSpots: data.weakSpots.map(w=>({ topic:w.unit.name, course:w.course.code, pct:w.pct })),
+    courses: data.courseBlocks.map(cb=>({ course:`${cb.course.code} — ${cb.course.name}`, completionPct:cb.completionPct, avgScore:cb.coursePct })),
+  };
+  try {
+    const { data: resp, error } = await db.functions.invoke('student-insights', { body: { stats: summary } });
+    if(error || !resp || resp.error){
+      out.textContent = "Couldn't quite reach the analytics brain just now — mind trying again in a bit?";
+    } else {
+      out.innerHTML = (resp.insight || "I couldn't come up with anything from this data yet — try again once you've attempted a few more quizzes.")
+        .replace(/\n\s*[-•]\s*/g, '\n• ').split('\n').map(l=>l.trim()).filter(Boolean)
+        .map(l=> l.startsWith('•') ? `<div>${l}</div>` : `<p>${l}</p>`).join('');
+    }
+  } catch(err){
+    out.textContent = 'Something went wrong reaching the tutor: ' + err.message;
+  }
+  emberInsightsBusy = false;
+  btn.disabled = false; btn.textContent = 'Regenerate';
+}
+
+let emberPracticeBusy = false;
+async function emberGeneratePractice(){
+  if(emberPracticeBusy || !isPremiumUser()) return;
+  const host = document.getElementById('prog-practice-body');
+  const data = computeProgressAnalytics();
+  emberPracticeBusy = true;
+  host.innerHTML = `<div style="color:var(--ink-soft); font-size:.85rem;">Ember's writing up some questions for you…</div>`;
+  const weakSpots = data.weakSpots.length ? data.weakSpots.map(w=>({ topic:w.unit.name, course:w.course.code, pct:w.pct }))
+    : data.courseBlocks.slice(0,2).map(cb=>({ topic:cb.course.name, course:cb.course.code, pct:null })); // fallback: no weak spots yet, just practice current courses
+  try {
+    const { data: resp, error } = await db.functions.invoke('generate-practice', { body: { weakSpots } });
+    if(error || !resp || resp.error || !Array.isArray(resp.questions) || !resp.questions.length){
+      host.innerHTML = `<div style="color:var(--red); font-size:.85rem;">Couldn't generate practice right now — mind trying again in a bit? <button class="btn btn-sm" onclick="emberGeneratePractice()" style="margin-left:.4rem;">Retry</button></div>`;
+    } else {
+      renderPracticeQuestions(resp.questions);
+    }
+  } catch(err){
+    host.innerHTML = `<div style="color:var(--red); font-size:.85rem;">Something went wrong: ${err.message}</div>`;
+  }
+  emberPracticeBusy = false;
+}
+
+function renderPracticeQuestions(questions){
+  const host = document.getElementById('prog-practice-body');
+  host.innerHTML = questions.map((q,qi)=>`
+    <div class="prog-practice-q" data-qi="${qi}" data-answered="false">
+      ${q.topic ? `<span class="prog-practice-q-tag">${q.topic}</span>` : ''}
+      <div class="prog-practice-q-text">${qi+1}. ${q.text}</div>
+      <div class="prog-practice-opts">
+        ${q.options.map((opt,oi)=>`<div class="prog-practice-opt" onclick="selectPracticeOption(${qi},${oi})" data-oi="${oi}">
+          <input type="radio" name="prog-practice-q${qi}"> <span>${opt}</span>
+        </div>`).join('')}
+      </div>
+      <div class="prog-practice-explain" id="prog-practice-explain-${qi}"></div>
+    </div>
+  `).join('') + `<button class="btn btn-primary btn-sm" id="prog-practice-check" onclick="checkPracticeAnswers()" style="margin-top:.5rem;">Check answers</button>
+  <div class="prog-practice-score" id="prog-practice-score"></div>
+  <button class="btn btn-sm" onclick="emberGeneratePractice()" style="margin-top:.6rem;">Generate a new set</button>`;
+  window.__progPracticeData = questions;
+  window.__progPracticeSelections = {};
+}
+
+function selectPracticeOption(qi, oi){
+  const q = document.querySelector(`.prog-practice-q[data-qi="${qi}"]`);
+  if(q.dataset.answered==='true') return;
+  q.querySelectorAll('.prog-practice-opt').forEach(el=> el.classList.toggle('selected', +el.dataset.oi===oi));
+  q.querySelectorAll('input[type=radio]').forEach((el,idx)=> el.checked = (idx===oi));
+  window.__progPracticeSelections[qi] = oi;
+}
+
+function checkPracticeAnswers(){
+  const questions = window.__progPracticeData || [];
+  let correctCount = 0;
+  questions.forEach((q,qi)=>{
+    const qEl = document.querySelector(`.prog-practice-q[data-qi="${qi}"]`);
+    qEl.dataset.answered = 'true';
+    const picked = window.__progPracticeSelections[qi];
+    qEl.querySelectorAll('.prog-practice-opt').forEach(el=>{
+      const oi = +el.dataset.oi;
+      if(oi===q.correct) el.classList.add('correct');
+      else if(oi===picked) el.classList.add('incorrect');
+    });
+    if(picked===q.correct) correctCount++;
+    const ex = document.getElementById(`prog-practice-explain-${qi}`);
+    if(q.explanation){ ex.textContent = q.explanation; ex.classList.add('show'); }
+  });
+  document.getElementById('prog-practice-score').textContent = `${correctCount}/${questions.length} correct`;
+  document.getElementById('prog-practice-check').disabled = true;
+}
+
 function updateAccountUI(){
   const badge = document.getElementById('account-badge');
   const text = document.getElementById('account-badge-text');
@@ -3870,6 +4215,7 @@ function updateAccountUI(){
   document.getElementById('nav-review-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-analytics-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   document.getElementById('nav-skills-li').style.display = currentUser ? 'block' : 'none';
+  document.getElementById('nav-progress-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-account-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-educator-account-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   text.onclick = currentUser ? (()=>showPage(isEducator ? 'educator-account' : 'account')) : null;
