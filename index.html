@@ -883,14 +883,14 @@
     #test-page.lp-mode .lp-check-q { font-size:1.15rem; }
   }
 
-  /* ── AI tutor widget ── only shown while inside a lesson (#lp-player). */
+  /* ── AI tutor widget: "Ember", Modilix's tutor ── only shown while inside a lesson (#lp-player). */
   #tutor-launcher { display:none; position:fixed; right:1.75rem; bottom:1.75rem; width:56px; height:56px; border-radius:50%;
-    background:linear-gradient(135deg, var(--purple), #4b6bff); border:none; color:#fff; font-size:1.35rem; cursor:pointer;
-    box-shadow:0 12px 28px -6px rgba(80,60,220,.55); z-index:130; transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
+    background:radial-gradient(circle at 30% 25%, #ffd166 0%, #ff5a36 40%, #b46bff 75%, #4a2fbe 100%); border:none; color:#fff; font-size:1.35rem; cursor:pointer;
+    box-shadow:0 12px 28px -6px rgba(255,90,54,.5); z-index:130; transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
   #test-page.lp-mode #tutor-launcher { display:flex; align-items:center; justify-content:center; }
-  #tutor-launcher:hover { transform:scale(1.08) translateY(-2px); box-shadow:0 16px 34px -6px rgba(80,60,220,.65); }
+  #tutor-launcher:hover { transform:scale(1.08) translateY(-2px); box-shadow:0 16px 34px -6px rgba(255,90,54,.6); }
   #tutor-launcher.has-pulse { animation:tutorPulse 2.4s ease-in-out infinite; }
-  @keyframes tutorPulse { 0%,100% { box-shadow:0 12px 28px -6px rgba(80,60,220,.55), 0 0 0 0 rgba(124,92,255,.5); } 50% { box-shadow:0 12px 28px -6px rgba(80,60,220,.55), 0 0 0 10px rgba(124,92,255,0); } }
+  @keyframes tutorPulse { 0%,100% { box-shadow:0 12px 28px -6px rgba(255,90,54,.5), 0 0 0 0 rgba(255,90,54,.5); } 50% { box-shadow:0 12px 28px -6px rgba(255,90,54,.5), 0 0 0 10px rgba(255,90,54,0); } }
 
   #tutor-panel { display:none; position:fixed; right:1.75rem; bottom:1.75rem; width:360px; max-width:calc(100vw - 2.5rem);
     height:min(520px, 70vh); background:var(--board-2); border:1px solid rgba(255,255,255,.1); border-radius:20px;
@@ -898,17 +898,23 @@
     animation:tutorPanelIn .3s var(--ease-premium) both; }
   #tutor-panel.open { display:flex; }
   @keyframes tutorPanelIn { from { opacity:0; transform:translateY(16px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
-  #tutor-panel-head { display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.1rem;
+  #tutor-panel-head { display:flex; align-items:center; gap:.6rem; justify-content:space-between; padding:.9rem 1.1rem;
     font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; color:var(--board-ink); border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0; }
+  #tutor-panel-head .tutor-head-id { display:flex; align-items:center; gap:.55rem; }
+  .tutor-avatar { width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    background:radial-gradient(circle at 30% 25%, #ffd166 0%, #ff5a36 40%, #b46bff 75%, #4a2fbe 100%); }
+  .tutor-avatar.sm { width:22px; height:22px; }
   #tutor-close-btn { background:none; border:none; color:rgba(246,244,239,.6); cursor:pointer; font-size:.95rem; transition:color .18s, transform .18s var(--ease-premium); }
   #tutor-counter { font-family:'Inter',sans-serif; font-weight:600; font-size:.7rem; color:rgba(246,244,239,.5);
     background:rgba(255,255,255,.08); border-radius:999px; padding:.2rem .55rem; margin-left:auto; margin-right:.6rem; transition:color .2s, background .2s; }
   #tutor-counter.low { color:#ffb3b3; background:rgba(229,72,77,.18); }
   #tutor-close-btn:hover { color:var(--board-ink); transform:rotate(90deg); }
   #tutor-messages { flex:1; overflow-y:auto; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.7rem; }
-  .tutor-msg { max-width:85%; padding:.65rem .9rem; border-radius:14px; font-size:.85rem; line-height:1.5; animation:lpFeedbackPop .3s var(--ease-premium) both; }
-  .tutor-msg.user { align-self:flex-end; background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; border-bottom-right-radius:4px; }
-  .tutor-msg.bot { align-self:flex-start; background:rgba(255,255,255,.06); color:rgba(246,244,239,.92); border-bottom-left-radius:4px; }
+  .tutor-row { display:flex; gap:.5rem; align-items:flex-end; max-width:85%; align-self:flex-start; }
+  .tutor-row.user { align-self:flex-end; flex-direction:row-reverse; }
+  .tutor-msg { padding:.65rem .9rem; border-radius:14px; font-size:.85rem; line-height:1.5; animation:lpFeedbackPop .3s var(--ease-premium) both; }
+  .tutor-msg.user { background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; border-bottom-right-radius:4px; }
+  .tutor-msg.bot { background:rgba(255,255,255,.06); color:rgba(246,244,239,.92); border-bottom-left-radius:4px; }
   .tutor-msg.bot.error { background:rgba(229,72,77,.15); color:#ffb3b3; }
   .tutor-msg.typing { display:flex; gap:4px; align-items:center; padding:.75rem .9rem; }
   .tutor-msg.typing span { width:6px; height:6px; border-radius:50%; background:rgba(246,244,239,.55); animation:tutorTyping 1s ease-in-out infinite; }
@@ -917,10 +923,10 @@
   #tutor-input-row { display:flex; gap:.5rem; padding:.85rem; border-top:1px solid rgba(255,255,255,.08); flex-shrink:0; }
   #tutor-input { flex:1; resize:none; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1); border-radius:12px;
     padding:.6rem .8rem; color:var(--board-ink); font-family:'Inter',sans-serif; font-size:.85rem; outline:none; max-height:90px; transition:border-color .18s; }
-  #tutor-input:focus { border-color:var(--purple); }
-  #tutor-send-btn { width:38px; height:38px; border-radius:50%; border:none; background:var(--purple); color:#fff; font-size:1.1rem; cursor:pointer;
-    flex-shrink:0; transition:transform .18s var(--ease-premium), background .18s; }
-  #tutor-send-btn:hover { background:#6440e8; transform:scale(1.06); }
+  #tutor-input:focus { border-color:var(--blue); }
+  #tutor-send-btn { width:38px; height:38px; border-radius:50%; border:none; background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; font-size:1.1rem; cursor:pointer;
+    flex-shrink:0; transition:transform .18s var(--ease-premium), filter .18s; }
+  #tutor-send-btn:hover { filter:brightness(1.08); transform:scale(1.06); }
   #tutor-send-btn:disabled { opacity:.5; cursor:not-allowed; }
   @media (max-width:480px){ #tutor-panel { right:.9rem; bottom:5.2rem; } #tutor-launcher { right:1.1rem; bottom:1.1rem; } }
 
@@ -2101,15 +2107,15 @@
         <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
       </div>
       <!-- AI tutor: floating launcher + slide-in chat panel, scoped to the lesson player -->
-      <button id="tutor-launcher" title="Ask the AI tutor" aria-label="Ask the AI tutor"><svg class="icon"><use href="#i-chat"/></svg></button>
+      <button id="tutor-launcher" title="Ask Ember" aria-label="Ask Ember"><svg class="icon"><use href="#i-chat"/></svg></button>
       <div id="tutor-panel">
         <div id="tutor-panel-head">
-          <span>🤖 Lesson tutor</span>
+          <span class="tutor-head-id"><span class="tutor-avatar"></span> Ember</span>
           <button id="tutor-close-btn" aria-label="Close">✕</button>
         </div>
         <div id="tutor-messages"></div>
         <div id="tutor-input-row">
-          <textarea id="tutor-input" rows="1" placeholder="Ask about this problem…"></textarea>
+          <textarea id="tutor-input" rows="1" placeholder="Ask Ember about this problem…"></textarea>
           <button id="tutor-send-btn" aria-label="Send">↑</button>
         </div>
       </div>
@@ -8775,21 +8781,35 @@ function tutorGetBlockContext(){
 
 function tutorAppendMessage(role, text){
   const host = document.getElementById('tutor-messages');
+  const row = document.createElement('div');
+  row.className = `tutor-row ${role.startsWith('bot') ? 'bot' : 'user'}`;
   const el = document.createElement('div');
   el.className = `tutor-msg ${role}`;
   el.textContent = text;
-  host.appendChild(el);
+  if(role.startsWith('bot')){
+    const av = document.createElement('span');
+    av.className = 'tutor-avatar sm';
+    row.appendChild(av);
+  }
+  row.appendChild(el);
+  host.appendChild(row);
   host.scrollTop = host.scrollHeight;
   return el;
 }
 
 function tutorShowTyping(){
   const host = document.getElementById('tutor-messages');
+  const row = document.createElement('div');
+  row.className = 'tutor-row bot';
+  row.id = 'tutor-typing';
+  const av = document.createElement('span');
+  av.className = 'tutor-avatar sm';
   const el = document.createElement('div');
   el.className = 'tutor-msg bot typing';
-  el.id = 'tutor-typing';
   el.innerHTML = '<span></span><span></span><span></span>';
-  host.appendChild(el);
+  row.appendChild(av);
+  row.appendChild(el);
+  host.appendChild(row);
   host.scrollTop = host.scrollHeight;
 }
 function tutorHideTyping(){ document.getElementById('tutor-typing')?.remove(); }
@@ -8871,7 +8891,7 @@ function tutorShowUpsell(){
   el.id = 'tutor-upsell';
   el.className = 'tutor-msg bot';
   el.style.cssText = 'background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff);background-size:220% 220%;animation:gradientDrift 9s ease-in-out infinite;color:#fff;cursor:pointer;';
-  el.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Premium gives you a lot more tutor questions per lesson — totally optional, your lessons work exactly the same either way. <u>See Premium →</u>';
+  el.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Premium gives you a lot more time with Ember per lesson — totally optional, your lessons work exactly the same either way. <u>See Premium →</u>';
   el.onclick = openPremiumModal;
   host.appendChild(el);
   host.scrollTop = host.scrollHeight;
@@ -8882,7 +8902,7 @@ document.getElementById('tutor-launcher').onclick = ()=>{
   panel.classList.add('open');
   document.getElementById('tutor-launcher').classList.remove('has-pulse');
   if(!document.getElementById('tutor-messages').childElementCount){
-    tutorAppendMessage('bot', `Hi! I'm your lesson tutor. Ask me anything about what's on screen — I won't just hand you the answer, but I'll help you get there. You've got ${tutorMsgLimit} questions for this lesson.`);
+    tutorAppendMessage('bot', `Hey, I'm Ember! Ask me anything about what's on screen — I won't just hand you the answer, but I'll help you get there. You've got ${tutorMsgLimit} questions for this lesson.`);
     tutorUpdateCounter();
   }
   document.getElementById('tutor-input').focus();
@@ -8903,7 +8923,7 @@ function tutorResetForNewLesson(){
   document.getElementById('tutor-panel').classList.remove('open');
   document.getElementById('tutor-launcher').classList.add('has-pulse');
   const input = document.getElementById('tutor-input');
-  input.disabled = false; input.placeholder = 'Ask about this problem…';
+  input.disabled = false; input.placeholder = 'Ask Ember about this problem…';
   document.getElementById('tutor-send-btn').disabled = false;
   document.getElementById('tutor-counter')?.remove();
 }
