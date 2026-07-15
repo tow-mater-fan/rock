@@ -884,23 +884,30 @@
   }
 
   /* ── AI tutor widget: "Ember", Modilix's tutor ── only shown while inside a lesson (#lp-player).
-     Ember is a living little flame-spirit, not a static icon: he floats, blinks, reacts to
-     correct/incorrect answers even while the chat is closed, and occasionally pipes up on
-     his own with a floating speech bubble so the corner of the lesson feels inhabited. */
-  #ember-dock { display:none; position:fixed; right:1.5rem; bottom:1.5rem; z-index:130; flex-direction:column; align-items:flex-end; gap:.5rem; }
+     Styled after a companion that lives loose in the corner of the screen (à la Koji on
+     Brilliant) rather than a boxed chat widget: an organic glowing blob peeking in from the
+     edge, with messages floating directly over the lesson as bare bubbles — no card, no
+     border, no header bar. */
+  #ember-dock { display:none; position:fixed; left:-1.25rem; bottom:-1.25rem; z-index:130; flex-direction:column; align-items:flex-start; gap:.6rem; }
   #test-page.lp-mode #ember-dock { display:flex; }
 
-  #tutor-launcher { position:relative; width:76px; height:76px; border-radius:50%; border:none; background:transparent; cursor:pointer;
-    padding:0; filter:drop-shadow(0 12px 26px rgba(255,90,54,.45)); transition:transform .25s var(--ease-premium), filter .25s var(--ease-premium); }
-  #tutor-launcher:hover { transform:translateY(-3px) scale(1.05); filter:drop-shadow(0 16px 32px rgba(255,90,54,.55)); }
+  #tutor-launcher { position:relative; width:112px; height:112px; border-radius:50%; border:none; background:transparent; cursor:pointer;
+    padding:0; transition:transform .25s var(--ease-premium); }
+  #tutor-launcher::before { content:''; position:absolute; inset:8px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,138,92,.55) 0%, rgba(180,107,255,.32) 55%, transparent 78%);
+    filter:blur(14px); animation:emberGlow 3.4s ease-in-out infinite; }
+  @keyframes emberGlow { 0%,100% { opacity:.6; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
+  #tutor-launcher:hover { transform:translateY(-3px) scale(1.05); }
   #tutor-launcher:active { transform:translateY(0) scale(.96); }
-  #tutor-launcher.has-pulse::after { content:''; position:absolute; inset:-6px; border-radius:50%; border:2px solid rgba(255,138,92,.55); animation:tutorPulse 2.2s ease-out infinite; }
+  #tutor-launcher.has-pulse::after { content:''; position:absolute; inset:14px; border-radius:50%; border:2px solid rgba(255,138,92,.55); animation:tutorPulse 2.2s ease-out infinite; }
   @keyframes tutorPulse { 0% { transform:scale(.9); opacity:.9; } 100% { transform:scale(1.35); opacity:0; } }
 
-  #ember-svg { width:100%; height:100%; overflow:visible; }
+  #ember-svg { width:100%; height:100%; overflow:visible; position:relative; }
   .ember-float { animation:emberFloat 3.4s ease-in-out infinite; transform-origin:50% 100%; }
   @keyframes emberFloat { 0%,100% { transform:translateY(0) rotate(-1.5deg); } 50% { transform:translateY(-6px) rotate(1.5deg); } }
   .ember-body-shape { transition:fill .3s; }
+  .ember-flicker { transform-origin:50px 30px; animation:emberFlicker 2.2s ease-in-out infinite; }
+  @keyframes emberFlicker { 0%,100% { transform:rotate(-4deg) scale(1); } 50% { transform:rotate(5deg) scale(1.05); } }
   .ember-eye { transform-origin:center; transition:transform .15s; }
   .ember-eyes-group { animation:emberBlink 4.6s ease-in-out infinite; transform-origin:center; }
   @keyframes emberBlink { 0%,92%,100% { transform:scaleY(1); } 95% { transform:scaleY(.1); } }
@@ -922,52 +929,53 @@
   #tutor-launcher.mood-sad .ember-float { animation:emberWobbleSad .6s var(--ease-premium); }
   @keyframes emberWobbleSad { 0%,100% { transform:translateY(0) rotate(0); } 25% { transform:translateY(3px) rotate(-6deg); } 75% { transform:translateY(3px) rotate(6deg); } }
 
-  /* Ember's unprompted reaction bubble — appears even when the chat panel is closed */
-  #ember-bubble { max-width:220px; background:var(--board-2); color:var(--board-ink); border:1px solid rgba(255,255,255,.12);
-    border-radius:14px 14px 4px 14px; padding:.55rem .85rem; font-family:'Inter',sans-serif; font-weight:600; font-size:.8rem; line-height:1.35;
-    box-shadow:0 14px 30px -8px rgba(0,0,0,.4); opacity:0; transform:translateY(6px) scale(.94); pointer-events:none;
+  /* Ember's unprompted reaction bubble — bare speech-bubble, no panel needed to show it */
+  #ember-bubble { max-width:200px; margin-left:2.5rem; background:rgba(255,255,255,.97); color:#1c1f2b;
+    border-radius:16px 16px 16px 4px; padding:.55rem .85rem; font-family:'Inter',sans-serif; font-weight:600; font-size:.8rem; line-height:1.35;
+    box-shadow:0 14px 30px -8px rgba(0,0,0,.35); opacity:0; transform:translateY(6px) scale(.94); pointer-events:none;
     transition:opacity .22s var(--ease-premium), transform .22s var(--ease-premium); }
   #ember-bubble.show { opacity:1; transform:translateY(0) scale(1); }
 
-  #tutor-panel { display:none; position:fixed; right:1.75rem; bottom:1.75rem; width:360px; max-width:calc(100vw - 2.5rem);
-    height:min(520px, 70vh); background:var(--board-2); border:1px solid rgba(255,255,255,.1); border-radius:20px;
-    box-shadow:0 24px 60px -12px rgba(0,0,0,.55); z-index:131; flex-direction:column; overflow:hidden;
-    animation:tutorPanelIn .3s var(--ease-premium) both; }
+  /* ── Chat: no card/panel chrome at all — just a loose stack of bare bubbles floating
+     over the lesson content above Ember, plus a borderless input pill. */
+  #tutor-panel { display:none; position:fixed; left:1.5rem; bottom:9rem; width:340px; max-width:calc(100vw - 3rem);
+    max-height:min(460px, 60vh); z-index:131; flex-direction:column; gap:.6rem; }
   #tutor-panel.open { display:flex; }
-  @keyframes tutorPanelIn { from { opacity:0; transform:translateY(16px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
-  #tutor-panel-head { display:flex; align-items:center; gap:.6rem; justify-content:space-between; padding:.9rem 1.1rem;
-    font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; color:var(--board-ink); border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0; }
-  #tutor-panel-head .tutor-head-id { display:flex; align-items:center; gap:.55rem; }
+  #tutor-panel-head { display:none; } /* identity is carried by Ember himself sitting below the stack */
   .tutor-avatar { width:26px; height:26px; border-radius:50%; flex-shrink:0; position:relative;
     background:radial-gradient(circle at 30% 25%, #ffd166 0%, #ff5a36 40%, #b46bff 75%, #4a2fbe 100%); }
   .tutor-avatar.sm { width:22px; height:22px; }
   .tutor-avatar::before, .tutor-avatar::after { content:''; position:absolute; top:44%; width:3px; height:4px; border-radius:50%; background:rgba(28,31,43,.85); }
   .tutor-avatar::before { left:32%; } .tutor-avatar::after { right:32%; }
-  #tutor-close-btn { background:none; border:none; color:rgba(246,244,239,.6); cursor:pointer; font-size:.95rem; transition:color .18s, transform .18s var(--ease-premium); }
-  #tutor-counter { font-family:'Inter',sans-serif; font-weight:600; font-size:.7rem; color:rgba(246,244,239,.5);
-    background:rgba(255,255,255,.08); border-radius:999px; padding:.2rem .55rem; margin-left:auto; margin-right:.6rem; transition:color .2s, background .2s; }
-  #tutor-counter.low { color:#ffb3b3; background:rgba(229,72,77,.18); }
-  #tutor-close-btn:hover { color:var(--board-ink); transform:rotate(90deg); }
-  #tutor-messages { flex:1; overflow-y:auto; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.7rem; }
-  .tutor-row { display:flex; gap:.5rem; align-items:flex-end; max-width:85%; align-self:flex-start; }
+  #tutor-close-btn { display:none; } /* Ember himself toggles open/closed now, see tutor-launcher click handler */
+  #tutor-counter { position:absolute; top:-1.6rem; right:0; font-family:'Inter',sans-serif; font-weight:600; font-size:.7rem; color:var(--ink-faint);
+    background:var(--paper-2); border-radius:999px; padding:.2rem .55rem; transition:color .2s, background .2s; }
+  #tutor-counter.low { color:#e5484d; background:rgba(229,72,77,.12); }
+  #tutor-messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:.55rem; padding:.3rem .2rem; position:relative;
+    mask-image:linear-gradient(to bottom, transparent 0, #000 24px); }
+  .tutor-row { display:flex; gap:.5rem; align-items:flex-end; max-width:82%; align-self:flex-start; animation:fadeInUp .25s var(--ease-premium) both; }
   .tutor-row.user { align-self:flex-end; flex-direction:row-reverse; }
-  .tutor-msg { padding:.65rem .9rem; border-radius:14px; font-size:.85rem; line-height:1.5; animation:lpFeedbackPop .3s var(--ease-premium) both; }
+  .tutor-row .tutor-avatar { display:none; } /* Ember himself sits below the stack — no repeated mini-avatars needed */
+  .tutor-msg { padding:.6rem .9rem; border-radius:16px; font-size:.85rem; line-height:1.5; box-shadow:0 8px 20px -8px rgba(20,20,30,.25); }
   .tutor-msg.user { background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; border-bottom-right-radius:4px; }
-  .tutor-msg.bot { background:rgba(255,255,255,.06); color:rgba(246,244,239,.92); border-bottom-left-radius:4px; }
-  .tutor-msg.bot.error { background:rgba(229,72,77,.15); color:#ffb3b3; }
+  .tutor-msg.bot { background:rgba(255,255,255,.97); color:#1c1f2b; border-bottom-left-radius:4px; }
+  .tutor-msg.bot.error { background:#fdecec; color:#c0392b; }
   .tutor-msg.typing { display:flex; gap:4px; align-items:center; padding:.75rem .9rem; }
-  .tutor-msg.typing span { width:6px; height:6px; border-radius:50%; background:rgba(246,244,239,.55); animation:tutorTyping 1s ease-in-out infinite; }
+  .tutor-msg.typing span { width:6px; height:6px; border-radius:50%; background:rgba(28,31,43,.4); animation:tutorTyping 1s ease-in-out infinite; }
   .tutor-msg.typing span:nth-child(2) { animation-delay:.15s; } .tutor-msg.typing span:nth-child(3) { animation-delay:.3s; }
   @keyframes tutorTyping { 0%,60%,100% { transform:translateY(0); opacity:.5; } 30% { transform:translateY(-4px); opacity:1; } }
-  #tutor-input-row { display:flex; gap:.5rem; padding:.85rem; border-top:1px solid rgba(255,255,255,.08); flex-shrink:0; }
-  #tutor-input { flex:1; resize:none; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.1); border-radius:12px;
-    padding:.6rem .8rem; color:var(--board-ink); font-family:'Inter',sans-serif; font-size:.85rem; outline:none; max-height:90px; transition:border-color .18s; }
+  #tutor-input-row { display:flex; gap:.5rem; align-items:center; flex-shrink:0; }
+  #tutor-input { flex:1; resize:none; background:rgba(255,255,255,.97); border:1.5px solid transparent; border-radius:999px;
+    padding:.65rem 1.1rem; color:#1c1f2b; font-family:'Inter',sans-serif; font-size:.85rem; outline:none; max-height:90px;
+    box-shadow:0 10px 26px -10px rgba(20,20,30,.3); transition:border-color .18s, box-shadow .18s; }
   #tutor-input:focus { border-color:var(--blue); }
   #tutor-send-btn { width:38px; height:38px; border-radius:50%; border:none; background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; font-size:1.1rem; cursor:pointer;
-    flex-shrink:0; transition:transform .18s var(--ease-premium), filter .18s; }
+    flex-shrink:0; box-shadow:0 10px 22px -8px rgba(124,92,255,.5); transition:transform .18s var(--ease-premium), filter .18s; }
   #tutor-send-btn:hover { filter:brightness(1.08); transform:scale(1.06); }
   #tutor-send-btn:disabled { opacity:.5; cursor:not-allowed; }
-  @media (max-width:480px){ #tutor-panel { right:.9rem; bottom:5.2rem; } #tutor-launcher { right:1.1rem; bottom:1.1rem; } }
+  @media (max-width:480px){ #tutor-panel { left:.9rem; bottom:7.4rem; } #ember-dock { left:-1rem; bottom:-1rem; } #tutor-launcher { width:92px; height:92px; } }
+
+
 
 
   /* ── Block-to-block transition ── the slot fades/slides briefly before
@@ -2146,34 +2154,36 @@
         <button class="btn-sm" id="lp-prev-btn">← Back</button>
         <button class="modal-btn" style="width:auto;" id="lp-next-btn">Continue</button>
       </div>
-      <!-- AI tutor: Ember, a living little flame character docked in the corner, plus his slide-in chat panel — scoped to the lesson player -->
+      <!-- AI tutor: Ember, a living little companion character docked loose in the corner (not boxed), plus his floating chat bubbles — scoped to the lesson player -->
       <div id="ember-dock">
         <div id="ember-bubble"></div>
         <button id="tutor-launcher" title="Ask Ember" aria-label="Ask Ember">
-          <svg id="ember-svg" viewBox="0 0 100 116" xmlns="http://www.w3.org/2000/svg">
+          <svg id="ember-svg" viewBox="0 0 100 108" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <radialGradient id="ember-grad" cx="32%" cy="26%" r="85%">
+              <radialGradient id="ember-grad" cx="30%" cy="24%" r="90%">
                 <stop offset="0" stop-color="#ffd166"/>
-                <stop offset=".4" stop-color="#ff5a36"/>
-                <stop offset=".75" stop-color="#b46bff"/>
+                <stop offset=".42" stop-color="#ff5a36"/>
+                <stop offset=".76" stop-color="#b46bff"/>
                 <stop offset="1" stop-color="#4a2fbe"/>
               </radialGradient>
             </defs>
             <g class="ember-float">
-              <ellipse class="ember-spark ember-spark-1" cx="14" cy="46" rx="4" ry="5" fill="#ffd166"/>
-              <ellipse class="ember-spark ember-spark-2" cx="88" cy="52" rx="3.4" ry="4.4" fill="#ffb37a"/>
-              <path class="ember-body-shape" fill="url(#ember-grad)" d="M50 6C34 24 20 40 20 62c0 18 13.5 32 30 32s30-14 30-32c0-11-5-20-11-28 1 8-3 14-8 16 3-10-2-20-11-28-3 9 1 15-2 19C44 34 42 20 50 6Z"/>
+              <!-- lopsided, hand-drawn-feeling blob body — asymmetric on purpose so it doesn't read as a generic teardrop/circle -->
+              <path class="ember-body-shape" fill="url(#ember-grad)" d="M52 32C68 29 87 40 90 60C93 82 76 101 53 100C31 99 10 85 9 62C8 42 22 33 40 31C44 30.5 48 32.5 52 32Z"/>
+              <!-- small flame-flicker perched on top — keeps the "Ember" identity without a generic teardrop silhouette -->
+              <path class="ember-flicker" fill="url(#ember-grad)" d="M46 30C42 21 46 11 55 5C51 15 57 18 53 27C51 31 47 33 46 30Z"/>
               <g class="ember-eyes-group">
-                <ellipse class="ember-eye" cx="41" cy="66" rx="4.2" ry="5.4" fill="#1c1f2b"/>
-                <ellipse class="ember-eye" cx="60" cy="66" rx="4.2" ry="5.4" fill="#1c1f2b"/>
+                <ellipse class="ember-eye" cx="39" cy="63" rx="4.4" ry="5.6" fill="#1c1f2b"/>
+                <ellipse class="ember-eye" cx="61" cy="63" rx="4.4" ry="5.6" fill="#1c1f2b"/>
               </g>
-              <circle class="ember-cheek" cx="34" cy="76" r="4.5" fill="#ff8a5c" opacity=".55"/>
-              <circle class="ember-cheek" cx="67" cy="76" r="4.5" fill="#ff8a5c" opacity=".55"/>
-              <path class="ember-mouth" d="M43 78q7 7 14 0" stroke="#1c1f2b" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <circle class="ember-cheek" cx="31" cy="74" r="4.6" fill="#ff8a5c" opacity=".55"/>
+              <circle class="ember-cheek" cx="69" cy="74" r="4.6" fill="#ff8a5c" opacity=".55"/>
+              <path class="ember-mouth" d="M41 76q9 8 18 0" stroke="#1c1f2b" stroke-width="3" stroke-linecap="round" fill="none"/>
             </g>
           </svg>
         </button>
       </div>
+
       <div id="tutor-panel">
         <div id="tutor-panel-head">
           <span class="tutor-head-id"><span class="tutor-avatar" id="tutor-panel-avatar"></span> Ember</span>
@@ -8934,12 +8944,12 @@ function tutorHideTyping(){ document.getElementById('tutor-typing')?.remove(); }
 
 function tutorUpdateCounter(){
   const remaining = Math.max(0, tutorMsgLimit - tutorMsgCount);
-  const head = document.getElementById('tutor-panel-head');
+  const panel = document.getElementById('tutor-panel');
   let badge = document.getElementById('tutor-counter');
   if(!badge){
     badge = document.createElement('span');
     badge.id = 'tutor-counter';
-    head.insertBefore(badge, document.getElementById('tutor-close-btn'));
+    panel.appendChild(badge);
   }
   badge.textContent = `${remaining} left`;
   badge.classList.toggle('low', remaining<=1);
@@ -9032,9 +9042,11 @@ setInterval(()=>{
 
 document.getElementById('tutor-launcher').onclick = ()=>{
   const panel = document.getElementById('tutor-panel');
-  panel.classList.add('open');
+  const opening = !panel.classList.contains('open');
+  panel.classList.toggle('open');
   document.getElementById('ember-bubble')?.classList.remove('show');
   document.getElementById('tutor-launcher').classList.remove('has-pulse');
+  if(!opening) return;
   emberSetMood('happy', 700);
   if(!document.getElementById('tutor-messages').childElementCount){
     tutorAppendMessage('bot', `Hey, I'm Ember 🔥 Ask me anything about what's on screen — I won't just hand you the answer, but I'll help you think it through. You've got ${tutorMsgLimit} questions for this lesson, so make 'em count.`);
