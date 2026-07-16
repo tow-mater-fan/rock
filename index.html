@@ -583,13 +583,26 @@
   .pc-right { max-width:640px; width:44%; background:#14161f; color:#f6f4ef; box-shadow:-20px 0 60px rgba(0,0,0,.35); position:relative; display:flex; flex-direction:column; }
   .pc-back { align-self:flex-start; background:none; border:none; color:rgba(246,244,239,.6); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; margin-bottom:1.5rem; padding:0; }
   .pc-back:hover { color:#fff; }
-  .pc-total-row { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:1.25rem; border-bottom:1px solid rgba(255,255,255,.1); margin-bottom:1.5rem; }
-  .pc-total-label { font-family:'Sora',sans-serif; font-weight:700; font-size:1.1rem; }
-  .pc-total-detail { font-size:.78rem; color:rgba(246,244,239,.55); margin-top:.3rem; }
-  .pc-total-amt { font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; }
+  .pc-total-row { display:flex; justify-content:space-between; align-items:center; padding-bottom:.9rem; }
+  .pc-total-label { font-family:'Sora',sans-serif; font-weight:700; font-size:1.35rem; }
+  .pc-total-amt { font-family:'Sora',sans-serif; font-weight:800; font-size:2rem; }
+  .pc-details-toggle { display:inline-flex; align-items:center; gap:.35rem; background:none; border:none; color:#8ab4ff; font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; padding:0; margin-bottom:.5rem; }
+  .pc-details-chevron { width:14px; height:14px; transition:transform .2s; }
+  .pc-details-toggle.open .pc-details-chevron { transform:rotate(180deg); }
+  .pc-total-detail { border-top:1px solid rgba(255,255,255,.1); padding-top:.9rem; margin-bottom:.9rem; }
+  .pc-total-detail-row { font-size:.85rem; color:rgba(246,244,239,.7); }
+  .pc-right > .pc-section-label:first-of-type { margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,.1); }
   .pc-section-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; margin-bottom:.85rem; }
   #pc-payment-element { min-height:220px; margin-bottom:1.25rem; }
   .pc-loading { font-size:.85rem; color:rgba(246,244,239,.5); padding:2rem 0; text-align:center; }
+  .pc-promo-row { display:flex; gap:.5rem; margin-bottom:.5rem; }
+  .pc-promo-input { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:.75rem .9rem; color:#f6f4ef; font-family:'Sora',sans-serif; font-size:.9rem; }
+  .pc-promo-input::placeholder { color:rgba(246,244,239,.4); }
+  .pc-promo-input:focus { outline:none; border-color:#8ab4ff; }
+  .pc-promo-apply-btn { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:.75rem 1.25rem; color:#f6f4ef; font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; white-space:nowrap; }
+  .pc-promo-apply-btn:hover:not(:disabled) { background:rgba(255,255,255,.16); }
+  .pc-promo-apply-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .pc-promo-status { margin:0 0 1.25rem; font-size:.8rem; line-height:1.4; }
   .pc-check-row { display:flex; gap:.6rem; align-items:flex-start; font-size:.76rem; line-height:1.5; color:rgba(246,244,239,.65); margin-bottom:.9rem; cursor:pointer; }
   .pc-check-row input { margin-top:.15rem; accent-color:var(--blue); flex-shrink:0; }
   .pc-check-row a { color:#8ab4ff; text-decoration:underline; }
@@ -1465,6 +1478,7 @@
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h6v18H6a2 2 0 0 1-2-2V5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M20 5a2 2 0 0 0-2-2h-6v18h6a2 2 0 0 0 2-2V5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
     <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-sigma" viewBox="0 0 24 24"><path d="M18 5H6l6 7-6 7h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
@@ -1574,23 +1588,24 @@
   <div class="pc-panel pc-right">
     <button class="pc-back" onclick="closePremiumCheckout()">← Back</button>
     <div class="pc-total-row">
-      <div>
-        <div class="pc-total-label" id="pc-total-label">Total due today</div>
-        <div class="pc-total-detail" id="pc-plan-detail">Annual plan · save 37% vs. monthly</div>
-      </div>
+      <div class="pc-total-label" id="pc-total-label">Total due today</div>
       <div class="pc-total-amt" id="pc-total-amt">—</div>
+    </div>
+    <button type="button" class="pc-details-toggle" id="pc-details-toggle" onclick="togglePremiumDetails()">
+      View details <svg class="icon pc-details-chevron" id="pc-details-chevron"><use href="#i-chevron-down"/></svg>
+    </button>
+    <div class="pc-total-detail hidden" id="pc-plan-detail-wrap">
+      <div class="pc-total-detail-row"><span id="pc-plan-detail">Annual plan · save 37% vs. monthly</span></div>
     </div>
 
     <div class="pc-section-label">Payment method</div>
     <div id="pc-payment-element"><div class="pc-loading">Loading payment form…</div></div>
 
-    <div class="pc-promo-row" style="display:flex;gap:.5rem;margin-bottom:1.25rem;">
-      <input type="text" id="pc-promo-input" placeholder="Promo code" autocomplete="off"
-        style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem .75rem;color:#f6f4ef;font-family:'Sora',sans-serif;">
-      <button type="button" class="pc-promo-apply-btn" id="pc-promo-apply-btn" onclick="applyPremiumPromoCode()"
-        style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem 1rem;color:#f6f4ef;font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;">Apply</button>
+    <div class="pc-promo-row">
+      <input type="text" id="pc-promo-input" placeholder="Promo code" autocomplete="off" class="pc-promo-input">
+      <button type="button" class="pc-promo-apply-btn" id="pc-promo-apply-btn" onclick="applyPremiumPromoCode()">Apply</button>
     </div>
-    <div id="pc-promo-status" class="pc-promo-status hidden" style="margin:-.75rem 0 1.25rem;font-size:.85rem;"></div>
+    <div id="pc-promo-status" class="pc-promo-status hidden"></div>
 
     <label class="pc-check-row">
       <input type="checkbox" id="pc-agree-terms">
@@ -3690,6 +3705,13 @@ let pcMode = 'payment'; // 'payment' or 'setup' — which Stripe intent we're co
 let pcIsTrial = false;
 let pcAppliedPromoCode = null; // promo code string currently applied server-side, or null
 
+function togglePremiumDetails(){
+  const wrap = document.getElementById('pc-plan-detail-wrap');
+  const btn = document.getElementById('pc-details-toggle');
+  wrap.classList.toggle('hidden');
+  btn.classList.toggle('open');
+}
+
 async function openPremiumCheckout(){
   if(!currentUser || isEducator) return;
   if(isPremiumUser()){ closePremiumModal(); return; }
@@ -3704,6 +3726,8 @@ async function openPremiumCheckout(){
   document.getElementById('pc-agree-renew').checked = false;
   document.getElementById('pc-promo-input').value = '';
   document.getElementById('pc-promo-status').classList.add('hidden');
+  document.getElementById('pc-plan-detail-wrap').classList.add('hidden');
+  document.getElementById('pc-details-toggle').classList.remove('open');
   pcAppliedPromoCode = null;
   const subBtn = document.getElementById('pc-subscribe-btn');
   pcMode = 'payment'; pcIsTrial = false;
