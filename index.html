@@ -114,7 +114,10 @@
   /* ── NAV ── */
   nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
     display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:60px;
-    border-bottom:1px solid rgba(255,255,255,.08); }
+    border-bottom:1px solid rgba(255,255,255,.08); gap:.5rem; }
+  .nav-logo { flex-shrink:0; }
+  .nav-progress { flex-shrink:1; min-width:0; }
+  .nav-toggle { flex-shrink:0; }
   .nav-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.25rem; color:var(--board-ink); cursor:pointer; display:flex; align-items:center; gap:.55rem; }
   .nav-logo .brand-mark { transition:transform .3s var(--ease-premium); }
   .nav-logo:hover .brand-mark { transform:rotate(-8deg) scale(1.08); }
@@ -1416,6 +1419,14 @@
     .tp-body { padding:2rem 1.25rem 5rem; }
     .modal { padding:1.5rem 1.25rem; }
   }
+  @media(max-width:480px){
+    nav { padding:0 .85rem; }
+    .nav-progress { gap:.25rem; }
+    .nav-premium-btn { padding:.42rem .55rem; }
+    .nav-premium-btn .np-label { display:none; }
+    .nav-streak, .nav-xp { padding:.28rem .4rem; font-size:.68rem; }
+    .nav-sound-btn { display:none; } /* still reachable from the hamburger menu; not essential top-bar real estate on tiny screens */
+  }
 </style>
 </head>
 <body>
@@ -1471,7 +1482,7 @@
     <span class="brand-wordmark">Modilix</span>
   </div>
   <div class="nav-progress" id="nav-progress" style="display:none;">
-    <button class="nav-premium-btn" id="nav-premium-btn" onclick="openPremiumModal()"><svg class="icon"><use href="#i-sparkle"/></svg> Go Premium</button>
+    <button class="nav-premium-btn" id="nav-premium-btn" onclick="openPremiumModal()"><svg class="icon"><use href="#i-sparkle"/></svg> <span class="np-label">Go Premium</span></button>
     <span class="nav-streak" id="nav-streak-chip" title="Daily streak"><svg class="icon"><use href="#i-flame"/></svg> <span id="nav-streak-count">0</span></span>
     <span class="nav-xp" id="nav-xp-chip" title="Total XP"><svg class="icon"><use href="#i-bolt"/></svg> <span id="nav-xp-count">0</span> XP</span>
     <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button>
@@ -1504,7 +1515,7 @@
 </div>
 
 <div class="modal-overlay" id="premium-modal-overlay">
-  <div class="modal premium-modal" style="max-width:920px; text-align:center; overflow:visible;">
+  <div class="modal premium-modal" style="max-width:920px; text-align:center;">
     <button class="modal-close" onclick="closePremiumModal()"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="premium-modal-key" aria-hidden="true"><svg class="icon"><use href="#i-key"/></svg></div>
     <h2 class="premium-modal-title">Unlock the full Modilix experience</h2>
@@ -3559,8 +3570,15 @@ document.addEventListener('click',e=>{if(!navToggle.contains(e.target)&&!navLink
 const mainNavEl = document.querySelector('nav');
 window.addEventListener('scroll', ()=>{ mainNavEl.classList.toggle('scrolled', window.scrollY > 8); }, { passive:true });
 
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+// Body scroll lock — without this, scrolling while a modal/overlay is open just
+// scrolls the (invisible, covered-up) page behind it instead of doing nothing
+// or scrolling the overlay's own content, which reads as "scrolling is broken."
+let __openOverlayCount = 0;
+function lockBodyScroll(){ __openOverlayCount++; document.body.style.overflow = 'hidden'; }
+function unlockBodyScroll(){ __openOverlayCount = Math.max(0, __openOverlayCount-1); if(__openOverlayCount===0) document.body.style.overflow = ''; }
+
+function openModal(id){document.getElementById(id).classList.add('open'); lockBodyScroll();}
+function closeModal(id){document.getElementById(id).classList.remove('open'); unlockBodyScroll();}
 document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
 
 /* ══════════════════════════════════════
@@ -3640,8 +3658,9 @@ function openPremiumModal(){
   if(offerEl) offerEl.textContent = "Premium gives you a higher AI tutor limit, unlimited test downloads, and more. Every lesson and unit test stays free either way.";
   selectPremiumPlan(selectedPremiumPlan);
   document.getElementById('premium-modal-overlay').classList.add('open');
+  lockBodyScroll();
 }
-function closePremiumModal(){ document.getElementById('premium-modal-overlay').classList.remove('open'); }
+function closePremiumModal(){ document.getElementById('premium-modal-overlay').classList.remove('open'); unlockBodyScroll(); }
 
 const PREMIUM_PLAN_INFO = {
   monthly: { label: 'Monthly plan', detail: 'Billed monthly (CA$4/month)' },
@@ -3675,6 +3694,7 @@ async function openPremiumCheckout(){
   const subBtn = document.getElementById('pc-subscribe-btn');
   subBtn.disabled = true; subBtn.innerHTML = '<svg class="icon"><use href="#i-lock"/></svg> Subscribe now';
   document.getElementById('premium-checkout-overlay').classList.add('open');
+  lockBodyScroll();
 
   try{
     if(!stripeClient) throw new Error('Stripe.js failed to load');
@@ -3712,6 +3732,7 @@ async function openPremiumCheckout(){
 
 function closePremiumCheckout(){
   document.getElementById('premium-checkout-overlay').classList.remove('open');
+  unlockBodyScroll();
   pcPaymentElement = null; pcElements = null;
 }
 
