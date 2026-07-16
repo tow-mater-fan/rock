@@ -9588,6 +9588,26 @@ function waitForFirebaseUser(){
   });
 }
 
+// Defensive fallback for orphaned accounts: auth (Firebase or Supabase) can
+// succeed while the profiles row insert that's supposed to follow it never
+// completes (network blip, a bot-protection layer in some embed/preview
+// context interrupting the request, etc.). Left alone, that leaves every
+// later query (student_progress, responses, skills...) failing against a
+// profiles.id that doesn't exist. Self-heal by creating a minimal profile
+// instead of leaving the account permanently broken.
+async function ensureProfileExists(uid, existingProfile){
+  if(existingProfile) return existingProfile;
+  console.warn('No profile row found for', uid, '— auto-creating a fallback student profile.');
+  const { data: created, error } = await db.from('profiles')
+    .upsert({ id: uid, role:'student', school_id:null }, { onConflict:'id', ignoreDuplicates:true })
+    .select().maybeSingle();
+  if(error){ console.error('Fallback profile creation failed', error); return null; }
+  if(created) return created;
+  // ignoreDuplicates:true returns nothing on a race where another tab created it first — re-fetch.
+  const { data: refetched } = await db.from('profiles').select('*').eq('id', uid).maybeSingle();
+  return refetched || null;
+}
+
 (async function init(){
   renderEducatorModal();
   const [{ data: { session } }, fbUser] = await Promise.all([
@@ -9600,15 +9620,15 @@ function waitForFirebaseUser(){
     firebaseUser = fbUser;
     db = sbStudent;
     await getStudentAccessToken();
-    const { data: profile } = await db.from('profiles').select('*').eq('id', fbUser.uid).single();
+    const { data: profile } = await db.from('profiles').select('*').eq('id', fbUser.uid).maybeSingle();
     currentUser = { id: fbUser.uid, email: fbUser.email };
-    currentProfile = profile;
+    currentProfile = await ensureProfileExists(fbUser.uid, profile);
     isEducator = false;
   } else if(session){
     currentUser = session.user;
-    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
-    currentProfile = profile;
-    isEducator = !!profile && profile.role === 'educator';
+    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+    currentProfile = await ensureProfileExists(currentUser.id, profile);
+    isEducator = !!currentProfile && currentProfile.role === 'educator';
   }
 
   await loadCatalog();
