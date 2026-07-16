@@ -1575,7 +1575,7 @@
     <button class="pc-back" onclick="closePremiumCheckout()">← Back</button>
     <div class="pc-total-row">
       <div>
-        <div class="pc-total-label">Total due today</div>
+        <div class="pc-total-label" id="pc-total-label">Total due today</div>
         <div class="pc-total-detail" id="pc-plan-detail">Annual plan · save 37% vs. monthly</div>
       </div>
       <div class="pc-total-amt" id="pc-total-amt">—</div>
@@ -1583,6 +1583,14 @@
 
     <div class="pc-section-label">Payment method</div>
     <div id="pc-payment-element"><div class="pc-loading">Loading payment form…</div></div>
+
+    <div class="pc-promo-row" style="display:flex;gap:.5rem;margin-bottom:1.25rem;">
+      <input type="text" id="pc-promo-input" placeholder="Promo code" autocomplete="off"
+        style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem .75rem;color:#f6f4ef;font-family:'Sora',sans-serif;">
+      <button type="button" class="pc-promo-apply-btn" id="pc-promo-apply-btn" onclick="applyPremiumPromoCode()"
+        style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:.6rem 1rem;color:#f6f4ef;font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;">Apply</button>
+    </div>
+    <div id="pc-promo-status" class="pc-promo-status hidden" style="margin:-.75rem 0 1.25rem;font-size:.85rem;"></div>
 
     <label class="pc-check-row">
       <input type="checkbox" id="pc-agree-terms">
@@ -3678,6 +3686,9 @@ async function getCurrentAccessToken(){
 // pricing modal, and asks create-subscription for a PaymentIntent to confirm.
 let pcElements = null;
 let pcPaymentElement = null;
+let pcMode = 'payment'; // 'payment' or 'setup' — which Stripe intent we're confirming
+let pcIsTrial = false;
+let pcAppliedPromoCode = null; // promo code string currently applied server-side, or null
 
 async function openPremiumCheckout(){
   if(!currentUser || isEducator) return;
@@ -3691,11 +3702,24 @@ async function openPremiumCheckout(){
   document.getElementById('pc-error').classList.add('hidden');
   document.getElementById('pc-agree-terms').checked = false;
   document.getElementById('pc-agree-renew').checked = false;
+  document.getElementById('pc-promo-input').value = '';
+  document.getElementById('pc-promo-status').classList.add('hidden');
+  pcAppliedPromoCode = null;
   const subBtn = document.getElementById('pc-subscribe-btn');
+  pcMode = 'payment'; pcIsTrial = false;
   subBtn.disabled = true; subBtn.innerHTML = '<svg class="icon"><use href="#i-lock"/></svg> Subscribe now';
   document.getElementById('premium-checkout-overlay').classList.add('open');
   lockBodyScroll();
 
+  await fetchAndMountPremiumCheckout();
+}
+
+// Re-runs create-subscription (optionally with a promo code) and (re)mounts
+// the Stripe Elements form against the resulting client secret. Used both
+// for the initial checkout load and whenever the promo code is applied,
+// since applying a discount means a new/updated subscription + intent.
+async function fetchAndMountPremiumCheckout(){
+  const subBtn = document.getElementById('pc-subscribe-btn');
   try{
     if(!stripeClient) throw new Error('Stripe.js failed to load');
     const accessToken = await getCurrentAccessToken();
@@ -3706,34 +3730,109 @@ async function openPremiumCheckout(){
         'Authorization': `Bearer ${accessToken}`,
         'apikey': SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({ plan: selectedPremiumPlan }),
+      body: JSON.stringify({ plan: selectedPremiumPlan, promoCode: pcAppliedPromoCode || undefined }),
     });
     const data = await res.json();
     if(!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start checkout');
 
-    document.getElementById('pc-total-amt').textContent =
-      (data.amount/100).toLocaleString(undefined, { style:'currency', currency:(data.currency||'cad').toUpperCase() });
+    pcMode = data.mode === 'setup' ? 'setup' : 'payment';
+    pcIsTrial = !!data.trial;
+
+    if(pcIsTrial){
+      document.getElementById('pc-total-amt').textContent = '$0.00 — 30 days free';
+      document.getElementById('pc-total-label').textContent = 'Due today';
+    } else {
+      document.getElementById('pc-total-label').textContent = 'Total due today';
+      document.getElementById('pc-total-amt').textContent =
+        (data.amount/100).toLocaleString(undefined, { style:'currency', currency:(data.currency||'cad').toUpperCase() });
+    }
+
+    const statusEl = document.getElementById('pc-promo-status');
+    if(data.discount){
+      const savings = data.discount.percentOff != null
+        ? `${data.discount.percentOff}% off`
+        : `${(data.discount.amountOff/100).toLocaleString(undefined,{style:'currency',currency:(data.currency||'cad').toUpperCase()})} off`;
+      statusEl.textContent = `✓ Promo "${data.discount.code}" applied — ${savings}${pcIsTrial ? ' after your trial' : ''}.`;
+      statusEl.style.color = '#4ade80';
+      statusEl.classList.remove('hidden');
+    } else if(pcAppliedPromoCode){
+      statusEl.classList.add('hidden');
+    }
 
     pcElements = stripeClient.elements({ clientSecret: data.clientSecret, appearance: {
       theme: 'night',
       variables: { colorPrimary:'#ff5a36', colorBackground:'#1c1f2c', colorText:'#f6f4ef', borderRadius:'10px' },
     }});
     document.getElementById('pc-payment-element').innerHTML = '';
+    // 'payment' mode uses the Payment Element (card + wallets etc for an
+    // immediate charge); 'setup' mode (trial, $0 due today) uses the same
+    // Payment Element UI but it's driven by a SetupIntent client secret, so
+    // Stripe collects and saves the card without charging it now.
     pcPaymentElement = pcElements.create('payment');
     pcPaymentElement.mount('#pc-payment-element');
+    document.getElementById('pc-error').classList.add('hidden');
     subBtn.disabled = false;
+    subBtn.innerHTML = pcIsTrial
+      ? '<svg class="icon"><use href="#i-lock"/></svg> Start free trial'
+      : '<svg class="icon"><use href="#i-lock"/></svg> Subscribe now';
+    return true;
   }catch(err){
     document.getElementById('pc-payment-element').innerHTML = '';
     const errEl = document.getElementById('pc-error');
     errEl.textContent = err.message;
     errEl.classList.remove('hidden');
+    return false;
   }
 }
 
 function closePremiumCheckout(){
   document.getElementById('premium-checkout-overlay').classList.remove('open');
   unlockBodyScroll();
-  pcPaymentElement = null; pcElements = null;
+  pcPaymentElement = null; pcElements = null; pcAppliedPromoCode = null;
+}
+
+// Applies the promo code the student typed by re-calling create-subscription
+// with it, which mints a fresh (discounted) subscription + intent and
+// remounts the payment form against it. On failure, the previously applied
+// code (if any) is restored and the existing checkout is left usable.
+async function applyPremiumPromoCode(){
+  const input = document.getElementById('pc-promo-input');
+  const statusEl = document.getElementById('pc-promo-status');
+  const applyBtn = document.getElementById('pc-promo-apply-btn');
+  const code = input.value.trim();
+  if(!code){
+    statusEl.textContent = 'Enter a code first.';
+    statusEl.style.color = '#f6f4ef';
+    statusEl.classList.remove('hidden');
+    return;
+  }
+
+  applyBtn.disabled = true;
+  const prevLabel = applyBtn.textContent;
+  applyBtn.textContent = 'Checking…';
+  statusEl.classList.add('hidden');
+
+  const previousCode = pcAppliedPromoCode;
+  pcAppliedPromoCode = code;
+  const ok = await fetchAndMountPremiumCheckout();
+  if(!ok){
+    // fetchAndMountPremiumCheckout already surfaced the error in pc-error;
+    // mirror it next to the promo field too, and fall back to whatever was
+    // applied (or wasn't) before this attempt so checkout stays usable.
+    const errText = document.getElementById('pc-error').textContent;
+    statusEl.textContent = errText || 'Could not apply that code.';
+    statusEl.style.color = '#ff6b6b';
+    statusEl.classList.remove('hidden');
+    pcAppliedPromoCode = previousCode;
+    await fetchAndMountPremiumCheckout();
+    statusEl.textContent = errText || 'Could not apply that code.';
+    statusEl.style.color = '#ff6b6b';
+    statusEl.classList.remove('hidden');
+  } else {
+    input.value = code;
+  }
+  applyBtn.disabled = false;
+  applyBtn.textContent = prevLabel;
 }
 
 // Covers the rare case where a payment method (not a card) required leaving
@@ -3771,13 +3870,24 @@ async function confirmPremiumCheckout(){
   const btn = document.getElementById('pc-subscribe-btn');
   btn.disabled = true; btn.textContent = 'Processing…';
 
-  const { error, paymentIntent } = await stripeClient.confirmPayment({
-    elements: pcElements,
-    redirect: 'if_required',
-    confirmParams: {
-      return_url: window.location.origin + window.location.pathname + '?premium=success',
-    },
-  });
+  // Trial subscriptions have a $0 first invoice, so create-subscription
+  // returns a SetupIntent (saves the card for billing at trial end) instead
+  // of a PaymentIntent (charges now). Confirm whichever one we actually got.
+  const { error } = pcMode === 'setup'
+    ? await stripeClient.confirmSetup({
+        elements: pcElements,
+        redirect: 'if_required',
+        confirmParams: {
+          return_url: window.location.origin + window.location.pathname + '?premium=success',
+        },
+      })
+    : await stripeClient.confirmPayment({
+        elements: pcElements,
+        redirect: 'if_required',
+        confirmParams: {
+          return_url: window.location.origin + window.location.pathname + '?premium=success',
+        },
+      });
 
   if(error){
     errEl.textContent = error.message || 'Payment failed. Please check your details and try again.';
@@ -3805,7 +3915,8 @@ async function confirmPremiumCheckout(){
   // Webhook hasn't landed yet — close out anyway, it'll catch up shortly.
   closePremiumCheckout();
   showXpToast(0);
-  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Payment received — activating…');
+  const fallbackMsg = pcIsTrial ? 'Trial started — activating…' : 'Payment received — activating…';
+  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = `<svg class="icon"><use href="#i-sparkle"/></svg> ${fallbackMsg}`);
 }
 
 function showXpToast(amount){
