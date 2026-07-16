@@ -3676,6 +3676,14 @@ function selectPremiumPlan(plan){
 }
 
 function openPremiumModal(){
+  if(!currentUser){
+    pendingPremiumIntent = true;
+    studentModalMode = 'signin';
+    renderStudentModal();
+    openModal('student-overlay');
+    return;
+  }
+  if(isEducator) return;
   renderPremiumUI();
   const offerEl = document.getElementById('premium-modal-offer');
   if(offerEl) offerEl.textContent = "Premium gives you a higher AI tutor limit, unlimited test downloads, and more. Every lesson and unit test stays free either way.";
@@ -3713,7 +3721,15 @@ function togglePremiumDetails(){
 }
 
 async function openPremiumCheckout(){
-  if(!currentUser || isEducator) return;
+  if(!currentUser){
+    closePremiumModal();
+    pendingPremiumIntent = true;
+    studentModalMode = 'signin';
+    renderStudentModal();
+    openModal('student-overlay');
+    return;
+  }
+  if(isEducator) return;
   if(isPremiumUser()){ closePremiumModal(); return; }
   closePremiumModal();
 
@@ -7455,6 +7471,7 @@ document.getElementById('home-cta-signin-btn').onclick = ()=>{ studentModalMode=
 
 /* ── Student sign-in / sign-up ── */
 let studentModalMode = 'signin';
+let pendingPremiumIntent = false; // set when sign-in was triggered by "Go Premium" so we can resume it after auth
 function renderStudentModal(){
   document.getElementById('student-modal-title').textContent = studentModalMode==='signin' ? 'Sign in' : 'Create account';
   document.getElementById('student-confirm-btn').textContent = studentModalMode==='signin' ? 'Sign in' : 'Sign up';
@@ -7463,7 +7480,7 @@ function renderStudentModal(){
   document.getElementById('student-error').textContent='';
 }
 document.getElementById('student-auth-btn').onclick = ()=>{ studentModalMode='signin'; renderStudentModal(); openModal('student-overlay'); };
-document.getElementById('student-close').onclick = ()=>closeModal('student-overlay');
+document.getElementById('student-close').onclick = ()=>{ pendingPremiumIntent = false; closeModal('student-overlay'); };
 document.getElementById('student-toggle-mode-btn').onclick = ()=>{ studentModalMode = studentModalMode==='signin' ? 'signup' : 'signin'; renderStudentModal(); };
 
 document.getElementById('student-google-btn').onclick = async ()=>{
@@ -7502,6 +7519,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
   await loadReviewLog();
     updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('dashboard'); }
     if(isNewGoogleSignup) startTour('student');
+    if(pendingPremiumIntent){ pendingPremiumIntent = false; openPremiumModal(); }
   } catch(err){
     console.error(err);
     document.getElementById('student-error').textContent = err.message || 'Google sign-in failed.';
@@ -7545,6 +7563,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   await loadReviewLog();
   updateAccountUI(); if(currentCourseId){ openCourseDetail(currentCourseId); } else { showPage('dashboard'); }
   if(studentModalMode==='signup') startTour('student');
+  if(pendingPremiumIntent){ pendingPremiumIntent = false; openPremiumModal(); }
 };
 
 /* ── Shared sign-out ── */
