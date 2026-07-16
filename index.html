@@ -576,10 +576,18 @@
   .pc-panel { flex:1; min-width:0; min-height:0; padding:3.25rem 4rem; overflow-y:auto; }
   .pc-left { display:flex; flex-direction:column; justify-content:center; color:#f6f4ef; position:relative; }
   .pc-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; position:absolute; top:2.5rem; left:3.5rem; }
-  .pc-hero-icon { font-size:3rem; margin-bottom:1rem; filter:drop-shadow(0 10px 24px rgba(124,92,255,.4)); }
+  .pc-hero-ember { width:150px; height:150px; margin-bottom:1.25rem; filter:drop-shadow(0 14px 30px rgba(255,90,54,.35)); }
+  .pc-hero-ember-svg { width:100%; height:100%; overflow:visible; }
+  .pc-hero-ember .ember-float { animation:emberFloat 3.4s ease-in-out infinite; transform-origin:50% 100%; }
   .pc-hero-title { font-size:2.6rem; line-height:1.15; margin-bottom:2rem; }
   .pc-feature-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:1rem; font-size:.95rem; color:rgba(246,244,239,.85); }
   .pc-powered { margin-top:2.5rem; font-size:.72rem; color:rgba(246,244,239,.4); }
+  .pc-or-divider { display:flex; align-items:center; gap:.9rem; margin:1.1rem 0; color:rgba(246,244,239,.4); font-size:.72rem; font-weight:700; letter-spacing:.04em; }
+  .pc-or-divider::before, .pc-or-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.12); }
+  .pc-or-divider.hidden { display:none; }
+  #pc-express-checkout-element { margin-bottom:0; min-height:1px; }
+  #pc-express-checkout-element:empty { display:none; }
+  #pc-express-checkout-element:empty + .pc-or-divider { display:none; }
   .pc-right { max-width:640px; width:44%; background:#14161f; color:#f6f4ef; box-shadow:-20px 0 60px rgba(0,0,0,.35); position:relative; display:flex; flex-direction:column; }
   .pc-back { align-self:flex-start; background:none; border:none; color:rgba(246,244,239,.6); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; margin-bottom:1.5rem; padding:0; }
   .pc-back:hover { color:#fff; }
@@ -1574,11 +1582,31 @@
 <div class="pc-overlay" id="premium-checkout-overlay">
   <div class="pc-panel pc-left">
     <div class="pc-logo"><svg class="brand-mark" viewBox="0 0 40 40" style="width:24px;height:24px;display:inline-flex;vertical-align:middle;"><defs><radialGradient id="pcBrandGrad" cx="30%" cy="25%" r="85%"><stop offset="0" stop-color="#ffd166"/><stop offset=".4" stop-color="#ff5a36"/><stop offset=".75" stop-color="#b46bff"/><stop offset="1" stop-color="#4a2fbe"/></radialGradient></defs><rect width="40" height="40" rx="13" fill="url(#pcBrandGrad)"/><path d="M9 29 L9 12 L20 21 L31 12 L31 29 L25.5 29 L25.5 18.5 L20 23.5 L14.5 18.5 L14.5 29 Z" fill="#fff"/></svg> <span class="brand-wordmark">Modilix</span></div>
-    <div class="pc-hero-icon"><svg class="icon"><use href="#i-key"/></svg></div>
+    <div class="pc-hero-ember">
+      <svg viewBox="0 0 100 108" xmlns="http://www.w3.org/2000/svg" class="pc-hero-ember-svg">
+        <defs>
+          <radialGradient id="pcEmberGrad" cx="30%" cy="24%" r="90%">
+            <stop offset="0" stop-color="#ffd166"/>
+            <stop offset=".42" stop-color="#ff5a36"/>
+            <stop offset=".76" stop-color="#b46bff"/>
+            <stop offset="1" stop-color="#4a2fbe"/>
+          </radialGradient>
+        </defs>
+        <g class="ember-float">
+          <path fill="url(#pcEmberGrad)" d="M52 32C68 29 87 40 90 60C93 82 76 101 53 100C31 99 10 85 9 62C8 42 22 33 40 31C44 30.5 48 32.5 52 32Z"/>
+          <path fill="url(#pcEmberGrad)" d="M46 30C42 21 46 11 55 5C51 15 57 18 53 27C51 31 47 33 46 30Z"/>
+          <ellipse cx="39" cy="63" rx="4.4" ry="5.6" fill="#1c1f2b"/>
+          <ellipse cx="61" cy="63" rx="4.4" ry="5.6" fill="#1c1f2b"/>
+          <circle cx="31" cy="74" r="4.6" fill="#ff8a5c" opacity=".55"/>
+          <circle cx="69" cy="74" r="4.6" fill="#ff8a5c" opacity=".55"/>
+          <path d="M41 76q9 8 18 0" stroke="#1c1f2b" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </g>
+      </svg>
+    </div>
     <h2 class="pc-hero-title">Supercharge<br>your learning</h2>
     <ul class="pc-feature-list">
       <li><svg class="icon"><use href="#i-chart"/></svg> Unlimited access to all courses</li>
-      <li><svg class="icon"><use href="#i-chat"/></svg> Unlimited AI tutor questions</li>
+      <li><svg class="icon"><use href="#i-chat"/></svg> Tutoring by Ember</li>
       <li><svg class="icon"><use href="#i-ban"/></svg> No in-app purchases or ads</li>
       <li><svg class="icon"><use href="#i-sparkle"/></svg> New content added regularly</li>
     </ul>
@@ -1599,6 +1627,8 @@
     </div>
 
     <div class="pc-section-label">Payment method</div>
+    <div id="pc-express-checkout-element"></div>
+    <div class="pc-or-divider" id="pc-or-divider"><span>OR</span></div>
     <div id="pc-payment-element"><div class="pc-loading">Loading payment form…</div></div>
 
     <div class="pc-promo-row">
@@ -3803,12 +3833,61 @@ async function fetchAndMountPremiumCheckout(){
       theme: 'night',
       variables: { colorPrimary:'#ff5a36', colorBackground:'#1c1f2c', colorText:'#f6f4ef', borderRadius:'10px' },
     }});
+
+    // Express Checkout Element renders whatever wallet/one-click methods are
+    // enabled on the Stripe account (PayPal, Apple Pay, Google Pay, Link) as
+    // its own button(s) above the card form — this is what gives the PayPal
+    // button + "OR" divider layout. If nothing is available for this
+    // customer/browser it renders empty, so we hide the divider to match.
+    const expressWrap = document.getElementById('pc-express-checkout-element');
+    const orDivider = document.getElementById('pc-or-divider');
+    expressWrap.innerHTML = '';
+    orDivider.classList.add('hidden');
+    const pcExpressCheckoutElement = pcElements.create('expressCheckout', {
+      buttonHeight: 48,
+      paymentMethods: { link: 'never' },
+    });
+    pcExpressCheckoutElement.on('ready', (event)=>{
+      const hasMethods = event.availablePaymentMethods && Object.keys(event.availablePaymentMethods).length > 0;
+      orDivider.classList.toggle('hidden', !hasMethods);
+    });
+    pcExpressCheckoutElement.on('confirm', async ()=>{
+      if(!document.getElementById('pc-agree-terms').checked || !document.getElementById('pc-agree-renew').checked){
+        const errEl = document.getElementById('pc-error');
+        errEl.textContent = 'Please check both boxes above to continue.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      const { error } = pcMode === 'setup'
+        ? await stripeClient.confirmSetup({
+            elements: pcElements,
+            redirect: 'if_required',
+            confirmParams: { return_url: window.location.origin + window.location.pathname + '?premium=success' },
+          })
+        : await stripeClient.confirmPayment({
+            elements: pcElements,
+            redirect: 'if_required',
+            confirmParams: { return_url: window.location.origin + window.location.pathname + '?premium=success' },
+          });
+      if(error){
+        const errEl = document.getElementById('pc-error');
+        errEl.textContent = error.message || 'Payment failed. Please check your details and try again.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      await pollPremiumActivation();
+    });
+    pcExpressCheckoutElement.mount('#pc-express-checkout-element');
+
     document.getElementById('pc-payment-element').innerHTML = '';
-    // 'payment' mode uses the Payment Element (card + wallets etc for an
-    // immediate charge); 'setup' mode (trial, $0 due today) uses the same
-    // Payment Element UI but it's driven by a SetupIntent client secret, so
-    // Stripe collects and saves the card without charging it now.
-    pcPaymentElement = pcElements.create('payment');
+    // 'payment' mode uses the Payment Element (card only, since wallets are
+    // handled above by the Express Checkout Element) for an immediate
+    // charge; 'setup' mode (trial, $0 due today) uses the same Payment
+    // Element UI but it's driven by a SetupIntent client secret, so Stripe
+    // collects and saves the card without charging it now.
+    pcPaymentElement = pcElements.create('payment', {
+      wallets: { applePay: 'never', googlePay: 'never' },
+    });
     pcPaymentElement.mount('#pc-payment-element');
     document.getElementById('pc-error').classList.add('hidden');
     subBtn.disabled = false;
@@ -3936,10 +4015,15 @@ async function confirmPremiumCheckout(){
     return;
   }
 
-  // Payment succeeded (or is processing) without leaving the page — Stripe's
-  // webhook will flip is_premium shortly; poll briefly so the UI updates
-  // without a manual refresh.
   btn.textContent = 'Activating…';
+  await pollPremiumActivation();
+}
+
+// Payment/SetupIntent succeeded (or is processing) without leaving the page
+// — Stripe's webhook will flip is_premium shortly; poll briefly so the UI
+// updates without a manual refresh. Shared by the card form (confirmPremiumCheckout)
+// and the Express Checkout Element's own confirm handler (PayPal/wallets).
+async function pollPremiumActivation(){
   for(let i=0; i<6; i++){
     await new Promise(r=>setTimeout(r, 1200));
     const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
