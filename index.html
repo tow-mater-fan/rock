@@ -1201,9 +1201,19 @@
   .nav-premium-btn.is-premium { background:linear-gradient(120deg, #2eb872, #ff5a36, #7c5cff); background-size:220% 220%; color:#fff; animation:navPremiumDrift 6s ease-in-out infinite; }
   .nav-streak, .nav-xp { font-family:'Sora',sans-serif; font-weight:800; font-size:.82rem; color:var(--board-ink);
     background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:100px; padding:.35rem .75rem;
-    display:flex; align-items:center; gap:.3rem; transition:transform .2s; }
+    display:flex; align-items:center; gap:.3rem; transition:transform .2s, background .2s, border-color .2s, box-shadow .2s; }
   .nav-streak.bump, .nav-xp.bump { animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
   .nav-xp span, .nav-streak span { color:var(--gold); }
+  /* Streak chip gets its own, bolder treatment than XP once it's actually lit
+     (streak > 0) — a warm gradient fill + glow + a bigger, flame-colored icon
+     — so it reads as a distinct, prominent thing rather than blending into
+     the same muted pill as every other nav badge. */
+  .nav-streak { font-size:.92rem; padding:.42rem .9rem .42rem .7rem; }
+  .nav-streak .icon { width:1.15em; height:1.15em; color:rgba(246,244,239,.45); transition:color .2s, filter .2s; }
+  .nav-streak.lit { background:linear-gradient(120deg, rgba(255,90,54,.22), rgba(245,166,35,.18)); border-color:rgba(255,144,54,.55);
+    box-shadow:0 0 0 1px rgba(255,144,54,.15), 0 4px 14px -4px rgba(255,90,54,.45); }
+  .nav-streak.lit .icon { color:#ff9036; filter:drop-shadow(0 0 5px rgba(255,144,54,.65)); animation:flameFlicker 1.8s ease-in-out infinite; }
+  .nav-streak.lit span { color:#ffb648; }
   .nav-sound-btn { background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:50%;
     width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; transition:transform .15s, background .15s; }
   .nav-sound-btn:hover { background:rgba(246,244,239,.16); transform:scale(1.12); }
@@ -1599,6 +1609,7 @@
       <li><span><svg class="icon"><use href="#i-chat"/></svg></span> A much higher AI tutor question limit</li>
       <li><span><svg class="icon"><use href="#i-chart"/></svg></span> Full topic-by-topic mastery breakdown &amp; weak-spot detection</li>
       <li><span><svg class="icon"><use href="#i-sparkle"/></svg></span> Ember-generated practice sets that target your weak spots</li>
+      <li><span><svg class="icon"><use href="#i-flame"/></svg></span> Streak Shield — miss one day without losing your streak</li>
       <li><span><svg class="icon"><use href="#i-palette"/></svg></span> Exclusive accent themes</li>
     </ul>
 
@@ -1690,6 +1701,7 @@
           <span class="dash-streak-num" id="dash-streak-num">0</span><span class="dash-streak-flame"><svg class="icon"><use href="#i-flame"/></svg></span>
         </div>
         <div class="dash-streak-sub" id="dash-streak-sub">Solve a lesson to start a streak</div>
+        <div id="dash-streak-shield-note" style="display:none; align-items:center; gap:.3rem; font-size:.72rem; color:var(--ink-faint); margin-top:-1rem; margin-bottom:1.25rem;"><svg class="icon" style="width:.85em;height:.85em;"><use href="#i-flame"/></svg> Streak Shield active — one missed day won't break your streak</div>
         <div class="dash-week-row" id="dash-week-row"></div>
       </div>
       <div class="dash-card dash-league-card" onclick="showPage('review')" style="cursor:pointer;">
@@ -3730,6 +3742,7 @@ function renderNavProgress(){
   wrap.style.display='flex';
   document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
   document.getElementById('nav-xp-count').textContent = studentProgress.xp;
+  document.getElementById('nav-streak-chip').classList.toggle('lit', (studentProgress.current_streak||0) > 0);
 }
 
 function isPremiumUser(){ return !!studentProgress.is_premium; }
@@ -4705,6 +4718,8 @@ function renderDashboard(){
   document.getElementById('dash-streak-sub').textContent = (studentProgress.current_streak||0) > 0
     ? `${studentProgress.current_streak}-day streak — keep it going!`
     : 'Finish a lesson today to start a streak';
+  const shieldNote = document.getElementById('dash-streak-shield-note');
+  if(shieldNote) shieldNote.style.display = isPremiumUser() ? 'flex' : 'none';
   renderDashboardWeek();
   document.getElementById('dash-review-sub').textContent = `${studentProgress.xp||0} XP earned so far — review today's set`;
   renderPremiumUI();
@@ -4772,13 +4787,11 @@ function renderCourses(){
       const [c1,c2] = SUBJECT_GRADIENTS[c.subject] || SUBJECT_GRADIENTS.other;
       const glyph = `<svg class=\"icon\"><use href=\"#i-${SUBJECT_GLYPHS[c.subject]||'star'}\"/></svg>`;
       const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
-      const level = getCourseLevel(pct);
       return `<div class="course-tile stagger-in ${pct>=100?'course-tile-mastered':''}" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
         <div class="course-tile-top">
           <div class="course-tile-shimmer"></div>
           <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:.3rem; align-items:flex-start;">
             <span class="course-tile-stream">Gr. ${c.grade} · ${c.stream}</span>
-            ${level ? `<span class="course-tile-level">${level.icon} ${level.label}</span>` : ''}
           </div>
           <span class="course-tile-glyph">${glyph}</span>
           ${isEducator ? `<button class="course-tile-delete" data-course-delete="${c.id}" title="Delete course" onclick="event.stopPropagation(); confirmDelete('course','${c.id}');">✕</button>` : ''}
