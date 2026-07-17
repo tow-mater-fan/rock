@@ -551,10 +551,17 @@
   .premium-plans { display:grid; grid-template-columns:repeat(3, 1fr); gap:1.1rem; margin:0 0 1.6rem; }
   .premium-plan-card { position:relative; background:var(--paper-2); border:1.5px solid var(--rule); border-radius:var(--radius-lg);
     padding:1.5rem 1rem 1.25rem; cursor:pointer; font-family:inherit; text-align:center; transition:all .18s var(--ease-premium); }
-  .premium-plan-card:hover { transform:translateY(-2px); border-color:var(--blue); box-shadow:var(--shadow-md); }
+  /* Ring + lift on hover — a box-shadow ring (rather than border-color) so
+     the feedback still shows on .is-popular, whose border is drawn via the
+     two-layer gradient-background trick below and can't be recolored by
+     border-color alone. */
+  .premium-plan-card:hover { transform:translateY(-3px); border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg), var(--shadow-lg); }
+  .premium-plan-card:active { transform:translateY(-1px) scale(.99); }
   .premium-plan-card.is-selected { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg); }
+  .premium-plan-card.is-selected:hover { box-shadow:0 0 0 3px var(--blue-bg), var(--shadow-lg); }
   .premium-plan-card.is-popular { border:2px solid transparent; background:linear-gradient(var(--paper-2), var(--paper-2)) padding-box,
     linear-gradient(120deg,#7c5cff,#ff5a36,#f5a623) border-box; }
+  .premium-plan-card.is-popular:hover { box-shadow:0 0 0 3px rgba(124,92,255,.35), var(--shadow-lg); }
   .premium-plan-badge { position:absolute; top:-.7rem; left:50%; transform:translateX(-50%); background:linear-gradient(120deg,#7c5cff,#ff5a36);
     color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:.62rem; letter-spacing:.04em; padding:.3rem .7rem; border-radius:100px; white-space:nowrap; }
   .premium-plan-name { font-family:'Sora',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:.5rem; }
@@ -568,6 +575,22 @@
   .premium-subscribe-btn { background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
     width:100%; max-width:360px; }
   @media (max-width:720px){ .premium-plans { grid-template-columns:1fr; } .premium-modal { padding:2rem 1.25rem 1.75rem; } }
+  /* On tablet/desktop, let the modal use noticeably more of the viewport
+     instead of sitting at a fixed 920px — scales the whole card grid,
+     type, and spacing up together. */
+  @media (min-width:900px){
+    .premium-modal { max-width:min(92vw, 1180px) !important; padding:3.25rem 4rem 3rem; }
+    .premium-modal-key { font-size:3.2rem; }
+    .premium-modal-title { font-size:2.1rem; }
+    .premium-modal .desc { max-width:640px; font-size:1.02rem; }
+    .premium-plans { gap:1.5rem; margin-bottom:2rem; }
+    .premium-plan-card { padding:2rem 1.5rem 1.75rem; }
+    .premium-plan-name { font-size:1.2rem; }
+    .premium-plan-price .amt { font-size:1.65rem; }
+    .premium-plan-note { font-size:.8rem; }
+    .premium-feature-list { max-width:520px; font-size:.95rem; gap:.8rem; }
+    .premium-feature-list li { font-size:.95rem; }
+  }
 
   /* ── EMBEDDED CHECKOUT (Stripe Elements, stays on-page) ── */
   .pc-overlay { position:fixed; inset:0; z-index:600; display:none; opacity:0; transition:opacity .25s;
@@ -577,15 +600,15 @@
   /* pc-card is the big centered card (like the reference layout); the two
      original panels (.pc-left / .pc-right) now sit side-by-side *inside* it
      instead of stretching across the full viewport. */
-  .pc-card { width:100%; max-width:1180px; min-height:640px; margin:auto; display:flex;
+  .pc-card { width:min(94vw, 1500px); min-height:min(84vh, 760px); margin:auto; display:flex;
     background:#14161f; border-radius:28px; overflow:hidden; box-shadow:0 40px 100px -20px rgba(0,0,0,.55); }
-  .pc-panel { flex:1; min-width:0; min-height:0; padding:3.25rem 3.5rem; overflow-y:auto; }
+  .pc-panel { flex:1 1 50%; min-width:0; min-height:0; padding:3.5rem 4rem; overflow-y:auto; }
   .pc-left { display:flex; flex-direction:column; justify-content:center; color:#f6f4ef; position:relative; background:linear-gradient(160deg, #1f1832, #2a1d1a); }
-  .pc-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; position:absolute; top:2.25rem; left:3.5rem; }
+  .pc-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; position:absolute; top:2.25rem; left:4rem; }
   .pc-hero-ember { width:130px; height:130px; margin-bottom:1.25rem; filter:drop-shadow(0 14px 30px rgba(255,90,54,.35)); }
   .pc-hero-ember-svg { width:100%; height:100%; overflow:visible; }
   .pc-hero-ember .ember-float { animation:emberFloat 3.4s ease-in-out infinite; transform-origin:50% 100%; }
-  .pc-hero-title { font-size:2.3rem; line-height:1.15; margin-bottom:1.75rem; }
+  .pc-hero-title { font-size:clamp(1.9rem, 2.7vw, 2.7rem); line-height:1.2; margin-bottom:1.75rem; max-width:19ch; }
   .pc-feature-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:1rem; font-size:.95rem; color:rgba(246,244,239,.85); }
   .pc-powered { margin-top:2.5rem; font-size:.72rem; color:rgba(246,244,239,.4); }
   .pc-or-divider { display:flex; align-items:center; gap:.9rem; margin:1.1rem 0; color:rgba(246,244,239,.4); font-size:.72rem; font-weight:700; letter-spacing:.04em; }
@@ -1610,7 +1633,7 @@
         </g>
       </svg>
     </div>
-    <h2 class="pc-hero-title">Supercharge<br>your learning</h2>
+    <h2 class="pc-hero-title">Supercharge your learning</h2>
     <ul class="pc-feature-list">
       <li><svg class="icon"><use href="#i-chart"/></svg> Unlimited access to all courses</li>
       <li><svg class="icon"><use href="#i-chat"/></svg> Tutoring by Ember</li>
