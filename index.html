@@ -2371,14 +2371,6 @@
     <h1 id="tp-title"></h1>
     <div class="tp-progress-track"><div class="tp-progress-fill" id="tp-progress-fill"></div></div>
   </div>
-  <svg class="tp-mascot" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs><linearGradient id="tpMascotGrad" x1="0" y1="0" x2="40" y2="40">
-      <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
-    </linearGradient></defs>
-    <rect width="40" height="40" rx="12" fill="url(#tpMascotGrad)"/>
-    <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
-  </svg>
   <div class="tp-body">
     <div id="tp-questions"></div>
     <div class="tp-submit-row" id="tp-submit-row">
@@ -5175,13 +5167,13 @@ let lessonIntroSeen = false;
 function showLessonIntro(callback){
   const overlay = document.createElement('div');
   overlay.className = 'lesson-intro-overlay';
-  overlay.innerHTML = `<svg class="lesson-intro-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs><linearGradient id="liGrad" x1="0" y1="0" x2="40" y2="40">
-      <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
-    </linearGradient></defs>
-    <rect width="40" height="40" rx="12" fill="url(#liGrad)"/>
-    <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
+  overlay.innerHTML = `<svg class="lesson-intro-mark brand-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><radialGradient id="liBrandGrad" cx="30%" cy="25%" r="85%">
+      <stop offset="0" stop-color="#ffd166"/><stop offset=".4" stop-color="#ff5a36"/>
+      <stop offset=".75" stop-color="#b46bff"/><stop offset="1" stop-color="#4a2fbe"/>
+    </radialGradient></defs>
+    <rect width="40" height="40" rx="13" fill="url(#liBrandGrad)"/>
+    <path d="M9 29 L9 12 L20 21 L31 12 L31 29 L25.5 29 L25.5 18.5 L20 23.5 L14.5 18.5 L14.5 29 Z" fill="#fff"/>
   </svg>`;
   document.body.appendChild(overlay);
   const duration = lessonIntroSeen ? 420 : 700;
