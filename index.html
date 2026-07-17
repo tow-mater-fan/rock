@@ -3817,6 +3817,23 @@ async function openPremiumCheckout(){
   }
   if(isEducator) return;
   if(isPremiumUser()){ closePremiumModal(); return; }
+
+  // The cached studentProgress.is_premium flag can lag behind reality: right
+  // after a successful subscribe, the Stripe webhook needs a moment to land,
+  // and if the student navigates away before pollPremiumActivation() catches
+  // it, the local cache is left stale at false. Re-checking live here avoids
+  // opening a checkout form for someone who is already subscribed, which
+  // would otherwise fail server-side with an "Already subscribed" error.
+  try{
+    const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
+    if(data?.is_premium){
+      studentProgress.is_premium = true;
+      renderPremiumUI();
+      closePremiumModal();
+      return;
+    }
+  }catch(e){ /* if this check fails, fall through — create-subscription will catch it too */ }
+
   closePremiumModal();
 
   const info = PREMIUM_PLAN_INFO[selectedPremiumPlan];
@@ -3859,7 +3876,21 @@ async function fetchAndMountPremiumCheckout(){
       body: JSON.stringify({ plan: selectedPremiumPlan, promoCode: pcAppliedPromoCode || undefined }),
     });
     const data = await res.json();
-    if(!res.ok || !data.clientSecret) throw new Error(data.error || 'Could not start checkout');
+    if(!res.ok || !data.clientSecret){
+      if(data.error === 'Already subscribed'){
+        // Race condition: the subscription activated (webhook landed)
+        // between when the checkout modal opened and now. Treat this as
+        // success rather than an error — refresh status and close out.
+        const { data: progress } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
+        studentProgress.is_premium = !!progress?.is_premium;
+        renderPremiumUI();
+        closePremiumCheckout();
+        showXpToast(0);
+        document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> You\'re already on Premium!');
+        return true;
+      }
+      throw new Error(data.error || 'Could not start checkout');
+    }
 
     pcMode = data.mode === 'setup' ? 'setup' : 'payment';
     pcIsTrial = !!data.trial;
