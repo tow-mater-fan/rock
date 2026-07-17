@@ -4417,24 +4417,24 @@ function renderProgressPage(){
       <div class="prog-sub">How far you've gotten through each course you're enrolled in.</div>
       ${courseBars}
     </div>
-    <div class="prog-section prog-locked-wrap" id="prog-mastery-section">
-      <div class="prog-locked-content">
+    <div class="prog-section ${premium ? '' : 'prog-locked-wrap'}" id="prog-mastery-section">
+      <div class="${premium ? '' : 'prog-locked-content'}">
         <h3>Topic mastery</h3>
         <div class="prog-sub">Your average score on quizzes and tests, broken down by topic — this is where you can actually see what's sunk in.</div>
         ${unitRows}
       </div>
       ${premium ? '' : progLockedCTA('See exactly which topics need review')}
     </div>
-    <div class="prog-section prog-locked-wrap" id="prog-weak-section">
-      <div class="prog-locked-content">
+    <div class="prog-section ${premium ? '' : 'prog-locked-wrap'}" id="prog-weak-section">
+      <div class="${premium ? '' : 'prog-locked-content'}">
         <h3>Weak spots to cover</h3>
         <div class="prog-sub">Your lowest-scoring topics, so you know exactly what to review before calling a course "done."</div>
         ${weakList}
       </div>
       ${premium ? '' : progLockedCTA('Unlock your personalized weak-spot list')}
     </div>
-    <div class="prog-locked-wrap" id="prog-ai-section">
-      <div class="prog-locked-content">
+    <div class="${premium ? '' : 'prog-locked-wrap'}" id="prog-ai-section">
+      <div class="${premium ? '' : 'prog-locked-content'}">
         <div class="prog-ember-card">
           <div class="prog-ember-head"><span class="tutor-avatar"></span><strong>Ember's take</strong></div>
           <div class="prog-ember-body" id="prog-ember-body">Let me take a look over your stats…</div>
@@ -4443,8 +4443,8 @@ function renderProgressPage(){
       </div>
       ${premium ? '' : progLockedCTA("Get Ember's personalized AI study plan")}
     </div>
-    <div class="prog-section prog-locked-wrap" id="prog-practice-section">
-      <div class="prog-locked-content">
+    <div class="prog-section ${premium ? '' : 'prog-locked-wrap'}" id="prog-practice-section">
+      <div class="${premium ? '' : 'prog-locked-content'}">
         <h3>Personalized practice</h3>
         <div class="prog-sub">A short set of AI-generated questions targeting exactly the topics you're weakest on. Doesn't affect your grades — just extra reps.</div>
         <div id="prog-practice-body">
