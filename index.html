@@ -1799,6 +1799,25 @@
       </div>
     </div>
 
+    <div class="acct-card" id="acct-billing-card" style="display:none;">
+      <h3>Billing</h3>
+      <div class="acct-settings-row">
+        <div>
+          <div class="acct-settings-label" id="acct-billing-plan">—</div>
+          <div class="acct-settings-sub" id="acct-billing-sub">—</div>
+        </div>
+        <span class="acct-role-chip" id="acct-billing-status-chip" style="background:var(--green-bg); color:var(--green-ink,var(--green));"></span>
+      </div>
+      <div class="acct-settings-row" style="border-bottom:none;">
+        <div>
+          <div class="acct-settings-label">Manage subscription</div>
+          <div class="acct-settings-sub">Update your card, switch plans, download invoices, or cancel — all through Stripe's secure billing portal.</div>
+        </div>
+        <button class="btn-sm" id="acct-manage-billing-btn"><svg class="icon"><use href="#i-lock"/></svg> Manage billing</button>
+      </div>
+      <div id="acct-billing-error" style="color:var(--red); font-size:.78rem; margin-top:.6rem;"></div>
+    </div>
+
     <div class="acct-card">
       <h3>Appearance</h3>
       <div class="acct-settings-row">
@@ -7839,6 +7858,69 @@ function renderAccountPage(){
   }
 
   renderSoundToggle();
+  renderAccountBilling();
+}
+
+// ── Billing (Stripe Customer Portal) ─────────────────────────────────
+// Pulls the student's row from `subscriptions` (kept in sync by the
+// stripe-webhook function) to show plan/status/renewal, and hands off to
+// Stripe's own hosted Customer Portal for everything else — updating the
+// card, viewing/downloading invoices, switching plans, and cancelling —
+// rather than re-building all of that natively in Modilix.
+const BILLING_STATUS_LABEL = {
+  active: 'Active', trialing: 'Free trial', past_due: 'Payment failed',
+  canceled: 'Canceled', incomplete: 'Incomplete', incomplete_expired: 'Expired', unpaid: 'Unpaid',
+};
+async function renderAccountBilling(){
+  const card = document.getElementById('acct-billing-card');
+  if(!currentUser || isEducator){ card.style.display = 'none'; return; }
+  const { data: sub } = await db.from('subscriptions')
+    .select('plan, status, current_period_end, cancel_at_period_end, stripe_customer_id')
+    .eq('student_id', currentUser.id).maybeSingle();
+
+  if(!sub?.stripe_customer_id){ card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  const planLabel = { monthly:'Monthly plan', annual:'Annual plan', family:'Group membership' }[sub.plan] || 'Modilix plan';
+  document.getElementById('acct-billing-plan').textContent = planLabel;
+
+  const chip = document.getElementById('acct-billing-status-chip');
+  chip.textContent = BILLING_STATUS_LABEL[sub.status] || sub.status || '—';
+  const isGood = sub.status === 'active' || sub.status === 'trialing';
+  chip.style.background = isGood ? 'var(--green-bg)' : 'var(--red-bg)';
+  chip.style.color = isGood ? 'var(--green-ink,var(--green))' : 'var(--red-ink,var(--red))';
+
+  const renewalDate = sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' }) : null;
+  document.getElementById('acct-billing-sub').textContent = renewalDate
+    ? (sub.cancel_at_period_end ? `Ends ${renewalDate} — won't renew` : `Renews ${renewalDate}`)
+    : 'Manage your plan, payment method, and invoices below.';
+}
+document.getElementById('acct-manage-billing-btn').onclick = async ()=>{
+  const btn = document.getElementById('acct-manage-billing-btn');
+  const errEl = document.getElementById('acct-billing-error');
+  errEl.textContent = '';
+  btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = 'Loading…';
+  try{
+    const accessToken = await getCurrentAccessToken();
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-portal-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'apikey': SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ return_url: window.location.origin + window.location.pathname + '?page=account' }),
+    });
+    const data = await res.json();
+    if(!res.ok || !data.url) throw new Error(data.error || 'Could not open the billing portal.');
+    window.location.href = data.url;
+  }catch(err){
+    errEl.textContent = err.message || 'Something went wrong opening billing. Please try again.';
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
 }
 
 // Keep the account-page sound button in sync too.
