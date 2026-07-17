@@ -167,7 +167,7 @@
   .hero-flex, .hero-inner { position:relative; z-index:1; }
   @keyframes heroBlobFloat { 0%,100% { transform:translate(0,0) scale(1); } 50% { transform:translate(30px,-20px) scale(1.08); } }
   .hero-shapes { position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .hero-shape { position:absolute; opacity:.55; animation:heroShapeFloat 6.5s ease-in-out infinite; }
+  .hero-shape { position:absolute; opacity:.25; animation:heroShapeFloat 6.5s ease-in-out infinite; }
   .hero-shape-1 { top:18%; left:6%; width:14px; height:14px; border-radius:50%; background:var(--gold); }
   .hero-shape-2 { top:65%; left:11%; width:0; height:0; border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:16px solid var(--teal); animation-delay:-2s; }
   .hero-shape-3 { top:12%; left:47%; width:11px; height:11px; border-radius:3px; background:var(--green); transform:rotate(20deg); animation-delay:-1s; }
@@ -199,11 +199,7 @@
   /* ── Home page marketing sections ── */
   .home-stats-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:2.5rem; background:var(--paper-2); padding:2rem 1.5rem; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
   .home-stat { text-align:center; }
-  .home-stat-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.4rem; color:var(--blue); }
-  .home-stat:nth-child(1) .home-stat-num { color:var(--blue); }
-  .home-stat:nth-child(2) .home-stat-num { color:var(--purple); }
-  .home-stat:nth-child(3) .home-stat-num { color:var(--teal); }
-  .home-stat:nth-child(4) .home-stat-num { color:var(--gold-ink); }
+  .home-stat-num { font-family:'Sora',sans-serif; font-weight:700; font-size:1.25rem; color:var(--ink); }
   .home-stat-label { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:var(--ink-soft); margin-top:.2rem; }
   .home-section { max-width:1080px; margin:0 auto; padding:4rem 1.5rem; }
   .home-section-head { max-width:640px; margin:0 auto 2.5rem; text-align:center; }
@@ -276,12 +272,12 @@
     font-weight:800; padding:.85rem 1.9rem; box-shadow:0 10px 24px -6px rgba(0,0,0,.25);
     transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
   .home-cta-card .btn-primary:hover { background:#fff; transform:translateY(-2px) scale(1.03); box-shadow:0 14px 30px -6px rgba(0,0,0,.32); }
-  .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
+  .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:.9rem; text-transform:uppercase; }
   .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--board-ink); line-height:1.15; margin-bottom:1rem; }
   .hero-mascot-badge { display:inline-flex; align-items:center; gap:.5rem; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
     border-radius:100px; padding:.4rem .8rem .4rem .5rem; margin-bottom:1rem; font-family:'Sora',sans-serif; font-weight:700; font-size:.74rem; color:var(--board-ink);
     animation:fadeInUp .45s var(--ease-premium) both; }
-  .hero h1 em { font-style:normal; background:linear-gradient(100deg, var(--blue), var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero h1 em { font-style:normal; color:var(--blue); }
   .hero p { font-size:1rem; color:rgba(246,244,239,.62); line-height:1.7; max-width:560px; }
   .hero-cta-row { display:flex; gap:.9rem; margin-top:1.75rem; flex-wrap:wrap; align-items:center; }
   .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.75rem; background:rgba(255,177,0,.16); color:#ffcf5c;
@@ -10026,7 +10022,11 @@ async function ensureProfileExists(uid, existingProfile){
   await loadReviewLog();
   updateAccountUI();
   renderSoundToggle();
-  showPage('home');
+  // Signed-in students (whether via a persisted session or an auto-resumed
+  // Google popup/redirect) land straight on their dashboard instead of the
+  // marketing home page. Educators don't have a dashboard, so they still
+  // land on home.
+  showPage((currentUser && !isEducator) ? 'dashboard' : 'home');
   if(currentUser && !isEducator) checkPremiumRedirectResult();
 })();
 </script>
