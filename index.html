@@ -571,15 +571,21 @@
 
   /* ── EMBEDDED CHECKOUT (Stripe Elements, stays on-page) ── */
   .pc-overlay { position:fixed; inset:0; z-index:600; display:none; opacity:0; transition:opacity .25s;
-    background:linear-gradient(120deg, #1a1330 0%, #241a2e 45%, #3a2412 100%); }
+    background:linear-gradient(120deg, #1a1330 0%, #241a2e 45%, #3a2412 100%);
+    align-items:center; justify-content:center; padding:3rem 1.5rem; overflow-y:auto; }
   .pc-overlay.open { display:flex; opacity:1; }
-  .pc-panel { flex:1; min-width:0; min-height:0; padding:3.25rem 4rem; overflow-y:auto; }
-  .pc-left { display:flex; flex-direction:column; justify-content:center; color:#f6f4ef; position:relative; }
-  .pc-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; position:absolute; top:2.5rem; left:3.5rem; }
-  .pc-hero-ember { width:150px; height:150px; margin-bottom:1.25rem; filter:drop-shadow(0 14px 30px rgba(255,90,54,.35)); }
+  /* pc-card is the big centered card (like the reference layout); the two
+     original panels (.pc-left / .pc-right) now sit side-by-side *inside* it
+     instead of stretching across the full viewport. */
+  .pc-card { width:100%; max-width:1180px; min-height:640px; margin:auto; display:flex;
+    background:#14161f; border-radius:28px; overflow:hidden; box-shadow:0 40px 100px -20px rgba(0,0,0,.55); }
+  .pc-panel { flex:1; min-width:0; min-height:0; padding:3.25rem 3.5rem; overflow-y:auto; }
+  .pc-left { display:flex; flex-direction:column; justify-content:center; color:#f6f4ef; position:relative; background:linear-gradient(160deg, #1f1832, #2a1d1a); }
+  .pc-logo { font-family:'Sora',sans-serif; font-weight:800; font-size:1.3rem; position:absolute; top:2.25rem; left:3.5rem; }
+  .pc-hero-ember { width:130px; height:130px; margin-bottom:1.25rem; filter:drop-shadow(0 14px 30px rgba(255,90,54,.35)); }
   .pc-hero-ember-svg { width:100%; height:100%; overflow:visible; }
   .pc-hero-ember .ember-float { animation:emberFloat 3.4s ease-in-out infinite; transform-origin:50% 100%; }
-  .pc-hero-title { font-size:2.6rem; line-height:1.15; margin-bottom:2rem; }
+  .pc-hero-title { font-size:2.3rem; line-height:1.15; margin-bottom:1.75rem; }
   .pc-feature-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:1rem; font-size:.95rem; color:rgba(246,244,239,.85); }
   .pc-powered { margin-top:2.5rem; font-size:.72rem; color:rgba(246,244,239,.4); }
   .pc-or-divider { display:flex; align-items:center; gap:.9rem; margin:1.1rem 0; color:rgba(246,244,239,.4); font-size:.72rem; font-weight:700; letter-spacing:.04em; }
@@ -588,7 +594,7 @@
   #pc-express-checkout-element { margin-bottom:0; min-height:1px; }
   #pc-express-checkout-element:empty { display:none; }
   #pc-express-checkout-element:empty + .pc-or-divider { display:none; }
-  .pc-right { max-width:640px; width:44%; background:#14161f; color:#f6f4ef; box-shadow:-20px 0 60px rgba(0,0,0,.35); position:relative; display:flex; flex-direction:column; }
+  .pc-right { flex:1 1 52%; max-width:none; width:auto; background:#14161f; color:#f6f4ef; position:relative; display:flex; flex-direction:column; }
   .pc-back { align-self:flex-start; background:none; border:none; color:rgba(246,244,239,.6); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; margin-bottom:1.5rem; padding:0; }
   .pc-back:hover { color:#fff; }
   .pc-total-row { display:flex; justify-content:space-between; align-items:center; padding-bottom:.9rem; }
@@ -619,7 +625,7 @@
     background:linear-gradient(180deg, var(--blue), var(--blue-dark)); color:#fff; cursor:pointer; transition:filter .18s, opacity .18s; }
   .pc-subscribe-btn:disabled { opacity:.45; cursor:not-allowed; }
   .pc-subscribe-btn:not(:disabled):hover { filter:brightness(1.06); }
-  @media (max-width:900px){ .pc-overlay { flex-direction:column; overflow-y:auto; } .pc-panel { padding:2.25rem 1.5rem; } .pc-logo { position:static; margin-bottom:1.5rem; } .pc-right { max-width:none; box-shadow:none; } }
+  @media (max-width:900px){ .pc-overlay { padding:0; } .pc-card { flex-direction:column; border-radius:0; min-height:100vh; max-width:none; } .pc-panel { padding:2.25rem 1.5rem; } .pc-logo { position:static; margin-bottom:1.5rem; } .pc-right { max-width:none; } }
   .modal-eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--blue); margin-bottom:.4rem; }
   .modal h2 { font-size:1.4rem; margin-bottom:.35rem; }
   .modal > p.desc { font-size:.83rem; color:var(--ink-soft); margin-bottom:1.3rem; line-height:1.5; }
@@ -1580,6 +1586,7 @@
 
 <!-- ── Embedded checkout screen (Stripe Elements, no redirect off Modilix) ── -->
 <div class="pc-overlay" id="premium-checkout-overlay">
+ <div class="pc-card">
   <div class="pc-panel pc-left">
     <div class="pc-logo"><svg class="brand-mark" viewBox="0 0 40 40" style="width:24px;height:24px;display:inline-flex;vertical-align:middle;"><defs><radialGradient id="pcBrandGrad" cx="30%" cy="25%" r="85%"><stop offset="0" stop-color="#ffd166"/><stop offset=".4" stop-color="#ff5a36"/><stop offset=".75" stop-color="#b46bff"/><stop offset="1" stop-color="#4a2fbe"/></radialGradient></defs><rect width="40" height="40" rx="13" fill="url(#pcBrandGrad)"/><path d="M9 29 L9 12 L20 21 L31 12 L31 29 L25.5 29 L25.5 18.5 L20 23.5 L14.5 18.5 L14.5 29 Z" fill="#fff"/></svg> <span class="brand-wordmark">Modilix</span></div>
     <div class="pc-hero-ember">
@@ -1649,6 +1656,7 @@
     <div id="pc-error" class="pc-error hidden"></div>
     <button class="pc-subscribe-btn" id="pc-subscribe-btn" onclick="confirmPremiumCheckout()" disabled><svg class="icon"><use href="#i-lock"/></svg> Subscribe now</button>
   </div>
+ </div>
 </div>
 
 <div id="dashboard-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
