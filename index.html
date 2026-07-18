@@ -825,11 +825,12 @@
   .lp-block { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.6rem 1.7rem; margin-bottom:0; }
   .lp-image { max-width:100%; border-radius:var(--radius-md); display:block; margin-bottom:.6rem; box-shadow:var(--shadow-sm); }
   .lp-caption { font-size:.8rem; color:var(--ink-faint); text-align:center; letter-spacing:.01em; }
-  .lp-text-card { background:var(--paper-2); border-radius:var(--radius-sm); padding:1.05rem 1.25rem; border-left:4px solid var(--blue); position:relative; margin:-.2rem 0; }
-  .lp-text-card-lead { border-left-width:5px; padding:1.2rem 1.4rem; }
+  .lp-text-card { background:var(--paper-2); border-radius:16px; padding:1.05rem 1.25rem; position:relative; margin:-.2rem 0; }
+  .lp-text-card-lead { padding:1.3rem 1.4rem 1.3rem 1.6rem; }
+  .lp-text-card-lead::before { content:''; position:absolute; left:0; top:1.3rem; bottom:1.3rem; width:4px; border-radius:4px;
+    background:linear-gradient(180deg, var(--blue), var(--purple)); }
   .lp-text { font-size:1rem; line-height:1.75; color:var(--ink); }
   .lp-text-lead { font-size:1.09rem; }
-  .lp-text-lead::first-letter { font-family:'Sora',sans-serif; font-weight:800; font-size:2.7em; line-height:.82; float:left; padding:.04em .1em 0 0; color:var(--blue); }
   .lp-check-q { font-size:1.08rem; font-weight:700; font-family:'Sora',sans-serif; margin-bottom:1.1rem; line-height:1.5; letter-spacing:-.005em;
     padding-left:1rem; border-left:4px solid; border-image:linear-gradient(180deg, var(--blue), var(--purple)) 1; }
   /* ── Feedback bubble ── styled after Brilliant's dark chat-style callout:
@@ -902,18 +903,18 @@
     font-size:1rem; color:rgba(246,244,239,.75); font-family:'Sora',sans-serif; }
   #test-page.lp-mode #tp-back-btn:hover { background:rgba(255,255,255,.14); transform:scale(1.08); }
   #test-page.lp-mode #tp-back-btn:hover::before { color:var(--board-ink); }
-  #test-page.lp-mode .tp-progress-track { margin-top:0; height:8px; background:rgba(255,255,255,.1); border-radius:999px; max-width:1100px; margin-left:auto; margin-right:auto; }
+  #test-page.lp-mode .tp-progress-track { display:none; }
   #test-page.lp-mode .tp-progress-fill { background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:999px; box-shadow:0 0 12px rgba(34,197,94,.5); }
   #test-page.lp-mode .tp-body { flex:1; display:flex; flex-direction:column; padding:0; max-width:none; }
   #test-page.lp-mode #lp-player { flex:1; display:flex; flex-direction:column; }
   #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 3vw; overflow-y:auto; }
   #test-page.lp-mode #lp-block-slot { width:100%; max-width:1020px; }
   #test-page.lp-mode .lp-block { background:transparent; border:none; box-shadow:none; padding:0; }
-  #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.045); border-left-color:var(--green); padding:1.6rem 1.9rem; }
+  #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.045); padding:1.6rem 1.9rem; }
+  #test-page.lp-mode .lp-text-card-lead::before { background:linear-gradient(180deg, var(--green), #21c584); }
   #test-page.lp-mode .lp-text, #test-page.lp-mode .lp-caption { color:rgba(246,244,239,.92); }
   #test-page.lp-mode .lp-text { font-size:1.35rem; line-height:1.9; }
   #test-page.lp-mode .lp-text-lead { font-size:1.5rem; }
-  #test-page.lp-mode .lp-text-lead::first-letter { color:var(--green); }
   #test-page.lp-mode .lp-check-q { font-size:1.45rem; color:var(--board-ink); border-image:none; border-left-color:var(--green); }
   #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; }
   #test-page.lp-mode .lp-nav-row { max-width:1020px; margin:0 auto; width:100%; padding:1.1rem 3vw 1.8rem; flex-shrink:0; }
@@ -966,9 +967,9 @@
   .ember-flicker { transform-origin:50px 30px; animation:emberFlicker 2.2s ease-in-out infinite; }
   @keyframes emberFlicker { 0%,100% { transform:rotate(-4deg) scale(1); } 50% { transform:rotate(5deg) scale(1.05); } }
   .ember-eye { transform-origin:center; transition:transform .15s; }
-  .ember-eyes-group { animation:emberBlink 4.6s ease-in-out infinite; transform-origin:center; }
+  .ember-eyes-group { animation:emberBlink 4.6s ease-in-out infinite; transform-origin:center; transform-box:fill-box; }
   @keyframes emberBlink { 0%,92%,100% { transform:scaleY(1); } 95% { transform:scaleY(.1); } }
-  .ember-mouth { transition:d .2s; transform-origin:center; }
+  .ember-mouth { transition:d .2s; transform-origin:center; transform-box:fill-box; }
   .ember-cheek { opacity:0; transition:opacity .2s; }
   .ember-spark { transform-origin:center; opacity:.85; }
   .ember-spark-1 { animation:emberSparkle 2.6s ease-in-out infinite; }
@@ -993,23 +994,29 @@
     transition:opacity .22s var(--ease-premium), transform .22s var(--ease-premium); }
   #ember-bubble.show { opacity:1; transform:translateY(0) scale(1); }
 
-  /* ── Chat: no card/panel chrome at all — just a loose stack of bare bubbles floating
-     over the lesson content above Ember, plus a borderless input pill. */
+  /* ── Chat: a proper card, Brilliant-style — visible panel chrome, a real
+     header (avatar, name, question counter, close button), a scrollable
+     message stack, and a bordered input bar docked to the bottom. */
   #tutor-panel { display:none; position:fixed; left:1.5rem; bottom:9rem; width:340px; max-width:calc(100vw - 3rem);
-    max-height:min(460px, 60vh); z-index:131; flex-direction:column; gap:.6rem; }
+    max-height:min(480px, 62vh); z-index:131; flex-direction:column; background:var(--paper); border-radius:20px;
+    border:1px solid var(--paper-2); box-shadow:0 24px 60px -16px rgba(20,20,30,.35); overflow:hidden; }
   #tutor-panel.open { display:flex; }
-  #tutor-panel-head { display:none; } /* identity is carried by Ember himself sitting below the stack */
+  #tutor-panel-head { display:flex; align-items:center; gap:.55rem; padding:.85rem 1rem; flex-shrink:0;
+    background:var(--paper); border-bottom:1px solid var(--paper-2); }
+  .tutor-head-id { display:flex; align-items:center; gap:.55rem; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--ink); flex:1; }
   .tutor-avatar { width:26px; height:26px; border-radius:50%; flex-shrink:0; position:relative;
     background:radial-gradient(circle at 30% 25%, #ffd166 0%, #ff5a36 40%, #b46bff 75%, #4a2fbe 100%); }
   .tutor-avatar.sm { width:22px; height:22px; }
   .tutor-avatar::before, .tutor-avatar::after { content:''; position:absolute; top:44%; width:3px; height:4px; border-radius:50%; background:rgba(28,31,43,.85); }
   .tutor-avatar::before { left:32%; } .tutor-avatar::after { right:32%; }
-  #tutor-close-btn { display:none; } /* Ember himself toggles open/closed now, see tutor-launcher click handler */
-  #tutor-counter { position:absolute; top:-1.6rem; right:0; font-family:'Inter',sans-serif; font-weight:600; font-size:.7rem; color:var(--ink-faint);
-    background:var(--paper-2); border-radius:999px; padding:.2rem .55rem; transition:color .2s, background .2s; }
+  #tutor-close-btn { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; border:none;
+    background:var(--paper-2); color:var(--ink-faint); font-size:.85rem; cursor:pointer; flex-shrink:0; transition:background .15s, color .15s; }
+  #tutor-close-btn:hover { background:rgba(229,72,77,.14); color:#e5484d; }
+  #tutor-counter { font-family:'Inter',sans-serif; font-weight:600; font-size:.72rem; color:var(--ink-faint);
+    background:var(--paper-2); border-radius:999px; padding:.22rem .6rem; flex-shrink:0; transition:color .2s, background .2s; }
   #tutor-counter.low { color:#e5484d; background:rgba(229,72,77,.12); }
-  #tutor-messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:.55rem; padding:.3rem .2rem; position:relative;
-    mask-image:linear-gradient(to bottom, transparent 0, #000 24px); }
+  #tutor-messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:.55rem; padding:.9rem 1rem; position:relative;
+    background:var(--board, #1c1f2b); mask-image:linear-gradient(to bottom, transparent 0, #000 16px); }
   .tutor-row { display:flex; gap:.5rem; align-items:flex-end; max-width:82%; align-self:flex-start; animation:fadeInUp .25s var(--ease-premium) both; }
   .tutor-row.user { align-self:flex-end; flex-direction:row-reverse; }
   .tutor-row .tutor-avatar { display:none; } /* Ember himself sits below the stack — no repeated mini-avatars needed */
@@ -1021,10 +1028,11 @@
   .tutor-msg.typing span { width:6px; height:6px; border-radius:50%; background:rgba(28,31,43,.4); animation:tutorTyping 1s ease-in-out infinite; }
   .tutor-msg.typing span:nth-child(2) { animation-delay:.15s; } .tutor-msg.typing span:nth-child(3) { animation-delay:.3s; }
   @keyframes tutorTyping { 0%,60%,100% { transform:translateY(0); opacity:.5; } 30% { transform:translateY(-4px); opacity:1; } }
-  #tutor-input-row { display:flex; gap:.5rem; align-items:center; flex-shrink:0; }
-  #tutor-input { flex:1; resize:none; background:rgba(255,255,255,.97); border:1.5px solid transparent; border-radius:999px;
-    padding:.65rem 1.1rem; color:#1c1f2b; font-family:'Inter',sans-serif; font-size:.85rem; outline:none; max-height:90px;
-    box-shadow:0 10px 26px -10px rgba(20,20,30,.3); transition:border-color .18s, box-shadow .18s; }
+  #tutor-input-row { display:flex; gap:.5rem; align-items:center; flex-shrink:0; padding:.75rem .85rem;
+    background:var(--paper); border-top:1px solid var(--paper-2); }
+  #tutor-input { flex:1; resize:none; background:var(--paper-2); border:1.5px solid transparent; border-radius:999px;
+    padding:.65rem 1.1rem; color:var(--ink); font-family:'Inter',sans-serif; font-size:.85rem; outline:none; max-height:90px;
+    transition:border-color .18s; }
   #tutor-input:focus { border-color:var(--blue); }
   #tutor-send-btn { width:38px; height:38px; border-radius:50%; border:none; background:linear-gradient(135deg, var(--blue), var(--purple)); color:#fff; font-size:1.1rem; cursor:pointer;
     flex-shrink:0; box-shadow:0 10px 22px -8px rgba(124,92,255,.5); transition:transform .18s var(--ease-premium), filter .18s; }
@@ -1498,7 +1506,7 @@
      ══════════════════════════════════════ -->
 <svg width="0" height="0" style="position:absolute;" aria-hidden="true">
   <defs>
-    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1-.5-2-1-2.5.5 2-.5 3-1.5 3C17 9 18 6 15 3c.3 2-1 3-2 3.5C13.5 4.5 13 3 12 2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 14a4 4 0 1 0 8 0c0-2-1.5-3-2-4.5-.3 2-2 2.5-2 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12.5 1.5c.6 2.9-.4 4.6-2 6.3C8.7 10 7 12 7 14.8a5 5 0 0 0 10 0c0-1-.3-1.9-.8-2.7.2 1.6-.5 2.9-1.7 2.9-1.4 0-2-1.2-1.5-2.5.9-2.3.2-4.2-.5-6-.4 1.7-1.3 2.6-2.3 3.3-.6-2.4-.2-4.6 1.3-8.3Z" fill="currentColor"/></symbol>
     <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
     <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
@@ -7857,6 +7865,7 @@ function renderAccountPage(){
   const today = new Date();
   for(let i=6;i>=0;i--){
     const d = new Date(today); d.setDate(d.getDate()-i);
+    d.setHours(0,0,0,0);
     let active = false;
     if(lastActive && streak>0){
       const daysBack = Math.round((lastActive - d)/86400000);
@@ -9797,12 +9806,12 @@ function tutorHideTyping(){ document.getElementById('tutor-typing')?.remove(); }
 
 function tutorUpdateCounter(){
   const remaining = Math.max(0, tutorMsgLimit - tutorMsgCount);
-  const panel = document.getElementById('tutor-panel');
+  const head = document.getElementById('tutor-panel-head');
   let badge = document.getElementById('tutor-counter');
   if(!badge){
     badge = document.createElement('span');
     badge.id = 'tutor-counter';
-    panel.appendChild(badge);
+    head.insertBefore(badge, document.getElementById('tutor-close-btn'));
   }
   badge.textContent = `${remaining} left`;
   badge.classList.toggle('low', remaining<=1);
@@ -9838,6 +9847,11 @@ async function tutorSend(){
     if(error || !data || data.error){
       // The server is the source of truth for the limit, so a 429 lands here too.
       tutorAppendMessage('bot error', data?.error || error?.message || "Sorry, I couldn't reach the tutor right now.");
+      if(typeof data?.limit === 'number') tutorMsgLimit = data.limit;
+      if(typeof data?.remaining === 'number'){
+        tutorMsgCount = tutorMsgLimit - data.remaining;
+        tutorUpdateCounter();
+      }
       if(data?.limitReached){
         tutorLockInput();
         if(!data.isPremium) tutorShowUpsell();
@@ -9862,7 +9876,7 @@ async function tutorSend(){
     tutorAppendMessage('bot error', 'Something went wrong reaching the tutor: ' + err.message);
   }
   tutorBusy = false;
-  if(tutorMsgCount < tutorMsgLimit) document.getElementById('tutor-send-btn').disabled = false;
+  if(tutorMsgCount < tutorMsgLimit && !document.getElementById('tutor-input').disabled) document.getElementById('tutor-send-btn').disabled = false;
 }
 
 // Gentle, dismissable nudge — never blocks the free experience, just points
