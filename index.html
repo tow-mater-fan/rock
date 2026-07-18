@@ -111,6 +111,84 @@
 
   .confetti-piece { position:fixed; top:0; width:9px; height:14px; z-index:900; pointer-events:none; animation:confettiFall 1.6s ease-in forwards; border-radius:2px; }
 
+  /* ── Premium activation welcome tour ── */
+  @keyframes ptBackdropIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes ptAuraSpin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+  @keyframes ptAuraPulse { 0%,100% { opacity:.55; transform:scale(1); } 50% { opacity:.85; transform:scale(1.06); } }
+  @keyframes ptBadgeIn { 0% { opacity:0; transform:scale(.4) rotate(-25deg); } 55% { opacity:1; transform:scale(1.12) rotate(6deg); } 75% { transform:scale(.96) rotate(-2deg); } 100% { transform:scale(1) rotate(0deg); } }
+  @keyframes ptRingExpand { 0% { transform:scale(.6); opacity:.9; border-width:3px; } 100% { transform:scale(2.6); opacity:0; border-width:1px; } }
+  @keyframes ptTitleIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes ptCardIn { 0% { opacity:0; transform:translateX(36px) scale(.96); } 100% { opacity:1; transform:translateX(0) scale(1); } }
+  @keyframes ptCardOut { 0% { opacity:1; transform:translateX(0) scale(1); } 100% { opacity:0; transform:translateX(-36px) scale(.96); } }
+  @keyframes ptIconFloat { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-5px) rotate(-4deg); } }
+  @keyframes ptSweep { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
+  @keyframes ptDotFill { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+  @keyframes ptStarTwinkle { 0%,100% { opacity:0; transform:scale(.4); } 50% { opacity:1; transform:scale(1); } }
+
+  .pt-overlay { position:fixed; inset:0; z-index:2000; display:none; align-items:center; justify-content:center; padding:1.25rem; }
+  .pt-overlay.open { display:flex; animation:ptBackdropIn .3s ease both; }
+  .pt-backdrop { position:absolute; inset:0; background:radial-gradient(circle at 50% 30%, #241c42 0%, #120f24 55%, #0a0916 100%); }
+  .pt-aura { position:absolute; top:50%; left:50%; width:900px; height:900px; margin:-450px 0 0 -450px;
+    background:conic-gradient(from 0deg, #ff5a3655, #7c5cff55, #0ea5a055, #f5a62355, #ff5a3655);
+    filter:blur(60px); border-radius:50%; animation:ptAuraSpin 18s linear infinite, ptAuraPulse 5s ease-in-out infinite; pointer-events:none; }
+  .pt-star { position:absolute; color:#fff; opacity:0; animation:ptStarTwinkle 2.6s ease-in-out infinite; pointer-events:none; }
+  .pt-star svg { width:100%; height:100%; }
+
+  .pt-card { position:relative; width:100%; max-width:480px; text-align:center; color:#f6f4ef; }
+
+  .pt-badge-wrap { position:relative; width:92px; height:92px; margin:0 auto 1.1rem; display:flex; align-items:center; justify-content:center; }
+  .pt-badge-ring { position:absolute; inset:0; border-radius:50%; border:3px solid #ffd166; animation:ptRingExpand 1.8s cubic-bezier(.22,1,.36,1) 1; }
+  .pt-badge-ring.delay { animation-delay:.35s; }
+  .pt-badge { position:relative; width:92px; height:92px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 32% 28%, #ffe6ae, #ffd166 38%, #ff5a36 72%, #b46bff 100%);
+    box-shadow:0 0 0 6px rgba(255,209,102,.14), 0 18px 40px -10px rgba(255,90,54,.55);
+    animation:ptBadgeIn .7s cubic-bezier(.34,1.56,.64,1) both; }
+  .pt-badge svg { width:40px; height:40px; color:#241c1c; }
+
+  .pt-eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:#ffd166;
+    animation:ptTitleIn .5s var(--ease-premium) .15s both; margin-bottom:.4rem; }
+  .pt-title { font-size:1.7rem; margin-bottom:.5rem; animation:ptTitleIn .5s var(--ease-premium) .22s both;
+    background:linear-gradient(100deg, #fff 20%, #ffd166 45%, #ff8a5c 60%, #fff 80%);
+    background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:ptTitleIn .5s var(--ease-premium) .22s both, ptSweep 3.2s linear 1s infinite; }
+  .pt-sub { font-size:.92rem; color:rgba(246,244,239,.72); max-width:380px; margin:0 auto 1.6rem; line-height:1.5;
+    animation:ptTitleIn .5s var(--ease-premium) .28s both; }
+
+  .pt-stage { position:relative; height:190px; margin-bottom:1.1rem; }
+  .pt-feature { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding:1.1rem 1.4rem 1.2rem; border-radius:var(--radius-lg); background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1); backdrop-filter:blur(6px); }
+  .pt-feature.entering { animation:ptCardIn .42s var(--ease-premium) both; }
+  .pt-feature.leaving { animation:ptCardOut .3s var(--ease-premium) both; }
+  .pt-feature-icon { width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; margin-bottom:.7rem; flex-shrink:0;
+    animation:ptIconFloat 2.6s ease-in-out infinite; }
+  .pt-feature-icon svg { width:26px; height:26px; }
+  .pt-feature-name { font-family:'Sora',sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:.35rem; }
+  .pt-feature-desc { font-size:.84rem; color:rgba(246,244,239,.68); line-height:1.45; max-width:360px; }
+
+  .pt-dots { display:flex; gap:.4rem; justify-content:center; margin-bottom:1.4rem; }
+  .pt-dot { width:26px; height:4px; border-radius:3px; background:rgba(255,255,255,.16); overflow:hidden; cursor:pointer; position:relative; }
+  .pt-dot .fill { position:absolute; inset:0; background:linear-gradient(90deg,#ffd166,#ff5a36); transform-origin:left; transform:scaleX(0); }
+  .pt-dot.done .fill { transform:scaleX(1); }
+  .pt-dot.active .fill { animation:ptDotFill 4.2s linear forwards; }
+
+  .pt-actions { display:flex; align-items:center; justify-content:center; gap:.6rem; }
+  .pt-skip { background:none; border:none; color:rgba(246,244,239,.55); font-size:.82rem; font-family:'Sora',sans-serif; font-weight:600; cursor:pointer; padding:.7rem 1rem; }
+  .pt-skip:hover { color:rgba(246,244,239,.85); }
+  .pt-cta { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; border:none; cursor:pointer; padding:.85rem 1.7rem; border-radius:999px;
+    background:linear-gradient(180deg,#ffd166,#ff5a36); color:#211407; display:flex; align-items:center; gap:.5rem;
+    box-shadow:0 10px 26px -8px rgba(255,90,54,.55); transition:transform .18s var(--ease-premium), box-shadow .18s; }
+  .pt-cta:hover { transform:translateY(-1px); box-shadow:0 14px 32px -8px rgba(255,90,54,.65); }
+  .pt-cta:active { transform:translateY(0) scale(.97); }
+  .pt-cta svg { width:16px; height:16px; }
+
+  @media (max-width:480px) {
+    .pt-stage { height:210px; }
+    .pt-title { font-size:1.4rem; }
+    .pt-badge-wrap, .pt-badge { width:76px; height:76px; }
+    .pt-badge svg { width:32px; height:32px; }
+  }
+
   /* ── NAV ── */
   nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
     display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:60px;
@@ -1700,6 +1778,32 @@
     <button class="pc-subscribe-btn" id="pc-subscribe-btn" onclick="confirmPremiumCheckout()" disabled><svg class="icon"><use href="#i-lock"/></svg> Subscribe now</button>
   </div>
  </div>
+</div>
+
+<!-- ── Premium activation welcome tour ── -->
+<div class="pt-overlay" id="pt-overlay" role="dialog" aria-modal="true" aria-label="Welcome to Premium">
+  <div class="pt-backdrop"></div>
+  <div class="pt-aura"></div>
+  <div id="pt-stars"></div>
+  <div class="pt-card">
+    <div class="pt-badge-wrap">
+      <div class="pt-badge-ring"></div>
+      <div class="pt-badge-ring delay"></div>
+      <div class="pt-badge"><svg class="icon" style="width:40px;height:40px;"><use href="#i-key"/></svg></div>
+    </div>
+    <div class="pt-eyebrow">Premium activated</div>
+    <h2 class="pt-title">Welcome to Modilix Premium</h2>
+    <p class="pt-sub" id="pt-sub">Here's everything that just unlocked for you.</p>
+
+    <div class="pt-stage" id="pt-stage"></div>
+
+    <div class="pt-dots" id="pt-dots"></div>
+
+    <div class="pt-actions">
+      <button class="pt-skip" id="pt-skip-btn">Skip</button>
+      <button class="pt-cta" id="pt-cta-btn">Next <svg class="icon"><use href="#i-chevron-down"/></svg></button>
+    </div>
+  </div>
 </div>
 
 <div id="dashboard-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
@@ -4062,8 +4166,7 @@ async function checkPremiumRedirectResult(){
     if(data?.is_premium){
       studentProgress.is_premium = true;
       renderPremiumUI();
-      showXpToast(0);
-      document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Premium activated!');
+      openPremiumWelcomeTour();
       return;
     }
   }
@@ -4126,8 +4229,7 @@ async function pollPremiumActivation(){
       studentProgress.is_premium = true;
       renderPremiumUI();
       closePremiumCheckout();
-      showXpToast(0);
-      document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.textContent = '✨ Premium activated!');
+      openPremiumWelcomeTour();
       return;
     }
   }
@@ -7522,6 +7624,156 @@ function fireConfetti(){
     setTimeout(()=>piece.remove(), 2000);
   }
 }
+// Bigger, wider confetti burst for the premium activation moment (fireConfetti
+// above is tuned for the narrow lesson-player stage; this one spans the
+// full viewport width so it reads as a real celebration).
+function firePremiumConfetti(){
+  const colors = ['#ffd166','#ff5a36','#7c5cff','#0ea5a0','#f5a623','#ffffff'];
+  for(let i=0;i<70;i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (Math.random()*100) + 'vw';
+    piece.style.top = (-5 - Math.random()*10) + 'vh';
+    piece.style.width = (6 + Math.random()*6) + 'px';
+    piece.style.height = (10 + Math.random()*8) + 'px';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDuration = (1.6 + Math.random()*1.1) + 's';
+    piece.style.animationDelay = (Math.random()*0.5) + 's';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    piece.style.zIndex = 2010;
+    document.body.appendChild(piece);
+    setTimeout(()=>piece.remove(), 3200);
+  }
+}
+
+/* ── Premium welcome tour ──
+   A short, swipeable "what you just unlocked" tour shown the moment
+   is_premium flips true, built from the same feature list marketed in the
+   premium modal so the promise and the payoff always match. */
+const PT_FEATURES = [
+  { icon:'i-download', color:'#0ea5a0', name:'Unlimited test downloads', desc:'Print or save every unit test as a PDF, as many times as you need — no monthly cap.' },
+  { icon:'i-chat', color:'#7c5cff', name:'A much bigger Ember limit', desc:'Ask your AI tutor far more questions per day before you hit a limit.' },
+  { icon:'i-chart', color:'#ff5a36', name:'Full mastery breakdown', desc:'See your accuracy on every topic and pinpoint exactly where to focus next.' },
+  { icon:'i-sparkle', color:'#f5a623', name:'AI practice for weak spots', desc:'Ember builds custom practice sets that target the topics you\u2019re missing most.' },
+  { icon:'i-flame', color:'#e5484d', name:'Streak Shield', desc:'Miss a day without losing your streak \u2014 one free save per week.' },
+  { icon:'i-palette', color:'#159a63', name:'Exclusive accent themes', desc:'Unlock extra color themes for your dashboard in Settings.' },
+];
+let ptIndex = 0;
+let ptAutoTimer = null;
+let ptDotTimer = null;
+
+function ptRenderStars(){
+  const host = document.getElementById('pt-stars');
+  host.innerHTML = '';
+  for(let i=0;i<10;i++){
+    const s = document.createElement('div');
+    s.className = 'pt-star';
+    const size = 8 + Math.random()*14;
+    s.style.width = size+'px'; s.style.height = size+'px';
+    s.style.left = (Math.random()*100)+'%';
+    s.style.top = (Math.random()*100)+'%';
+    s.style.animationDelay = (Math.random()*2.6)+'s';
+    s.innerHTML = '<svg viewBox="0 0 24 24"><use href="#i-star"/></svg>';
+    host.appendChild(s);
+  }
+}
+
+function ptRenderDots(){
+  const host = document.getElementById('pt-dots');
+  host.innerHTML = PT_FEATURES.map((_,i)=>
+    `<div class="pt-dot" data-i="${i}"><div class="fill"></div></div>`).join('');
+  host.querySelectorAll('.pt-dot').forEach(dot=>{
+    dot.onclick = ()=> ptGoTo(parseInt(dot.dataset.i), true);
+  });
+}
+
+function ptUpdateDots(){
+  document.querySelectorAll('.pt-dot').forEach((dot,i)=>{
+    dot.classList.toggle('done', i < ptIndex);
+    dot.classList.toggle('active', i === ptIndex);
+  });
+}
+
+function ptRenderSlide(dir){
+  const stage = document.getElementById('pt-stage');
+  const prev = stage.querySelector('.pt-feature');
+  if(prev){
+    prev.classList.remove('entering');
+    prev.classList.add('leaving');
+    setTimeout(()=>prev.remove(), 300);
+  }
+  const f = PT_FEATURES[ptIndex];
+  const card = document.createElement('div');
+  card.className = 'pt-feature entering';
+  card.innerHTML = `
+    <div class="pt-feature-icon" style="background:${f.color}22; color:${f.color};">
+      <svg class="icon"><use href="#${f.icon}"/></svg>
+    </div>
+    <div class="pt-feature-name">${f.name}</div>
+    <div class="pt-feature-desc">${f.desc}</div>
+  `;
+  stage.appendChild(card);
+
+  const isLast = ptIndex === PT_FEATURES.length - 1;
+  const ctaBtn = document.getElementById('pt-cta-btn');
+  ctaBtn.innerHTML = isLast
+    ? 'Start exploring <svg class="icon"><use href="#i-rocket"/></svg>'
+    : 'Next <svg class="icon" style="transform:rotate(-90deg);"><use href="#i-chevron-down"/></svg>';
+  document.getElementById('pt-sub').textContent = isLast
+    ? 'That\u2019s everything \u2014 thanks for supporting Modilix!'
+    : 'Here\u2019s everything that just unlocked for you.';
+  ptUpdateDots();
+}
+
+function ptGoTo(i, manual){
+  ptIndex = Math.max(0, Math.min(PT_FEATURES.length-1, i));
+  ptRenderSlide();
+  if(manual) ptRestartAuto();
+}
+
+function ptNext(){
+  if(ptIndex >= PT_FEATURES.length-1){ closePremiumTour(); return; }
+  ptIndex++;
+  ptRenderSlide();
+  ptRestartAuto();
+}
+
+function ptRestartAuto(){
+  clearTimeout(ptAutoTimer);
+  ptAutoTimer = setTimeout(()=>{
+    if(ptIndex < PT_FEATURES.length-1) ptNext();
+  }, 4200);
+}
+
+function ptKeyHandler(e){
+  if(e.key === 'Escape') closePremiumTour();
+  else if(e.key === 'ArrowRight') ptGoTo(ptIndex+1, true);
+  else if(e.key === 'ArrowLeft') ptGoTo(ptIndex-1, true);
+}
+
+function openPremiumWelcomeTour(){
+  ptIndex = 0;
+  document.getElementById('pt-overlay').classList.add('open');
+  lockBodyScroll();
+  ptRenderStars();
+  ptRenderDots();
+  ptRenderSlide();
+  ptRestartAuto();
+  document.addEventListener('keydown', ptKeyHandler);
+  firePremiumConfetti();
+  setTimeout(firePremiumConfetti, 550);
+}
+
+function closePremiumTour(){
+  document.getElementById('pt-overlay').classList.remove('open');
+  unlockBodyScroll();
+  clearTimeout(ptAutoTimer);
+  document.removeEventListener('keydown', ptKeyHandler);
+}
+
+document.getElementById('pt-cta-btn').onclick = ()=> ptNext();
+document.getElementById('pt-skip-btn').onclick = ()=> closePremiumTour();
+
 document.getElementById('lp-next-btn').onclick = async ()=>{
   lpCaptureScratchpad();
   if(lpIndex < lpItem.content.length-1){
