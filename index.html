@@ -8172,12 +8172,29 @@ const BILLING_STATUS_LABEL = {
 async function renderAccountBilling(){
   const card = document.getElementById('acct-billing-card');
   if(!currentUser || isEducator){ card.style.display = 'none'; return; }
-  const { data: sub } = await db.from('subscriptions')
+  const { data: subs } = await db.from('subscriptions')
     .select('plan, status, current_period_end, cancel_at_period_end, stripe_customer_id')
-    .eq('student_id', currentUser.id).maybeSingle();
+    .eq('student_id', currentUser.id);
 
-  if(!sub?.stripe_customer_id){ card.style.display = 'none'; return; }
+  if(!subs || !subs.length || !subs[0].stripe_customer_id){ card.style.display = 'none'; return; }
   card.style.display = '';
+
+  // A student can end up with more than one row here — e.g. they opened
+  // checkout on one plan, backed out or their card failed (leaving a dead
+  // 'incomplete'/'incomplete_expired' row), then completed checkout on a
+  // different plan afterwards. Postgres doesn't guarantee row order, so
+  // fetching with .maybeSingle() could silently surface whichever row
+  // happens to come back first — which is exactly what was happening here:
+  // an abandoned Annual attempt was winning over the live, trialing Monthly
+  // subscription. Rank by status first (anything actually live beats
+  // anything dead), then by the furthest-out renewal date as a tiebreaker,
+  // so the subscription we display is always the one that's really active.
+  const STATUS_RANK = { active:0, trialing:0, past_due:1, unpaid:1, incomplete:2, canceled:3, incomplete_expired:3 };
+  const sub = subs.slice().sort((a,b)=>{
+    const rankDiff = (STATUS_RANK[a.status] ?? 2) - (STATUS_RANK[b.status] ?? 2);
+    if(rankDiff !== 0) return rankDiff;
+    return new Date(b.current_period_end||0) - new Date(a.current_period_end||0);
+  })[0];
 
   const planLabel = { monthly:'Monthly plan', annual:'Annual plan', family:'Group membership' }[sub.plan] || 'Modilix plan';
   document.getElementById('acct-billing-plan').textContent = planLabel;
@@ -8192,6 +8209,20 @@ async function renderAccountBilling(){
   document.getElementById('acct-billing-sub').textContent = renewalDate
     ? (sub.cancel_at_period_end ? `Ends ${renewalDate} — won't renew` : `Renews ${renewalDate}`)
     : 'Manage your plan, payment method, and invoices below.';
+
+  // Self-heal: student_progress.is_premium is written by the Stripe webhook
+  // and should always agree with a live subscription row. If they've drifted
+  // apart — e.g. the webhook event for this particular subscription id never
+  // landed, or landed against the wrong row before the ranking fix above —
+  // trust what Stripe's data (via `subscriptions`) actually says right now
+  // so the student isn't locked out of features they're paying for. This
+  // only corrects what we render for this session; it doesn't write
+  // is_premium itself, since that flag should only ever be set server-side.
+  if(isGood && !studentProgress.is_premium){
+    console.warn('student_progress.is_premium was out of sync with an active subscription — correcting the UI locally. The Stripe webhook should be checked for missed/misrouted events for this student.');
+    studentProgress.is_premium = true;
+    renderPremiumUI();
+  }
 }
 document.getElementById('acct-manage-billing-btn').onclick = async ()=>{
   const btn = document.getElementById('acct-manage-billing-btn');
