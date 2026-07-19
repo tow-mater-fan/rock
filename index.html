@@ -837,6 +837,7 @@
   .lb-builder-layout { display:flex; align-items:flex-start; gap:1.2rem; }
   .lb-builder-main { flex:1; min-width:0; }
   .lb-preview-col { position:sticky; top:1rem; flex:0 0 300px; display:none; }
+  .lb-block-previewing { outline:2px solid var(--blue); outline-offset:-2px; }
   .lb-preview-col.active { display:block; }
   .lb-preview-frame { background:linear-gradient(180deg, var(--board-2), var(--board)); border-radius:32px; padding:10px; box-shadow:var(--shadow-glow-board); }
   .lb-preview-notch { width:70px; height:18px; background:var(--board); border-radius:0 0 12px 12px; margin:0 auto 4px; }
@@ -8354,6 +8355,7 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
     return;
   }
   if(lpPreviewMode){
+    if(lbInlinePreviewActive){ lbCloseLivePreview(); lbPreviewOpen = false; document.getElementById('lb-preview-col').classList.remove('active'); return; }
     document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
     lpPreviewMode = false;
     openModal('test-overlay');
@@ -9189,37 +9191,76 @@ function lbPreviewOptSummary(block){
   }
   return '';
 }
+/* ── Live builder preview ──────────────────────────────────────────────
+   This used to render a static, non-functional summary (prompt text +
+   a permanently-disabled "Check" button). It now mounts the REAL lesson
+   player (#lp-player — the same DOM/JS every student uses) inside the
+   builder's preview frame, so a teacher can actually drag sliders, click
+   answers, and see real Check/feedback while authoring. lpPreviewMode
+   already exists in the player code and skips saving progress/XP, so
+   nothing here can write bogus student data. */
+let lbInlinePreviewActive = false;
+let lbPreviewLpHome = null;
+let lbPreviewLpHomeNext = null;
+
+function lbMountLivePreview(){
+  const lpPlayer = document.getElementById('lp-player');
+  const wrap = document.getElementById('lb-preview-body-wrap');
+  if(lpPlayer.parentElement !== wrap){
+    lbPreviewLpHome = lpPlayer.parentElement;
+    lbPreviewLpHomeNext = lpPlayer.nextElementSibling;
+    wrap.innerHTML = '';
+    wrap.appendChild(lpPlayer);
+  }
+  lpPlayer.style.display = '';
+  lbInlinePreviewActive = true;
+  lpPreviewMode = true;
+  const tempItem = { id:'__preview__', content: JSON.parse(JSON.stringify(lessonBlocks)) };
+  openLessonPlayer(tempItem);
+  lpIndex = Math.min(lbPreviewIndex, tempItem.content.length-1);
+  renderLpBlock();
+}
+
+function lbCloseLivePreview(){
+  if(!lbInlinePreviewActive) return;
+  lbInlinePreviewActive = false;
+  lpPreviewMode = false;
+  const lpPlayer = document.getElementById('lp-player');
+  if(lbPreviewLpHome){
+    if(lbPreviewLpHomeNext && lbPreviewLpHomeNext.parentElement === lbPreviewLpHome) lbPreviewLpHome.insertBefore(lpPlayer, lbPreviewLpHomeNext);
+    else lbPreviewLpHome.appendChild(lpPlayer);
+  }
+  lpPlayer.style.display = 'none';
+  tutorResetForNewLesson();
+}
+
 function renderLessonPreview(){
   const wrap = document.getElementById('lb-preview-body-wrap');
-  const fill = document.getElementById('lb-preview-progress-fill');
-  const count = document.getElementById('lb-preview-count');
   if(!wrap) return;
   if(!lessonBlocks.length){
-    wrap.innerHTML = `<div class="lb-preview-empty">No blocks yet — add one on the left.</div>`;
-    if(fill) fill.style.width = '0%';
-    if(count) count.textContent = '0/0';
+    lbCloseLivePreview();
+    wrap.innerHTML = `<div class="lb-preview-empty">Add a block on the left to preview it here.</div>`;
+    const fill = document.getElementById('lb-preview-progress-fill'); if(fill) fill.style.width = '0%';
+    const count = document.getElementById('lb-preview-count'); if(count) count.textContent = '0/0';
     return;
   }
-  const i = Math.min(lbPreviewIndex, lessonBlocks.length-1);
-  const block = lessonBlocks[i];
-  const meta = BLOCK_TYPE_META[block.type] || {icon:'▫️', label:block.type};
-  const promptText = block.prompt || block.text || block.title || '(no prompt set yet)';
-  if(fill) fill.style.width = `${Math.round(((i+1)/lessonBlocks.length)*100)}%`;
-  if(count) count.textContent = `${i+1}/${lessonBlocks.length}`;
-  wrap.innerHTML = `
-    <div class="lb-preview-type-tag">${meta.icon} ${esc(meta.label)}</div>
-    <div class="lb-preview-prompt">${esc(promptText)}</div>
-    <div class="lb-preview-body">${lbPreviewOptSummary(block)}</div>
-    <button class="lb-preview-check-btn" type="button" disabled>Check</button>
-    <div class="lb-preview-nav">
-      <button class="btn-sm" type="button" id="lb-preview-prev" ${i===0?'disabled':''}>← Prev</button>
-      <button class="btn-sm" type="button" id="lb-preview-next" ${i===lessonBlocks.length-1?'disabled':''}>Next →</button>
-    </div>`;
-  const prevBtn = document.getElementById('lb-preview-prev');
-  const nextBtn = document.getElementById('lb-preview-next');
-  if(prevBtn) prevBtn.onclick = ()=>{ lbPreviewIndex = Math.max(0, i-1); renderLessonPreview(); };
-  if(nextBtn) nextBtn.onclick = ()=>{ lbPreviewIndex = Math.min(lessonBlocks.length-1, i+1); renderLessonPreview(); };
+  lbMountLivePreview();
 }
+/* Keeps the frame's own progress bar/count and the block-list highlight in
+   sync whenever the live player advances (Continue/Back inside the embed),
+   without threading extra code through every block type. */
+const lbPreviewSyncObserver = new MutationObserver(()=>{
+  if(!lbInlinePreviewActive || !lessonBlocks.length) return;
+  lbPreviewIndex = lpIndex;
+  const fill = document.getElementById('lb-preview-progress-fill');
+  const count = document.getElementById('lb-preview-count');
+  if(fill) fill.style.width = `${Math.round(((lpIndex+1)/lessonBlocks.length)*100)}%`;
+  if(count) count.textContent = `${lpIndex+1}/${lessonBlocks.length}`;
+  document.querySelectorAll('#lesson-block-list [data-bi]').forEach(el=>{
+    el.classList.toggle('lb-block-previewing', +el.dataset.bi === lpIndex);
+  });
+});
+lbPreviewSyncObserver.observe(document.getElementById('lp-block-slot'), { childList:true, subtree:true });
 let lbHistory = [];
 let lbHistoryIndex = -1;
 let lbSuppressSnapshot = false;
@@ -10645,7 +10686,12 @@ document.getElementById('lb-add-trigratio').onclick = ()=>{ lessonBlocks.push({t
 document.getElementById('lb-live-preview-toggle').onclick = ()=>{
   lbPreviewOpen = !lbPreviewOpen;
   document.getElementById('lb-preview-col').classList.toggle('active', lbPreviewOpen);
-  if(lbPreviewOpen) renderLessonPreview();
+  if(lbPreviewOpen) renderLessonPreview(); else lbCloseLivePreview();
+};
+document.querySelector('.lb-preview-close').onclick = ()=>{
+  lbPreviewOpen = false;
+  document.getElementById('lb-preview-col').classList.remove('active');
+  lbCloseLivePreview();
 };
 document.getElementById('lb-add-graph').onclick = ()=>{ lessonBlocks.push({
   type:'graph', mode:'match', parent:'quadratic', range:10,
