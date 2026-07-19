@@ -2767,6 +2767,7 @@
             <button class="btn-sm" id="lb-add-flashcards" style="border-color:var(--gold);color:var(--gold-ink);">+ Flashcards</button>
             <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
             <button class="btn-sm" id="lb-add-simulate" style="border-color:var(--teal);color:var(--teal);">+ Probability simulator</button>
+            <button class="btn-sm" id="lb-add-trigratio" style="border-color:var(--purple);color:var(--purple);">+ Unit circle (trig)</button>
             <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
             <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:var(--gold-ink);">+ Spot the error</button>
             <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
@@ -6400,6 +6401,100 @@ function renderLpBlockInner(){
     return;
   }
 
+  if(block.type==='trigratio'){
+    // Unit-circle explorer: drag the point around the circle and read live sin/cos/tan.
+    // Task: land within tolerance of block.targetAngleDeg, then Check.
+    const R = 100, CX = 130, CY = 130;
+    const targetDeg = ((block.targetAngleDeg!==undefined ? block.targetAngleDeg : 60) % 360 + 360) % 360;
+    const tol = block.tolerance!==undefined ? block.tolerance : 8;
+    let angleDeg = 0, dragging = false, checked = alreadyAnswered;
+    const toRad = d => d*Math.PI/180;
+    const fmt = v => (v===null || !Number.isFinite(v)) ? 'undefined' : (Math.round(v*1000)/1000).toString();
+    const refAngle = d => { const m = d%180; return Math.round(Math.min(m, 180-m)*10)/10; };
+    const quadrant = d => d<90?1:d<180?2:d<270?3:4;
+    const renderCircle = ()=>{
+      const rad = toRad(angleDeg);
+      const px = CX + R*Math.cos(rad), py = CY - R*Math.sin(rad);
+      const cosV = Math.cos(rad), sinV = Math.sin(rad);
+      const tanV = Math.abs(Math.cos(rad)) < 0.0009 ? null : Math.tan(rad);
+      const withinTarget = Math.min(Math.abs(angleDeg-targetDeg), 360-Math.abs(angleDeg-targetDeg)) <= tol;
+      document.getElementById('trc-svg-slot').innerHTML = `
+        <svg id="trc-svg" viewBox="0 0 260 260" width="260" height="260" style="touch-action:none;cursor:${checked?'default':'grab'};overflow:visible;">
+          <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--rule)" stroke-width="1.5"/>
+          <line x1="${CX-R-14}" y1="${CY}" x2="${CX+R+14}" y2="${CY}" stroke="var(--ink-faint)" stroke-width="1"/>
+          <line x1="${CX}" y1="${CY-R-14}" x2="${CX}" y2="${CY+R+14}" stroke="var(--ink-faint)" stroke-width="1"/>
+          <line x1="${CX}" y1="${CY}" x2="${px}" y2="${py}" stroke="var(--blue)" stroke-width="2"/>
+          <line x1="${px}" y1="${py}" x2="${px}" y2="${CY}" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <line x1="${CX}" y1="${CY}" x2="${px}" y2="${CY}" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <path d="M ${CX+18} ${CY} A 18 18 0 ${angleDeg>180?1:0} 0 ${CX+18*Math.cos(rad)} ${CY-18*Math.sin(rad)}" fill="none" stroke="var(--purple)" stroke-width="1.5"/>
+          ${checked ? `<circle cx="${CX+R*Math.cos(toRad(targetDeg))}" cy="${CY-R*Math.sin(toRad(targetDeg))}" r="6" fill="none" stroke="var(--gold)" stroke-width="2.5"/>` : ''}
+          <circle cx="${px}" cy="${py}" r="8" fill="${withinTarget&&checked?'var(--green)':'var(--blue)'}" stroke="var(--white)" stroke-width="2" id="trc-handle"/>
+        </svg>`;
+      document.getElementById('trc-readout').innerHTML = `
+        <div class="mono" style="display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;">
+          <span>θ = <b>${Math.round(angleDeg)}°</b> (${fmt(rad)} rad)</span>
+          <span style="color:var(--blue);">sin θ = ${fmt(sinV)}</span>
+          <span style="color:var(--green);">cos θ = ${fmt(cosV)}</span>
+          <span style="color:var(--purple);">tan θ = ${fmt(tanV)}</span>
+          <span style="color:var(--ink-faint);">Quadrant ${quadrant(angleDeg)} · ref. angle ${refAngle(angleDeg)}°</span>
+        </div>`;
+    };
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || `Drag the point to θ = ${targetDeg}° on the unit circle, then check your sin/cos/tan values.`)}</div>
+      <div class="fx-wrap">
+        <div id="trc-svg-slot" style="display:flex;justify-content:center;padding:.5rem 0;"></div>
+        <div id="trc-readout" style="margin-top:.4rem;"></div>
+        <div class="fx-hint">Drag the blue point around the circle. Gold dashed = cos (x), Green dashed = sin (y).</div>
+      </div>
+      <button class="btn-sm" id="trc-check" style="margin-top:.85rem;${checked?'display:none;':''}">Check</button>
+      <div id="trc-feedback"></div>
+    </div>`;
+    renderCircle();
+    lpSetContinueEnabled(checked);
+    const angleFromEvent = (clientX, clientY)=>{
+      const svg = document.getElementById('trc-svg');
+      const rect = svg.getBoundingClientRect();
+      const scale = 260/rect.width;
+      const x = (clientX-rect.left)*scale - CX;
+      const y = CY - (clientY-rect.top)*scale;
+      let a = Math.atan2(y, x)*180/Math.PI;
+      return (a+360)%360;
+    };
+    const onMove = (e)=>{
+      if(!dragging || checked) return;
+      const pt = e.touches ? e.touches[0] : e;
+      angleDeg = angleFromEvent(pt.clientX, pt.clientY);
+      renderCircle();
+      bindDragHandlers();
+    };
+    const onUp = ()=>{ dragging = false; };
+    const bindDragHandlers = ()=>{
+      const svg = document.getElementById('trc-svg');
+      if(!svg || checked) return;
+      svg.onmousedown = (e)=>{ dragging = true; onMove(e); };
+      svg.ontouchstart = (e)=>{ dragging = true; onMove(e); };
+    };
+    bindDragHandlers();
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, {passive:true});
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchend', onUp);
+    document.getElementById('trc-check').addEventListener('click', ()=>{
+      const diff = Math.min(Math.abs(angleDeg-targetDeg), 360-Math.abs(angleDeg-targetDeg));
+      const correct = diff <= tol;
+      checked = true;
+      renderCircle();
+      const fb = document.getElementById('trc-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target angle (gold ring) was ${targetDeg}°.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      document.getElementById('trc-check').style.display = 'none';
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'trigratio', hint: block.explanation });
+    });
+    return;
+  }
+
   if(block.type==='simulate'){
     const kind = block.kind || 'dice';
     const sides = kind==='coin' ? 2 : (block.sides || 6);
@@ -8727,7 +8822,7 @@ const BLOCK_TYPE_META = {
   code:{icon:'💻',label:'Code block'}, reftable:{icon:'📋',label:'Reference table'}, timeline:{icon:'🕒',label:'Timeline'},
   tabs:{icon:'🗃️',label:'Tabs'}, checklist:{icon:'☑️',label:'Self-check'}, matching:{icon:'🔗',label:'Matching pairs'},
   customhtml:{icon:'🧬',label:'Custom HTML/JS'}, scratchpad:{icon:'📓',label:'Work area'},
-  dragorder:{icon:'🧲',label:'Drag to order'}
+  dragorder:{icon:'🧲',label:'Drag to order'}, trigratio:{icon:'🧭',label:'Unit circle (trig ratios)'}
 };
 function saveTemplateBtn(bi){
   return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
@@ -8919,6 +9014,17 @@ function renderLessonBlockList(){
           <div class="form-group"><label style="font-size:.65rem;">Tolerance ±</label><input type="number" data-lb-field="${bi}:tolerance" value="${b.tolerance}"></div>
         </div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation)}"></div>
+      </div>`;
+    }
+    if(b.type==='trigratio'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Unit circle · Trig ratios</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">Target angle (°)</label><input type="number" data-lb-field="${bi}:targetAngleDeg" value="${b.targetAngleDeg!==undefined?b.targetAngleDeg:60}" step="15"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Tolerance ± (°)</label><input type="number" data-lb-field="${bi}:tolerance" value="${b.tolerance!==undefined?b.tolerance:8}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
       </div>`;
     }
     if(b.type==='simulate'){
@@ -9964,6 +10070,7 @@ document.getElementById('acct-replay-tour-btn').onclick = ()=>startTour(isEducat
 document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:'check', text:'', options:['','','',''], correct:0, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-simulate').onclick = ()=>{ lessonBlocks.push({type:'simulate', prompt:'', kind:'dice', sides:6, targetFace:1, trials:30, tolerance:null, explanation:''}); renderLessonBlockList(); };
+document.getElementById('lb-add-trigratio').onclick = ()=>{ lessonBlocks.push({type:'trigratio', prompt:'', targetAngleDeg:60, tolerance:8, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-graph').onclick = ()=>{ lessonBlocks.push({
   type:'graph', mode:'match', parent:'quadratic', range:10,
   prompt:'Drag the sliders so the blue graph lines up with the gold target graph.',
