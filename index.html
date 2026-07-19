@@ -820,6 +820,7 @@
   .fx-control-label { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.82rem; color:var(--ink); width:1.6rem; flex-shrink:0; }
   .fx-control-row input[type=range] { flex:1; accent-color:var(--purple); }
   .fx-control-val { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.8rem; min-width:2.6rem; text-align:right; color:var(--ink-soft); }
+  .fx-control-numinput { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.8rem; width:4.2rem; text-align:right; color:var(--ink); background:var(--paper); border:1.5px solid var(--rule); border-radius:6px; padding:.2rem .4rem; }
   .fx-eq { font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:var(--purple-bg); color:var(--purple); display:inline-block; padding:.35rem .75rem; border-radius:8px; margin-bottom:.75rem; }
   .fx-hint { font-family:'Sora',sans-serif; font-size:.78rem; color:var(--ink-faint); margin-top:.5rem; text-align:center; }
 
@@ -6548,10 +6549,10 @@ function renderLpBlockInner(){
         <div class="fx-eq" id="fx-graph-mapping" style="background:var(--blue-bg); color:var(--blue); margin-left:.4rem;"></div>
         <div id="fx-graph-svg-slot"></div>
         <div class="fx-controls">
-          <div class="fx-control-row"><span class="fx-control-label">a</span><input type="range" id="fx-a" min="-4" max="4" step="0.25" value="${cur.a}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-a-val">${cur.a}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="fx-k" min="-3" max="3" step="0.25" value="${cur.k}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-k-val">${cur.k}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">d</span><input type="range" id="fx-d" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.d}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-d-val">${cur.d}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="fx-c" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.c}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="fx-c-val">${cur.c}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">a</span><input type="range" id="fx-a" min="-4" max="4" step="0.05" value="${cur.a}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="fx-a-val" step="0.01" value="${cur.a}" ${alreadyAnswered?'disabled':''}></div>
+          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="fx-k" min="-3" max="3" step="0.05" value="${cur.k}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="fx-k-val" step="0.01" value="${cur.k}" ${alreadyAnswered?'disabled':''}></div>
+          <div class="fx-control-row"><span class="fx-control-label">d</span><input type="range" id="fx-d" min="${-range/2}" max="${range/2}" step="0.25" value="${cur.d}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="fx-d-val" step="0.01" value="${cur.d}" ${alreadyAnswered?'disabled':''}></div>
+          <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="fx-c" min="${-range/2}" max="${range/2}" step="0.25" value="${cur.c}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="fx-c-val" step="0.01" value="${cur.c}" ${alreadyAnswered?'disabled':''}></div>
         </div>
         <div class="fx-hint">a: vertical stretch/reflect · k: horizontal stretch/reflect · d: horizontal shift · c: vertical shift</div>
         ${isMatch ? `<div class="fx-hint">Blue = your graph &nbsp;·&nbsp; Gold dashed = target</div>` : ''}
@@ -6562,9 +6563,16 @@ function renderLpBlockInner(){
     renderGraph();
     ['a','k','d','c'].forEach(p=>{
       const inp = document.getElementById('fx-'+p);
+      const numInp = document.getElementById(`fx-${p}-val`);
       inp.addEventListener('input', ()=>{
         cur[p] = Number(inp.value);
-        document.getElementById(`fx-${p}-val`).textContent = inp.value;
+        numInp.value = inp.value;
+        renderGraph();
+      });
+      numInp.addEventListener('input', ()=>{
+        if(numInp.value==='' || isNaN(Number(numInp.value))) return;
+        cur[p] = Number(numInp.value);
+        inp.value = numInp.value;
         renderGraph();
       });
     });
@@ -6577,7 +6585,7 @@ function renderLpBlockInner(){
         const fb = document.getElementById('fx-graph-feedback');
         sfx[correct?'correct':'incorrect']();
         fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Graphs match!':'✗ Not quite — keep adjusting the sliders.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
-        if(correct){ lpAnswered[lpIndex] = true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>document.getElementById('fx-'+p).disabled=true); }
+        if(correct){ lpAnswered[lpIndex] = true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>{ document.getElementById('fx-'+p).disabled=true; document.getElementById(`fx-${p}-val`).disabled=true; }); }
       });
     } else {
       lpSetContinueEnabled(true);
@@ -7558,10 +7566,10 @@ function renderLpBlockInner(){
         <div class="fx-eq" id="bd-eq"></div>
         <div id="bd-svg-slot"></div>
         <div class="fx-controls">
-          <div class="fx-control-row"><span class="fx-control-label">a</span><input type="range" id="bd-a" min="-4" max="4" step="0.25" value="${cur.a}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-a-val">${cur.a}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="bd-k" min="-3" max="3" step="0.25" value="${cur.k}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-k-val">${cur.k}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">d</span><input type="range" id="bd-d" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.d}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-d-val">${cur.d}</span></div>
-          <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="bd-c" min="${-range/2}" max="${range/2}" step="0.5" value="${cur.c}" ${alreadyAnswered?'disabled':''}><span class="fx-control-val mono" id="bd-c-val">${cur.c}</span></div>
+          <div class="fx-control-row"><span class="fx-control-label">a</span><input type="range" id="bd-a" min="-4" max="4" step="0.05" value="${cur.a}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="bd-a-val" step="0.01" value="${cur.a}" ${alreadyAnswered?'disabled':''}></div>
+          <div class="fx-control-row"><span class="fx-control-label">k</span><input type="range" id="bd-k" min="-3" max="3" step="0.05" value="${cur.k}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="bd-k-val" step="0.01" value="${cur.k}" ${alreadyAnswered?'disabled':''}></div>
+          <div class="fx-control-row"><span class="fx-control-label">d</span><input type="range" id="bd-d" min="${-range/2}" max="${range/2}" step="0.25" value="${cur.d}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="bd-d-val" step="0.01" value="${cur.d}" ${alreadyAnswered?'disabled':''}></div>
+          <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="bd-c" min="${-range/2}" max="${range/2}" step="0.25" value="${cur.c}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="bd-c-val" step="0.01" value="${cur.c}" ${alreadyAnswered?'disabled':''}></div>
         </div>
       </div>
       <button class="btn-sm" id="bd-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
@@ -7570,9 +7578,16 @@ function renderLpBlockInner(){
     renderGraph();
     ['a','k','d','c'].forEach(p=>{
       const inp = document.getElementById('bd-'+p);
+      const numInp = document.getElementById(`bd-${p}-val`);
       inp.addEventListener('input', ()=>{
         cur[p] = Number(inp.value);
-        document.getElementById(`bd-${p}-val`).textContent = inp.value;
+        numInp.value = inp.value;
+        renderGraph();
+      });
+      numInp.addEventListener('input', ()=>{
+        if(numInp.value==='' || isNaN(Number(numInp.value))) return;
+        cur[p] = Number(numInp.value);
+        inp.value = numInp.value;
         renderGraph();
       });
     });
@@ -7584,7 +7599,7 @@ function renderLpBlockInner(){
       const fb = document.getElementById('bd-feedback');
       sfx[correct?'correct':'incorrect']();
       fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Matches the description!':'✗ Not quite — re-read the description and adjust.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
-      if(correct){ lpAnswered[lpIndex]=true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>document.getElementById('bd-'+p).disabled=true); }
+      if(correct){ lpAnswered[lpIndex]=true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>{ document.getElementById('bd-'+p).disabled=true; document.getElementById(`bd-${p}-val`).disabled=true; }); }
     });
     return;
   }
