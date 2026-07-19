@@ -3306,6 +3306,18 @@ function drbToolRender(){
     }
     return map;
   })();
+  // Same fix as the in-lesson notation builder: a single inequality and its
+  // reversed, flipped form are equally valid, as is a flipped double inequality.
+  const ineqFlip = s => ({'≤':'≥','≥':'≤','<':'>','>':'<'}[s] || s);
+  const correctCombos = (()=>{
+    const combos = [correctMap];
+    if(restriction==='one'){
+      combos.push({ ...correctMap, var2: correctMap.num2, num2: correctMap.var2, ineq2: ineqFlip(correctMap.ineq2) });
+    } else if(restriction==='two'){
+      combos.push({ ...correctMap, num1: correctMap.num2, num2: correctMap.num1, ineq1: ineqFlip(correctMap.ineq2), ineq2: ineqFlip(correctMap.ineq1) });
+    }
+    return combos;
+  })();
   let tid = 0;
   const tiles = [];
   const addTile = (v, wildcard)=> tiles.push({ id:'dt'+(tid++), value:v, wildcard: wildcard||null });
@@ -3335,9 +3347,12 @@ function drbToolRender(){
     document.getElementById('drbtool-bank').innerHTML = tiles.map(t=>
       `<div class="drb-tile ${t.wildcard?'wildcard':''} ${t.id===selectedTileId?'selected':''} ${(!t.wildcard&&isUsed(t.id))?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
     ).join('');
+    const bestCombo = checked ? correctCombos.slice().sort((a,b)=>
+      slotDefs.filter(s=>tileValue(slotVals[s.key])===b[s.key]).length - slotDefs.filter(s=>tileValue(slotVals[s.key])===a[s.key]).length
+    )[0] : correctMap;
     document.getElementById('drbtool-slots').innerHTML = slotDefs.map(s=>{
       let cls = 'drb-slot' + (s.wide?' wide':'') + (slotVals[s.key]?' filled':'');
-      if(checked){ cls += (tileValue(slotVals[s.key])===correctMap[s.key]) ? ' correct' : ' incorrect'; }
+      if(checked){ cls += (tileValue(slotVals[s.key])===bestCombo[s.key]) ? ' correct' : ' incorrect'; }
       return `<div class="drb-slot-cell"><div class="${cls}" data-slotkey="${s.key}">${slotVals[s.key]?esc(tileValue(slotVals[s.key])):''}</div><div class="drb-slot-hint">${!slotVals[s.key]&&!checked?esc(s.hint||''):''}</div></div>`;
     }).join('');
     document.querySelectorAll('#drbtool-bank .drb-tile').forEach(el=>el.addEventListener('click', ()=>{
@@ -3384,7 +3399,7 @@ function drbToolRender(){
   paint();
   document.getElementById('drbtool-check').onclick = ()=>{
     checked = true;
-    const correct = slotDefs.every(s=>tileValue(slotVals[s.key])===correctMap[s.key]);
+    const correct = correctCombos.some(c=>slotDefs.every(s=>tileValue(slotVals[s.key])===c[s.key]));
     paint();
     const fb = document.getElementById('drbtool-feedback');
     sfx[correct?'correct':'incorrect']();
@@ -6760,6 +6775,20 @@ function renderLpBlockInner(){
       }
       return map;
     })();
+    // A single inequality (e.g. "y ≤ -1") is mathematically identical to its
+    // reversed, flipped form ("-1 ≥ y"), and a double inequality can likewise be
+    // written flipped end-to-end ("5 ≥ x ≥ -3" for "-3 ≤ x ≤ 5"). Build every
+    // slot arrangement that counts as correct instead of just the one template.
+    const ineqFlip = s => ({'≤':'≥','≥':'≤','<':'>','>':'<'}[s] || s);
+    const correctCombos = (()=>{
+      const combos = [correctMap];
+      if(restriction==='one'){
+        combos.push({ ...correctMap, var2: correctMap.num2, num2: correctMap.var2, ineq2: ineqFlip(correctMap.ineq2) });
+      } else if(restriction==='two'){
+        combos.push({ ...correctMap, num1: correctMap.num2, num2: correctMap.num1, ineq1: ineqFlip(correctMap.ineq2), ineq2: ineqFlip(correctMap.ineq1) });
+      }
+      return combos;
+    })();
     let tid = 0;
     const tiles = [];
     const addTile = (v, wildcard)=> tiles.push({ id:'t'+(tid++), value:v, wildcard: wildcard||null });
@@ -6791,9 +6820,12 @@ function renderLpBlockInner(){
       document.getElementById('drb-bank').innerHTML = tiles.map(t=>
         `<div class="drb-tile ${t.wildcard?'wildcard':''} ${t.id===selectedTileId?'selected':''} ${(!t.wildcard&&isUsed(t.id))?'used':''}" data-tile="${t.id}">${esc(t.value)}</div>`
       ).join('');
+      const bestCombo = checked ? correctCombos.slice().sort((a,b)=>
+        slotDefs.filter(s=>tileValue(slotVals[s.key])===b[s.key]).length - slotDefs.filter(s=>tileValue(slotVals[s.key])===a[s.key]).length
+      )[0] : correctMap;
       document.getElementById('drb-slots').innerHTML = slotDefs.map(s=>{
         let cls = 'drb-slot' + (s.wide?' wide':'') + (slotVals[s.key]?' filled':'');
-        if(checked){ cls += (tileValue(slotVals[s.key])===correctMap[s.key]) ? ' correct' : ' incorrect'; }
+        if(checked){ cls += (tileValue(slotVals[s.key])===bestCombo[s.key]) ? ' correct' : ' incorrect'; }
         return `<div class="drb-slot-cell"><div class="${cls}" data-slotkey="${s.key}">${slotVals[s.key]?esc(tileValue(slotVals[s.key])):''}</div><div class="drb-slot-hint">${!slotVals[s.key]&&!checked?esc(s.hint||''):''}</div></div>`;
       }).join('');
       if(checked) return;
@@ -6845,7 +6877,7 @@ function renderLpBlockInner(){
     } else {
       document.getElementById('drb-check').addEventListener('click', ()=>{
         checked = true;
-        const correct = slotDefs.every(s=>tileValue(slotVals[s.key])===correctMap[s.key]);
+        const correct = correctCombos.some(c=>slotDefs.every(s=>tileValue(slotVals[s.key])===c[s.key]));
         paint();
         const fb = document.getElementById('drb-feedback');
         sfx[correct?'correct':'incorrect']();
