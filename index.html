@@ -787,6 +787,30 @@
   .scratchpad-color-dot.active { box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--ink); }
   .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem; }
   .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); }
+
+  /* ── Lesson builder split-pane layout: editor (left) + sticky live preview (right) ── */
+  .lb-builder-layout { display:flex; align-items:flex-start; gap:1.2rem; }
+  .lb-builder-main { flex:1; min-width:0; }
+  .lb-preview-col { position:sticky; top:1rem; flex:0 0 300px; display:none; }
+  .lb-preview-col.active { display:block; }
+  .lb-preview-frame { background:linear-gradient(180deg, var(--board-2), var(--board)); border-radius:32px; padding:10px; box-shadow:var(--shadow-glow-board); }
+  .lb-preview-notch { width:70px; height:18px; background:var(--board); border-radius:0 0 12px 12px; margin:0 auto 4px; }
+  .lb-preview-screen { background:var(--board); border-radius:22px; padding:1.1rem .95rem 1.3rem; min-height:420px; display:flex; flex-direction:column; }
+  .lb-preview-topbar { display:flex; align-items:center; gap:.5rem; margin-bottom:1rem; }
+  .lb-preview-close { width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,.08); color:var(--board-ink); display:flex; align-items:center; justify-content:center; font-size:.75rem; }
+  .lb-preview-progress { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,.1); overflow:hidden; }
+  .lb-preview-progress-fill { height:100%; background:var(--blue); border-radius:3px; transition:width .25s var(--ease-premium); }
+  .lb-preview-count { font-family:'IBM Plex Mono',monospace; font-size:.6rem; color:var(--ink-faint); }
+  .lb-preview-type-tag { font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+  .lb-preview-prompt { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--board-ink); line-height:1.4; margin-bottom:.9rem; }
+  .lb-preview-body { flex:1; display:flex; flex-direction:column; gap:.5rem; }
+  .lb-preview-empty { color:var(--ink-faint); font-size:.75rem; font-style:italic; padding:1rem 0; }
+  .lb-preview-check-btn { margin-top:auto; background:rgba(255,255,255,.06); color:var(--ink-faint); border:none; border-radius:10px; padding:.65rem; text-align:center; font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; }
+  .lb-preview-opt { border:1.5px solid rgba(255,255,255,.14); border-radius:10px; padding:.55rem .7rem; font-size:.78rem; color:var(--board-ink); }
+  .lb-preview-opt.is-correct { border-color:var(--green); background:rgba(21,154,99,.15); }
+  .lb-preview-nav { display:flex; gap:.4rem; margin-top:.7rem; }
+  .lb-preview-nav button { flex:1; }
+  @media (max-width:900px){ .lb-builder-layout { flex-direction:column; } .lb-preview-col { position:static; flex:none; width:100%; max-width:300px; margin:0 auto; } }
   .lb-move-btns { display:flex; gap:.25rem; }
   .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1; }
   .lb-move-btns button:hover { border-color:var(--blue); color:var(--blue); }
@@ -2716,10 +2740,13 @@
       </div>
     </div>
     <div class="form-group" style="margin-top:.4rem; display:none;" id="lesson-builder-group">
+      <div class="lb-builder-layout">
+      <div class="lb-builder-main">
       <div class="lb-toolbar">
         <label style="margin:0;">Lesson Blocks <span style="font-weight:400; text-transform:none; opacity:.7;">(students step through these one at a time)</span></label>
         <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
           <span class="lb-toolbar-stats" id="lb-toolbar-stats">0 blocks</span>
+          <button class="btn-sm" id="lb-live-preview-toggle" type="button" style="border-color:var(--gold);color:var(--gold-ink);">📱 Live preview</button>
           <button class="btn-sm" id="lb-undo-btn" type="button" title="Undo">↶ Undo</button>
           <button class="btn-sm" id="lb-redo-btn" type="button" title="Redo">↷ Redo</button>
           <button class="btn-sm" id="lb-export-btn" type="button" title="Export lesson as JSON">⬇ Export</button>
@@ -2805,6 +2832,23 @@
             <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
           </div>
         </div>
+      </div>
+      </div>
+      <div class="lb-preview-col" id="lb-preview-col">
+        <div class="lb-preview-frame">
+          <div class="lb-preview-notch"></div>
+          <div class="lb-preview-screen">
+            <div class="lb-preview-topbar">
+              <div class="lb-preview-close">✕</div>
+              <div class="lb-preview-progress"><div class="lb-preview-progress-fill" id="lb-preview-progress-fill" style="width:0%;"></div></div>
+              <span class="lb-preview-count" id="lb-preview-count">0/0</span>
+            </div>
+            <div id="lb-preview-body-wrap">
+              <div class="lb-preview-empty">Click any block on the left to preview it here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
     <div class="form-group">
@@ -8827,9 +8871,91 @@ const BLOCK_TYPE_META = {
 function saveTemplateBtn(bi){
   return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
 }
+// ── Live preview panel: a lightweight, always-dark phone-frame rendering of
+// whichever block is currently focused in the editor. Not a full interactive
+// re-render (the real block renderer relies on shared fixed-ID DOM nodes that
+// would collide if mounted twice) — this shows prompt + a legible summary of
+// the block's configuration so an educator can sanity-check content and
+// difficulty without leaving the builder.
+function lbPreviewOptSummary(block){
+  if(block.type==='check'){
+    return (block.options||[]).map((o,oi)=>`<div class="lb-preview-opt ${oi===block.correct?'is-correct':''}">${esc(o||`Option ${oi+1}`)}</div>`).join('');
+  }
+  if(block.type==='slider'){
+    return `<div class="lb-preview-opt">Range ${block.min ?? 0} – ${block.max ?? 10} · target ${block.target ?? '—'} ±${block.tolerance ?? 0}</div>`;
+  }
+  if(block.type==='trigratio'){
+    const t = block.targetAngleDeg!==undefined ? block.targetAngleDeg : 60;
+    const rad = t*Math.PI/180;
+    const cx=60, cy=60, r=44;
+    return `<div style="display:flex;justify-content:center;padding:.4rem 0;">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.18)"/>
+        <line x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(rad)}" y2="${cy-r*Math.sin(rad)}" stroke="var(--gold)" stroke-width="2"/>
+        <circle cx="${cx+r*Math.cos(rad)}" cy="${cy-r*Math.sin(rad)}" r="4" fill="var(--gold)"/>
+      </svg>
+    </div>
+    <div class="lb-preview-opt">Target θ = ${t}° · tolerance ±${block.tolerance ?? 8}°</div>`;
+  }
+  if(block.type==='simulate'){
+    return `<div class="lb-preview-opt">${block.kind==='coin'?'Coin flip':'Dice roll ('+(block.sides||6)+' sides)'} · ${block.trials||30} trials · target face ${block.targetFace||1}</div>`;
+  }
+  if(block.type==='fillblank'){
+    return `<div class="lb-preview-opt mono">${esc((block.text||'').replace(/\{\{.*?\}\}/g,'▢▢▢')||'—')}</div>`;
+  }
+  if(block.type==='sequence'){
+    return `<div class="lb-preview-opt">${block.kind==='geometric'?'Geometric':'Arithmetic'} · a₁=${block.a1 ?? '—'}, r=${block.r ?? '—'}</div>`;
+  }
+  if(block.type==='matching'){
+    return (block.pairs||[]).slice(0,4).map(p=>`<div class="lb-preview-opt">${esc(p.left||'—')} ↔ ${esc(p.right||'—')}</div>`).join('');
+  }
+  if(block.type==='checklist'){
+    return (block.items||[]).slice(0,5).map(it=>`<div class="lb-preview-opt">☐ ${esc(it.text||'—')}</div>`).join('');
+  }
+  if(block.type==='flashcards'){
+    return `<div class="lb-preview-opt">${(block.cards||[]).length} card${(block.cards||[]).length===1?'':'s'}</div>`;
+  }
+  if(['graph','points','domainrange'].includes(block.type)){
+    return `<div class="lb-preview-opt">Parent function: ${esc(block.parent||'—')}${block.mode?' · mode: '+esc(block.mode):''}</div>`;
+  }
+  return '';
+}
+function renderLessonPreview(){
+  const wrap = document.getElementById('lb-preview-body-wrap');
+  const fill = document.getElementById('lb-preview-progress-fill');
+  const count = document.getElementById('lb-preview-count');
+  if(!wrap) return;
+  if(!lessonBlocks.length){
+    wrap.innerHTML = `<div class="lb-preview-empty">No blocks yet — add one on the left.</div>`;
+    if(fill) fill.style.width = '0%';
+    if(count) count.textContent = '0/0';
+    return;
+  }
+  const i = Math.min(lbPreviewIndex, lessonBlocks.length-1);
+  const block = lessonBlocks[i];
+  const meta = BLOCK_TYPE_META[block.type] || {icon:'▫️', label:block.type};
+  const promptText = block.prompt || block.text || block.title || '(no prompt set yet)';
+  if(fill) fill.style.width = `${Math.round(((i+1)/lessonBlocks.length)*100)}%`;
+  if(count) count.textContent = `${i+1}/${lessonBlocks.length}`;
+  wrap.innerHTML = `
+    <div class="lb-preview-type-tag">${meta.icon} ${esc(meta.label)}</div>
+    <div class="lb-preview-prompt">${esc(promptText)}</div>
+    <div class="lb-preview-body">${lbPreviewOptSummary(block)}</div>
+    <button class="lb-preview-check-btn" type="button" disabled>Check</button>
+    <div class="lb-preview-nav">
+      <button class="btn-sm" type="button" id="lb-preview-prev" ${i===0?'disabled':''}>← Prev</button>
+      <button class="btn-sm" type="button" id="lb-preview-next" ${i===lessonBlocks.length-1?'disabled':''}>Next →</button>
+    </div>`;
+  const prevBtn = document.getElementById('lb-preview-prev');
+  const nextBtn = document.getElementById('lb-preview-next');
+  if(prevBtn) prevBtn.onclick = ()=>{ lbPreviewIndex = Math.max(0, i-1); renderLessonPreview(); };
+  if(nextBtn) nextBtn.onclick = ()=>{ lbPreviewIndex = Math.min(lessonBlocks.length-1, i+1); renderLessonPreview(); };
+}
 let lbHistory = [];
 let lbHistoryIndex = -1;
 let lbSuppressSnapshot = false;
+let lbPreviewIndex = 0;
+let lbPreviewOpen = false;
 function lbUndo(){
   if(lbHistoryIndex<=0) return;
   lbHistoryIndex--;
@@ -9603,6 +9729,13 @@ function renderLessonBlockList(){
       </div>`;
     }
   }).join('');
+  }).join('');
+  list.querySelectorAll('.qb-item').forEach(item=>{
+    item.addEventListener('click', ()=>{ lbPreviewIndex = +item.dataset.bi; renderLessonPreview(); });
+    item.addEventListener('focusin', ()=>{ lbPreviewIndex = +item.dataset.bi; renderLessonPreview(); });
+  });
+  if(lbPreviewIndex >= lessonBlocks.length) lbPreviewIndex = Math.max(0, lessonBlocks.length-1);
+  renderLessonPreview();
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-lb-savetpl]').forEach(b=>b.onclick=async ()=>{
     const bi = +b.dataset.lbSavetpl;
@@ -9650,8 +9783,9 @@ function renderLessonBlockList(){
   });
   list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbField.split(':');
-    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2','sides','targetFace','trials'].includes(field);
+    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2','sides','targetFace','trials','targetAngleDeg'].includes(field);
     lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
+    if(+bi === lbPreviewIndex) renderLessonPreview();
   }));
   list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
   list.querySelectorAll('[data-lb-correct]').forEach(inp=>inp.addEventListener('change',()=>{ const [bi,oi]=inp.dataset.lbCorrect.split(':').map(Number); lessonBlocks[bi].correct=oi; }));
@@ -10071,6 +10205,11 @@ document.getElementById('lb-add-check').onclick = ()=>{ lessonBlocks.push({type:
 document.getElementById('lb-add-slider').onclick = ()=>{ lessonBlocks.push({type:'slider', prompt:'', min:0, max:10, target:5, tolerance:1, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-simulate').onclick = ()=>{ lessonBlocks.push({type:'simulate', prompt:'', kind:'dice', sides:6, targetFace:1, trials:30, tolerance:null, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-trigratio').onclick = ()=>{ lessonBlocks.push({type:'trigratio', prompt:'', targetAngleDeg:60, tolerance:8, explanation:''}); renderLessonBlockList(); };
+document.getElementById('lb-live-preview-toggle').onclick = ()=>{
+  lbPreviewOpen = !lbPreviewOpen;
+  document.getElementById('lb-preview-col').classList.toggle('active', lbPreviewOpen);
+  if(lbPreviewOpen) renderLessonPreview();
+};
 document.getElementById('lb-add-graph').onclick = ()=>{ lessonBlocks.push({
   type:'graph', mode:'match', parent:'quadratic', range:10,
   prompt:'Drag the sliders so the blue graph lines up with the gold target graph.',
