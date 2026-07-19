@@ -1598,6 +1598,15 @@
     .tp-header { padding:4.75rem 1.25rem 1.25rem; }
     .tp-body { padding:2rem 1.25rem 5rem; }
     .modal { padding:1.5rem 1.25rem; }
+    .acct-wrap { padding:5.5rem 1.25rem 3rem; gap:1.1rem; }
+    .acct-header { flex-wrap:wrap; padding:1.25rem; gap:1rem; }
+    .acct-stats-row { grid-template-columns:repeat(3,1fr); gap:.6rem; }
+    .acct-stat-card { padding:.85rem; }
+    .acct-stat-num { font-size:1.3rem; }
+    .dash-recommend-card { padding:1.75rem 1.5rem 1.5rem; min-height:auto; }
+    .dash-rec-title { font-size:1.4rem; }
+    .dash-rec-visual { font-size:3.4rem; margin:1rem 0; }
+    .gb-controls, .gb-graph-wrap { min-width:0; flex:1 1 100%; }
   }
   @media(max-width:480px){
     nav { padding:0 .85rem; }
@@ -1606,6 +1615,23 @@
     .nav-premium-btn .np-label { display:none; }
     .nav-streak, .nav-xp { padding:.28rem .4rem; font-size:.68rem; }
     .nav-sound-btn { display:none; } /* still reachable from the hamburger menu; not essential top-bar real estate on tiny screens */
+    .acct-avatar { width:68px; height:68px; }
+    .acct-stats-row { grid-template-columns:repeat(2,1fr); }
+    .acct-name { font-size:1.1rem; }
+    .modal { padding:1.25rem 1rem; border-radius:14px; }
+    .lb-palette-btns .btn-sm, .qb-add-row .btn-sm { flex:1 1 auto; text-align:center; }
+    .tp-mascot { left:.9rem; bottom:.9rem; width:42px; height:42px; }
+    .tp-feedback-bubble { left:3.6rem; max-width:calc(100vw - 4.6rem); bottom:1.2rem; }
+  }
+  /* ── Mobile input hardening ──
+     iOS Safari auto-zooms the viewport on focus of any text input rendering
+     below 16px, which then fails to reset cleanly — a very common "this app
+     feels broken on my phone" complaint. Force 16px on all form controls
+     below the tablet breakpoint. Buttons/links also get a minimum touch
+     target per WCAG 2.5.5 guidance so small icon buttons stay tappable. */
+  @media (max-width:820px){
+    input, select, textarea { font-size:16px !important; }
+    .btn-sm, button, .nav-toggle, .lb-move-btns button { min-height:38px; }
   }
 </style>
 </head>
