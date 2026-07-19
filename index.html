@@ -495,6 +495,12 @@
   .unit-nav-item:last-child { border-bottom:none; }
   .unit-nav-item:hover { background:var(--paper-2); }
   .unit-nav-item.active { background:var(--blue-bg); }
+  .unit-nav-admin { display:flex; gap:.2rem; flex-shrink:0; }
+  .unit-nav-admin-btn { width:24px; height:24px; border-radius:6px; border:1px solid var(--rule); background:var(--white); color:var(--ink-soft); font-size:.72rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s, border-color .15s; }
+  .unit-nav-admin-btn:hover:not(:disabled) { background:var(--paper-2); border-color:var(--blue); color:var(--blue); }
+  .unit-nav-admin-btn:disabled { opacity:.3; cursor:default; }
+  .lesson-row-admin-controls { display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
+  .lesson-move-select { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; padding:.35rem .5rem; border-radius:8px; border:1px solid var(--rule); background:var(--white); color:var(--ink-soft); max-width:130px; }
   .unit-nav-ring { width:28px; height:28px; flex-shrink:0; position:relative; }
   .unit-nav-ring svg { transform:rotate(-90deg); }
   .unit-nav-name { font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; color:var(--ink); line-height:1.3; }
@@ -4385,8 +4391,8 @@ async function loadCatalog(){
   if(uErr) console.error('units load error', uErr);
   if(iErr) console.error('items load error', iErr);
   courses = (cData||[]).map(c=>({ id:c.id, code:c.code, name:c.name, grade:c.grade, subject:c.subject, stream:c.stream, isPublic:!!c.is_public }));
-  units = (uData||[]).map(u=>({ id:u.id, courseId:u.course_id, name:u.name }));
-  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[], description:i.description||'', objectives:i.objectives||[], status:i.status||'published' }));
+  units = (uData||[]).map(u=>({ id:u.id, courseId:u.course_id, name:u.name, position:u.position||0 })).sort((a,b)=>a.position-b.position);
+  items = (iData||[]).map(i=>({ id:i.id, courseId:i.course_id, unitId:i.unit_id, title:i.title, type:i.type, questions:i.questions||[], files:i.files||[], content:i.content||[], description:i.description||'', objectives:i.objectives||[], status:i.status||'published', position:i.position||0 })).sort((a,b)=>a.position-b.position);
 }
 
 async function loadResponses(){
@@ -5139,23 +5145,62 @@ document.getElementById('cd-public-toggle-btn').onclick = async ()=>{
 function selectUnit(unitId){ currentUnitId = unitId; renderUnitNav(); renderUnitContent(); }
 
 function renderUnitNav(){
-  const courseUnits = units.filter(u=>u.courseId===currentCourseId);
+  const courseUnits = units.filter(u=>u.courseId===currentCourseId).sort((a,b)=>a.position-b.position);
   const list = document.getElementById('unit-nav-list');
   if(!courseUnits.length){ list.innerHTML = `<div class="empty-note" style="padding:1.5rem;">No units yet.</div>`; return; }
   list.innerHTML = courseUnits.map((u,ui)=>{
     const pct = unitCompletionPct(u.id);
     const mastery = unitMasteryPct(u.id);
     const count = items.filter(i=>i.unitId===u.id).length;
+    const eduControls = isEducator ? `<div class="unit-nav-admin" onclick="event.stopPropagation()">
+        <button class="unit-nav-admin-btn" data-rename-unit="${u.id}" title="Rename unit">✎</button>
+        <button class="unit-nav-admin-btn" data-move-unit="${u.id}:-1" title="Move up" ${ui===0?'disabled':''}>↑</button>
+        <button class="unit-nav-admin-btn" data-move-unit="${u.id}:1" title="Move down" ${ui===courseUnits.length-1?'disabled':''}>↓</button>
+      </div>` : '';
     return `<div class="unit-nav-item stagger-in ${u.id===currentUnitId?'active':''}" style="animation-delay:${ui*0.04}s" data-unit="${u.id}">
       <div class="unit-nav-ring">${ringSVG(pct,28,3,ringColorFor(pct),'#e4e9f4')}</div>
-      <div>
+      <div style="flex:1;min-width:0;">
         <div class="unit-nav-name">${esc(u.name)}</div>
         <div class="unit-nav-meta">${count} item${count===1?'':'s'}${mastery===null?'':` · ${mastery}% mastery`}</div>
       </div>
+      ${eduControls}
     </div>`;
   }).join('');
   list.querySelectorAll('.unit-nav-item').forEach(el=>el.addEventListener('click',()=>selectUnit(el.dataset.unit)));
+  list.querySelectorAll('[data-rename-unit]').forEach(b=>b.addEventListener('click', ()=>renameUnit(b.dataset.renameUnit)));
+  list.querySelectorAll('[data-move-unit]').forEach(b=>b.addEventListener('click', ()=>{
+    const [unitId, dir] = b.dataset.moveUnit.split(':');
+    moveUnit(unitId, Number(dir));
+  }));
   animateRingsIn(list);
+}
+async function renameUnit(unitId){
+  const u = units.find(x=>x.id===unitId);
+  if(!u) return;
+  const name = prompt('Rename unit:', u.name);
+  if(!name || !name.trim() || name.trim()===u.name) return;
+  const trimmed = name.trim();
+  const prev = u.name;
+  u.name = trimmed; // optimistic update
+  renderUnitNav();
+  if(currentUnitId===unitId) document.getElementById('unit-content-title').textContent = trimmed;
+  const { error } = await db.from('units').update({ name: trimmed }).eq('id', unitId);
+  if(error){ u.name = prev; renderUnitNav(); alert('Could not rename unit: ' + error.message); }
+}
+async function moveUnit(unitId, dir){
+  const courseUnits = units.filter(u=>u.courseId===currentCourseId).sort((a,b)=>a.position-b.position);
+  const idx = courseUnits.findIndex(u=>u.id===unitId);
+  const swapIdx = idx + dir;
+  if(idx<0 || swapIdx<0 || swapIdx>=courseUnits.length) return;
+  const a = courseUnits[idx], b = courseUnits[swapIdx];
+  const aPos = a.position, bPos = b.position;
+  a.position = bPos; b.position = aPos; // optimistic
+  renderUnitNav();
+  const [{error:e1},{error:e2}] = await Promise.all([
+    db.from('units').update({ position: a.position }).eq('id', a.id),
+    db.from('units').update({ position: b.position }).eq('id', b.id),
+  ]);
+  if(e1 || e2){ a.position = aPos; b.position = bPos; renderUnitNav(); alert('Could not reorder units.'); }
 }
 
 function findUpNext(unitId){
@@ -5201,7 +5246,7 @@ function renderUnitContent(){
     upnextBox.innerHTML = '';
   }
 
-  const unitItems = items.filter(i=>i.unitId===currentUnitId).sort((a,b)=> (a.type==='unittest')-(b.type==='unittest'));
+  const unitItems = items.filter(i=>i.unitId===currentUnitId).sort((a,b)=> (a.type==='unittest')-(b.type==='unittest') || a.position-b.position);
   const list = document.getElementById('lesson-list');
 
   // Educators always get the classic editable list (they need inline Edit/Delete).
@@ -5218,13 +5263,23 @@ function renderUnitContent(){
     list.innerHTML = toggleRow + renderPathHTML(unitItems);
     list.querySelectorAll('[data-open-item]').forEach(el=>el.addEventListener('click',()=>{ if(!el.classList.contains('locked')) openTest(el.dataset.openItem); }));
   } else {
-    list.innerHTML = toggleRow + unitItems.map(it=>{
+    list.innerHTML = toggleRow + unitItems.map((it,ii)=>{
       const r = studentResponses[it.id];
       const ms = itemMastery(r);
       const isTest = it.type==='unittest';
       const badgeMap = { 'ms-none':'lb-none','ms-familiar':'lb-familiar','ms-proficient':'lb-proficient','ms-mastered':'lb-mastered','ms-practiced':'lb-practiced' };
       const icon = ms.cls==='ms-mastered' ? '✓' : ms.cls==='ms-none' ? '' : '●';
-      const adminBtns = isEducator ? `<button class="btn-sm" data-edit-item="${it.id}" onclick="event.stopPropagation()">Edit</button><button class="btn-sm danger" data-del-item="${it.id}" onclick="event.stopPropagation()">Delete</button>` : '';
+      const otherUnits = units.filter(u=>u.courseId===currentCourseId && u.id!==currentUnitId).sort((a,b)=>a.position-b.position);
+      const moveSelect = (isEducator && otherUnits.length) ? `<select class="lesson-move-select" data-move-item="${it.id}" onclick="event.stopPropagation()">
+          <option value="">Move to…</option>
+          ${otherUnits.map(u=>`<option value="${u.id}">${esc(u.name)}</option>`).join('')}
+        </select>` : '';
+      const adminBtns = isEducator ? `<div class="lesson-row-admin-controls">
+          <button class="unit-nav-admin-btn" data-move-item-order="${it.id}:-1" onclick="event.stopPropagation()" title="Move up" ${ii===0?'disabled':''}>↑</button>
+          <button class="unit-nav-admin-btn" data-move-item-order="${it.id}:1" onclick="event.stopPropagation()" title="Move down" ${ii===unitItems.length-1?'disabled':''}>↓</button>
+          ${moveSelect}
+          <button class="btn-sm" data-edit-item="${it.id}" onclick="event.stopPropagation()">Edit</button><button class="btn-sm danger" data-del-item="${it.id}" onclick="event.stopPropagation()">Delete</button>
+        </div>` : '';
       const filePills = (it.files && it.files.length) ? `<div class="lesson-row-files">${it.files.map(f=>
         `<a class="file-pill" href="${f.dataUrl}" download="${esc(f.fileName||f.label+'.pdf')}" onclick="event.stopPropagation()">📄 ${esc(f.label)}</a>`
       ).join('')}</div>` : '';
@@ -5242,11 +5297,45 @@ function renderUnitContent(){
     list.querySelectorAll('[data-open-item]').forEach(el=>el.addEventListener('click',()=>openTest(el.dataset.openItem)));
     list.querySelectorAll('[data-edit-item]').forEach(el=>el.addEventListener('click',()=>openTestModal(el.dataset.editItem)));
     list.querySelectorAll('[data-del-item]').forEach(el=>el.addEventListener('click',()=>confirmDelete('item', el.dataset.delItem)));
+    list.querySelectorAll('[data-move-item-order]').forEach(el=>el.addEventListener('click',()=>{
+      const [itemId, dir] = el.dataset.moveItemOrder.split(':');
+      moveItemOrder(itemId, Number(dir));
+    }));
+    list.querySelectorAll('[data-move-item]').forEach(el=>el.addEventListener('change',()=>{
+      if(el.value) moveItemToUnit(el.dataset.moveItem, el.value);
+    }));
   }
   const toggleBtn = list.querySelector('#path-view-toggle');
   if(toggleBtn) toggleBtn.onclick = ()=>{ usePathView = !usePathView; renderUnitContent(); };
 }
 
+async function moveItemOrder(itemId, dir){
+  const it = items.find(i=>i.id===itemId);
+  if(!it) return;
+  const siblings = items.filter(i=>i.unitId===it.unitId && i.type!=='unittest').sort((a,b)=>a.position-b.position);
+  const idx = siblings.findIndex(i=>i.id===itemId);
+  const swapIdx = idx + dir;
+  if(idx<0 || swapIdx<0 || swapIdx>=siblings.length) return;
+  const a = siblings[idx], b = siblings[swapIdx];
+  const aPos = a.position, bPos = b.position;
+  a.position = bPos; b.position = aPos; // optimistic
+  renderUnitContent();
+  const [{error:e1},{error:e2}] = await Promise.all([
+    db.from('items').update({ position: a.position }).eq('id', a.id),
+    db.from('items').update({ position: b.position }).eq('id', b.id),
+  ]);
+  if(e1 || e2){ a.position = aPos; b.position = bPos; renderUnitContent(); alert('Could not reorder items.'); }
+}
+async function moveItemToUnit(itemId, targetUnitId){
+  const it = items.find(i=>i.id===itemId);
+  if(!it || it.unitId===targetUnitId) return;
+  const prevUnitId = it.unitId, prevPos = it.position;
+  const newPos = items.filter(i=>i.unitId===targetUnitId).length; // append to end of target unit
+  it.unitId = targetUnitId; it.position = newPos; // optimistic
+  renderUnitNav(); renderUnitContent();
+  const { error } = await db.from('items').update({ unit_id: targetUnitId, position: newPos }).eq('id', itemId);
+  if(error){ it.unitId = prevUnitId; it.position = prevPos; renderUnitNav(); renderUnitContent(); alert('Could not move item: ' + error.message); }
+}
 /* Builds the winding node-path markup for a unit's items: nodes sit on a
    gentle sine wave (like Brilliant's course paths) with a smooth SVG curve
    drawn underneath connecting them. Nodes unlock in order: the first
@@ -5321,7 +5410,7 @@ document.getElementById('unit-save-btn').onclick = async ()=>{
   const position = units.filter(u=>u.courseId===currentCourseId).length;
   const { data, error } = await db.from('units').insert({ course_id: currentCourseId, name, position }).select().single();
   if(error){ document.getElementById('unit-error').textContent = error.message; return; }
-  const nu = { id:data.id, courseId:data.course_id, name:data.name };
+  const nu = { id:data.id, courseId:data.course_id, name:data.name, position:data.position||0 };
   units.push(nu); closeModal('unit-overlay'); selectUnit(nu.id);
 };
 
@@ -10387,9 +10476,10 @@ document.getElementById('test-save-btn').onclick = async ()=>{
     const it = items.find(i=>i.id===editingItemId);
     Object.assign(it, { title, type, questions: payload.questions, content: payload.content, files: finalFiles, description: payload.description, objectives: payload.objectives, status: payload.status });
   } else {
-    const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, ...payload }).select().single();
+    const newPos = items.filter(i=>i.unitId===addToUnitId).length;
+    const { data, error } = await db.from('items').insert({ course_id: currentCourseId, unit_id: addToUnitId, position: newPos, ...payload }).select().single();
     if(error){ document.getElementById('test-error').textContent = error.message; saveBtn.disabled=false; saveBtn.textContent='Save Item'; return; }
-    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, content:data.content||[], files:data.files, description:data.description||'', objectives:data.objectives||[], status:data.status||'published' });
+    items.push({ id:data.id, courseId:data.course_id, unitId:data.unit_id, title:data.title, type:data.type, questions:data.questions, content:data.content||[], files:data.files, description:data.description||'', objectives:data.objectives||[], status:data.status||'published', position:data.position||0 });
   }
   saveBtn.disabled = false; saveBtn.textContent = 'Save Item';
   closeModal('test-overlay'); renderUnitNav(); renderUnitContent();
