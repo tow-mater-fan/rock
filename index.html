@@ -9755,7 +9755,6 @@ function renderLessonBlockList(){
       </div>`;
     }
   }).join('');
-  }).join('');
   list.querySelectorAll('.qb-item').forEach(item=>{
     item.addEventListener('click', ()=>{ lbPreviewIndex = +item.dataset.bi; renderLessonPreview(); });
     item.addEventListener('focusin', ()=>{ lbPreviewIndex = +item.dataset.bi; renderLessonPreview(); });
