@@ -937,6 +937,15 @@
   @keyframes lpShake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-4px); } 75% { transform:translateX(4px); } }
   .lp-slider-row { display:flex; align-items:center; gap:1rem; margin:1rem 0; }
   .lp-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
+  .lp-drag-list { display:flex; flex-direction:column; gap:.5rem; margin-top:.6rem; touch-action:none; }
+  .lp-drag-item { display:flex; align-items:center; gap:.7rem; padding:.75rem .9rem; border-radius:12px; border:1.5px solid var(--rule); background:var(--paper-2); color:var(--ink); font-size:.9rem; user-select:none; transition:border-color .16s var(--ease-premium), background .16s var(--ease-premium), box-shadow .16s var(--ease-premium); }
+  .lp-drag-item.dragging { box-shadow:var(--shadow-md); border-color:var(--blue); background:var(--white); z-index:5; position:relative; }
+  .lp-drag-handle-ico { cursor:grab; color:var(--ink-faint); font-size:1rem; touch-action:none; padding:.1rem .3rem; }
+  .lp-drag-item.dragging .lp-drag-handle-ico { cursor:grabbing; }
+  .lp-drag-num { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); min-width:1.2em; }
+  .lp-drag-text { flex:1; }
+  .lp-drag-item.correct { border-color:var(--green); background:var(--green-bg); }
+  .lp-drag-item.incorrect { border-color:var(--red); background:var(--red-bg); }
   .lp-slider-val { font-family:'IBM Plex Mono',monospace; font-weight:700; min-width:2.5rem; text-align:right; color:var(--blue); }
   .lp-flashcard { transition:transform .18s var(--ease-premium); }
   .lp-flashcard:hover { transform:translateY(-3px); }
@@ -2762,6 +2771,7 @@
             <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:var(--gold-ink);">+ Spot the error</button>
             <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
             <button class="btn-sm" id="lb-add-matching" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Matching pairs</button>
+            <button class="btn-sm" id="lb-add-dragorder" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Drag to order</button>
             <button class="btn-sm" id="lb-add-checklist" style="border-color:var(--green-dark);color:var(--green-dark);">+ Self-check checklist</button>
           </div>
         </div>
@@ -5846,6 +5856,56 @@ async function renderAnalyticsPage(){
   body.innerHTML = html;
 }
 
+// Reusable drag-to-reorder wiring for any vertical list of direct children,
+// each of which contains an element with class .lp-drag-handle-ico as its
+// grab handle. Uses Pointer Events (not HTML5 drag-and-drop) specifically
+// because HTML5 DnD has no reliable touch support — Pointer Events unify
+// mouse, touch, and pen so this works the same on a phone as a laptop.
+function lpWireDragSort(listEl){
+  const items = () => Array.from(listEl.children);
+  items().forEach(el=>{
+    const handle = el.querySelector('.lp-drag-handle-ico');
+    if(!handle) return;
+    let dragging = false, startY = 0, pointerId = null;
+    handle.addEventListener('pointerdown', e=>{
+      dragging = true; startY = e.clientY; pointerId = e.pointerId;
+      el.classList.add('dragging');
+      try{ handle.setPointerCapture(pointerId); }catch(err){}
+      e.preventDefault();
+    });
+    handle.addEventListener('pointermove', e=>{
+      if(!dragging || e.pointerId !== pointerId) return;
+      const dy = e.clientY - startY;
+      el.style.transform = `translateY(${dy}px)`;
+      const elRect = el.getBoundingClientRect();
+      const elMid = elRect.top + elRect.height/2;
+      for(const sib of items()){
+        if(sib === el) continue;
+        const r = sib.getBoundingClientRect();
+        if(elMid > r.top && elMid < r.bottom){
+          if(Array.from(listEl.children).indexOf(sib) < Array.from(listEl.children).indexOf(el)){
+            listEl.insertBefore(el, sib);
+          } else {
+            listEl.insertBefore(el, sib.nextSibling);
+          }
+          startY = e.clientY;
+          el.style.transform = 'translateY(0px)';
+          break;
+        }
+      }
+    });
+    const finish = e=>{
+      if(!dragging || e.pointerId !== pointerId) return;
+      dragging = false;
+      try{ handle.releasePointerCapture(pointerId); }catch(err){}
+      el.classList.remove('dragging');
+      el.style.transform = '';
+    };
+    handle.addEventListener('pointerup', finish);
+    handle.addEventListener('pointercancel', finish);
+  });
+}
+
 function lpSetContinueEnabled(enabled){
   document.getElementById('lp-next-btn').disabled = !enabled;
   document.getElementById('lp-next-btn').style.opacity = enabled ? '1' : '.45';
@@ -6466,6 +6526,54 @@ function renderLpBlockInner(){
       lpSetContinueEnabled(true);
       lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'sequence', hint: block.explanation });
     });
+    return;
+  }
+
+  if(block.type==='dragorder'){
+    const items = block.items || [];
+    let checked = alreadyAnswered;
+    const initialOrder = checked ? items.map((_,i)=>i) : shuffleArray(items.map((_,i)=>i));
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${esc(block.prompt || 'Drag the items into the correct order.')}</div>
+      <div class="fx-hint" style="text-align:left;margin:0 0 .3rem;">Use the ⠿ handle to drag and reorder.</div>
+      <div id="lp-drag-list" class="lp-drag-list"></div>
+      <button class="btn-sm" id="lp-drag-check" style="margin-top:.85rem;${checked?'display:none;':''}">Check order</button>
+      <div id="lp-drag-feedback"></div>
+    </div>`;
+    const listEl = document.getElementById('lp-drag-list');
+    const buildTile = (origIdx,pos)=>{
+      const div = document.createElement('div');
+      div.className = 'lp-drag-item' + (checked ? (origIdx===pos ? ' correct' : ' incorrect') : '');
+      div.dataset.orig = origIdx;
+      div.innerHTML = `<span class="lp-drag-handle-ico">⠿</span><span class="lp-drag-num mono">${pos+1}</span><span class="lp-drag-text">${esc(items[origIdx])}</span>`;
+      return div;
+    };
+    initialOrder.forEach((origIdx,pos)=> listEl.appendChild(buildTile(origIdx,pos)));
+    lpSetContinueEnabled(checked);
+    if(!checked){
+      lpWireDragSort(listEl);
+      document.getElementById('lp-drag-check').addEventListener('click', ()=>{
+        const tiles = Array.from(listEl.children);
+        const correct = tiles.every((t,pos)=> +t.dataset.orig === pos);
+        checked = true;
+        // Re-sort into the correct order so the student can see it, whether
+        // they got it right or not (mirrors how the point-plotter block
+        // reveals the target point on an incorrect answer).
+        tiles.sort((a,b)=> +a.dataset.orig - +b.dataset.orig).forEach(t=> listEl.appendChild(t));
+        Array.from(listEl.children).forEach((t,pos)=>{
+          t.classList.add(correct ? 'correct' : 'incorrect');
+          const num = t.querySelector('.lp-drag-num'); if(num) num.textContent = pos+1;
+          const h = t.querySelector('.lp-drag-handle-ico'); if(h) h.style.pointerEvents = 'none';
+        });
+        const fb = document.getElementById('lp-drag-feedback');
+        sfx[correct?'correct':'incorrect']();
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct order!':'✗ Not quite — the correct order is now shown.'}${block.explanation?' '+esc(block.explanation):''}</div>`;
+        document.getElementById('lp-drag-check').style.display='none';
+        lpAnswered[lpIndex] = true;
+        lpSetContinueEnabled(true);
+        lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'drag order', hint: block.explanation });
+      });
+    }
     return;
   }
 
@@ -8618,7 +8726,8 @@ const BLOCK_TYPE_META = {
   spoterror:{icon:'🔍',label:'Spot the error'}, describe:{icon:'✏️',label:'Build from description'}, mapping:{icon:'🗺️',label:'Mapping diagram'},
   code:{icon:'💻',label:'Code block'}, reftable:{icon:'📋',label:'Reference table'}, timeline:{icon:'🕒',label:'Timeline'},
   tabs:{icon:'🗃️',label:'Tabs'}, checklist:{icon:'☑️',label:'Self-check'}, matching:{icon:'🔗',label:'Matching pairs'},
-  customhtml:{icon:'🧬',label:'Custom HTML/JS'}, scratchpad:{icon:'📓',label:'Work area'}
+  customhtml:{icon:'🧬',label:'Custom HTML/JS'}, scratchpad:{icon:'📓',label:'Work area'},
+  dragorder:{icon:'🧲',label:'Drag to order'}
 };
 function saveTemplateBtn(bi){
   return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
@@ -9350,6 +9459,22 @@ function renderLessonBlockList(){
         ${hintsEditorHTML(bi, b.hints)}
       </div>`;
     }
+    if(b.type==='dragorder'){
+      const items = b.items || [];
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Check · Drag to order</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt e.g. Drag the steps into the correct order" value="${esc(b.prompt||'')}"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-bottom:.4rem;">List the items in their CORRECT order — students see them shuffled.</div>
+        <div id="dragorder-items-${bi}">${items.map((it,ii)=>`<div style="display:flex;gap:.4rem;margin-bottom:.35rem;align-items:center;">
+          <span class="mono" style="color:var(--ink-faint);font-size:.7rem;min-width:1.2em;">${ii+1}.</span>
+          <input type="text" data-do-item="${bi}:${ii}" placeholder="Item text" value="${esc(it||'')}" style="flex:1;">
+          <button class="qb-remove" data-do-remove="${bi}:${ii}" type="button">✕</button>
+        </div>`).join('')}</div>
+        <button class="btn-sm" type="button" data-do-add="${bi}">+ Add item</button>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        ${hintsEditorHTML(bi, b.hints)}
+      </div>`;
+    }
     if(b.type==='customhtml'){
       return `<div class="qb-item" data-bi="${bi}">
         <div class="qb-item-head"><span class="qb-type-tag mono">Custom HTML/JS block</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}">✕</button></div></div>
@@ -9476,6 +9601,9 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-mt-remove]').forEach(b=>b.onclick=()=>{ const [bi,pi]=b.dataset.mtRemove.split(':').map(Number); lessonBlocks[bi].pairs.splice(pi,1); renderLessonBlockList(); });
   list.querySelectorAll('[data-mt-left]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,pi]=inp.dataset.mtLeft.split(':').map(Number); lessonBlocks[bi].pairs[pi].left = inp.value; }));
   list.querySelectorAll('[data-mt-right]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,pi]=inp.dataset.mtRight.split(':').map(Number); lessonBlocks[bi].pairs[pi].right = inp.value; }));
+  list.querySelectorAll('[data-do-add]').forEach(b=>b.onclick=()=>{ const bi=+b.dataset.doAdd; (lessonBlocks[bi].items=lessonBlocks[bi].items||[]).push(''); renderLessonBlockList(); });
+  list.querySelectorAll('[data-do-remove]').forEach(b=>b.onclick=()=>{ const [bi,ii]=b.dataset.doRemove.split(':').map(Number); lessonBlocks[bi].items.splice(ii,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-do-item]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,ii]=inp.dataset.doItem.split(':').map(Number); lessonBlocks[bi].items[ii] = inp.value; }));
   // Custom HTML/JS
   list.querySelectorAll('[data-ch-preview]').forEach(b=>b.onclick=()=>{
     const bi = +b.dataset.chPreview;
@@ -9602,6 +9730,7 @@ document.getElementById('lb-add-timeline').onclick = ()=>{ lessonBlocks.push({ty
 document.getElementById('lb-add-tabs').onclick = ()=>{ lessonBlocks.push({type:'tabs', tabs:[{title:'Tab 1',content:''}]}); renderLessonBlockList(); };
 document.getElementById('lb-add-checklist').onclick = ()=>{ lessonBlocks.push({type:'checklist', title:'', items:[{text:''}]}); renderLessonBlockList(); };
 document.getElementById('lb-add-matching').onclick = ()=>{ lessonBlocks.push({type:'matching', prompt:'', pairs:[{left:'',right:''},{left:'',right:''}], explanation:'', hints:[]}); renderLessonBlockList(); };
+document.getElementById('lb-add-dragorder').onclick = ()=>{ lessonBlocks.push({type:'dragorder', prompt:'', items:['','',''], explanation:'', hints:[]}); renderLessonBlockList(); };
 document.getElementById('lb-add-customhtml').onclick = ()=>{ lessonBlocks.push({type:'customhtml', title:'', code:'', height:400, graded:false}); renderLessonBlockList(); };
 document.getElementById('lb-add-fillblank').onclick = ()=>{ lessonBlocks.push({type:'fillblank', text:'', answer:'', caseSensitive:false, explanation:''}); renderLessonBlockList(); };
 document.getElementById('lb-add-flashcards').onclick = ()=>{ lessonBlocks.push({type:'flashcards', cards:[{front:'',back:''}]}); renderLessonBlockList(); };
