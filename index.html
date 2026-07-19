@@ -766,10 +766,46 @@
   .qb-item { transition:box-shadow .18s var(--ease-premium), transform .18s var(--ease-premium), border-color .18s; }
   .qb-item.lb-dragging { opacity:.4; }
   .qb-item.lb-drag-over { border-color:var(--blue) !important; box-shadow:0 0 0 3px var(--blue-bg); transform:translateY(2px); }
-  .lb-palette { display:flex; flex-direction:column; gap:.6rem; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:.85rem; margin-bottom:.9rem; }
-  .lb-palette-cat { display:flex; flex-direction:column; gap:.4rem; }
-  .lb-palette-cat-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); }
+  /* ── Lesson builder block palette — clean categorized accordion, replaces the old
+     flat wall of 40+ rainbow-bordered buttons. One neutral button style, a search
+     filter, and collapsed-by-default categories so the panel doesn't dominate the page. ── */
+  .lb-palette { background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:.7rem; margin-bottom:.9rem; }
+  .lb-palette-search { display:flex; align-items:center; gap:.5rem; background:var(--white); border:1.5px solid var(--rule); border-radius:10px; padding:.5rem .7rem; margin-bottom:.65rem; }
+  .lb-palette-search svg { width:15px; height:15px; color:var(--ink-faint); flex-shrink:0; }
+  .lb-palette-search input { border:none; outline:none; background:none; flex:1; font-size:.82rem; color:var(--ink); font-family:'Inter',sans-serif; }
+  .lb-palette-cat { border:1px solid var(--rule); border-radius:10px; background:var(--white); margin-bottom:.45rem; overflow:hidden; }
+  .lb-palette-cat:last-child { margin-bottom:0; }
+  .lb-palette-cat-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.76rem; color:var(--ink); display:flex; align-items:center; gap:.5rem; padding:.6rem .75rem; cursor:pointer; user-select:none; }
+  .lb-palette-cat-label .lb-cat-count { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:.65rem; color:var(--ink-faint); }
+  .lb-palette-cat-label .lb-cat-chevron { font-size:.65rem; color:var(--ink-faint); transition:transform .18s var(--ease-premium); }
+  .lb-palette-cat.open .lb-cat-chevron { transform:rotate(90deg); }
+  .lb-palette-btns { display:none; flex-wrap:wrap; gap:.4rem; padding:0 .75rem .7rem; }
+  .lb-palette-cat.open .lb-palette-btns { display:flex; }
+  .lb-palette-btns .btn-sm { border-color:var(--rule); color:var(--ink-soft); background:var(--paper); font-weight:600; }
+  .lb-palette-btns .btn-sm:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
+  .lb-palette-cat.lb-cat-hidden, .lb-palette-btns .btn-sm.lb-btn-hidden { display:none !important; }
   .math-help-inline-btn { font-family:'Sora',sans-serif; font-weight:700; font-size:.6rem; text-transform:none; letter-spacing:0; background:none; border:none; color:var(--purple); cursor:pointer; text-decoration:underline; }
+  /* ── AI lesson generation panel ── */
+  .lb-ai-card { border-radius:var(--radius-md); padding:1rem 1.1rem; margin-bottom:.9rem; background:linear-gradient(135deg, #241f3f, #1a1530); border:1px solid rgba(124,92,255,.35); box-shadow:var(--shadow-sm); }
+  .lb-ai-card-head { display:flex; align-items:center; gap:.6rem; cursor:pointer; user-select:none; }
+  .lb-ai-icon { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#b46bff,#7c5cff); display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
+  .lb-ai-card-head h4 { font-family:'Sora',sans-serif; font-weight:800; font-size:.85rem; color:#f6f4ef; margin:0; }
+  .lb-ai-card-head p { font-size:.72rem; color:#b7bccb; margin:.1rem 0 0; }
+  .lb-ai-card-head .lb-cat-chevron { margin-left:auto; color:#b7bccb; transition:transform .18s var(--ease-premium); }
+  .lb-ai-card.open .lb-cat-chevron { transform:rotate(90deg); }
+  .lb-ai-body { display:none; margin-top:.9rem; }
+  .lb-ai-card.open .lb-ai-body { display:block; }
+  .lb-ai-body label { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem; letter-spacing:.04em; text-transform:uppercase; color:#b7bccb; margin-bottom:.3rem; }
+  .lb-ai-body .form-row { grid-template-columns:1fr 1fr; margin-bottom:.6rem; }
+  .lb-ai-body input[type=text], .lb-ai-body textarea, .lb-ai-body select { width:100%; background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.14); color:#f6f4ef; border-radius:9px; padding:.55rem .7rem; font-family:'Inter',sans-serif; font-size:.82rem; margin-bottom:.6rem; }
+  .lb-ai-body textarea { min-height:56px; resize:vertical; }
+  .lb-ai-body input::placeholder, .lb-ai-body textarea::placeholder { color:#7d8299; }
+  .lb-ai-generate-btn { width:100%; padding:.7rem; border:none; border-radius:100px; background:linear-gradient(135deg,#b46bff,#7c5cff); color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer; transition:transform .18s var(--ease-premium), box-shadow .18s var(--ease-premium), opacity .18s; }
+  .lb-ai-generate-btn:hover { transform:translateY(-1px); box-shadow:0 8px 24px -6px rgba(124,92,255,.5); }
+  .lb-ai-generate-btn:disabled { opacity:.6; cursor:default; transform:none; box-shadow:none; }
+  .lb-ai-status { font-size:.72rem; margin-top:.55rem; text-align:center; }
+  .lb-ai-status.error { color:#ff8b8b; }
+  .lb-ai-status.ok { color:#8ce6b8; }
   .tour-dot { width:7px; height:7px; border-radius:50%; background:var(--rule); transition:background .2s; }
   .tour-dot.active { background:var(--blue); }
   .math-help-item { border:1px solid var(--rule); border-radius:var(--radius-sm); overflow:hidden; }
@@ -791,8 +827,11 @@
   .scratchpad-canvas-wrap { border:1px solid var(--rule); border-radius:10px; background:var(--white); overflow:hidden; touch-action:none; }
   .scratchpad-color-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--rule); cursor:pointer; padding:0; }
   .scratchpad-color-dot.active { box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--ink); }
-  .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem; }
-  .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); }
+  .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.9rem; padding-bottom:.8rem; border-bottom:1px solid var(--rule); }
+  .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); background:var(--paper-2); padding:.3rem .6rem; border-radius:100px; }
+  .lb-toolbar-actions { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+  .lb-toolbar-actions .btn-sm { border-color:var(--rule); color:var(--ink-soft); }
+  .lb-section-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); margin:1rem 0 .5rem; display:block; }
 
   /* ── Lesson builder split-pane layout: editor (left) + sticky live preview (right) ── */
   .lb-builder-layout { display:flex; align-items:flex-start; gap:1.2rem; }
@@ -2775,95 +2814,203 @@
       <div class="lb-builder-layout">
       <div class="lb-builder-main">
       <div class="lb-toolbar">
-        <label style="margin:0;">Lesson Blocks <span style="font-weight:400; text-transform:none; opacity:.7;">(students step through these one at a time)</span></label>
-        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+        <div>
+          <label style="margin:0;display:block;">Lesson Blocks</label>
+          <span style="font-size:.72rem;color:var(--ink-faint);">Students step through these one at a time</span>
+        </div>
+        <div class="lb-toolbar-actions">
           <span class="lb-toolbar-stats" id="lb-toolbar-stats">0 blocks</span>
-          <button class="btn-sm" id="lb-live-preview-toggle" type="button" style="border-color:var(--gold);color:var(--gold-ink);">📱 Live preview</button>
-          <button class="btn-sm" id="lb-undo-btn" type="button" title="Undo">↶ Undo</button>
-          <button class="btn-sm" id="lb-redo-btn" type="button" title="Redo">↷ Redo</button>
-          <button class="btn-sm" id="lb-export-btn" type="button" title="Export lesson as JSON">⬇ Export</button>
-          <button class="btn-sm" id="lb-import-btn" type="button" title="Import lesson JSON">⬆ Import</button>
+          <button class="btn-sm" id="lb-live-preview-toggle" type="button" title="Toggle the live phone preview">📱 Live preview</button>
+          <button class="btn-sm" id="lb-undo-btn" type="button" title="Undo">↶</button>
+          <button class="btn-sm" id="lb-redo-btn" type="button" title="Redo">↷</button>
+          <button class="btn-sm" id="lb-preview-btn" type="button" style="border-color:var(--blue);color:var(--blue);">👁 Preview</button>
+          <button class="btn-sm" id="lb-export-btn" type="button" title="Export lesson as JSON">⬇</button>
+          <button class="btn-sm" id="lb-import-btn" type="button" title="Import lesson JSON">⬆</button>
           <input type="file" id="lb-import-file" accept="application/json" style="display:none;">
-          <button class="btn-sm" id="lb-preview-btn" type="button" style="border-color:var(--blue);color:var(--blue);">👁 Preview lesson</button>
-          <button class="btn-sm" id="lb-math-help-btn" type="button" style="border-color:var(--purple);color:var(--purple);">❓ Math module guide</button>
+          <button class="btn-sm" id="lb-math-help-btn" type="button" title="Interactive math module guide">❓ Guide</button>
         </div>
       </div>
+
+      <!-- ═══ AI lesson generation ═══ -->
+      <div class="lb-ai-card" id="lb-ai-card">
+        <div class="lb-ai-card-head" id="lb-ai-card-head">
+          <div class="lb-ai-icon">✨</div>
+          <div>
+            <h4>Generate with AI</h4>
+            <p>Describe the topic — get a full draft lesson in seconds, ready to edit.</p>
+          </div>
+          <span class="lb-cat-chevron">▸</span>
+        </div>
+        <div class="lb-ai-body">
+          <label for="lb-ai-topic">Topic</label>
+          <textarea id="lb-ai-topic" placeholder="e.g. Solving quadratic equations by factoring, including the zero product property"></textarea>
+          <div class="form-row">
+            <div>
+              <label for="lb-ai-blockcount">Number of blocks</label>
+              <select id="lb-ai-blockcount">
+                <option value="5">~5 (short)</option>
+                <option value="8" selected>~8 (standard)</option>
+                <option value="12">~12 (in-depth)</option>
+              </select>
+            </div>
+            <div>
+              <label for="lb-ai-mode">Insert mode</label>
+              <select id="lb-ai-mode">
+                <option value="append">Add to existing blocks</option>
+                <option value="replace">Replace all blocks</option>
+              </select>
+            </div>
+          </div>
+          <label for="lb-ai-instructions">Extra instructions <span style="text-transform:none;font-weight:400;">(optional)</span></label>
+          <textarea id="lb-ai-instructions" placeholder="e.g. Keep it beginner-friendly, include a real-world example, end with 2 practice questions"></textarea>
+          <button class="lb-ai-generate-btn" id="lb-ai-generate-btn" type="button">✨ Generate lesson</button>
+          <div class="lb-ai-status" id="lb-ai-status"></div>
+          <div id="lb-ai-suggestion-card" style="display:none;margin-top:.9rem;padding:.85rem;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);">
+            <div style="display:flex;align-items:flex-start;gap:.5rem;">
+              <span style="font-size:1.1rem;">💡</span>
+              <div>
+                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;color:#f6f4ef;" id="lb-ai-suggestion-name"></div>
+                <div style="font-size:.72rem;color:#b7bccb;margin-top:.15rem;" id="lb-ai-suggestion-reason"></div>
+              </div>
+            </div>
+            <p style="font-size:.68rem;color:#b7bccb;margin:.6rem 0 .3rem;">This lesson could use a custom module the built-in blocks can't cover. Copy this prompt into a more powerful coding AI (like Claude), then paste the code it gives you back below.</p>
+            <textarea id="lb-ai-suggestion-prompt" readonly style="min-height:80px;font-family:'IBM Plex Mono',monospace;font-size:.68rem;"></textarea>
+            <button class="btn-sm" type="button" id="lb-ai-copy-prompt-btn" style="margin-top:.4rem;">📋 Copy prompt</button>
+            <label for="lb-ai-suggestion-code" style="margin-top:.7rem;">Paste the AI's code here</label>
+            <textarea id="lb-ai-suggestion-code" placeholder="Paste the HTML/CSS/JS the other AI gave you…" style="min-height:70px;"></textarea>
+            <div class="form-row" style="grid-template-columns:1fr auto;align-items:end;">
+              <div>
+                <label for="lb-ai-suggestion-scope">Also save to library as</label>
+                <select id="lb-ai-suggestion-scope">
+                  <option value="">Don't save — just insert into this lesson</option>
+                  <option value="private">Just me</option>
+                  <option value="school">My school</option>
+                  <option value="platform">Everyone on the platform (needs verified access)</option>
+                </select>
+              </div>
+              <button class="lb-ai-generate-btn" type="button" id="lb-ai-insert-suggestion-btn" style="width:auto;padding:.6rem 1.1rem;">+ Add block</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="qb-list" id="lesson-block-list"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:.7rem 0 .3rem;">
-        <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:.72rem;color:var(--ink-soft);">Custom modules</span>
-        <button class="btn-sm" id="lb-open-templates" type="button">📦 Insert from library</button>
+
+      <span class="lb-section-label">Add a block</span>
+      <div class="lb-palette">
+        <div class="lb-palette-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="lb-palette-search-input" placeholder="Search block types…">
+        </div>
+        <div class="lb-palette-cat open" data-cat-name="content">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>📄 Content</span><span class="lb-cat-count">15</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-text" data-search="text paragraph writing">+ Text</button>
+            <button class="btn-sm" id="lb-add-image" data-search="image picture photo">+ Image</button>
+            <button class="btn-sm" id="lb-add-video" data-search="video embed youtube">+ Video embed</button>
+            <button class="btn-sm" id="lb-add-callout" data-search="callout tip warning box">+ Callout box</button>
+            <button class="btn-sm" id="lb-add-embed" data-search="embed pdf iframe">+ Embed / PDF</button>
+            <button class="btn-sm" id="lb-add-divider" data-search="divider separator line">+ Divider</button>
+            <button class="btn-sm" id="lb-add-quote" data-search="quote citation">+ Quote</button>
+            <button class="btn-sm" id="lb-add-accordion" data-search="accordion faq collapsible">+ Accordion / FAQ</button>
+            <button class="btn-sm" id="lb-add-audio" data-search="audio sound embed">+ Audio embed</button>
+            <button class="btn-sm" id="lb-add-filedownload" data-search="file download attachment">+ File download</button>
+            <button class="btn-sm" id="lb-add-code" data-search="code snippet programming">+ Code block</button>
+            <button class="btn-sm" id="lb-add-reftable" data-search="reference table data">+ Reference table</button>
+            <button class="btn-sm" id="lb-add-timeline" data-search="timeline history events">+ Timeline</button>
+            <button class="btn-sm" id="lb-add-tabs" data-search="tabs sections">+ Tabs</button>
+            <button class="btn-sm" id="lb-add-customhtml" data-search="custom html javascript code">+ Custom HTML/JS block</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="checks">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>✅ Checks &amp; questions</span><span class="lb-cat-count">12</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-check" data-search="multiple choice question quiz check">+ Multiple choice</button>
+            <button class="btn-sm" id="lb-add-fillblank" data-search="fill in the blank">+ Fill in the blank</button>
+            <button class="btn-sm" id="lb-add-flashcards" data-search="flashcards memorize">+ Flashcards</button>
+            <button class="btn-sm" id="lb-add-slider" data-search="slider check">+ Slider check</button>
+            <button class="btn-sm" id="lb-add-simulate" data-search="probability simulator random">+ Probability simulator</button>
+            <button class="btn-sm" id="lb-add-trigratio" data-search="unit circle trig trigonometry">+ Unit circle (trig)</button>
+            <button class="btn-sm" id="lb-add-sequence" data-search="sequence explorer">+ Sequence explorer</button>
+            <button class="btn-sm" id="lb-add-spoterror" data-search="spot the error mistake">+ Spot the error</button>
+            <button class="btn-sm" id="lb-add-describe" data-search="build from description">+ Build from description</button>
+            <button class="btn-sm" id="lb-add-matching" data-search="matching pairs">+ Matching pairs</button>
+            <button class="btn-sm" id="lb-add-dragorder" data-search="drag to order sequence">+ Drag to order</button>
+            <button class="btn-sm" id="lb-add-checklist" data-search="self check checklist">+ Self-check checklist</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="student">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>✍️ Student work</span><span class="lb-cat-count">1</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-scratchpad" data-search="work area scratchpad show your work">+ Work area (show your work)</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="math">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>📐 Interactive math</span><span class="lb-cat-count">6</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-graph" data-search="function grapher graph">+ Function grapher</button>
+            <button class="btn-sm" id="lb-add-points" data-search="point plotter">+ Point plotter</button>
+            <button class="btn-sm" id="lb-add-table" data-search="table of values">+ Table of values</button>
+            <button class="btn-sm" id="lb-add-compose" data-search="composition function">+ Composition f(g(x))</button>
+            <button class="btn-sm" id="lb-add-inverse" data-search="inverse function">+ Inverse function</button>
+            <button class="btn-sm" id="lb-add-mapping" data-search="mapping diagram">+ Mapping diagram</button>
+            <button type="button" class="math-help-inline-btn" data-help-cat="math">❓ Module guide</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="functions">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>∫ Functions &amp; analysis</span><span class="lb-cat-count">7</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-domainrange" data-search="domain range">+ Domain &amp; range</button>
+            <button class="btn-sm" id="lb-add-drbuilder" data-search="notation builder">+ Notation builder</button>
+            <button class="btn-sm" id="lb-add-machine" data-search="function machine">+ Function machine</button>
+            <button class="btn-sm" id="lb-add-piecewise" data-search="piecewise builder">+ Piecewise builder</button>
+            <button class="btn-sm" id="lb-add-rate" data-search="rate of change slope">+ Rate of change</button>
+            <button class="btn-sm" id="lb-add-factory" data-search="function factory">+ Function factory</button>
+            <button class="btn-sm" id="lb-add-vlt" data-search="vertical line test">+ Vertical line test</button>
+            <button type="button" class="math-help-inline-btn" data-help-cat="functions">❓ Module guide</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:1rem 0 .3rem;">
+        <span class="lb-section-label" style="margin:0;">Custom block library</span>
+        <div style="display:flex;gap:.4rem;">
+          <button class="btn-sm" id="lb-open-custom-create" type="button">+ Create custom block</button>
+          <button class="btn-sm" id="lb-open-templates" type="button">📦 Browse library</button>
+        </div>
+      </div>
+      <div id="lb-custom-create-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.8rem;margin-bottom:.7rem;">
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:.5rem;"><label>Name</label><input type="text" id="lb-custom-name" placeholder="e.g. Balloon pressure simulator"></div>
+          <div class="form-group" style="margin-bottom:.5rem;"><label>Icon (emoji)</label><input type="text" id="lb-custom-icon" placeholder="🧩" maxlength="4"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:.5rem;"><label>Description</label><input type="text" id="lb-custom-desc" placeholder="One line — shown to other educators browsing the library"></div>
+        <div class="form-group" style="margin-bottom:.5rem;"><label>HTML / CSS / JS code</label><textarea class="tp-textarea" id="lb-custom-code" style="min-height:120px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;" placeholder="Paste your self-contained module code here…"></textarea></div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:.5rem;"><label>Height (px)</label><input type="text" id="lb-custom-height" value="400"></div>
+          <div class="form-group" style="margin-bottom:.5rem;">
+            <label>Publish to</label>
+            <select id="lb-custom-scope">
+              <option value="private">Just me</option>
+              <option value="school">My school</option>
+              <option value="platform">Everyone on the platform (needs verified access)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;">
+          <button class="btn btn-primary" id="lb-custom-save-btn" type="button" style="flex:1;">Save to library</button>
+          <button class="btn-sm" id="lb-custom-cancel-btn" type="button">Cancel</button>
+        </div>
+        <div class="modal-error" id="lb-custom-error" style="text-align:left;"></div>
       </div>
       <div id="lb-templates-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.7rem;margin-bottom:.7rem;">
+        <div style="display:flex;gap:.4rem;margin-bottom:.6rem;" id="lb-templates-scope-tabs">
+          <button class="btn-sm active" type="button" data-scope-tab="private">Just me</button>
+          <button class="btn-sm" type="button" data-scope-tab="school">My school</button>
+          <button class="btn-sm" type="button" data-scope-tab="platform">Platform</button>
+        </div>
         <div id="lb-templates-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.4rem;">Templates are blocks you've saved for reuse across lessons in your school. Click "💾 Save as template" on any block below to add it here.</div>
-      </div>
-      <div class="lb-palette">
-        <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Content</div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-text">+ Text</button>
-            <button class="btn-sm" id="lb-add-image">+ Image</button>
-            <button class="btn-sm" id="lb-add-video" style="border-color:var(--red-ink);color:var(--red-ink);">+ Video embed</button>
-            <button class="btn-sm" id="lb-add-callout" style="border-color:var(--gold);color:var(--gold-ink);">+ Callout box</button>
-            <button class="btn-sm" id="lb-add-embed" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Embed / PDF</button>
-            <button class="btn-sm" id="lb-add-divider" style="border-color:var(--rule);color:var(--ink-faint);">+ Divider</button>
-            <button class="btn-sm" id="lb-add-quote" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Quote</button>
-            <button class="btn-sm" id="lb-add-accordion" style="border-color:var(--teal);color:var(--teal);">+ Accordion / FAQ</button>
-            <button class="btn-sm" id="lb-add-audio" style="border-color:var(--red-ink);color:var(--red-ink);">+ Audio embed</button>
-            <button class="btn-sm" id="lb-add-filedownload" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ File download</button>
-            <button class="btn-sm" id="lb-add-code" style="border-color:var(--code-ink);color:var(--code-ink);">+ Code block</button>
-            <button class="btn-sm" id="lb-add-reftable" style="border-color:var(--ink-soft);color:var(--ink-soft);">+ Reference table</button>
-            <button class="btn-sm" id="lb-add-timeline" style="border-color:var(--gold);color:var(--gold-ink);">+ Timeline</button>
-            <button class="btn-sm" id="lb-add-tabs" style="border-color:var(--teal);color:var(--teal);">+ Tabs</button>
-            <button class="btn-sm" id="lb-add-customhtml" style="border-color:var(--purple-ink);color:var(--purple-ink);">+ Custom HTML/JS block</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Checks &amp; questions</div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-check">+ Multiple choice</button>
-            <button class="btn-sm" id="lb-add-fillblank" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Fill in the blank</button>
-            <button class="btn-sm" id="lb-add-flashcards" style="border-color:var(--gold);color:var(--gold-ink);">+ Flashcards</button>
-            <button class="btn-sm" id="lb-add-slider">+ Slider check</button>
-            <button class="btn-sm" id="lb-add-simulate" style="border-color:var(--teal);color:var(--teal);">+ Probability simulator</button>
-            <button class="btn-sm" id="lb-add-trigratio" style="border-color:var(--purple);color:var(--purple);">+ Unit circle (trig)</button>
-            <button class="btn-sm" id="lb-add-sequence" style="border-color:var(--teal);color:var(--teal);">+ Sequence explorer</button>
-            <button class="btn-sm" id="lb-add-spoterror" style="border-color:#c78500;color:var(--gold-ink);">+ Spot the error</button>
-            <button class="btn-sm" id="lb-add-describe" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Build from description</button>
-            <button class="btn-sm" id="lb-add-matching" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Matching pairs</button>
-            <button class="btn-sm" id="lb-add-dragorder" style="border-color:var(--blue-dark);color:var(--blue-dark);">+ Drag to order</button>
-            <button class="btn-sm" id="lb-add-checklist" style="border-color:var(--green-dark);color:var(--green-dark);">+ Self-check checklist</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Student work</div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-scratchpad" style="border-color:var(--purple);color:var(--purple);">+ Work area (show your work)</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Interactive math <button type="button" class="math-help-inline-btn" data-help-cat="math">❓ guide</button></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-graph" style="border-color:var(--purple);color:var(--purple);">+ Function grapher</button>
-            <button class="btn-sm" id="lb-add-points" style="border-color:var(--purple);color:var(--purple);">+ Point plotter</button>
-            <button class="btn-sm" id="lb-add-table" style="border-color:var(--purple);color:var(--purple);">+ Table of values</button>
-            <button class="btn-sm" id="lb-add-compose" style="border-color:var(--purple);color:var(--purple);">+ Composition f(g(x))</button>
-            <button class="btn-sm" id="lb-add-inverse" style="border-color:var(--purple);color:var(--purple);">+ Inverse function</button>
-            <button class="btn-sm" id="lb-add-mapping" style="border-color:var(--blue);color:var(--blue);">+ Mapping diagram</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat">
-          <div class="lb-palette-cat-label">Functions &amp; analysis <button type="button" class="math-help-inline-btn" data-help-cat="functions">❓ guide</button></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-domainrange" style="border-color:var(--green-dark);color:var(--green-dark);">+ Domain &amp; range</button>
-            <button class="btn-sm" id="lb-add-drbuilder" style="border-color:var(--purple);color:var(--purple);">+ Notation builder</button>
-            <button class="btn-sm" id="lb-add-machine" style="border-color:var(--green-dark);color:var(--green-dark);">+ Function machine</button>
-            <button class="btn-sm" id="lb-add-piecewise" style="border-color:var(--green-dark);color:var(--green-dark);">+ Piecewise builder</button>
-            <button class="btn-sm" id="lb-add-rate" style="border-color:var(--green-dark);color:var(--green-dark);">+ Rate of change</button>
-            <button class="btn-sm" id="lb-add-factory" style="border-color:var(--gold);color:var(--gold-ink);">+ Function factory</button>
-            <button class="btn-sm" id="lb-add-vlt" style="border-color:var(--red);color:var(--red);">+ Vertical line test</button>
-          </div>
-        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.4rem;">Blocks saved here (by you, from AI suggestions, or by other educators) can be reused across lessons. Visibility depends on how each one was published.</div>
       </div>
       </div>
       <div class="lb-preview-col" id="lb-preview-col">
@@ -8962,9 +9109,16 @@ function hintsEditorHTML(bi, hints){
 }
 // Reusable block-template library (educators save any block, insert it into any lesson later).
 let blockTemplates = [];
+let lbTemplatesScope = 'private';
 async function loadBlockTemplates(){
-  if(!currentProfile || !currentProfile.school_id) return;
-  const { data, error } = await db.from('block_templates').select('*').eq('school_id', currentProfile.school_id).order('created_at', { ascending:false });
+  if(!currentProfile) return;
+  let q = db.from('block_templates').select('*').eq('scope', lbTemplatesScope).order('created_at', { ascending:false });
+  if(lbTemplatesScope === 'private') q = q.eq('created_by', currentUser.id);
+  else if(lbTemplatesScope === 'school'){
+    if(!currentProfile.school_id){ blockTemplates = []; return; }
+    q = q.eq('school_id', currentProfile.school_id);
+  }
+  const { data, error } = await q;
   if(!error) blockTemplates = data || [];
 }
 const BLOCK_TYPE_META = {
@@ -10091,12 +10245,18 @@ document.getElementById('lb-add-flashcards').onclick = ()=>{ lessonBlocks.push({
 
 function renderTemplatesPanel(){
   const list = document.getElementById('lb-templates-list');
-  if(!blockTemplates.length){ list.innerHTML = `<div class="empty-note">No saved templates yet.</div>`; return; }
-  list.innerHTML = blockTemplates.map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:.45rem .65rem;">
-    <div><span style="font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;">${esc(t.name)}</span> <span class="mono" style="font-size:.65rem;color:var(--ink-faint);">· ${esc(t.block_type)}</span></div>
-    <div style="display:flex;gap:.4rem;">
+  if(!blockTemplates.length){ list.innerHTML = `<div class="empty-note">Nothing here yet.</div>`; return; }
+  list.innerHTML = blockTemplates.map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:.5rem .65rem;">
+    <div style="display:flex;align-items:center;gap:.5rem;min-width:0;">
+      <span style="font-size:1.1rem;flex-shrink:0;">${esc(t.icon||'🧩')}</span>
+      <div style="min-width:0;">
+        <div><span style="font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;">${esc(t.name)}</span> <span class="mono" style="font-size:.62rem;color:var(--ink-faint);">· ${esc(t.block_type)}${t.source==='ai'?' · ✨ AI':''}</span></div>
+        ${t.description ? `<div style="font-size:.7rem;color:var(--ink-soft);margin-top:.1rem;">${esc(t.description)}</div>` : ''}
+      </div>
+    </div>
+    <div style="display:flex;gap:.4rem;flex-shrink:0;">
       <button class="btn-sm" type="button" data-tpl-insert="${t.id}">+ Insert</button>
-      <button class="btn-sm danger" type="button" data-tpl-delete="${t.id}">✕</button>
+      ${t.created_by===currentUser?.id ? `<button class="btn-sm danger" type="button" data-tpl-delete="${t.id}">✕</button>` : ''}
     </div>
   </div>`).join('');
   list.querySelectorAll('[data-tpl-insert]').forEach(b=>b.onclick=()=>{
@@ -10105,13 +10265,71 @@ function renderTemplatesPanel(){
     renderLessonBlockList();
   });
   list.querySelectorAll('[data-tpl-delete]').forEach(b=>b.onclick=async ()=>{
-    if(!confirm('Delete this template?')) return;
+    if(!confirm('Delete this block from the library?')) return;
     const { error } = await db.from('block_templates').delete().eq('id', b.dataset.tplDelete);
     if(error){ alert(error.message); return; }
     await loadBlockTemplates();
     renderTemplatesPanel();
   });
 }
+document.querySelectorAll('#lb-templates-scope-tabs [data-scope-tab]').forEach(btn=>{
+  btn.onclick = async ()=>{
+    lbTemplatesScope = btn.dataset.scopeTab;
+    document.querySelectorAll('#lb-templates-scope-tabs [data-scope-tab]').forEach(b=>b.classList.toggle('active', b===btn));
+    await loadBlockTemplates();
+    renderTemplatesPanel();
+  };
+});
+document.getElementById('lb-open-custom-create').onclick = ()=>{
+  const panel = document.getElementById('lb-custom-create-panel');
+  panel.style.display = panel.style.display==='none' ? '' : 'none';
+  document.getElementById('lb-templates-panel').style.display = 'none';
+};
+document.getElementById('lb-custom-cancel-btn').onclick = ()=>{
+  document.getElementById('lb-custom-create-panel').style.display = 'none';
+};
+async function saveCustomBlock({ name, icon, description, code, height, scope }){
+  const errEl = document.getElementById('lb-custom-error');
+  errEl.textContent = '';
+  if(!name.trim()) { errEl.textContent = 'Give the block a name.'; return false; }
+  if(!code.trim()) { errEl.textContent = 'Paste in the module code.'; return false; }
+  if(scope === 'platform' && !['verified','admin'].includes(currentProfile?.educator_tier)){
+    errEl.textContent = "Publishing platform-wide needs verified educator access — ask an admin, or publish to your school instead.";
+    return false;
+  }
+  const blockData = { type:'customhtml', title:name.trim(), code, height: Math.max(150, Number(height)||400), graded:/checkAnswer\s*\(/.test(code) };
+  const { error } = await db.from('block_templates').insert({
+    created_by: currentUser.id,
+    school_id: scope === 'private' ? null : currentProfile.school_id,
+    scope,
+    name: name.trim(),
+    icon: icon.trim() || '🧩',
+    description: description.trim(),
+    block_type: 'customhtml',
+    block_data: blockData,
+    source: 'manual',
+  });
+  if(error){ errEl.textContent = error.message; return false; }
+  return true;
+}
+document.getElementById('lb-custom-save-btn').onclick = async ()=>{
+  const btn = document.getElementById('lb-custom-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const ok = await saveCustomBlock({
+    name: document.getElementById('lb-custom-name').value,
+    icon: document.getElementById('lb-custom-icon').value,
+    description: document.getElementById('lb-custom-desc').value,
+    code: document.getElementById('lb-custom-code').value,
+    height: document.getElementById('lb-custom-height').value,
+    scope: document.getElementById('lb-custom-scope').value,
+  });
+  btn.disabled = false; btn.textContent = 'Save to library';
+  if(ok){
+    ['lb-custom-name','lb-custom-icon','lb-custom-desc','lb-custom-code'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('lb-custom-create-panel').style.display = 'none';
+    if(lbTemplatesScope === document.getElementById('lb-custom-scope').value){ await loadBlockTemplates(); renderTemplatesPanel(); }
+  }
+};
 document.getElementById('lb-undo-btn').onclick = lbUndo;
 document.getElementById('lb-redo-btn').onclick = lbRedo;
 document.getElementById('lb-export-btn').onclick = ()=>{
@@ -10145,10 +10363,115 @@ document.getElementById('lb-import-file').addEventListener('change', async e=>{
   }
   e.target.value = '';
 });
+/* ── Palette accordion + search (redesigned block palette) ── */
+document.querySelectorAll('#lesson-builder-group [data-cat-toggle]').forEach(head=>{
+  head.onclick = ()=>{ head.closest('.lb-palette-cat').classList.toggle('open'); };
+});
+document.getElementById('lb-palette-search-input').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  document.querySelectorAll('#lesson-builder-group .lb-palette-cat').forEach(cat=>{
+    let anyVisible = false;
+    cat.querySelectorAll('.lb-palette-btns .btn-sm').forEach(btn=>{
+      const hay = (btn.dataset.search || '') + ' ' + btn.textContent;
+      const match = !q || hay.toLowerCase().includes(q);
+      btn.classList.toggle('lb-btn-hidden', !match);
+      if(match) anyVisible = true;
+    });
+    cat.classList.toggle('lb-cat-hidden', !anyVisible);
+    if(q && anyVisible) cat.classList.add('open');
+    if(!q) cat.classList.remove('lb-cat-hidden');
+  });
+});
+
+/* ── AI lesson generation ── */
+document.getElementById('lb-ai-card-head').onclick = ()=>{
+  document.getElementById('lb-ai-card').classList.toggle('open');
+};
+document.getElementById('lb-ai-generate-btn').onclick = async ()=>{
+  const topic = document.getElementById('lb-ai-topic').value.trim();
+  const statusEl = document.getElementById('lb-ai-status');
+  statusEl.className = 'lb-ai-status';
+  if(!topic){ statusEl.textContent = 'Describe the topic first.'; statusEl.classList.add('error'); return; }
+  const btn = document.getElementById('lb-ai-generate-btn');
+  btn.disabled = true; btn.textContent = '✨ Generating…';
+  statusEl.textContent = 'Writing your lesson — this usually takes a few seconds…';
+  try {
+    const courseName = document.getElementById('cd-title')?.textContent || '';
+    const unitName = document.getElementById('unit-content-title')?.textContent || '';
+    const { data, error } = await db.functions.invoke('generate-lesson-blocks', {
+      body: {
+        courseName, unitName, topic,
+        instructions: document.getElementById('lb-ai-instructions').value.trim(),
+        blockCount: +document.getElementById('lb-ai-blockcount').value,
+      }
+    });
+    if(error) throw error;
+    if(data?.error) throw new Error(data.error);
+    if(!data?.blocks?.length) throw new Error('No blocks were generated. Try again.');
+
+    const mode = document.getElementById('lb-ai-mode').value;
+    if(mode === 'replace') lessonBlocks = data.blocks;
+    else lessonBlocks = lessonBlocks.concat(data.blocks);
+
+    const titleInput = document.getElementById('test-name-input');
+    if(titleInput && !titleInput.value.trim() && data.title) titleInput.value = data.title;
+    const descInput = document.getElementById('test-description-input');
+    if(descInput && !descInput.value.trim() && data.description) descInput.value = data.description;
+    if(Array.isArray(data.objectives) && data.objectives.length){
+      lessonObjectives = lessonObjectives.concat(data.objectives.filter(o=>o && !lessonObjectives.includes(o)));
+      renderObjectivesList();
+    }
+
+    renderLessonBlockList();
+    statusEl.textContent = `✅ Added ${data.blocks.length} block${data.blocks.length===1?'':'s'} — review and edit below.`;
+    statusEl.classList.add('ok');
+
+    const sugCard = document.getElementById('lb-ai-suggestion-card');
+    if(data.suggestion){
+      document.getElementById('lb-ai-suggestion-name').textContent = '💡 ' + data.suggestion.name;
+      document.getElementById('lb-ai-suggestion-reason').textContent = data.suggestion.reason;
+      document.getElementById('lb-ai-suggestion-prompt').value = data.suggestion.prompt;
+      document.getElementById('lb-ai-suggestion-code').value = '';
+      sugCard.style.display = '';
+    } else {
+      sugCard.style.display = 'none';
+    }
+  } catch(err){
+    statusEl.textContent = err.message || 'Something went wrong generating the lesson.';
+    statusEl.classList.add('error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✨ Generate lesson';
+  }
+};
+document.getElementById('lb-ai-copy-prompt-btn').onclick = async ()=>{
+  const ta = document.getElementById('lb-ai-suggestion-prompt');
+  ta.select();
+  try { await navigator.clipboard.writeText(ta.value); } catch(e) { document.execCommand('copy'); }
+  const btn = document.getElementById('lb-ai-copy-prompt-btn');
+  const orig = btn.textContent; btn.textContent = '✅ Copied'; setTimeout(()=>btn.textContent = orig, 1500);
+};
+document.getElementById('lb-ai-insert-suggestion-btn').onclick = async ()=>{
+  const code = document.getElementById('lb-ai-suggestion-code').value.trim();
+  if(!code){ alert('Paste the code the other AI gave you first.'); return; }
+  const name = document.getElementById('lb-ai-suggestion-name').textContent.replace(/^💡\s*/, '') || 'Custom module';
+  lessonBlocks.push({ type:'customhtml', title:name, code, height:450, graded:/checkAnswer\s*\(/.test(code) });
+  renderLessonBlockList();
+
+  const scope = document.getElementById('lb-ai-suggestion-scope').value;
+  if(scope){
+    const ok = await saveCustomBlock({
+      name, icon:'✨', description: document.getElementById('lb-ai-suggestion-reason').textContent, code, height:450, scope,
+    });
+    if(!ok){ const err = document.getElementById('lb-custom-error').textContent; if(err) alert('Block was added to the lesson, but saving to the library failed: ' + err); }
+  }
+  document.getElementById('lb-ai-suggestion-card').style.display = 'none';
+};
+
 document.getElementById('lb-open-templates').onclick = async ()=>{
   const panel = document.getElementById('lb-templates-panel');
   const opening = panel.style.display==='none';
   panel.style.display = opening ? '' : 'none';
+  document.getElementById('lb-custom-create-panel').style.display = 'none';
   if(opening){ await loadBlockTemplates(); renderTemplatesPanel(); }
 };
 document.getElementById('lb-preview-btn').onclick = ()=>{
