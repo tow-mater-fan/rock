@@ -869,6 +869,9 @@
   .lb-move-btns { display:flex; gap:.25rem; }
   .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1; }
   .lb-move-btns button:hover { border-color:var(--blue); color:var(--blue); }
+  .lb-ai-edit-btn { border-color:rgba(124,92,255,.4) !important; }
+  .lb-ai-edit-btn:hover { border-color:transparent !important; background:var(--brand-gradient-subtle) !important; }
+  .lb-ai-edit-btn:disabled { opacity:.6; cursor:default; }
 
   /* ── Math interactive blocks (graph / points / table) ── */
   .fx-wrap { background:var(--paper); border:1px solid var(--rule); border-radius:12px; padding:1rem; }
@@ -9259,6 +9262,51 @@ function moveBlock(i, dir){
   [lessonBlocks[i], lessonBlocks[j]] = [lessonBlocks[j], lessonBlocks[i]];
   renderLessonBlockList();
 }
+// Educator asks AI to revise one existing block in place — same backend/model
+// as "Generate lesson", but scoped to a single block so the type, grading
+// shape, and every other block are left untouched.
+async function lbOpenAiEditPrompt(bi){
+  const block = lessonBlocks[bi];
+  if(!block) return;
+  const meta = BLOCK_TYPE_META[block.type] || {label:block.type};
+  const instruction = prompt(`Tell the AI how to change this ${meta.label} block (e.g. "make the numbers harder", "add a real-world scenario", "shorten the explanation"):`);
+  if(!instruction || !instruction.trim()) return;
+
+  const btn = document.querySelector(`[data-lb-ai-edit="${bi}"]`);
+  if(btn){ btn.disabled = true; btn.textContent = '⏳'; }
+  try {
+    const courseName = document.getElementById('cd-title')?.textContent || '';
+    const unitName = document.getElementById('unit-content-title')?.textContent || '';
+    const { data, error } = await db.functions.invoke('update-lesson-block', {
+      body: { courseName, unitName, block, instruction: instruction.trim() }
+    });
+    if(error){
+      let body = null;
+      try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch(e) { /* not JSON */ }
+      if(body?.requiresPremium){
+        lastLessonGenUsage = { isPremium: false, usedThisMonth: body.usedThisMonth, monthlyLimit: body.monthlyLimit };
+        renderLessonGenUsageBadge();
+        alert(body.error + ' Upgrade to Educator Premium for more AI edits this month.');
+        return;
+      }
+      throw new Error(body?.error || error.message || 'Something went wrong updating this block.');
+    }
+    if(data?.error) throw new Error(data.error);
+    if(!data?.block) throw new Error('AI did not return an updated block. Try again.');
+
+    if(typeof data.isPremium === 'boolean'){
+      lastLessonGenUsage = { isPremium: data.isPremium, usedThisMonth: data.usedThisMonth, monthlyLimit: data.monthlyLimit };
+      renderLessonGenUsageBadge();
+    }
+
+    lessonBlocks[bi] = data.block;
+    renderLessonBlockList();
+  } catch(err){
+    alert(err.message || 'Something went wrong updating this block.');
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = '✨'; }
+  }
+}
 // Shared hints editor, appended to the bottom of any lesson block's builder card.
 function hintsEditorHTML(bi, hints){
   return `<div class="form-group" style="margin-top:.6rem;">
@@ -9463,6 +9511,7 @@ function renderLessonBlockList(){
     const meta = BLOCK_TYPE_META[b.type] || {icon:'▫️',label:b.type};
     const moveBtns = `<div class="lb-move-btns">
       <span class="lb-drag-handle" draggable="true" data-lb-drag="${bi}" title="Drag to reorder">⠿</span>
+      <button data-lb-ai-edit="${bi}" type="button" class="lb-ai-edit-btn" title="Ask AI to update this block">✨</button>
       <button data-lb-up="${bi}" type="button" title="Move up">↑</button>
       <button data-lb-down="${bi}" type="button" title="Move down">↓</button>
       <button data-lb-dup="${bi}" type="button" title="Duplicate">⎘</button>
@@ -10223,6 +10272,7 @@ function renderLessonBlockList(){
   });
   list.querySelectorAll('[data-lb-up]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbUp, -1));
   list.querySelectorAll('[data-lb-down]').forEach(b=>b.onclick=()=>moveBlock(+b.dataset.lbDown, 1));
+  list.querySelectorAll('[data-lb-ai-edit]').forEach(b=>b.onclick=()=>lbOpenAiEditPrompt(+b.dataset.lbAiEdit));
   list.querySelectorAll('[data-lb-dup]').forEach(b=>b.onclick=()=>{
     const bi = +b.dataset.lbDup;
     lessonBlocks.splice(bi+1, 0, JSON.parse(JSON.stringify(lessonBlocks[bi])));
