@@ -1736,6 +1736,7 @@
   </div>
   <div class="nav-progress" id="nav-progress" style="display:none;">
     <button class="nav-premium-btn" id="nav-premium-btn" onclick="openPremiumModal()"><svg class="icon"><use href="#i-sparkle"/></svg> <span class="np-label">Go Premium</span></button>
+    <button class="nav-premium-btn" id="nav-educator-premium-btn" style="display:none;" onclick="openEducatorPremiumModal()"><svg class="icon"><use href="#i-sparkle"/></svg> <span class="np-label">Go Premium</span></button>
     <span class="nav-streak" id="nav-streak-chip" title="Daily streak"><svg class="icon"><use href="#i-flame"/></svg> <span id="nav-streak-count">0</span></span>
     <span class="nav-xp" id="nav-xp-chip" title="Total XP"><svg class="icon"><use href="#i-bolt"/></svg> <span id="nav-xp-count">0</span> XP</span>
     <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button>
@@ -1810,6 +1811,44 @@
     <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">All prices in Canadian dollars (CAD). New subscribers get 30 days free on any plan; a card is required to start your trial but you won't be charged until it ends. *Billed as one payment. Renews annually, cancel anytime. You can turn off auto-renew from your settings.</p>
   </div>
 </div>
+
+<!-- ── Educator Premium modal — same visual language as the student one, but no
+     free trial and no group plan, since neither applies to the educator plan ── -->
+<div class="modal-overlay" id="educator-premium-modal-overlay">
+  <div class="modal premium-modal" style="max-width:720px; text-align:center;">
+    <button class="modal-close" onclick="closeEducatorPremiumModal()"><svg class="icon"><use href="#i-close"/></svg></button>
+    <div class="premium-modal-key" aria-hidden="true"><svg class="icon"><use href="#i-key"/></svg></div>
+    <h2 class="premium-modal-title">Educator Premium</h2>
+    <p class="desc" id="educator-premium-modal-offer">Unlock 60 AI lesson generations a month (up from 2), longer and richer lessons, and our best AI model for building them.</p>
+    <p class="desc hidden" id="educator-premium-modal-active" style="color:var(--green-ink,var(--green));">You're on Educator Premium — thanks for supporting Modilix!</p>
+
+    <div class="premium-plans" id="educator-premium-plans" style="grid-template-columns:repeat(2, 1fr);">
+      <button class="premium-plan-card" data-plan="monthly" onclick="selectEducatorPremiumPlan('monthly')">
+        <div class="premium-plan-name">Monthly</div>
+        <div class="premium-plan-price"><span class="amt">CA$4</span><span class="per">/month</span></div>
+        <div class="premium-plan-note">Billed monthly · cancel anytime</div>
+      </button>
+
+      <button class="premium-plan-card is-popular" data-plan="annual" onclick="selectEducatorPremiumPlan('annual')">
+        <div class="premium-plan-badge">BEST VALUE</div>
+        <div class="premium-plan-name">Annual</div>
+        <div class="premium-plan-price"><span class="amt">CA$30</span><span class="per">/year*</span></div>
+        <div class="premium-plan-note">One payment · save 37% vs. monthly</div>
+      </button>
+    </div>
+
+    <ul class="premium-feature-list">
+      <li><span><svg class="icon"><use href="#i-sparkle"/></svg></span> 60 AI lesson generations/month (free tier: 2/month)</li>
+      <li><span><svg class="icon"><use href="#i-chart"/></svg></span> Up to 18 blocks per generated lesson (free tier: 10)</li>
+      <li><span><svg class="icon"><use href="#i-bolt"/></svg></span> Our best AI model for lesson quality &amp; interactivity</li>
+    </ul>
+
+    <button class="modal-btn premium-subscribe-btn" id="educator-premium-activate-btn" onclick="openEducatorPremiumCheckout()">Subscribe now</button>
+    <p style="font-size:.68rem; color:var(--ink-faint); margin-top:.9rem; line-height:1.5;">All prices in Canadian dollars (CAD). *Billed as one payment. Renews annually, cancel anytime from your account settings.</p>
+  </div>
+</div>
+
+
 
 <!-- ── Embedded checkout screen (Stripe Elements, no redirect off Modilix) ── -->
 <div class="pc-overlay" id="premium-checkout-overlay">
@@ -2864,6 +2903,7 @@
           </div>
           <label for="lb-ai-instructions">Extra instructions <span style="text-transform:none;font-weight:400;">(optional)</span></label>
           <textarea id="lb-ai-instructions" placeholder="e.g. Keep it beginner-friendly, include a real-world example, end with 2 practice questions"></textarea>
+          <div id="lb-ai-usage-badge" style="font-size:.72rem;color:var(--ink-faint);margin-bottom:.5rem;"></div>
           <button class="lb-ai-generate-btn" id="lb-ai-generate-btn" type="button">✨ Generate lesson</button>
           <div class="lb-ai-status" id="lb-ai-status"></div>
           <div id="lb-ai-suggestion-card" style="display:none;margin-top:.9rem;padding:.85rem;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);">
@@ -4070,7 +4110,10 @@ let studentProgress = { xp:0, current_streak:0, longest_streak:0, last_active_da
 let usePathView = true; // toggled per-course by the little switch above the unit content
 
 async function loadProgress(){
-  if(!currentUser || isEducator) return;
+  if(!currentUser || isEducator){
+    if(currentUser && isEducator){ renderNavProgress(); renderEducatorPremiumUI(); }
+    return;
+  }
   const { data, error } = await db.from('student_progress').select('*').eq('student_id', currentUser.id).maybeSingle();
   if(!error && data){
     studentProgress = { xp:data.xp||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date, is_premium:!!data.is_premium };
@@ -4094,11 +4137,15 @@ async function loadProgress(){
 
 function renderNavProgress(){
   const wrap = document.getElementById('nav-progress');
-  if(!currentUser || isEducator){ wrap.style.display='none'; return; }
-  wrap.style.display='flex';
-  document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
-  document.getElementById('nav-xp-count').textContent = studentProgress.xp;
-  document.getElementById('nav-streak-chip').classList.toggle('lit', (studentProgress.current_streak||0) > 0);
+  if(!currentUser || isEducator){ wrap.style.display='none'; } else { wrap.style.display='flex';
+    document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
+    document.getElementById('nav-xp-count').textContent = studentProgress.xp;
+    document.getElementById('nav-streak-chip').classList.toggle('lit', (studentProgress.current_streak||0) > 0);
+  }
+  const studentBtn = document.getElementById('nav-premium-btn');
+  const eduBtn = document.getElementById('nav-educator-premium-btn');
+  if(studentBtn) studentBtn.style.display = (currentUser && isEducator) ? 'none' : '';
+  if(eduBtn) eduBtn.style.display = (currentUser && isEducator) ? '' : 'none';
 }
 
 function isPremiumUser(){ return !!studentProgress.is_premium; }
@@ -4116,6 +4163,8 @@ function renderPremiumUI(){
 }
 
 let selectedPremiumPlan = 'annual'; // annual pre-selected as the "most popular" default, matches the card highlight
+let selectedEducatorPremiumPlan = 'annual';
+let pcContext = 'student'; // 'student' or 'educator' — which checkout flow the shared overlay below is currently driving
 
 function selectPremiumPlan(plan){
   selectedPremiumPlan = plan;
@@ -4123,6 +4172,48 @@ function selectPremiumPlan(plan){
     card.classList.toggle('is-selected', card.dataset.plan === plan);
   });
 }
+
+function selectEducatorPremiumPlan(plan){
+  selectedEducatorPremiumPlan = plan;
+  document.querySelectorAll('#educator-premium-plans .premium-plan-card').forEach(card=>{
+    card.classList.toggle('is-selected', card.dataset.plan === plan);
+  });
+}
+
+let lastLessonGenUsage = null; // { isPremium, usedThisMonth, monthlyLimit } — cached from the last generate-lesson-blocks response
+
+function renderLessonGenUsageBadge(){
+  const el = document.getElementById('lb-ai-usage-badge');
+  if(!el) return;
+  if(!lastLessonGenUsage){ el.textContent = ''; return; }
+  const { isPremium, usedThisMonth, monthlyLimit } = lastLessonGenUsage;
+  el.innerHTML = isPremium
+    ? `${usedThisMonth}/${monthlyLimit} AI lesson generations used this month`
+    : `${usedThisMonth}/${monthlyLimit} free AI lesson generations used this month · <a href="javascript:void(0)" onclick="openEducatorPremiumModal()" style="color:#b46bff;font-weight:600;">Upgrade for ${PREMIUM_LESSON_MONTHLY_LIMIT_HINT}/month</a>`;
+}
+const PREMIUM_LESSON_MONTHLY_LIMIT_HINT = 60; // mirrors PREMIUM_LESSON_MONTHLY_LIMIT server-side; UI-only display copy
+
+function isEducatorPremiumUser(){ return !!currentProfile?.is_premium; }
+
+function renderEducatorPremiumUI(){
+  const navBtn = document.getElementById('nav-educator-premium-btn');
+  if(navBtn){
+    navBtn.classList.toggle('is-premium', isEducatorPremiumUser());
+    navBtn.innerHTML = isEducatorPremiumUser() ? '<svg class="icon"><use href="#i-sparkle"/></svg> Premium' : '<svg class="icon"><use href="#i-sparkle"/></svg> Go Premium';
+  }
+  document.getElementById('educator-premium-modal-active')?.classList.toggle('hidden', !isEducatorPremiumUser());
+  document.getElementById('educator-premium-modal-offer')?.classList.toggle('hidden', isEducatorPremiumUser());
+  renderLessonGenUsageBadge();
+}
+
+function openEducatorPremiumModal(){
+  if(!currentUser || !isEducator) return;
+  renderEducatorPremiumUI();
+  selectEducatorPremiumPlan(selectedEducatorPremiumPlan);
+  document.getElementById('educator-premium-modal-overlay').classList.add('open');
+  lockBodyScroll();
+}
+function closeEducatorPremiumModal(){ document.getElementById('educator-premium-modal-overlay').classList.remove('open'); unlockBodyScroll(); }
 
 function openPremiumModal(){
   if(!currentUser){
@@ -4169,6 +4260,46 @@ function togglePremiumDetails(){
   btn.classList.toggle('open');
 }
 
+async function openEducatorPremiumCheckout(){
+  if(!currentUser || !isEducator) return;
+  if(isEducatorPremiumUser()){ closeEducatorPremiumModal(); return; }
+
+  // Same staleness guard as the student flow: re-check live rather than
+  // trusting a possibly-stale cached currentProfile.is_premium.
+  try{
+    const { data } = await db.from('profiles').select('is_premium').eq('id', currentUser.id).maybeSingle();
+    if(data?.is_premium){
+      currentProfile.is_premium = true;
+      renderEducatorPremiumUI();
+      closeEducatorPremiumModal();
+      return;
+    }
+  }catch(e){ /* if this check fails, fall through — create-educator-subscription will catch it too */ }
+
+  closeEducatorPremiumModal();
+  pcContext = 'educator';
+
+  const planLabel = selectedEducatorPremiumPlan === 'annual' ? 'Educator Premium — Annual (CA$30/year)' : 'Educator Premium — Monthly (CA$4/month)';
+  document.getElementById('pc-plan-detail').textContent = planLabel;
+  document.getElementById('pc-total-amt').textContent = '—';
+  document.getElementById('pc-payment-element').innerHTML = '<div class="pc-loading">Loading payment form…</div>';
+  document.getElementById('pc-error').classList.add('hidden');
+  document.getElementById('pc-agree-terms').checked = false;
+  document.getElementById('pc-agree-renew').checked = false;
+  document.getElementById('pc-promo-input').value = '';
+  document.getElementById('pc-promo-status').classList.add('hidden');
+  document.getElementById('pc-plan-detail-wrap').classList.add('hidden');
+  document.getElementById('pc-details-toggle').classList.remove('open');
+  pcAppliedPromoCode = null;
+  const subBtn = document.getElementById('pc-subscribe-btn');
+  pcMode = 'payment'; pcIsTrial = false;
+  subBtn.disabled = true; subBtn.innerHTML = '<svg class="icon"><use href="#i-lock"/></svg> Subscribe now';
+  document.getElementById('premium-checkout-overlay').classList.add('open');
+  lockBodyScroll();
+
+  await fetchAndMountPremiumCheckout();
+}
+
 async function openPremiumCheckout(){
   if(!currentUser){
     closePremiumModal();
@@ -4198,6 +4329,7 @@ async function openPremiumCheckout(){
   }catch(e){ /* if this check fails, fall through — create-subscription will catch it too */ }
 
   closePremiumModal();
+  pcContext = 'student';
 
   const info = PREMIUM_PLAN_INFO[selectedPremiumPlan];
   document.getElementById('pc-plan-detail').textContent = info.detail;
@@ -4226,17 +4358,18 @@ async function openPremiumCheckout(){
 // since applying a discount means a new/updated subscription + intent.
 async function fetchAndMountPremiumCheckout(){
   const subBtn = document.getElementById('pc-subscribe-btn');
+  const isEdu = pcContext === 'educator';
   try{
     if(!stripeClient) throw new Error('Stripe.js failed to load');
     const accessToken = await getCurrentAccessToken();
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/create-subscription`, {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/${isEdu ? 'create-educator-subscription' : 'create-subscription'}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
         'apikey': SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({ plan: selectedPremiumPlan, promoCode: pcAppliedPromoCode || undefined }),
+      body: JSON.stringify(isEdu ? { plan: selectedEducatorPremiumPlan } : { plan: selectedPremiumPlan, promoCode: pcAppliedPromoCode || undefined }),
     });
     const data = await res.json();
     if(!res.ok || !data.clientSecret){
@@ -4244,9 +4377,15 @@ async function fetchAndMountPremiumCheckout(){
         // Race condition: the subscription activated (webhook landed)
         // between when the checkout modal opened and now. Treat this as
         // success rather than an error — refresh status and close out.
-        const { data: progress } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
-        studentProgress.is_premium = !!progress?.is_premium;
-        renderPremiumUI();
+        if(isEdu){
+          const { data: profile } = await db.from('profiles').select('is_premium').eq('id', currentUser.id).maybeSingle();
+          currentProfile.is_premium = !!profile?.is_premium;
+          renderEducatorPremiumUI();
+        } else {
+          const { data: progress } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
+          studentProgress.is_premium = !!progress?.is_premium;
+          renderPremiumUI();
+        }
         closePremiumCheckout();
         showXpToast(0);
         document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> You\'re already on Premium!');
@@ -4256,7 +4395,7 @@ async function fetchAndMountPremiumCheckout(){
     }
 
     pcMode = data.mode === 'setup' ? 'setup' : 'payment';
-    pcIsTrial = !!data.trial;
+    pcIsTrial = isEdu ? false : !!data.trial; // educator plan has no trial
 
     if(pcIsTrial){
       document.getElementById('pc-total-amt').textContent = '$0.00 — 30 days free';
@@ -4268,14 +4407,14 @@ async function fetchAndMountPremiumCheckout(){
     }
 
     const statusEl = document.getElementById('pc-promo-status');
-    if(data.discount){
+    if(!isEdu && data.discount){
       const savings = data.discount.percentOff != null
         ? `${data.discount.percentOff}% off`
         : `${(data.discount.amountOff/100).toLocaleString(undefined,{style:'currency',currency:(data.currency||'cad').toUpperCase()})} off`;
       statusEl.textContent = `✓ Promo "${data.discount.code}" applied — ${savings}${pcIsTrial ? ' after your trial' : ''}.`;
       statusEl.style.color = '#4ade80';
       statusEl.classList.remove('hidden');
-    } else if(pcAppliedPromoCode){
+    } else if(!isEdu && pcAppliedPromoCode){
       statusEl.classList.add('hidden');
     }
 
@@ -4473,15 +4612,28 @@ async function confirmPremiumCheckout(){
 // updates without a manual refresh. Shared by the card form (confirmPremiumCheckout)
 // and the Express Checkout Element's own confirm handler (PayPal/wallets).
 async function pollPremiumActivation(){
+  const isEdu = pcContext === 'educator';
   for(let i=0; i<6; i++){
     await new Promise(r=>setTimeout(r, 1200));
-    const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
-    if(data?.is_premium){
-      studentProgress.is_premium = true;
-      renderPremiumUI();
-      closePremiumCheckout();
-      openPremiumWelcomeTour();
-      return;
+    if(isEdu){
+      const { data } = await db.from('profiles').select('is_premium').eq('id', currentUser.id).maybeSingle();
+      if(data?.is_premium){
+        currentProfile.is_premium = true;
+        renderEducatorPremiumUI();
+        closePremiumCheckout();
+        showXpToast(0);
+        document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Educator Premium activated!');
+        return;
+      }
+    } else {
+      const { data } = await db.from('student_progress').select('is_premium').eq('student_id', currentUser.id).maybeSingle();
+      if(data?.is_premium){
+        studentProgress.is_premium = true;
+        renderPremiumUI();
+        closePremiumCheckout();
+        openPremiumWelcomeTour();
+        return;
+      }
     }
   }
   // Webhook hasn't landed yet — close out anyway, it'll catch up shortly.
@@ -10446,9 +10598,28 @@ document.getElementById('lb-ai-generate-btn').onclick = async ()=>{
         blockCount: +document.getElementById('lb-ai-blockcount').value,
       }
     });
-    if(error) throw error;
+    if(error){
+      // db.functions.invoke() only gives us `data:null` on a non-2xx response
+      // (e.g. the 403 from the monthly limit) — the actual error body Stripe
+      // put on the Response is reachable via error.context, not `data`.
+      let body = null;
+      try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch(e) { /* not JSON, fall through to generic error */ }
+      if(body?.requiresPremium){
+        lastLessonGenUsage = { isPremium: false, usedThisMonth: body.usedThisMonth, monthlyLimit: body.monthlyLimit };
+        renderLessonGenUsageBadge();
+        statusEl.innerHTML = `${body.error} <a href="javascript:void(0)" onclick="openEducatorPremiumModal()" style="color:#b46bff;font-weight:600;">Upgrade now</a>`;
+        statusEl.classList.add('error');
+        return;
+      }
+      throw new Error(body?.error || error.message || 'Something went wrong generating the lesson.');
+    }
     if(data?.error) throw new Error(data.error);
     if(!data?.blocks?.length) throw new Error('No blocks were generated. Try again.');
+
+    if(typeof data.isPremium === 'boolean'){
+      lastLessonGenUsage = { isPremium: data.isPremium, usedThisMonth: data.usedThisMonth, monthlyLimit: data.monthlyLimit };
+      renderLessonGenUsageBadge();
+    }
 
     const mode = document.getElementById('lb-ai-mode').value;
     if(mode === 'replace') lessonBlocks = data.blocks;
