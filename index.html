@@ -47,6 +47,15 @@
     --shadow-glow-board: 0 24px 60px -16px rgba(0,0,0,.45);
     --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --radius-xl: 28px;
     --ease-premium: cubic-bezier(.22,1,.36,1);
+
+    /* ── Brand gradient ── the single "this is Modilix" gradient, pulled from
+       the logo/wordmark palette (gold → orange → purple → deep blue). Reserved
+       for premium/CTA moments and the logo itself — not reused as a generic
+       decorative gradient — so it stays a recognizable signal instead of
+       wallpaper. --brand-gradient-subtle is the same stops at low opacity for
+       tinted backgrounds/borders. */
+    --brand-gradient: linear-gradient(120deg, #ffd166 0%, #ff5a36 45%, #b46bff 75%, #4a2fbe 100%);
+    --brand-gradient-subtle: linear-gradient(120deg, rgba(255,209,102,.16) 0%, rgba(255,90,54,.16) 45%, rgba(180,107,255,.16) 75%, rgba(74,47,190,.16) 100%);
   }
   /* ── Dark mode ── swaps the paper/ink surface tokens; every component
      already reads from these vars, so this cascades app-wide with no
@@ -302,7 +311,7 @@
   .pricing-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
   .pricing-card-head h3 { font-size:1.15rem; display:flex; align-items:center; gap:.5rem; }
   .pricing-badge { font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:#fff;
-    background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
+    background:var(--brand-gradient); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
     padding:.2rem .55rem; border-radius:999px; }
   .pricing-price { font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; margin:.5rem 0 .3rem; color:var(--ink); }
   .pricing-price span { font-size:.75rem; font-weight:600; color:var(--ink-faint); }
@@ -338,7 +347,7 @@
   .home-cta-banner { text-align:center; padding:4.5rem 1.5rem; max-width:680px; margin:0 auto; }
   .home-cta-banner h2 { font-size:1.6rem; margin-bottom:.6rem; }
   .home-cta-banner p { color:var(--ink-soft); margin-bottom:1.5rem; }
-  .home-cta-card { background:linear-gradient(120deg, #2eb872 0%, #3b7fd6 45%, #6d5cf7 100%);
+  .home-cta-card { background:var(--brand-gradient);
     background-size:180% 180%; animation:gradientDrift 9s ease-in-out infinite;
     border-radius:28px; padding:3.75rem 2.25rem; position:relative; overflow:hidden;
     box-shadow:0 24px 60px -16px rgba(70,60,180,.4), 0 4px 14px rgba(0,0,0,.08); }
@@ -644,7 +653,7 @@
   .premium-plan-card.is-selected { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg); }
   .premium-plan-card.is-selected:hover { box-shadow:0 0 0 3px var(--blue-bg), var(--shadow-lg); }
   .premium-plan-card.is-popular { border:2px solid transparent; background:linear-gradient(var(--paper-2), var(--paper-2)) padding-box,
-    linear-gradient(120deg,#7c5cff,#ff5a36,#f5a623) border-box; }
+    var(--brand-gradient) border-box; }
   .premium-plan-card.is-popular:hover { box-shadow:0 0 0 3px rgba(124,92,255,.35), var(--shadow-lg); }
   .premium-plan-badge { position:absolute; top:-.7rem; left:50%; transform:translateX(-50%); background:linear-gradient(120deg,#7c5cff,#ff5a36);
     color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:.62rem; letter-spacing:.04em; padding:.3rem .7rem; border-radius:100px; white-space:nowrap; }
@@ -656,7 +665,7 @@
   .premium-plan-note { font-size:.72rem; color:var(--ink-faint); }
   .premium-feature-list { text-align:left; list-style:none; padding:0; margin:0 auto 1.6rem; max-width:420px; display:flex; flex-direction:column; gap:.6rem; }
   .premium-feature-list li { display:flex; gap:.6rem; align-items:flex-start; font-size:.85rem; color:var(--ink-soft); }
-  .premium-subscribe-btn { background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
+  .premium-subscribe-btn { background:var(--brand-gradient); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
     width:100%; max-width:360px; }
   @media (max-width:720px){ .premium-plans { grid-template-columns:1fr; } .premium-modal { padding:2rem 1.25rem 1.75rem; } }
   /* On tablet/desktop, let the modal use noticeably more of the viewport
@@ -1358,13 +1367,13 @@
   .hidden { display:none !important; }
   .nav-progress { display:flex; align-items:center; gap:.6rem; }
   .nav-premium-btn { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--board-ink);
-    background:linear-gradient(var(--board), var(--board)) padding-box, linear-gradient(120deg, #2eb872, #ff5a36, #7c5cff) border-box;
+    background:linear-gradient(var(--board), var(--board)) padding-box, var(--brand-gradient) border-box;
     border:1.5px solid transparent; border-radius:999px; padding:.42rem 1rem; cursor:pointer;
     transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); background-size:100% 100%, 220% 220%;
     animation:navPremiumDrift 6s ease-in-out infinite; }
   @keyframes navPremiumDrift { 0%,100% { background-position:0 0, 0% 50%; } 50% { background-position:0 0, 100% 50%; } }
   .nav-premium-btn:hover { transform:translateY(-1px) scale(1.03); box-shadow:0 6px 18px -6px rgba(124,92,255,.5); }
-  .nav-premium-btn.is-premium { background:linear-gradient(120deg, #2eb872, #ff5a36, #7c5cff); background-size:220% 220%; color:#fff; animation:navPremiumDrift 6s ease-in-out infinite; }
+  .nav-premium-btn.is-premium { background:var(--brand-gradient); background-size:220% 220%; color:#fff; animation:navPremiumDrift 6s ease-in-out infinite; }
   .nav-streak, .nav-xp { font-family:'Sora',sans-serif; font-weight:800; font-size:.82rem; color:var(--board-ink);
     background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:100px; padding:.35rem .75rem;
     display:flex; align-items:center; gap:.3rem; transition:transform .2s, background .2s, border-color .2s, box-shadow .2s; }
@@ -1434,7 +1443,7 @@
   .dash-league-arrow { margin-left:auto; color:var(--ink-faint); font-size:1.1rem; transition:transform .2s var(--ease-premium); }
   .dash-league-card:hover .dash-league-arrow { transform:translateX(4px); color:var(--blue); }
 
-  .dash-premium-upsell { background:linear-gradient(120deg, #2eb872 0%, #ff5a36 50%, #7c5cff 100%); background-size:180% 180%;
+  .dash-premium-upsell { background:var(--brand-gradient); background-size:180% 180%;
     animation:gradientDrift 9s ease-in-out infinite; position:relative; overflow:hidden; color:#fff; }
   .dash-premium-upsell::before { content:''; position:absolute; width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.14); top:-60px; right:-40px; }
   .dash-premium-upsell > * { position:relative; z-index:1; }
@@ -11263,7 +11272,7 @@ function tutorShowUpsell(){
   const el = document.createElement('div');
   el.id = 'tutor-upsell';
   el.className = 'tutor-msg bot';
-  el.style.cssText = 'background:linear-gradient(120deg,#2eb872,#ff5a36,#7c5cff);background-size:220% 220%;animation:gradientDrift 9s ease-in-out infinite;color:#fff;cursor:pointer;';
+  el.style.cssText = 'background:var(--brand-gradient);background-size:220% 220%;animation:gradientDrift 9s ease-in-out infinite;color:#fff;cursor:pointer;';
   el.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Psst — Premium gets you a lot more time chatting with me each lesson. Totally optional, the lessons themselves are the same either way. <u>See Premium →</u>';
   el.onclick = openPremiumModal;
   host.appendChild(el);
