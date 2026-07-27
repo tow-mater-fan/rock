@@ -4149,7 +4149,10 @@ async function loadProgress(){
 
 function renderNavProgress(){
   const wrap = document.getElementById('nav-progress');
-  if(!currentUser || isEducator){ wrap.style.display='none'; } else { wrap.style.display='flex';
+  if(!currentUser){ wrap.style.display='none'; } else { wrap.style.display='flex'; }
+  document.getElementById('nav-streak-chip').style.display = (currentUser && !isEducator) ? '' : 'none';
+  document.getElementById('nav-xp-chip').style.display = (currentUser && !isEducator) ? '' : 'none';
+  if(currentUser && !isEducator){
     document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
     document.getElementById('nav-xp-count').textContent = studentProgress.xp;
     document.getElementById('nav-streak-chip').classList.toggle('lit', (studentProgress.current_streak||0) > 0);
