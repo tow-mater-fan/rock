@@ -5742,6 +5742,13 @@ function _openTestInner(itemId){
   currentItemId = itemId;
   const it = items.find(i=>i.id===itemId);
   if(!it) return;
+  // Always sync currentCourseId/currentUnitId to the item being opened —
+  // some entry points (e.g. the Skills page) jump straight into a lesson
+  // without going through openCourseDetail first. Without this, the Exit
+  // button's `if(currentCourseId) openCourseDetail(...)` silently no-ops
+  // because currentCourseId is stale or null, stranding the student.
+  currentCourseId = it.courseId;
+  currentUnitId = it.unitId;
   const c = courses.find(x=>x.id===it.courseId);
   document.getElementById('home-page').style.display='none';
   document.getElementById('dashboard-page').style.display='none';
