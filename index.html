@@ -243,96 +243,126 @@
   .btn-sm:hover { border-color:var(--blue); color:var(--blue); }
   .btn-sm.danger:hover { border-color:var(--red); color:var(--red); }
 
-  /* ── HERO ── */
-  .hero { background:var(--board); padding:8.5rem 2.5rem 3.5rem; position:relative; overflow:hidden; }
-  .hero::before, .hero::after {
-    content:''; position:absolute; border-radius:50%; filter:blur(60px); opacity:.35; pointer-events:none; z-index:0;
-    animation:heroBlobFloat 14s ease-in-out infinite;
-  }
-  .hero::before { width:420px; height:420px; top:-160px; right:-80px; background:radial-gradient(circle, var(--blue), transparent 70%); }
-  .hero::after { width:380px; height:380px; bottom:-200px; left:-60px; background:radial-gradient(circle, var(--purple), transparent 70%); animation-delay:-7s; }
-  .hero-flex, .hero-inner { position:relative; z-index:1; }
-  @keyframes heroBlobFloat { 0%,100% { transform:translate(0,0) scale(1); } 50% { transform:translate(30px,-20px) scale(1.08); } }
-  .hero-shapes { position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .hero-shape { position:absolute; opacity:.55; animation:heroShapeFloat 6.5s ease-in-out infinite; }
-  .hero-shape-1 { top:18%; left:6%; width:14px; height:14px; border-radius:50%; background:var(--gold); }
-  .hero-shape-2 { top:65%; left:11%; width:0; height:0; border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:16px solid var(--teal); animation-delay:-2s; }
-  .hero-shape-3 { top:12%; left:47%; width:11px; height:11px; border-radius:3px; background:var(--green); transform:rotate(20deg); animation-delay:-1s; }
-  .hero-shape-4 { top:78%; left:40%; width:18px; height:18px; border:2px solid var(--gold); border-radius:50%; animation-delay:-3.5s; }
-  .hero-shape-5 { top:28%; right:9%; width:12px; height:12px; border-radius:50%; background:var(--purple); animation-delay:-4.5s; }
-  @keyframes heroShapeFloat { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-16px) rotate(14deg); } }
-  .hero-inner { max-width:820px; }
-  .hero-flex { display:flex; gap:3rem; align-items:center; max-width:1200px; margin:0 auto; }
-  .hero-flex .hero-inner { flex:1; max-width:520px; }
-  .hero-demo { flex:1; max-width:460px; }
-  .hero-demo-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:var(--radius-lg);
-    padding:1.35rem 1.5rem 1.5rem; backdrop-filter:blur(10px); box-shadow:var(--shadow-glow-board), inset 0 1px 0 rgba(255,255,255,.08);
-    animation:heroDemoEnter .6s var(--ease-premium) both, heroDemoFloat 5s ease-in-out .6s infinite; }
-  @keyframes heroDemoEnter { 0% { opacity:0; transform:translateY(18px) scale(.96) rotate(-1.5deg); } 100% { opacity:1; transform:translateY(0) scale(1) rotate(0); } }
-  @keyframes heroDemoFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
-  .hero-demo-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
-  .hero-demo-eq { font-family:'IBM Plex Mono',monospace; font-size:.92rem; color:#fff; background:rgba(24,101,242,.22); border:1px solid rgba(24,101,242,.4);
-    border-radius:10px; padding:.5rem .75rem; margin-bottom:.85rem; min-height:1.4em; }
-  .hero-demo-svg-wrap { background:rgba(255,255,255,.04); border-radius:14px; padding:.5rem; margin-bottom:1rem; }
-  .hero-demo-svg-wrap svg { width:100%; height:auto; display:block; }
-  .hero-demo-sliders { display:flex; flex-direction:column; gap:.55rem; }
-  .hero-demo-slider-row { display:flex; align-items:center; gap:.65rem; }
-  .hero-demo-slider-row label { font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:rgba(246,244,239,.7); width:14px; flex-shrink:0; }
-  .hero-demo-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
-  .hero-demo-slider-row span { font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:rgba(246,244,239,.55); width:2.4em; text-align:right; flex-shrink:0; }
-  .hero-demo-hint { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:rgba(246,244,239,.45); margin-top:.85rem; text-align:center; }
-  @media (max-width:900px){ .hero-flex { flex-direction:column; } .hero-demo { max-width:100%; width:100%; } .hero-flex .hero-inner { max-width:100%; } }
+  /* ── HERO — minimal, single floating card on a starry night backdrop ── */
+  .hero { background-color:var(--board);
+    background-image:
+      radial-gradient(1.6px 1.6px at 12% 22%, rgba(255,255,255,.65), transparent 60%),
+      radial-gradient(1.3px 1.3px at 28% 68%, rgba(255,255,255,.45), transparent 60%),
+      radial-gradient(1.8px 1.8px at 45% 12%, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(1.3px 1.3px at 62% 45%, rgba(255,255,255,.4), transparent 60%),
+      radial-gradient(1.6px 1.6px at 78% 20%, rgba(255,255,255,.6), transparent 60%),
+      radial-gradient(1.3px 1.3px at 88% 62%, rgba(255,255,255,.4), transparent 60%),
+      radial-gradient(1.8px 1.8px at 8% 82%, rgba(255,255,255,.5), transparent 60%),
+      radial-gradient(1.3px 1.3px at 93% 88%, rgba(255,255,255,.45), transparent 60%),
+      radial-gradient(1.6px 1.6px at 55% 88%, rgba(255,255,255,.4), transparent 60%),
+      radial-gradient(1.3px 1.3px at 35% 40%, rgba(255,255,255,.35), transparent 60%),
+      radial-gradient(1.5px 1.5px at 20% 8%, rgba(255,255,255,.4), transparent 60%),
+      radial-gradient(1.5px 1.5px at 70% 6%, rgba(255,255,255,.35), transparent 60%);
+    background-repeat:no-repeat;
+    padding:4.5rem 1.5rem 6.5rem; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; align-items:center; }
 
-  /* ── HERO — editorial redesign ──
-     A quiet top micro-bar + minimal quick-links (with thin vertical rules
-     dropping into the stage) sit above a floating illustration, capped by
-     a huge brand-gradient wordmark anchored to the bottom edge. */
-  .hero-microbar { position:relative; z-index:1; text-align:center; font-family:'Sora',sans-serif; font-weight:700;
-    font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:rgba(246,244,239,.55);
-    padding-bottom:.9rem; margin-bottom:1.6rem; border-bottom:1px solid rgba(246,244,239,.14); max-width:1200px; margin-left:auto; margin-right:auto; }
-  .hero-toplinks { position:relative; z-index:1; display:flex; justify-content:center; align-items:flex-start; gap:2.4rem;
-    max-width:1200px; margin:0 auto 2.5rem; flex-wrap:wrap; }
-  .hero-toplinks a { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.05em; text-transform:uppercase;
-    color:rgba(246,244,239,.68); text-decoration:none; cursor:pointer; transition:color .15s; white-space:nowrap; }
-  .hero-toplinks a:hover { color:var(--gold); }
-  .hero-toplinks .hero-rule { width:1px; height:150px; background:linear-gradient(rgba(246,244,239,.22), rgba(246,244,239,0) 85%); flex-shrink:0; margin-top:.3rem; }
-  @media (max-width:900px){ .hero-toplinks .hero-rule { display:none; } }
+  .hero-topnav { position:relative; z-index:2; display:flex; align-items:center; gap:2rem;
+    margin-bottom:2.5rem; font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem;
+    letter-spacing:.04em; text-transform:uppercase; }
+  .hero-topnav a { color:rgba(246,244,239,.7); text-decoration:none; cursor:pointer; transition:color .15s; }
+  .hero-topnav a:hover { color:var(--gold); }
 
-  .hero-stage { position:relative; z-index:1; max-width:1200px; margin:0 auto; min-height:280px;
-    display:flex; align-items:center; justify-content:center; }
-  .hero-caption { position:absolute; font-family:'Sora',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.06em;
-    text-transform:uppercase; line-height:1.7; color:rgba(246,244,239,.55); }
-  .hero-caption-left { top:6%; left:0; }
-  .hero-caption-right { top:2%; right:0; text-align:right; font-size:.95rem; text-transform:none; letter-spacing:0;
-    font-weight:600; color:rgba(246,244,239,.8); font-family:'Inter',sans-serif; }
-  .hero-caption-right em { font-style:normal; background:linear-gradient(100deg,var(--gold),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; }
-  .hero-corner-cta { position:absolute; bottom:-1.4rem; right:0; z-index:2; }
-  .hero-corner-cta a { font-family:'Sora',sans-serif; font-weight:800; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--board-ink); text-decoration:none; cursor:pointer; display:inline-flex; align-items:center; gap:.4rem; }
-  .hero-corner-cta a:hover { color:var(--gold); }
-  @media (max-width:760px){ .hero-caption-left, .hero-caption-right { position:static; margin-bottom:1rem; text-align:center; } .hero-corner-cta { position:static; text-align:center; margin-top:1rem; } }
+  /* the big pale card, floating on the starfield */
+  .hero-card { position:relative; z-index:1; width:100%; max-width:1120px;
+    background:linear-gradient(165deg, #e3ecfc 0%, #c5d5f5 55%, #aec0ea 100%);
+    border-radius:36px; padding:2.75rem 3rem 5.5rem;
+    box-shadow:0 44px 90px -28px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.6);
+    overflow:visible; animation:heroCardIn .6s var(--ease-premium) both; }
+  @keyframes heroCardIn { 0% { opacity:0; transform:translateY(24px) scale(.97); } 100% { opacity:1; transform:translateY(0) scale(1); } }
 
-  .hero-float-wrap { position:relative; width:min(420px, 70vw); animation:heroFloatBob 7s ease-in-out infinite; }
-  @keyframes heroFloatBob { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-14px) rotate(-1deg); } }
-  .hero-float-wrap svg { width:100%; height:auto; display:block; filter:drop-shadow(0 30px 40px rgba(0,0,0,.4)); }
+  .hero-card-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:2.25rem; }
+  .hero-card-badge { width:36px; height:36px; border-radius:11px; background:var(--brand-gradient);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -4px rgba(74,47,190,.5); }
+  .hero-card-badge svg { width:20px; height:20px; }
+  .hero-card-toolbar-right { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.05em;
+    text-transform:uppercase; color:#4a5480; background:rgba(255,255,255,.5); padding:.4rem .85rem; border-radius:999px; }
 
-  .hero-wordmark-row { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding-top:.5rem; }
+  .hero-card-body { max-width:600px; }
+  .hero-greeting { font-family:'Sora',sans-serif; font-weight:700; font-size:clamp(1.3rem,2.6vw,1.7rem);
+    color:#39447a; line-height:1.25; margin-bottom:.2rem; }
   .hero-wordmark { font-family:'Sora',sans-serif; font-weight:800; letter-spacing:-.02em;
-    font-size:clamp(3.5rem, 11vw, 8.5rem); line-height:.85; margin:0 0 2rem; text-transform:uppercase;
+    font-size:clamp(3.6rem, 10vw, 7rem); line-height:.85; margin:0 0 1.4rem; text-transform:none;
+    display:inline-block; transform:rotate(-2deg);
     background:var(--brand-gradient); -webkit-background-clip:text; background-clip:text; color:transparent;
-    opacity:.92; user-select:none; }
+    text-shadow:
+      1px 2px 0 #6a3fd6, 2px 4px 0 #6a3fd6, 3px 6px 0 #6a3fd6, 4px 8px 0 #6a3fd6,
+      5px 10px 0 #4a2fbe, 6px 12px 0 #4a2fbe,
+      7px 15px 18px rgba(30,20,70,.4);
+    user-select:none; animation:heroWordBounce .55s var(--ease-premium) both .1s; }
+  @keyframes heroWordBounce { 0% { opacity:0; transform:rotate(-2deg) scale(.75) translateY(18px); } 65% { opacity:1; transform:rotate(-2deg) scale(1.05) translateY(-3px); } 100% { opacity:1; transform:rotate(-2deg) scale(1) translateY(0); } }
+  .hero-card-sub { font-family:'Inter',sans-serif; font-size:1rem; line-height:1.65; color:#4a5480; max-width:480px; margin-bottom:1.75rem; }
 
-  .hero-content-row { position:relative; z-index:1; }
+  .hero-card .btn-ghost { color:#39447a; border-color:rgba(57,68,122,.3); }
+  .hero-card .btn-ghost:hover { border-color:#39447a; }
+  .hero-card .educator-badge { background:rgba(57,68,122,.1); color:#39447a; border-color:rgba(57,68,122,.25); }
+  .hero-card .educator-badge button { color:rgba(57,68,122,.7); }
 
-  /* ── Home page marketing sections ── */
-  .home-stats-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:2.5rem; background:var(--paper-2); padding:2rem 1.5rem; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
-  .home-stat { text-align:center; }
-  .home-stat-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.4rem; color:var(--blue); }
-  .home-stat:nth-child(1) .home-stat-num { color:var(--blue); }
-  .home-stat:nth-child(2) .home-stat-num { color:var(--purple); }
-  .home-stat:nth-child(3) .home-stat-num { color:var(--teal); }
-  .home-stat:nth-child(4) .home-stat-num { color:var(--gold-ink); }
-  .home-stat-label { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:var(--ink-soft); margin-top:.2rem; }
+  /* isometric desk illustration, bleeding out of the card's bottom-left corner */
+  .hero-iso-scene { position:absolute; left:-1.5rem; bottom:-2.75rem; width:min(230px, 34vw); z-index:2;
+    filter:drop-shadow(0 20px 26px rgba(0,0,0,.35)); animation:heroIsoFloat 6s ease-in-out infinite; }
+  .hero-iso-scene svg { width:100%; height:auto; display:block; }
+  @keyframes heroIsoFloat { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-10px) rotate(1deg); } }
+
+  /* Ember, floating free above the card like a little companion */
+  .hero-ember-float { position:absolute; z-index:3; top:-2.6rem; right:9%; width:min(96px, 16vw);
+    filter:drop-shadow(0 12px 18px rgba(0,0,0,.4)); animation:heroEmberBob 4.5s ease-in-out infinite; }
+  .hero-ember-float svg { width:100%; height:auto; display:block; }
+  @keyframes heroEmberBob { 0%,100% { transform:translateY(0) rotate(-4deg); } 50% { transform:translateY(-12px) rotate(4deg); } }
+
+  /* the functional live-demo, styled as a floating phone-style mockup card
+     overlapping the card's bottom edge — the reference's "Rooms" phone */
+  .hero-demo { position:absolute; z-index:3; right:6%; bottom:-3.25rem; width:min(230px, 62vw); }
+  .hero-demo-card { background:var(--board); border:1px solid rgba(255,255,255,.14); border-radius:22px;
+    padding:1.15rem 1.15rem 1.3rem; box-shadow:var(--shadow-glow-board), inset 0 1px 0 rgba(255,255,255,.08);
+    animation:heroDemoFloat 5s ease-in-out infinite; }
+  @keyframes heroDemoFloat { 0%,100% { transform:translateY(0) rotate(2deg); } 50% { transform:translateY(-8px) rotate(2deg); } }
+  .hero-demo-label { font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+  .hero-demo-eq { font-family:'IBM Plex Mono',monospace; font-size:.85rem; color:#fff; background:rgba(24,101,242,.22); border:1px solid rgba(24,101,242,.4);
+    border-radius:10px; padding:.45rem .65rem; margin-bottom:.7rem; min-height:1.3em; }
+  .hero-demo-svg-wrap { background:rgba(255,255,255,.04); border-radius:12px; padding:.4rem; margin-bottom:.8rem; }
+  .hero-demo-svg-wrap svg { width:100%; height:auto; display:block; }
+  .hero-demo-sliders { display:flex; flex-direction:column; gap:.4rem; }
+  .hero-demo-slider-row { display:flex; align-items:center; gap:.5rem; }
+  .hero-demo-slider-row label { font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:rgba(246,244,239,.7); width:12px; flex-shrink:0; }
+  .hero-demo-slider-row input[type=range] { flex:1; accent-color:var(--blue); }
+  .hero-demo-slider-row span { font-family:'IBM Plex Mono',monospace; font-size:.62rem; color:rgba(246,244,239,.55); width:2.2em; text-align:right; flex-shrink:0; }
+
+  /* a little stacked "practice log" — echoes the reference's Log Book cards */
+  .hero-log-panel { position:absolute; z-index:2; left:44%; bottom:-3rem; width:min(190px, 46vw);
+    display:flex; flex-direction:column; gap:.55rem; }
+  .hero-log-item { background:var(--paper); border-radius:14px; padding:.6rem .85rem; box-shadow:var(--shadow-lg);
+    font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; color:var(--ink); display:flex; align-items:center; gap:.5rem;
+    animation:heroChipFloat 5.5s ease-in-out infinite; }
+  .hero-log-item .icon { width:14px; height:14px; flex-shrink:0; }
+  .hero-log-item:nth-child(1) { transform:rotate(-3deg); animation-delay:-1s; }
+  .hero-log-item:nth-child(2) { transform:rotate(2deg); animation-delay:-3s; }
+  @keyframes heroChipFloat { 0%,100% { transform:translateY(0) rotate(var(--r,0deg)); } 50% { transform:translateY(-7px) rotate(var(--r,0deg)); } }
+  .hero-log-item:nth-child(1){ --r:-3deg; } .hero-log-item:nth-child(2){ --r:2deg; }
+
+  @media (max-width:820px){
+    .hero-card { padding:2.25rem 1.75rem 8rem; }
+    .hero-iso-scene { left:1rem; bottom:-1.75rem; width:130px; }
+    .hero-ember-float { right:1rem; top:-2rem; width:64px; }
+    .hero-demo { right:50%; transform:translateX(50%); bottom:-5.5rem; width:200px; }
+    .hero-log-panel { left:auto; right:1rem; bottom:.5rem; width:150px; }
+  }
+  @media (max-width:520px){
+    .hero-log-panel { display:none; }
+  }
+
+  .hero-cta-row { display:flex; gap:.9rem; margin-top:.25rem; flex-wrap:wrap; align-items:center; }
+  .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.75rem; background:rgba(255,177,0,.16); color:#ffcf5c;
+    padding:.45rem .9rem; border-radius:100px; border:1px solid rgba(255,177,0,.4); display:none; align-items:center; gap:.6rem; }
+  .educator-badge.visible { display:flex; }
+  .educator-badge button { background:none; border:none; color:rgba(246,244,239,.65); cursor:pointer; font-size:.7rem; text-decoration:underline; }
+
+  /* ── Home page marketing sections (trimmed, minimal) ── */
   .home-section { max-width:1080px; margin:0 auto; padding:4rem 1.5rem; }
   .home-section-head { max-width:640px; margin:0 auto 2.5rem; text-align:center; }
   .home-section-head h2 { font-size:1.7rem; margin-top:.4rem; }
@@ -343,48 +373,7 @@
   .home-feature-card:hover .home-feature-icon { transform:scale(1.15) rotate(-6deg); }
   .home-feature-card h3 { font-size:1rem; margin-bottom:.5rem; }
   .home-feature-card p { font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
-  .home-steps-section { background:var(--board); padding:4rem 1.5rem; }
 
-  /* ── Pricing comparison ── */
-  .pricing-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.5rem; max-width:840px; margin:0 auto; }
-  .pricing-card { background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius-xl); padding:2rem;
-    display:flex; flex-direction:column; transition:transform .22s var(--ease-premium), box-shadow .22s var(--ease-premium); }
-  .pricing-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
-  .pricing-card-head h3 { font-size:1.15rem; display:flex; align-items:center; gap:.5rem; }
-  .pricing-badge { font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:#fff;
-    background:var(--brand-gradient); background-size:220% 220%; animation:gradientDrift 9s ease-in-out infinite;
-    padding:.2rem .55rem; border-radius:999px; }
-  .pricing-price { font-family:'Sora',sans-serif; font-weight:800; font-size:1.6rem; margin:.5rem 0 .3rem; color:var(--ink); }
-  .pricing-price span { font-size:.75rem; font-weight:600; color:var(--ink-faint); }
-  .pricing-sub { font-size:.85rem; color:var(--ink-soft); margin-bottom:1.2rem; line-height:1.5; }
-  .pricing-list { list-style:none; padding:0; margin:0 0 1.5rem; display:flex; flex-direction:column; gap:.65rem; font-size:.86rem; color:var(--ink); }
-  .pricing-card-premium { background:linear-gradient(160deg, var(--paper) 60%, var(--purple-bg)); border-color:var(--purple); position:relative; overflow:hidden; }
-  .pricing-card-premium::before { content:''; position:absolute; width:180px; height:180px; border-radius:50%;
-    background:radial-gradient(circle, rgba(124,92,255,.18), transparent 70%); top:-70px; right:-50px; }
-
-  /* ── Testimonials ── */
-  .home-quotes-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:1.5rem; }
-  .home-quote-card { background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius-lg); padding:1.75rem;
-    transition:transform .22s var(--ease-premium); }
-  .home-quote-card:hover { transform:translateY(-3px); }
-  .home-quote-card p { font-size:.92rem; line-height:1.65; color:var(--ink); margin-bottom:1rem; font-style:italic; }
-  .home-quote-name { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); }
-
-  /* ── FAQ ── */
-  .home-faq-list { max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:.75rem; }
-  .home-faq-item { background:var(--white); border:1.5px solid var(--rule); border-radius:var(--radius-md); padding:1.1rem 1.4rem; }
-  .home-faq-item summary { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--ink); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
-  .home-faq-item summary::-webkit-details-marker { display:none; }
-  .home-faq-item summary::after { content:'+'; font-size:1.2rem; color:var(--ink-faint); transition:transform .2s var(--ease-premium); }
-  .home-faq-item[open] summary::after { transform:rotate(45deg); }
-  .home-faq-item p { margin-top:.7rem; font-size:.85rem; color:var(--ink-soft); line-height:1.6; }
-  .home-steps-section .home-section-head .eyebrow { color:var(--gold); }
-  .home-steps-section .home-section-head h2 { color:var(--board-ink); }
-  .home-steps-row { max-width:1080px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:2rem; }
-  .home-step { color:rgba(246,244,239,.85); }
-  .home-step-num { width:36px; height:36px; border-radius:50%; background:var(--blue); color:var(--white); font-family:'Sora',sans-serif; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:.9rem; }
-  .home-step h3 { color:var(--board-ink); font-size:1rem; margin-bottom:.4rem; }
-  .home-step p { font-size:.85rem; color:rgba(246,244,239,.65); line-height:1.6; }
   .home-cta-banner { text-align:center; padding:4.5rem 1.5rem; max-width:680px; margin:0 auto; }
   .home-cta-banner h2 { font-size:1.6rem; margin-bottom:.6rem; }
   .home-cta-banner p { color:var(--ink-soft); margin-bottom:1.5rem; }
@@ -405,17 +394,6 @@
     transition:transform .2s var(--ease-premium), box-shadow .2s var(--ease-premium); }
   .home-cta-card .btn-primary:hover { background:#fff; transform:translateY(-2px) scale(1.03); box-shadow:0 14px 30px -6px rgba(0,0,0,.32); }
   .eyebrow { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--gold); margin-bottom:.9rem; }
-  .hero h1 { font-size:clamp(2rem,5vw,3.2rem); color:var(--board-ink); line-height:1.15; margin-bottom:1rem; }
-  .hero-mascot-badge { display:inline-flex; align-items:center; gap:.5rem; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
-    border-radius:100px; padding:.4rem .8rem .4rem .5rem; margin-bottom:1rem; font-family:'Sora',sans-serif; font-weight:700; font-size:.74rem; color:var(--board-ink);
-    animation:fadeInUp .45s var(--ease-premium) both; }
-  .hero h1 em { font-style:normal; background:linear-gradient(100deg, var(--blue), var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero p { font-size:1rem; color:rgba(246,244,239,.62); line-height:1.7; max-width:560px; }
-  .hero-cta-row { display:flex; gap:.9rem; margin-top:1.75rem; flex-wrap:wrap; align-items:center; }
-  .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.75rem; background:rgba(255,177,0,.16); color:#ffcf5c;
-    padding:.45rem .9rem; border-radius:100px; border:1px solid rgba(255,177,0,.4); display:none; align-items:center; gap:.6rem; }
-  .educator-badge.visible { display:flex; }
-  .educator-badge button { background:none; border:none; color:rgba(246,244,239,.65); cursor:pointer; font-size:.7rem; text-decoration:underline; }
 
   /* ── SUBJECT SECTIONS (home) ── */
   .subject-section { padding:2.75rem 2.5rem; max-width:1200px; margin:0 auto; }
@@ -2246,137 +2224,109 @@
 <!-- ═══════ HOME (public marketing page — always the same, logged in or not) ═══════ -->
 <div id="home-page">
   <section class="hero">
-    <div class="hero-shapes" aria-hidden="true">
-      <span class="hero-shape hero-shape-1"></span>
-      <span class="hero-shape hero-shape-2"></span>
-      <span class="hero-shape hero-shape-3"></span>
-      <span class="hero-shape hero-shape-4"></span>
-      <span class="hero-shape hero-shape-5"></span>
-    </div>
-
-    <div class="hero-microbar">Free, unlimited practice for Ontario students — no credit card required</div>
-
-    <div class="hero-toplinks">
+    <div class="hero-topnav">
       <a onclick="showPage('courses')">Courses</a>
-      <span class="hero-rule" aria-hidden="true"></span>
       <a onclick="document.querySelector('.home-section')?.scrollIntoView({behavior:'smooth'})">Why Modilix</a>
-      <span class="hero-rule" aria-hidden="true"></span>
-      <a onclick="document.querySelector('.home-steps-section')?.scrollIntoView({behavior:'smooth'})">How it works</a>
-      <span class="hero-rule" aria-hidden="true"></span>
       <a onclick="document.getElementById('student-auth-btn')?.click()">Sign in</a>
     </div>
 
-    <div class="hero-stage">
-      <div class="hero-caption hero-caption-left" aria-hidden="true">
-        <span>Interactive Math Practice</span><br><span>Built For Real Grades</span>
+    <div class="hero-card">
+      <div class="hero-card-toolbar">
+        <div class="hero-card-badge" aria-hidden="true">
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="hero-card-toolbar-right">Free for Ontario students</div>
       </div>
 
-      <div class="hero-float-wrap" aria-hidden="true">
-        <svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg">
+      <div class="hero-card-body">
+        <div class="hero-greeting">Hello!<br>We are</div>
+        <h1 class="hero-wordmark">Modilix</h1>
+        <p class="hero-card-sub">Free, original unit tests, worksheets, and quizzes for Ontario grade 11 &amp; 12 math — organized unit by unit, the way your class actually runs.</p>
+        <div class="hero-cta-row">
+          <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
+          <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
+          <div class="educator-badge" id="account-badge">
+            <span id="account-badge-text" style="cursor:pointer;"></span>
+            <button id="account-signout-btn">Sign out</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- isometric study-desk illustration, spilling out of the card -->
+      <div class="hero-iso-scene" aria-hidden="true">
+        <svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="heroBlobFill1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#f6f4ef"/><stop offset="1" stop-color="#c7cbc2"/>
-            </linearGradient>
-            <linearGradient id="heroBlobFill2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#f6f4ef"/><stop offset="1" stop-color="#d3d6cd"/>
-            </linearGradient>
-            <linearGradient id="heroGlow" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="isoDeskTop" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ff5a36"/>
             </linearGradient>
-            <filter id="heroSoftBlur" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="9"/>
-            </filter>
-            <filter id="heroGlowBlur" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur stdDeviation="16"/>
-            </filter>
           </defs>
-
-          <line x1="140" y1="0" x2="140" y2="66" stroke="rgba(246,244,239,.3)" stroke-width="1"/>
-          <line x1="210" y1="0" x2="210" y2="50" stroke="rgba(246,244,239,.3)" stroke-width="1"/>
-          <line x1="285" y1="0" x2="285" y2="90" stroke="rgba(246,244,239,.3)" stroke-width="1"/>
-
-          <!-- underglow, painted first so it peeks out below each blob -->
-          <ellipse cx="175" cy="178" rx="132" ry="34" fill="url(#heroGlow)" opacity=".85" filter="url(#heroGlowBlur)"/>
-          <ellipse cx="300" cy="222" rx="78" ry="22" fill="url(#heroGlow)" opacity=".85" filter="url(#heroGlowBlur)"/>
-
-          <!-- large soft blob -->
-          <g filter="url(#heroSoftBlur)">
-            <ellipse cx="175" cy="120" rx="120" ry="62" fill="url(#heroBlobFill1)"/>
-            <ellipse cx="120" cy="105" rx="55" ry="42" fill="url(#heroBlobFill1)"/>
-            <ellipse cx="235" cy="112" rx="58" ry="46" fill="url(#heroBlobFill1)"/>
-          </g>
-          <!-- small soft blob -->
-          <g filter="url(#heroSoftBlur)">
-            <ellipse cx="300" cy="165" rx="72" ry="40" fill="url(#heroBlobFill2)"/>
-            <ellipse cx="265" cy="155" rx="34" ry="26" fill="url(#heroBlobFill2)"/>
-          </g>
-
-          <path d="M40,250 Q210,140 380,250" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3 5" opacity=".55"/>
-          <circle cx="210" cy="163" r="4" fill="#f5a623"/>
+          <!-- desk surface (isometric diamond) -->
+          <polygon points="110,70 190,105 110,140 30,105" fill="url(#isoDeskTop)"/>
+          <!-- desk left face -->
+          <polygon points="30,105 110,140 110,175 30,140" fill="#e2431f"/>
+          <!-- desk right face -->
+          <polygon points="110,140 190,105 190,140 110,175" fill="#c93a1c"/>
+          <!-- monitor back -->
+          <polygon points="88,50 138,70 138,108 88,88" fill="#4a2fbe"/>
+          <polygon points="138,70 158,60 158,98 138,108" fill="#3a2496"/>
+          <polygon points="88,50 138,70 158,60 108,40" fill="#b46bff"/>
+          <!-- screen -->
+          <polygon points="94,55 132,70 132,100 94,85" fill="#171d33"/>
+          <path d="M99,80 Q113,56 127,80" fill="none" stroke="#ff8a5c" stroke-width="2.4" stroke-linecap="round"/>
+          <!-- mug -->
+          <ellipse cx="60" cy="112" rx="9" ry="4" fill="#ffd166"/>
+          <rect x="51" y="98" width="18" height="14" fill="#f5a623"/>
+          <ellipse cx="60" cy="98" rx="9" ry="4" fill="#ffe08a"/>
+          <!-- pencil cup -->
+          <rect x="150" y="90" width="14" height="18" fill="#159a63" transform="skewX(-8)"/>
+          <line x1="153" y1="76" x2="158" y2="92" stroke="#0f7d50" stroke-width="3" stroke-linecap="round"/>
+          <line x1="160" y1="74" x2="163" y2="92" stroke="#0ea5a0" stroke-width="3" stroke-linecap="round"/>
         </svg>
       </div>
-
-      <div class="hero-caption hero-caption-right" aria-hidden="true">
-        Master<br><em>Your Course.</em>
-      </div>
-
-      <div class="hero-corner-cta">
-        <a onclick="showPage('courses')">Explore Courses →</a>
-      </div>
     </div>
 
-    <div class="hero-wordmark-row">
-      <h1 class="hero-wordmark" aria-hidden="true">Modilix</h1>
+    <!-- Ember, floating free above the card -->
+    <div class="hero-ember-float" aria-hidden="true">
+      <svg viewBox="0 0 100 108" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="heroEmberGrad2" cx="30%" cy="24%" r="90%">
+            <stop offset="0" stop-color="#ffd166"/>
+            <stop offset=".42" stop-color="#ff5a36"/>
+            <stop offset=".76" stop-color="#b46bff"/>
+            <stop offset="1" stop-color="#4a2fbe"/>
+          </radialGradient>
+        </defs>
+        <path fill="url(#heroEmberGrad2)" d="M52 32C68 29 87 40 90 60C93 82 76 101 53 100C31 99 10 85 9 62C8 42 22 33 40 31C44 30.5 48 32.5 52 32Z"/>
+        <path fill="url(#heroEmberGrad2)" d="M46 30C42 21 46 11 55 5C51 15 57 18 53 27C51 31 47 33 46 30Z"/>
+        <ellipse cx="39" cy="63" rx="4.4" ry="5.6" fill="#1c1f2b"/>
+        <ellipse cx="61" cy="63" rx="4.4" ry="5.6" fill="#1c1f2b"/>
+        <circle cx="31" cy="74" r="4.6" fill="#ff8a5c" opacity=".55"/>
+        <circle cx="69" cy="74" r="4.6" fill="#ff8a5c" opacity=".55"/>
+        <path d="M41 76q9 8 18 0" stroke="#1c1f2b" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
     </div>
 
-    <div class="hero-content-row">
-      <div class="hero-flex">
-        <div class="hero-inner">
-          <div class="hero-mascot-badge" aria-hidden="true">
-            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;">
-              <defs><linearGradient id="heroMascotGrad" x1="0" y1="0" x2="40" y2="40">
-                <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
-              </linearGradient></defs>
-              <rect width="40" height="40" rx="12" fill="url(#heroMascotGrad)"/>
-              <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
-            </svg>
-            <span>Built for Ontario students</span>
-          </div>
-          <div class="eyebrow">Ontario Secondary Curriculum</div>
-          <h2 style="font-family:'Sora',sans-serif; font-size:clamp(1.5rem,3.4vw,2.1rem); color:var(--board-ink); line-height:1.25; margin-bottom:1rem;">Practice built for your <em style="font-style:normal; background:linear-gradient(100deg, var(--blue), var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;">real</em> courses</h2>
-          <p>Original unit tests, worksheets, and quizzes for grade 11 and 12 Ontario high school courses — organized the way you'd expect a course to be organized: by unit, with a test at the end of each one.</p>
-          <div class="hero-cta-row">
-            <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
-            <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
-            <div class="educator-badge" id="account-badge">
-              <span id="account-badge-text" style="cursor:pointer;"></span>
-              <button id="account-signout-btn">Sign out</button>
-            </div>
-          </div>
-        </div>
-        <div class="hero-demo">
-          <div class="hero-demo-card">
-            <div class="hero-demo-label">Try it — drag the sliders</div>
-            <div class="hero-demo-eq" id="hero-demo-eq">y = x²</div>
-            <div class="hero-demo-svg-wrap" id="hero-demo-svg-wrap"></div>
-            <div class="hero-demo-sliders">
-              <div class="hero-demo-slider-row"><label>a</label><input type="range" id="hero-demo-a" min="-3" max="3" step="0.5" value="1"><span id="hero-demo-a-val">1</span></div>
-              <div class="hero-demo-slider-row"><label>d</label><input type="range" id="hero-demo-d" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-d-val">0</span></div>
-              <div class="hero-demo-slider-row"><label>c</label><input type="range" id="hero-demo-c" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-c-val">0</span></div>
-            </div>
-            <div class="hero-demo-hint">This is what every lesson feels like.</div>
-          </div>
+    <!-- functional live equation demo, styled as a floating phone card -->
+    <div class="hero-demo">
+      <div class="hero-demo-card">
+        <div class="hero-demo-label">Try it — drag the sliders</div>
+        <div class="hero-demo-eq" id="hero-demo-eq">y = x²</div>
+        <div class="hero-demo-svg-wrap" id="hero-demo-svg-wrap"></div>
+        <div class="hero-demo-sliders">
+          <div class="hero-demo-slider-row"><label>a</label><input type="range" id="hero-demo-a" min="-3" max="3" step="0.5" value="1"><span id="hero-demo-a-val">1</span></div>
+          <div class="hero-demo-slider-row"><label>d</label><input type="range" id="hero-demo-d" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-d-val">0</span></div>
+          <div class="hero-demo-slider-row"><label>c</label><input type="range" id="hero-demo-c" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-c-val">0</span></div>
         </div>
       </div>
     </div>
-  </section>
 
-  <section class="home-stats-bar">
-    <div class="home-stat"><div class="home-stat-num">100%</div><div class="home-stat-label">Ontario curriculum aligned</div></div>
-    <div class="home-stat"><div class="home-stat-num">Gr. 11–12</div><div class="home-stat-label">U &amp; M stream courses</div></div>
-    <div class="home-stat"><div class="home-stat-num">Unit-by-unit</div><div class="home-stat-label">tests, worksheets &amp; quizzes</div></div>
-    <div class="home-stat"><div class="home-stat-num">0$</div><div class="home-stat-label">Free to use</div></div>
+    <!-- a little stacked practice log -->
+    <div class="hero-log-panel" aria-hidden="true">
+      <div class="hero-log-item"><svg class="icon"><use href="#i-flame"/></svg> 12-day streak</div>
+      <div class="hero-log-item"><svg class="icon"><use href="#i-brain"/></svg> Daily Review ready</div>
+    </div>
   </section>
 
   <section class="home-section">
@@ -2408,117 +2358,6 @@
     </div>
   </section>
 
-  <section class="home-steps-section">
-    <div class="home-section-head">
-      <div class="eyebrow">How it works</div>
-      <h2>Three steps to your next unit test</h2>
-    </div>
-    <div class="home-steps-row">
-      <div class="home-step">
-        <div class="home-step-num">1</div>
-        <h3>Sign in &amp; pick your course</h3>
-        <p>Find your exact course by grade and stream — from MCR3U to MHF4U and beyond.</p>
-      </div>
-      <div class="home-step">
-        <div class="home-step-num">2</div>
-        <h3>Work through the unit</h3>
-        <p>Interactive lessons and worksheets that build up gradually, unit by unit.</p>
-      </div>
-      <div class="home-step">
-        <div class="home-step-num">3</div>
-        <h3>Take the unit test</h3>
-        <p>Check what you actually know before the real one — track XP and streaks along the way.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-section">
-    <div class="home-section-head">
-      <div class="eyebrow">Free vs. Premium</div>
-      <h2>Every lesson, every unit test — free. Always.</h2>
-      <p style="max-width:620px; margin:.75rem auto 0; color:var(--ink-soft); font-size:.92rem; line-height:1.6;">
-        Premium is a nice-to-have for students who want extra support and personalization — it's never required to learn the material. Nothing that helps you actually pass a unit test lives behind a paywall.
-      </p>
-    </div>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="pricing-card-head">
-          <h3>Free</h3>
-          <div class="pricing-price">$0<span>/forever</span></div>
-        </div>
-        <p class="pricing-sub">Everything you need to actually learn the course.</p>
-        <ul class="pricing-list">
-          <li>✅ Every lesson, worksheet &amp; unit test — take them online, unlimited</li>
-          <li>✅ Download/print up to 5 unit tests</li>
-          <li>✅ Full XP, streaks &amp; Daily Review</li>
-          <li>✅ AI tutor — 5 questions per lesson</li>
-        </ul>
-        <button class="btn btn-ghost" style="width:100%;" onclick="document.getElementById('student-auth-btn')?.click()">Start learning free</button>
-      </div>
-      <div class="pricing-card pricing-card-premium">
-        <div class="pricing-card-head">
-          <h3>Premium <span class="pricing-badge">Optional</span></h3>
-          <div class="pricing-price">CA$4<span>/month to start</span></div>
-        </div>
-        <p class="pricing-sub">For students who want a bit more polish and support around the free experience.</p>
-        <ul class="pricing-list">
-          <li><svg class="icon"><use href="#i-download"/></svg> Unlimited unit test downloads/prints</li>
-          <li><svg class="icon"><use href="#i-chat"/></svg> AI tutor — much higher question limit</li>
-          <li><svg class="icon"><use href="#i-palette"/></svg> Exclusive accent themes</li>
-          <li><svg class="icon"><use href="#i-chart"/></svg> Deeper personal analytics</li>
-        </ul>
-        <button class="btn dash-premium-btn" style="width:100%;" onclick="openPremiumModal()">Explore Premium</button>
-      </div>
-    </div>
-    <p style="text-align:center; font-size:.75rem; color:var(--ink-faint); margin-top:1rem;">All prices shown in Canadian dollars (CAD).</p>
-  </section>
-
-  <section class="home-section home-quotes-section">
-    <div class="home-section-head">
-      <div class="eyebrow">Students say</div>
-      <h2>Built with the way real students actually study</h2>
-    </div>
-    <div class="home-quotes-row">
-      <div class="home-quote-card">
-        <p>"I finally have a place that's organized the same way my actual class is — unit by unit, with a real test at the end."</p>
-        <div class="home-quote-name">— Grade 11 Functions student</div>
-      </div>
-      <div class="home-quote-card">
-        <p>"The streak thing is dumb but it works — I've done Daily Review every day for three weeks now."</p>
-        <div class="home-quote-name">— Grade 12 Advanced Functions student</div>
-      </div>
-      <div class="home-quote-card">
-        <p>"Didn't pay for anything and still got through the whole unit test prep. Premium's there if you want it, not if you need it."</p>
-        <div class="home-quote-name">— Grade 11 student</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-section home-faq-section">
-    <div class="home-section-head">
-      <div class="eyebrow">Questions</div>
-      <h2>Good to know</h2>
-    </div>
-    <div class="home-faq-list">
-      <details class="home-faq-item" open>
-        <summary>Do I need Premium to use Modilix?</summary>
-        <p>No. Every course, lesson, worksheet, and unit test is free to complete online for every signed-in student, permanently. The only limit on the free plan is downloading/printing PDF copies of unit tests, capped at 5 — taking them on-screen is always unlimited. Premium removes that download cap and adds a few other extras, but never gates actual course content.</p>
-      </details>
-      <details class="home-faq-item">
-        <summary>What courses are covered?</summary>
-        <p>Grade 11 and 12 Ontario high school courses, University and Mixed streams, organized unit by unit the way your class actually runs.</p>
-      </details>
-      <details class="home-faq-item">
-        <summary>Is this made for teachers too?</summary>
-        <p>Yes — educators get their own sign-in with class analytics and the ability to assign content, separate from the student experience.</p>
-      </details>
-      <details class="home-faq-item">
-        <summary>Can I use this on my phone?</summary>
-        <p>Yes, the whole platform is responsive and works in any modern mobile browser — no app install required.</p>
-      </details>
-    </div>
-  </section>
-
   <section class="home-cta-banner">
     <div class="home-cta-card">
       <h2>Ready to start practicing?</h2>
@@ -2527,6 +2366,7 @@
     </div>
   </section>
 </div>
+
 
 <!-- ═══════ COURSES (real course catalog — requires sign-in) ═══════ -->
 <div id="courses-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
