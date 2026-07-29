@@ -283,6 +283,47 @@
   .hero-demo-hint { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:rgba(246,244,239,.45); margin-top:.85rem; text-align:center; }
   @media (max-width:900px){ .hero-flex { flex-direction:column; } .hero-demo { max-width:100%; width:100%; } .hero-flex .hero-inner { max-width:100%; } }
 
+  /* ── HERO — editorial redesign ──
+     A quiet top micro-bar + minimal quick-links (with thin vertical rules
+     dropping into the stage) sit above a floating illustration, capped by
+     a huge brand-gradient wordmark anchored to the bottom edge. */
+  .hero-microbar { position:relative; z-index:1; text-align:center; font-family:'Sora',sans-serif; font-weight:700;
+    font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:rgba(246,244,239,.55);
+    padding-bottom:.9rem; margin-bottom:1.6rem; border-bottom:1px solid rgba(246,244,239,.14); max-width:1200px; margin-left:auto; margin-right:auto; }
+  .hero-toplinks { position:relative; z-index:1; display:flex; justify-content:center; align-items:flex-start; gap:2.4rem;
+    max-width:1200px; margin:0 auto 2.5rem; flex-wrap:wrap; }
+  .hero-toplinks a { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.05em; text-transform:uppercase;
+    color:rgba(246,244,239,.68); text-decoration:none; cursor:pointer; transition:color .15s; white-space:nowrap; }
+  .hero-toplinks a:hover { color:var(--gold); }
+  .hero-toplinks .hero-rule { width:1px; height:150px; background:linear-gradient(rgba(246,244,239,.22), rgba(246,244,239,0) 85%); flex-shrink:0; margin-top:.3rem; }
+  @media (max-width:900px){ .hero-toplinks .hero-rule { display:none; } }
+
+  .hero-stage { position:relative; z-index:1; max-width:1200px; margin:0 auto; min-height:280px;
+    display:flex; align-items:center; justify-content:center; }
+  .hero-caption { position:absolute; font-family:'Sora',sans-serif; font-size:.68rem; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; line-height:1.7; color:rgba(246,244,239,.55); }
+  .hero-caption-left { top:6%; left:0; }
+  .hero-caption-right { top:2%; right:0; text-align:right; font-size:.95rem; text-transform:none; letter-spacing:0;
+    font-weight:600; color:rgba(246,244,239,.8); font-family:'Inter',sans-serif; }
+  .hero-caption-right em { font-style:normal; background:linear-gradient(100deg,var(--gold),var(--blue)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700; }
+  .hero-corner-cta { position:absolute; bottom:-1.4rem; right:0; z-index:2; }
+  .hero-corner-cta a { font-family:'Sora',sans-serif; font-weight:800; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--board-ink); text-decoration:none; cursor:pointer; display:inline-flex; align-items:center; gap:.4rem; }
+  .hero-corner-cta a:hover { color:var(--gold); }
+  @media (max-width:760px){ .hero-caption-left, .hero-caption-right { position:static; margin-bottom:1rem; text-align:center; } .hero-corner-cta { position:static; text-align:center; margin-top:1rem; } }
+
+  .hero-float-wrap { position:relative; width:min(420px, 70vw); animation:heroFloatBob 7s ease-in-out infinite; }
+  @keyframes heroFloatBob { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-14px) rotate(-1deg); } }
+  .hero-float-wrap svg { width:100%; height:auto; display:block; filter:drop-shadow(0 30px 40px rgba(0,0,0,.4)); }
+
+  .hero-wordmark-row { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding-top:.5rem; }
+  .hero-wordmark { font-family:'Sora',sans-serif; font-weight:800; letter-spacing:-.02em;
+    font-size:clamp(3.5rem, 11vw, 8.5rem); line-height:.85; margin:0 0 2rem; text-transform:uppercase;
+    background:var(--brand-gradient); -webkit-background-clip:text; background-clip:text; color:transparent;
+    opacity:.92; user-select:none; }
+
+  .hero-content-row { position:relative; z-index:1; }
+
   /* ── Home page marketing sections ── */
   .home-stats-bar { display:flex; flex-wrap:wrap; justify-content:center; gap:2.5rem; background:var(--paper-2); padding:2rem 1.5rem; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
   .home-stat { text-align:center; }
@@ -2212,42 +2253,120 @@
       <span class="hero-shape hero-shape-4"></span>
       <span class="hero-shape hero-shape-5"></span>
     </div>
-    <div class="hero-flex">
-      <div class="hero-inner">
-        <div class="hero-mascot-badge" aria-hidden="true">
-          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;">
-            <defs><linearGradient id="heroMascotGrad" x1="0" y1="0" x2="40" y2="40">
-              <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
-            </linearGradient></defs>
-            <rect width="40" height="40" rx="12" fill="url(#heroMascotGrad)"/>
-            <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
-          </svg>
-          <span>Built for Ontario students</span>
-        </div>
-        <div class="eyebrow">Ontario Secondary Curriculum</div>
-        <h1>Practice built for your <em>real</em> courses</h1>
-        <p>Original unit tests, worksheets, and quizzes for grade 11 and 12 Ontario high school courses — organized the way you'd expect a course to be organized: by unit, with a test at the end of each one.</p>
-        <div class="hero-cta-row">
-          <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
-          <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
-          <div class="educator-badge" id="account-badge">
-            <span id="account-badge-text" style="cursor:pointer;"></span>
-            <button id="account-signout-btn">Sign out</button>
-          </div>
-        </div>
+
+    <div class="hero-microbar">Free, unlimited practice for Ontario students — no credit card required</div>
+
+    <div class="hero-toplinks">
+      <a onclick="showPage('courses')">Courses</a>
+      <span class="hero-rule" aria-hidden="true"></span>
+      <a onclick="document.querySelector('.home-section')?.scrollIntoView({behavior:'smooth'})">Why Modilix</a>
+      <span class="hero-rule" aria-hidden="true"></span>
+      <a onclick="document.querySelector('.home-steps-section')?.scrollIntoView({behavior:'smooth'})">How it works</a>
+      <span class="hero-rule" aria-hidden="true"></span>
+      <a onclick="document.getElementById('student-auth-btn')?.click()">Sign in</a>
+    </div>
+
+    <div class="hero-stage">
+      <div class="hero-caption hero-caption-left" aria-hidden="true">
+        <span>Interactive Math Practice</span><br><span>Built For Real Grades</span>
       </div>
-      <div class="hero-demo">
-        <div class="hero-demo-card">
-          <div class="hero-demo-label">Try it — drag the sliders</div>
-          <div class="hero-demo-eq" id="hero-demo-eq">y = x²</div>
-          <div class="hero-demo-svg-wrap" id="hero-demo-svg-wrap"></div>
-          <div class="hero-demo-sliders">
-            <div class="hero-demo-slider-row"><label>a</label><input type="range" id="hero-demo-a" min="-3" max="3" step="0.5" value="1"><span id="hero-demo-a-val">1</span></div>
-            <div class="hero-demo-slider-row"><label>d</label><input type="range" id="hero-demo-d" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-d-val">0</span></div>
-            <div class="hero-demo-slider-row"><label>c</label><input type="range" id="hero-demo-c" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-c-val">0</span></div>
+
+      <div class="hero-float-wrap" aria-hidden="true">
+        <svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="heroBlobFill1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f6f4ef"/><stop offset="1" stop-color="#c7cbc2"/>
+            </linearGradient>
+            <linearGradient id="heroBlobFill2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f6f4ef"/><stop offset="1" stop-color="#d3d6cd"/>
+            </linearGradient>
+            <linearGradient id="heroGlow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ff5a36"/>
+            </linearGradient>
+            <filter id="heroSoftBlur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="9"/>
+            </filter>
+            <filter id="heroGlowBlur" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="16"/>
+            </filter>
+          </defs>
+
+          <line x1="140" y1="0" x2="140" y2="66" stroke="rgba(246,244,239,.3)" stroke-width="1"/>
+          <line x1="210" y1="0" x2="210" y2="50" stroke="rgba(246,244,239,.3)" stroke-width="1"/>
+          <line x1="285" y1="0" x2="285" y2="90" stroke="rgba(246,244,239,.3)" stroke-width="1"/>
+
+          <!-- underglow, painted first so it peeks out below each blob -->
+          <ellipse cx="175" cy="178" rx="132" ry="34" fill="url(#heroGlow)" opacity=".85" filter="url(#heroGlowBlur)"/>
+          <ellipse cx="300" cy="222" rx="78" ry="22" fill="url(#heroGlow)" opacity=".85" filter="url(#heroGlowBlur)"/>
+
+          <!-- large soft blob -->
+          <g filter="url(#heroSoftBlur)">
+            <ellipse cx="175" cy="120" rx="120" ry="62" fill="url(#heroBlobFill1)"/>
+            <ellipse cx="120" cy="105" rx="55" ry="42" fill="url(#heroBlobFill1)"/>
+            <ellipse cx="235" cy="112" rx="58" ry="46" fill="url(#heroBlobFill1)"/>
+          </g>
+          <!-- small soft blob -->
+          <g filter="url(#heroSoftBlur)">
+            <ellipse cx="300" cy="165" rx="72" ry="40" fill="url(#heroBlobFill2)"/>
+            <ellipse cx="265" cy="155" rx="34" ry="26" fill="url(#heroBlobFill2)"/>
+          </g>
+
+          <path d="M40,250 Q210,140 380,250" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="3 5" opacity=".55"/>
+          <circle cx="210" cy="163" r="4" fill="#f5a623"/>
+        </svg>
+      </div>
+
+      <div class="hero-caption hero-caption-right" aria-hidden="true">
+        Master<br><em>Your Course.</em>
+      </div>
+
+      <div class="hero-corner-cta">
+        <a onclick="showPage('courses')">Explore Courses →</a>
+      </div>
+    </div>
+
+    <div class="hero-wordmark-row">
+      <h1 class="hero-wordmark" aria-hidden="true">Modilix</h1>
+    </div>
+
+    <div class="hero-content-row">
+      <div class="hero-flex">
+        <div class="hero-inner">
+          <div class="hero-mascot-badge" aria-hidden="true">
+            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;">
+              <defs><linearGradient id="heroMascotGrad" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0" stop-color="#ff7a54"/><stop offset="1" stop-color="#e2431f"/>
+              </linearGradient></defs>
+              <rect width="40" height="40" rx="12" fill="url(#heroMascotGrad)"/>
+              <path d="M8 29 L14.5 13 L20 22.5 L25.5 13 L32 29" stroke="#fff" stroke-width="3.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="25.5" cy="13" r="2.6" fill="#f5a623"/>
+            </svg>
+            <span>Built for Ontario students</span>
           </div>
-          <div class="hero-demo-hint">This is what every lesson feels like.</div>
+          <div class="eyebrow">Ontario Secondary Curriculum</div>
+          <h2 style="font-family:'Sora',sans-serif; font-size:clamp(1.5rem,3.4vw,2.1rem); color:var(--board-ink); line-height:1.25; margin-bottom:1rem;">Practice built for your <em style="font-style:normal; background:linear-gradient(100deg, var(--blue), var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;">real</em> courses</h2>
+          <p>Original unit tests, worksheets, and quizzes for grade 11 and 12 Ontario high school courses — organized the way you'd expect a course to be organized: by unit, with a test at the end of each one.</p>
+          <div class="hero-cta-row">
+            <button class="btn btn-primary" id="student-auth-btn">Student sign in</button>
+            <button class="btn btn-ghost" id="educator-signin-btn">Educator sign-in</button>
+            <div class="educator-badge" id="account-badge">
+              <span id="account-badge-text" style="cursor:pointer;"></span>
+              <button id="account-signout-btn">Sign out</button>
+            </div>
+          </div>
+        </div>
+        <div class="hero-demo">
+          <div class="hero-demo-card">
+            <div class="hero-demo-label">Try it — drag the sliders</div>
+            <div class="hero-demo-eq" id="hero-demo-eq">y = x²</div>
+            <div class="hero-demo-svg-wrap" id="hero-demo-svg-wrap"></div>
+            <div class="hero-demo-sliders">
+              <div class="hero-demo-slider-row"><label>a</label><input type="range" id="hero-demo-a" min="-3" max="3" step="0.5" value="1"><span id="hero-demo-a-val">1</span></div>
+              <div class="hero-demo-slider-row"><label>d</label><input type="range" id="hero-demo-d" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-d-val">0</span></div>
+              <div class="hero-demo-slider-row"><label>c</label><input type="range" id="hero-demo-c" min="-4" max="4" step="0.5" value="0"><span id="hero-demo-c-val">0</span></div>
+            </div>
+            <div class="hero-demo-hint">This is what every lesson feels like.</div>
+          </div>
         </div>
       </div>
     </div>
