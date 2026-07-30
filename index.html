@@ -247,7 +247,7 @@
      Modilix brand-gradient background; four tilted glass pieces, each one of
      the four pillars (streaks, interactive practice, spaced review, unit
      structure), plus one huge ambient sphere as the backdrop. ── */
-  .hero { position:relative; width:100%; min-height:100vh; overflow:hidden;
+  .hero { position:relative; z-index:0; width:100%; min-height:100vh; overflow:hidden;
     display:flex; flex-direction:column;
     background:linear-gradient(133deg, #120c28 0%, #241a52 14%, #4a2fbe 34%, #8a4fd6 54%, #ff5a36 76%, #ffd166 100%);
     animation:heroCardIn .6s var(--ease-premium) both; }
@@ -11461,32 +11461,44 @@ async function ensureProfileExists(uid, existingProfile){
 
 (async function init(){
   renderEducatorModal();
-  const [{ data: { session } }, fbUser] = await Promise.all([
-    sbAuth.auth.getSession(),
-    waitForFirebaseUser(),
-  ]);
+  // Everything in this try block depends on the backend (Supabase/Firebase)
+  // actually being reachable. If any of those calls fails — no network, no
+  // configured backend, a blocked request — this used to throw and abort the
+  // whole init function, which meant showPage() below never ran. That left
+  // the real fixed header un-hidden on the home page, sitting on top of and
+  // eating clicks meant for the hero's own nav pill and sign-in buttons —
+  // exactly what "the buttons don't work" looks like. Now a backend failure
+  // just leaves the page in signed-out mode instead of breaking navigation.
+  try {
+    const [{ data: { session } }, fbUser] = await Promise.all([
+      sbAuth.auth.getSession(),
+      waitForFirebaseUser(),
+    ]);
 
-  if(fbUser){
-    // Firebase-authenticated student takes priority if somehow both are present.
-    firebaseUser = fbUser;
-    db = sbStudent;
-    await getStudentAccessToken();
-    const { data: profile } = await db.from('profiles').select('*').eq('id', fbUser.uid).maybeSingle();
-    currentUser = { id: fbUser.uid, email: fbUser.email };
-    currentProfile = await ensureProfileExists(fbUser.uid, profile);
-    isEducator = false;
-  } else if(session){
-    currentUser = session.user;
-    const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
-    currentProfile = await ensureProfileExists(currentUser.id, profile);
-    isEducator = !!currentProfile && currentProfile.role === 'educator';
+    if(fbUser){
+      // Firebase-authenticated student takes priority if somehow both are present.
+      firebaseUser = fbUser;
+      db = sbStudent;
+      await getStudentAccessToken();
+      const { data: profile } = await db.from('profiles').select('*').eq('id', fbUser.uid).maybeSingle();
+      currentUser = { id: fbUser.uid, email: fbUser.email };
+      currentProfile = await ensureProfileExists(fbUser.uid, profile);
+      isEducator = false;
+    } else if(session){
+      currentUser = session.user;
+      const { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+      currentProfile = await ensureProfileExists(currentUser.id, profile);
+      isEducator = !!currentProfile && currentProfile.role === 'educator';
+    }
+
+    await loadCatalog();
+    await loadSkills();
+    await loadResponses();
+    await loadProgress();
+    await loadReviewLog();
+  } catch(err){
+    console.error('Startup data load failed — continuing in signed-out mode so the page stays usable', err);
   }
-
-  await loadCatalog();
-  await loadSkills();
-  await loadResponses();
-  await loadProgress();
-  await loadReviewLog();
   updateAccountUI();
   renderSoundToggle();
   // Signed-in students (whether via a persisted session or an auto-resumed
