@@ -259,15 +259,14 @@
   .hero-shapes-svg .hs-2 { animation:hsFloat2 12s ease-in-out infinite; }
   .hero-shapes-svg .hs-3 { animation:hsFloat3 13s ease-in-out infinite; }
   .hero-shapes-svg .hs-4 { animation:hsFloat4 20s ease-in-out infinite; }
-  .hero-shapes-svg .hs-icon { animation:hsIconBob 6s ease-in-out infinite; }
   @keyframes hsFloat1 { 0%,100% { transform:rotate(0deg) translateY(0); } 50% { transform:rotate(3deg) translateY(-3%); } }
   @keyframes hsFloat2 { 0%,100% { transform:rotate(0deg) translateY(0); } 50% { transform:rotate(-4deg) translateY(2%); } }
   @keyframes hsFloat3 { 0%,100% { transform:rotate(0deg) translateY(0); } 50% { transform:rotate(5deg) translateY(-2%); } }
   @keyframes hsFloat4 { 0%,100% { transform:rotate(0deg) translate(0,0); } 50% { transform:rotate(2deg) translate(-1.5%,1.5%); } }
-  @keyframes hsIconBob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5%); } }
-  @media (prefers-reduced-motion:reduce){ .hero-shapes-svg .hs-g, .hero-shapes-svg .hs-icon { animation:none !important; } }
+  @media (prefers-reduced-motion:reduce){ .hero-shapes-svg .hs-g { animation:none !important; } }
 
-  .hero-pillar-label { font-family:'Sora',sans-serif; font-weight:700; font-size:11px; fill:#fff; opacity:.85; text-anchor:middle; }
+  .hero-pillar-legend text { font-family:'Sora',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em;
+    fill:rgba(255,255,255,.82); }
 
   /* small floating pill nav, centered top — logo mark + links + a round icon button */
   .hero-nav-pill { position:absolute; z-index:3; top:2rem; left:50%; transform:translateX(-50%);
@@ -1721,7 +1720,7 @@
   </defs>
 </svg>
 
-<nav>
+<nav id="site-nav">
   <div class="nav-logo" onclick="showPage('home')">
     <svg class="brand-mark" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -2198,54 +2197,78 @@
         <radialGradient id="hsGradAmbient" cx="30%" cy="24%" r="90%">
           <stop offset="0" stop-color="#ffe9c8"/><stop offset=".5" stop-color="#b46bff"/><stop offset="1" stop-color="#4a2fbe"/>
         </radialGradient>
-        <radialGradient id="hsGradStreak" cx="30%" cy="26%" r="85%">
-          <stop offset="0" stop-color="#fff3df"/><stop offset=".45" stop-color="#ffd166"/><stop offset="1" stop-color="#e2431f"/>
-        </radialGradient>
-        <radialGradient id="hsGradInteractive" cx="30%" cy="26%" r="85%">
-          <stop offset="0" stop-color="#e9dcff"/><stop offset=".5" stop-color="#8a4fd6"/><stop offset="1" stop-color="#4a2fbe"/>
-        </radialGradient>
-        <radialGradient id="hsGradReview" cx="32%" cy="28%" r="85%">
-          <stop offset="0" stop-color="#f6ecff"/><stop offset=".55" stop-color="#cdb1ff"/><stop offset="1" stop-color="#b46bff"/>
-        </radialGradient>
-        <radialGradient id="hsGradStructure" cx="32%" cy="26%" r="85%">
-          <stop offset="0" stop-color="#e3fbf8"/><stop offset=".5" stop-color="#5fd4c9"/><stop offset="1" stop-color="#0ea5a0"/>
-        </radialGradient>
+        <linearGradient id="hsGradStreak" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffe9b0"/><stop offset=".55" stop-color="#ffb347"/><stop offset="1" stop-color="#e2431f"/>
+        </linearGradient>
+        <linearGradient id="hsGradInteractive" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8a4fd6"/><stop offset="1" stop-color="#3a2496"/>
+        </linearGradient>
+        <linearGradient id="hsGradCard1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#d9c2ff"/><stop offset="1" stop-color="#a878ee"/>
+        </linearGradient>
+        <linearGradient id="hsGradCard2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#c19bf5"/><stop offset="1" stop-color="#9159e3"/>
+        </linearGradient>
+        <linearGradient id="hsGradCard3" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#a878ee"/><stop offset="1" stop-color="#5a2fc4"/>
+        </linearGradient>
+        <linearGradient id="hsGradBar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8ff0e4"/><stop offset="1" stop-color="#0ea5a0"/>
+        </linearGradient>
+        <filter id="hsShadow" x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#0a0416" flood-opacity=".4"/>
+        </filter>
       </defs>
 
       <!-- ambient brand-gradient sphere, mostly off-canvas top-right: the stage the pieces sit on -->
-      <g class="hs-g hs-4"><ellipse cx="880" cy="150" rx="300" ry="440" fill="url(#hsGradAmbient)" opacity=".55"/></g>
+      <g class="hs-g hs-4"><ellipse cx="920" cy="130" rx="300" ry="440" fill="url(#hsGradAmbient)" opacity=".5"/></g>
 
-      <!-- four tilted glass pieces — one per Modilix pillar -->
+      <!-- Streaks: the actual flame icon from the nav's streak counter, scaled way up -->
       <g class="hs-g hs-1">
-        <ellipse cx="290" cy="320" rx="140" ry="262" transform="rotate(-24 290 320)" fill="url(#hsGradStreak)" stroke="#4a2fbe" stroke-width="3" opacity=".94"/>
-      </g>
-      <g class="hs-g hs-2">
-        <ellipse cx="445" cy="270" rx="108" ry="214" transform="rotate(-16 445 270)" fill="url(#hsGradInteractive)" stroke="#241a52" stroke-width="2" opacity=".9"/>
-      </g>
-      <g class="hs-g hs-3">
-        <ellipse cx="560" cy="345" rx="92" ry="200" transform="rotate(21 560 345)" fill="url(#hsGradReview)" opacity=".85"/>
-      </g>
-      <g class="hs-g hs-1" style="animation-delay:-5s">
-        <ellipse cx="660" cy="290" rx="78" ry="175" transform="rotate(-11 660 290)" fill="url(#hsGradStructure)" stroke="#0f7d50" stroke-width="2" opacity=".88"/>
+        <g filter="url(#hsShadow)" transform="translate(495 300) rotate(-8) scale(10.5) translate(-12,-11)">
+          <path d="M12.5 1.5c.6 2.9-.4 4.6-2 6.3C8.7 10 7 12 7 14.8a5 5 0 0 0 10 0c0-1-.3-1.9-.8-2.7.2 1.6-.5 2.9-1.7 2.9-1.4 0-2-1.2-1.5-2.5.9-2.3.2-4.2-.5-6-.4 1.7-1.3 2.6-2.3 3.3-.6-2.4-.2-4.6 1.3-8.3Z"
+            fill="url(#hsGradStreak)" stroke="#c93a1c" stroke-width=".3"/>
+        </g>
       </g>
 
-      <!-- upright icon + label per pillar, layered above (not tilted by the shape's rotation) -->
-      <g class="hs-icon" transform="translate(290 300)">
-        <use href="#i-flame" width="46" height="46" x="-23" y="-23" style="color:#fff" opacity=".95"/>
-        <text class="hero-pillar-label" y="52">Streaks</text>
+      <!-- Interactive practice: a tilted "graph tile" — the same slider demo you can try below -->
+      <g class="hs-g hs-2">
+        <g filter="url(#hsShadow)" transform="translate(650 275) rotate(-12)">
+          <rect x="-88" y="-122" width="176" height="244" rx="24" fill="url(#hsGradInteractive)" stroke="rgba(255,255,255,.38)" stroke-width="1.5"/>
+          <line x1="-58" y1="0" x2="58" y2="0" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+          <line x1="0" y1="-88" x2="0" y2="88" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+          <path d="M -54 50 Q 0 -70 54 50" fill="none" stroke="#ffd166" stroke-width="6" stroke-linecap="round"/>
+        </g>
       </g>
-      <g class="hs-icon" style="animation-delay:-2s" transform="translate(445 250)">
-        <use href="#i-bolt" width="42" height="42" x="-21" y="-21" style="color:#fff" opacity=".95"/>
-        <text class="hero-pillar-label" y="46">Interactive</text>
+
+      <!-- Daily Review: a fanned stack of flashcards, spaced-repetition style -->
+      <g class="hs-g hs-3">
+        <g filter="url(#hsShadow)" transform="translate(800 320)">
+          <g transform="rotate(9)"><rect x="-64" y="-86" width="128" height="172" rx="18" fill="url(#hsGradCard1)" stroke="rgba(255,255,255,.3)" stroke-width="1"/></g>
+          <g transform="rotate(-3)"><rect x="-64" y="-86" width="128" height="172" rx="18" fill="url(#hsGradCard2)" stroke="rgba(255,255,255,.3)" stroke-width="1"/></g>
+          <g transform="rotate(4)">
+            <rect x="-64" y="-86" width="128" height="172" rx="18" fill="url(#hsGradCard3)" stroke="rgba(255,255,255,.45)" stroke-width="1.5"/>
+            <use href="#i-brain" width="48" height="48" x="-24" y="-24" style="color:#fff" opacity=".95"/>
+          </g>
+        </g>
       </g>
-      <g class="hs-icon" style="animation-delay:-4s" transform="translate(560 320)">
-        <use href="#i-brain" width="42" height="42" x="-21" y="-21" style="color:#fff" opacity=".95"/>
-        <text class="hero-pillar-label" y="46">Daily Review</text>
+
+      <!-- Unit structure: bars stepping up unit by unit toward a test -->
+      <g class="hs-g hs-1" style="animation-delay:-5s">
+        <g filter="url(#hsShadow)" transform="translate(935 420) rotate(-6)">
+          <rect x="-78" y="-46" width="30" height="46" rx="6" fill="url(#hsGradBar)" opacity=".65"/>
+          <rect x="-38" y="-72" width="30" height="72" rx="6" fill="url(#hsGradBar)" opacity=".78"/>
+          <rect x="2"   y="-102" width="30" height="102" rx="6" fill="url(#hsGradBar)" opacity=".9"/>
+          <rect x="42"  y="-138" width="30" height="138" rx="6" fill="url(#hsGradBar)" stroke="rgba(255,255,255,.45)" stroke-width="1.5"/>
+          <use href="#i-check" width="24" height="24" x="45" y="-165" style="color:#fff"/>
+        </g>
       </g>
-      <g class="hs-icon" style="animation-delay:-1s" transform="translate(660 270)">
-        <use href="#i-chart" width="36" height="36" x="-18" y="-18" style="color:#fff" opacity=".95"/>
-        <text class="hero-pillar-label" y="40">Unit Structure</text>
-      </g>
+
+      <!-- upright legend-style labels: small color swatch + tracked caps, unaffected by each shape's rotation -->
+      <g class="hero-pillar-legend"><circle cx="450" cy="474" r="4" fill="#ffb347"/><text x="462" y="478">STREAKS</text></g>
+      <g class="hero-pillar-legend"><circle cx="608" cy="430" r="4" fill="#b46bff"/><text x="620" y="434">INTERACTIVE PRACTICE</text></g>
+      <g class="hero-pillar-legend"><circle cx="758" cy="450" r="4" fill="#9159e3"/><text x="770" y="454">DAILY REVIEW</text></g>
+      <g class="hero-pillar-legend"><circle cx="893" cy="518" r="4" fill="#0ea5a0"/><text x="905" y="522">UNIT STRUCTURE</text></g>
     </svg>
 
     <div class="hero-nav-pill">
@@ -3946,6 +3969,11 @@ function showPage(page){
   document.getElementById('tool-graphbuilder-page').classList.remove('visible');
   document.getElementById('tool-drbuilder-page').classList.remove('visible');
   updateNavActive(page);
+  // The hero on the home page is a full-screen visual with its own pill nav
+  // baked in, so the real fixed header is hidden there and restored on every
+  // other page.
+  const siteNav = document.getElementById('site-nav');
+  if(siteNav) siteNav.style.display = (page==='home') ? 'none' : 'flex';
   if(page==='home'){
     // Home is the public marketing page — same content whether you're signed in or not.
     const el = document.getElementById('home-page');
