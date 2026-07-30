@@ -22,7 +22,7 @@
     --gold: #f5a623; --gold-bg: #fff3d9;
     --green: #159a63; --green-bg: #e3f7ee; --green-dark: #0f7d50;
     --purple: #7c5cff; --purple-bg: #efeaff;
-    --teal: #0ea5a0; --teal-bg: #e2f6f5;
+    --teal: #4a2fbe; --teal-bg: #e8e4fb;
     --red: #e5484d; --red-bg: #fdecec;
     --white: #ffffff;
 
@@ -64,7 +64,7 @@
     --paper: #14161f; --paper-2: #1c1f2c; --rule: #2c3040;
     --ink: #eef0f6; --ink-soft: #b7bccb; --ink-faint: #7d8299;
     --white: #1a1d29;
-    --blue-bg: #3a2018; --gold-bg: #3a2f10; --green-bg: #103326; --purple-bg: #241f3f; --teal-bg: #0f2d2c; --red-bg: #3a1616;
+    --blue-bg: #3a2018; --gold-bg: #3a2f10; --green-bg: #103326; --purple-bg: #241f3f; --teal-bg: #221a4a; --red-bg: #3a1616;
     --gold-ink: #ffcf5c; --red-ink: #ff6b6b; --purple-ink: #c9a6f5; --code-ink: #c9d3e0;
     --shadow-xs: 0 1px 2px rgba(0,0,0,.3); --shadow-sm: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.3);
     --shadow-md: 0 8px 24px -6px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3); --shadow-lg: 0 20px 48px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.3);
@@ -107,9 +107,10 @@
 
   .btn:active, .btn-sm:active, .course-tile:active { transform:scale(.96); }
   .btn, .btn-sm { will-change:transform; }
-  .btn-primary { box-shadow:0 1px 0 rgba(0,0,0,.05); background:linear-gradient(180deg, var(--blue), var(--blue-dark)); transition:box-shadow .18s var(--ease-premium), transform .18s var(--ease-premium), filter .18s; }
-  .btn-primary:hover { box-shadow:var(--shadow-glow-blue); transform:translateY(-1px); filter:brightness(1.04); }
-  .btn-primary:active { transform:translateY(0) scale(.97); box-shadow:0 2px 6px rgba(255,90,54,.2); }
+  .btn-primary { box-shadow:0 1px 0 rgba(0,0,0,.05); background:var(--brand-gradient); background-size:220% 220%; color:var(--white);
+    transition:box-shadow .18s var(--ease-premium), transform .18s var(--ease-premium), filter .18s, background-position .5s var(--ease-premium); }
+  .btn-primary:hover { box-shadow:var(--shadow-glow-blue); transform:translateY(-1px); filter:brightness(1.05); background-position:100% 50%; }
+  .btn-primary:active { transform:translateY(0) scale(.97); box-shadow:0 2px 6px rgba(255,90,54,.25); }
 
   nav { transition:box-shadow .25s ease, background .25s ease; }
   nav.scrolled { box-shadow:var(--shadow-glow-board); background:linear-gradient(180deg, var(--board-2), var(--board)); backdrop-filter:blur(10px); }
@@ -138,7 +139,7 @@
   .pt-overlay.open { display:flex; animation:ptBackdropIn .3s ease both; }
   .pt-backdrop { position:absolute; inset:0; background:radial-gradient(circle at 50% 30%, #241c42 0%, #120f24 55%, #0a0916 100%); }
   .pt-aura { position:absolute; top:50%; left:50%; width:900px; height:900px; margin:-450px 0 0 -450px;
-    background:conic-gradient(from 0deg, #ff5a3655, #7c5cff55, #0ea5a055, #f5a62355, #ff5a3655);
+    background:conic-gradient(from 0deg, #ff5a3655, #7c5cff55, #4a2fbe55, #f5a62355, #ff5a3655);
     filter:blur(60px); border-radius:50%; animation:ptAuraSpin 18s linear infinite, ptAuraPulse 5s ease-in-out infinite; pointer-events:none; }
   .pt-star { position:absolute; color:#fff; opacity:0; animation:ptStarTwinkle 2.6s ease-in-out infinite; pointer-events:none; }
   .pt-star svg { width:100%; height:100%; }
@@ -229,8 +230,6 @@
   .btn { border-radius:100px; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; padding:.65rem 1.4rem; cursor:pointer; transition:all .18s var(--ease-premium); border:1.5px solid transparent; text-decoration:none; display:inline-block; }
   .btn:hover { transform:translateY(-2px); }
   .btn:active { transform:translateY(0) scale(.95); }
-  .btn-primary { background:var(--blue); color:var(--white); }
-  .btn-primary:hover { background:var(--blue-dark); }
   .btn-ghost { background:transparent; color:var(--ink); border-color:var(--rule); }
   .btn-ghost:hover { border-color:var(--ink-soft); background:var(--paper-2); }
   /* .btn-ghost also appears in the hero, which always sits on the fixed-dark
@@ -2242,7 +2241,7 @@
           <stop offset="0" stop-color="#a878ee"/><stop offset="1" stop-color="#5a2fc4"/>
         </linearGradient>
         <linearGradient id="hsGradBar" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#8ff0e4"/><stop offset="1" stop-color="#0ea5a0"/>
+          <stop offset="0" stop-color="#a996f5"/><stop offset="1" stop-color="#4a2fbe"/>
         </linearGradient>
       </defs>
 
@@ -2297,7 +2296,7 @@
       <g class="hero-pillar-legend"><circle cx="375" cy="460" r="4" fill="#ffb347"/><text x="387" y="464">STREAKS</text></g>
       <g class="hero-pillar-legend"><circle cx="535" cy="418" r="4" fill="#b46bff"/><text x="547" y="422">INTERACTIVE PRACTICE</text></g>
       <g class="hero-pillar-legend"><circle cx="715" cy="440" r="4" fill="#9159e3"/><text x="727" y="444">DAILY REVIEW</text></g>
-      <g class="hero-pillar-legend"><circle cx="866" cy="500" r="4" fill="#0ea5a0"/><text x="878" y="504">UNIT STRUCTURE</text></g>
+      <g class="hero-pillar-legend"><circle cx="866" cy="500" r="4" fill="#6a5cf5"/><text x="878" y="504">UNIT STRUCTURE</text></g>
     </svg>
 
     <div class="hero-nav-pill">
@@ -5210,7 +5209,7 @@ const SUBJECT_COLORS = { science:'var(--green)', math:'var(--blue)', social:'var
 const SUBJECT_GLYPHS = { science:'flask', math:'sigma', social:'globe', english:'book', business:'briefcase', other:'star' };
 const SUBJECT_GRADIENTS = {
   science: ['#22b573','#0f7d50'], math: ['#ff7a54','#e2431f'], social: ['#9575ff','#6a45e0'],
-  english: ['#f5a623','#d98816'], business: ['#14b8b2','#0b8078'], other: ['#5b6272','#3a3f4c']
+  english: ['#f5a623','#d98816'], business: ['#6a5cf5','#4a2fbe'], other: ['#5b6272','#3a3f4c']
 };
 const TYPE_LABELS = { practice:'Practice', quiz:'Quiz', worksheet:'Worksheet', unittest:'Unit Test', lesson:'Lesson' };
 
@@ -8439,7 +8438,7 @@ function lpTransitionTo(renderFn, direction){
 document.getElementById('lp-prev-btn').onclick = ()=>{ if(lpIndex>0){ lpCaptureScratchpad(); lpAutosaveWork(); lpIndex--; lpTransitionTo(renderLpBlock,'back'); window.scrollTo(0,0); } };
 // Small celebratory confetti burst — used when a student finishes a lesson.
 function fireConfetti(){
-  const colors = ['#f5a623','#ff5a36','#159a63','#7c5cff','#0ea5a0'];
+  const colors = ['#f5a623','#ff5a36','#159a63','#7c5cff','#4a2fbe'];
   for(let i=0;i<28;i++){
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
@@ -8456,7 +8455,7 @@ function fireConfetti(){
 // above is tuned for the narrow lesson-player stage; this one spans the
 // full viewport width so it reads as a real celebration).
 function firePremiumConfetti(){
-  const colors = ['#ffd166','#ff5a36','#7c5cff','#0ea5a0','#f5a623','#ffffff'];
+  const colors = ['#ffd166','#ff5a36','#7c5cff','#4a2fbe','#f5a623','#ffffff'];
   for(let i=0;i<70;i++){
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
@@ -8479,7 +8478,7 @@ function firePremiumConfetti(){
    is_premium flips true, built from the same feature list marketed in the
    premium modal so the promise and the payoff always match. */
 const PT_FEATURES = [
-  { icon:'i-download', color:'#0ea5a0', name:'Unlimited test downloads', desc:'Print or save every unit test as a PDF, as many times as you need — no monthly cap.' },
+  { icon:'i-download', color:'#4a2fbe', name:'Unlimited test downloads', desc:'Print or save every unit test as a PDF, as many times as you need — no monthly cap.' },
   { icon:'i-chat', color:'#7c5cff', name:'A much bigger Ember limit', desc:'Ask your AI tutor far more questions per day before you hit a limit.' },
   { icon:'i-chart', color:'#ff5a36', name:'Full mastery breakdown', desc:'See your accuracy on every topic and pinpoint exactly where to focus next.' },
   { icon:'i-sparkle', color:'#f5a623', name:'AI practice for weak spots', desc:'Ember builds custom practice sets that target the topics you\u2019re missing most.' },
