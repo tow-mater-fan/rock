@@ -280,6 +280,17 @@
   .hero-nav-pill-menu { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.12);
     border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
   .hero-nav-pill-menu svg { width:14px; height:14px; }
+  /* ── Hero hamburger side panel — independent of the real #nav-links dropdown,
+     since that one lives inside #site-nav which stays display:none on the home
+     page and can't be repurposed without also showing the real header. ── */
+  .hero-menu-panel { display:none; flex-direction:column; gap:2px; list-style:none; position:absolute;
+    top:calc(100% + .6rem); right:0; min-width:210px; background:var(--board); border:1px solid rgba(255,255,255,.14);
+    border-radius:14px; padding:.5rem; box-shadow:0 20px 50px -14px rgba(0,0,0,.55); z-index:20; }
+  .hero-menu-panel.open { display:flex; animation:navDropIn .16s var(--ease-premium) both; }
+  .hero-menu-panel a { font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; color:rgba(246,244,239,.85); text-decoration:none; cursor:pointer;
+    display:flex; align-items:center; gap:.6rem; padding:.6rem .85rem; border-radius:9px; transition:background .15s, color .15s; }
+  .hero-menu-panel a .icon { opacity:.75; }
+  .hero-menu-panel a:hover { background:rgba(255,255,255,.08); color:#fff; }
   @media (max-width:640px){ .hero-nav-pill a:nth-child(3) { display:none; } }
 
   /* dark vignette, bottom-left, so the text reads clearly */
@@ -2300,8 +2311,14 @@
       </svg>
       <a onclick="showPage('courses')">Courses</a>
       <a onclick="document.querySelector('.home-section')?.scrollIntoView({behavior:'smooth'})">Why Modilix</a>
-      <div class="hero-nav-pill-menu" onclick="document.querySelector('.home-section')?.scrollIntoView({behavior:'smooth'})" aria-hidden="true">
+      <div class="hero-nav-pill-menu" id="hero-nav-pill-menu" onclick="toggleHeroMenu(event)" role="button" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </div>
+      <div class="hero-menu-panel" id="hero-menu-panel">
+        <a onclick="showPage('home');closeHeroMenu()"><svg class="icon"><use href="#i-globe"/></svg> Home</a>
+        <a onclick="showPage('courses');closeHeroMenu()"><svg class="icon"><use href="#i-book"/></svg> Courses</a>
+        <a onclick="document.querySelector('.home-section')?.scrollIntoView({behavior:'smooth'});closeHeroMenu()"><svg class="icon"><use href="#i-idea"/></svg> Why Modilix</a>
+        <a onclick="showPage('about');closeHeroMenu()"><svg class="icon"><use href="#i-idea"/></svg> About</a>
       </div>
     </div>
 
@@ -4113,6 +4130,30 @@ function updateNavActive(page){
 const navToggle=document.getElementById('nav-toggle'), navLinks=document.getElementById('nav-links');
 navToggle.addEventListener('click',()=>{navToggle.classList.toggle('open');navLinks.classList.toggle('open');});
 function closeNav(){navToggle.classList.remove('open');navLinks.classList.remove('open');}
+
+// ── Hero hamburger panel (home page only) ──
+function toggleHeroMenu(e){
+  e.stopPropagation();
+  const panel = document.getElementById('hero-menu-panel');
+  const btn = document.getElementById('hero-nav-pill-menu');
+  if(!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if(btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+function closeHeroMenu(){
+  const panel = document.getElementById('hero-menu-panel');
+  const btn = document.getElementById('hero-nav-pill-menu');
+  if(panel) panel.classList.remove('open');
+  if(btn) btn.setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('click', (e)=>{
+  const panel = document.getElementById('hero-menu-panel');
+  const btn = document.getElementById('hero-nav-pill-menu');
+  if(panel && panel.classList.contains('open') && !panel.contains(e.target) && e.target!==btn && !btn.contains(e.target)){
+    closeHeroMenu();
+  }
+});
 document.addEventListener('click',e=>{if(!navToggle.contains(e.target)&&!navLinks.contains(e.target))closeNav();});
 const mainNavEl = document.querySelector('nav');
 window.addEventListener('scroll', ()=>{ mainNavEl.classList.toggle('scrolled', window.scrollY > 8); }, { passive:true });
