@@ -270,7 +270,7 @@
     fill:rgba(255,255,255,.82); }
 
   /* small floating pill nav, centered top — logo mark + links + a round icon button */
-  .hero-nav-pill { position:absolute; z-index:3; top:2rem; left:50%; transform:translateX(-50%);
+  .hero-nav-pill { position:absolute; z-index:5; top:2rem; left:50%; transform:translateX(-50%);
     display:flex; align-items:center; gap:1.5rem; background:rgba(10,6,26,.4); backdrop-filter:blur(10px);
     border:1px solid rgba(255,255,255,.18); border-radius:100px; padding:.5rem .6rem .5rem 1.1rem; }
   .hero-nav-pill-badge { width:22px; height:22px; border-radius:7px; flex-shrink:0; }
@@ -3139,9 +3139,24 @@ const FIREBASE_CONFIG = {
 // Your deployed edge function, e.g. https://oohclfpwffhrlwwseotz.supabase.co/functions/v1/firebase-token-exchange
 const FIREBASE_EXCHANGE_URL = `${SUPABASE_URL}/functions/v1/firebase-token-exchange`;
 
-firebase.initializeApp(FIREBASE_CONFIG);
-const firebaseAuth = firebase.auth();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+// Guarded: if the Firebase SDK failed to load (ad-blocker, CDN block, offline —
+// all common for Google/Firebase scripts specifically), initializeApp() throws.
+// That used to crash this entire <script> tag, which meant the showPage() call
+// at the very bottom of this file never ran — leaving the real fixed nav
+// visible on top of the hero and silently eating every click on the hero's own
+// "Courses"/"Why Modilix"/menu buttons underneath it. Falling back to stub
+// objects here means only actual sign-in-with-Google breaks in that scenario,
+// while the rest of the site (including navigation) stays fully usable.
+let firebaseAuth, googleProvider;
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  firebaseAuth = firebase.auth();
+  googleProvider = new firebase.auth.GoogleAuthProvider();
+} catch(err){
+  console.error('Firebase failed to initialize — Google sign-in will be unavailable, but the rest of the site will keep working', err);
+  firebaseAuth = { onAuthStateChanged: (cb)=>{ cb(null); return ()=>{}; }, signInWithPopup: ()=>Promise.reject(new Error('Google sign-in is unavailable right now.')) };
+  googleProvider = null;
+}
 
 /* Cache for the Supabase-signed token we get back from the exchange
    function, so we don't call it on every single query. */
@@ -3172,7 +3187,20 @@ async function getStudentAccessToken(){
 // sbAuth: the "normal" client. Used for ALL sb.auth.* calls (educator sign-in,
 // legacy student email/password sign-in, sign-out, getSession) and for data
 // queries whenever an educator or legacy student is the active user.
-const sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Guarded for the same reason as the Firebase init above — an unavailable
+// window.supabase (CDN blocked/offline) would otherwise throw here and crash
+// the whole script before it reaches showPage() at the bottom of the file.
+let sbAuth;
+try {
+  sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(err){
+  console.error('Supabase failed to initialize — sign-in and saved data will be unavailable, but navigation will keep working', err);
+  const sbStub = { auth:{ getSession:()=>Promise.resolve({data:{session:null}}), signInWithPassword:()=>Promise.resolve({error:{message:'Service unavailable'}}), signUp:()=>Promise.resolve({error:{message:'Service unavailable'}}), signOut:()=>Promise.resolve({}) },
+    from(){ const chain = { select(){return chain;}, eq(){return chain;}, single(){return Promise.resolve({data:null,error:{message:'Service unavailable'}});}, maybeSingle(){return Promise.resolve({data:null,error:null});}, insert(){return Promise.resolve({error:{message:'Service unavailable'}});}, upsert(){return Promise.resolve({error:{message:'Service unavailable'}});}, then(res){res({data:[],error:null});} };
+      return chain; },
+    storage:{ from(){ return { upload:()=>Promise.resolve({error:{message:'Service unavailable'}}), getPublicUrl:()=>({data:{publicUrl:''}}) }; } } };
+  sbAuth = sbStub;
+}
 
 // sbStudent: a second client configured with the accessToken option. Once a
 // client is given accessToken, its own sb.auth.* methods stop working (the
@@ -3180,9 +3208,15 @@ const sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // why this has to be a SEPARATE client from sbAuth rather than the same one.
 // This client is only ever used for data queries (.from / .storage) once a
 // student has signed in with Google.
-const sbStudent = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  accessToken: async () => await getStudentAccessToken(),
-});
+let sbStudent;
+try {
+  sbStudent = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    accessToken: async () => await getStudentAccessToken(),
+  });
+} catch(err){
+  console.error('Supabase (student client) failed to initialize', err);
+  sbStudent = sbAuth; // reuse whatever sbAuth resolved to above (real client or stub)
+}
 
 // `db` is whichever client should service the current data queries. Every
 // `.from(...)` / `.storage` call in the app should go through `db`, not
