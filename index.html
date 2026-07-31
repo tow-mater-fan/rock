@@ -1065,7 +1065,7 @@
   /* ── Full-screen lesson mode ── condensed header + a vertically-centered
      stage that fills the viewport, so a lesson feels like one focused
      screen at a time (Brilliant-style) instead of a long scrolling page. */
-  #test-page.lp-mode { display:flex; flex-direction:column; min-height:100vh; background:var(--board) !important; position:relative; }
+  #test-page.lp-mode { display:flex; flex-direction:column; height:100vh; min-height:100vh; background:var(--board) !important; position:relative; overflow:hidden; }
   /* Ambient glow that fills the whole screen edge-to-edge, like Brilliant's
      lesson chrome, rather than a glow confined to one diagram. Colors are
      driven by CSS vars so JS can shift them on correct/incorrect answers. */
@@ -1102,9 +1102,9 @@
   #test-page.lp-mode #tp-back-btn:hover::before, #test-page.lp-mode #tp-back-btn:hover::after { color:var(--board-ink); }
   #test-page.lp-mode .tp-progress-track { display:none; }
   #test-page.lp-mode .tp-progress-fill { background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:999px; box-shadow:0 0 12px rgba(34,197,94,.5); }
-  #test-page.lp-mode .tp-body { flex:1; display:flex; flex-direction:column; padding:0; max-width:none; }
-  #test-page.lp-mode #lp-player { flex:1; display:flex; flex-direction:column; }
-  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 3vw; overflow-y:auto; }
+  #test-page.lp-mode .tp-body { flex:1; display:flex; flex-direction:column; padding:0; max-width:none; min-height:0; }
+  #test-page.lp-mode #lp-player { flex:1; display:flex; flex-direction:column; min-height:0; }
+  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 3vw; overflow-y:auto; min-height:0; }
   #test-page.lp-mode #lp-block-slot { width:100%; max-width:1020px; }
   #test-page.lp-mode .lp-block { background:transparent; border:none; box-shadow:none; padding:0; }
   #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.045); padding:1.6rem 1.9rem; }
