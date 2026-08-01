@@ -338,10 +338,11 @@
   .hero-body .btn-primary:hover { filter:none; background:#fff; box-shadow:0 8px 20px -6px rgba(0,0,0,.4); }
   .hero-body .btn-ghost { color:#fff; border-color:rgba(255,255,255,.4); }
   .hero-body .btn-ghost:hover { border-color:#fff; }
-  .hero-body .educator-badge { background:rgba(255,255,255,.14); color:#ffe4c8; border-color:rgba(255,255,255,.25); }
-  .hero-body .educator-badge button { color:rgba(255,255,255,.7); }
-  .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.75rem;
-    padding:.45rem .9rem; border-radius:100px; border:1px solid rgba(255,177,0,.4); display:none; align-items:center; gap:.6rem; }
+  .hero-body .educator-badge { background:linear-gradient(rgba(20,14,38,.6), rgba(20,14,38,.6)) padding-box, var(--brand-gradient) border-box; backdrop-filter:blur(8px); color:#fff; border-color:transparent; }
+  .hero-body .educator-badge button { color:rgba(255,255,255,.75); }
+  .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem;
+    padding:.6rem .55rem .6rem 1.2rem; border-radius:999px 10px 10px 999px; display:none; align-items:center; gap:.7rem;
+    background:linear-gradient(var(--board), var(--board)) padding-box, var(--brand-gradient) border-box; border:2px solid transparent; }
   .educator-badge.visible { display:flex; }
   .educator-badge button { background:none; border:none; cursor:pointer; font-size:.7rem; text-decoration:underline; }
 
