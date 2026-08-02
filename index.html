@@ -445,6 +445,64 @@
   .home-feature-card:hover .home-feature-icon { transform:scale(1.12) rotate(-6deg); }
   .home-feature-card h3 { font-family:'Sora',sans-serif; font-size:1.02rem; margin-bottom:.5rem; }
   .home-feature-card p { font-size:.87rem; color:var(--ink-soft); line-height:1.65; }
+  .home-section-sub { text-align:center; color:var(--ink-soft); font-size:.94rem; line-height:1.7; max-width:560px; margin:.75rem auto 0; }
+
+  /* ── Feature-card mini demos: each "Why Modilix" card hides a tiny,
+     self-contained interactive underneath a "Try it" toggle, so the pitch
+     ("interactive, trial-and-error") is something you can feel, not just
+     read. ── */
+  .feat-try-btn { display:inline-flex; align-items:center; gap:.3rem; margin-top:1rem; background:none; border:none; cursor:pointer;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--blue); padding:0; }
+  .feat-try-btn svg { width:13px; height:13px; transition:transform .25s var(--ease-premium); }
+  .feat-try-btn.open svg { transform:rotate(180deg); }
+  .feat-demo { max-height:0; overflow:hidden; opacity:0; transition:max-height .35s var(--ease-premium), opacity .25s, margin-top .35s; }
+  .feat-demo.open { max-height:220px; opacity:1; margin-top:.9rem; }
+  .feat-demo-prompt { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink); margin-bottom:.55rem; }
+  .feat-demo-hint { font-size:.72rem; color:var(--ink-faint); margin-top:.5rem; }
+  .feat-demo-row { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+  .feat-demo-input { width:3.2rem; padding:.35rem .5rem; border-radius:8px; border:1.5px solid var(--rule); background:var(--white); color:var(--ink);
+    font-family:'IBM Plex Mono',monospace; font-size:.85rem; text-align:center; }
+  .feat-demo-input:focus { outline:none; border-color:var(--blue); }
+  .feat-demo-feedback { margin-top:.6rem; font-size:.8rem; font-weight:600; min-height:1.2em; }
+  .feat-demo-feedback.correct { color:var(--green); }
+  .feat-demo-feedback.incorrect { color:var(--red); }
+
+  .feat-streak-demo-row { display:flex; align-items:center; gap:.85rem; }
+  .feat-streak-flame-btn { width:44px; height:44px; border-radius:50%; border:1.5px solid var(--rule); background:var(--paper-2); color:var(--ink-faint);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .18s var(--ease-premium); flex-shrink:0; }
+  .feat-streak-flame-btn svg { width:20px; height:20px; }
+  .feat-streak-flame-btn:active { transform:scale(.9); }
+  .feat-streak-flame-btn.lit { background:linear-gradient(120deg,#ff5a36,#f5a623); border-color:transparent; color:#fff; box-shadow:0 0 0 4px rgba(255,144,54,.18); }
+  .feat-streak-demo-num { font-family:'Sora',sans-serif; font-weight:800; font-size:1.5rem; color:var(--ink); line-height:1; }
+  .feat-streak-demo-label { font-size:.72rem; color:var(--ink-faint); font-weight:600; }
+
+  .feat-flashcard { position:relative; height:78px; border-radius:12px; cursor:pointer; perspective:800px; }
+  .feat-flashcard-face { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:.6rem;
+    border-radius:12px; font-size:.8rem; font-weight:600; backface-visibility:hidden; transition:transform .5s var(--ease-premium); }
+  .feat-flashcard-front { background:var(--purple-bg); color:var(--purple-ink,var(--purple)); transform:rotateY(0deg); }
+  .feat-flashcard-back { background:var(--purple); color:#fff; transform:rotateY(180deg); }
+  .feat-flashcard.flipped .feat-flashcard-front { transform:rotateY(-180deg); }
+  .feat-flashcard.flipped .feat-flashcard-back { transform:rotateY(0deg); }
+
+  .feat-unit-row { display:flex; align-items:center; gap:.5rem; padding:.5rem .65rem; border-radius:9px; font-size:.78rem; font-weight:600;
+    cursor:pointer; margin-bottom:.4rem; transition:all .18s; }
+  .feat-unit-row svg { width:14px; height:14px; flex-shrink:0; }
+  .feat-unit-row.done { background:var(--green-bg); color:var(--green); }
+  .feat-unit-row.active { background:var(--gold-bg); color:var(--gold-ink); }
+  .feat-unit-row.locked { background:var(--paper-2); color:var(--ink-faint); }
+  .feat-unit-dot { width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; animation:pulseRing 1.6s ease infinite; }
+
+  .feat-subject-chips { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .feat-subject-chip { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; padding:.35rem .75rem; border-radius:100px;
+    border:1.5px solid var(--rule); background:var(--white); color:var(--ink-soft); cursor:pointer; transition:all .18s; }
+  .feat-subject-chip:hover, .feat-subject-chip.picked { background:var(--green); border-color:var(--green); color:#fff; }
+
+  .feat-trial-btns { display:flex; gap:.4rem; }
+  .feat-trial-btns button { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--rule); background:var(--white); color:var(--ink);
+    font-family:'Sora',sans-serif; font-weight:700; font-size:.8rem; cursor:pointer; transition:all .18s; }
+  .feat-trial-btns button:hover { border-color:var(--blue); color:var(--blue); }
+  .feat-trial-btns button.tried-wrong { background:var(--red-bg); border-color:var(--red); color:var(--red-ink,var(--red)); }
+  .feat-trial-btns button.tried-right { background:var(--green-bg); border-color:var(--green); color:var(--green); }
 
   .home-cta-banner { padding:0; max-width:none; margin:0; }
   .home-cta-card { position:relative; overflow:hidden; background:var(--board);
@@ -1848,6 +1906,7 @@
     <symbol id="i-rocket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /> <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09" /> <path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" /> <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" /></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></symbol>
     <symbol id="i-flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /> <path d="M6.453 15h11.094" /> <path d="M8.5 2h7" /></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-5 4-9 12-10 1 8-3 12-10 12" /> <path d="M4 13c3 0 8 1 8 7" /></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /> <path d="M2 12h20" /></symbol>
     <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16" /> <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></symbol>
     <symbol id="i-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /> <rect width="20" height="14" x="2" y="6" rx="2" /></symbol>
@@ -2393,12 +2452,12 @@
 
       <div class="hero-eyebrow">Ontario · Grade 11 &amp; 12 · All courses</div>
       <h1 class="hero-wordmark">One platform.<br>Every course, <em>actually learned</em>.</h1>
-      <p class="hero-card-sub">From Functions to Chemistry to World History — Modilix turns every Grade 11 &amp; 12 course into something you interact with, not just read. Real unit structure, daily review, and a streak that keeps you coming back.</p>
+      <p class="hero-card-sub">From Functions to Chemistry to persuasive essays — Modilix turns every Grade 11 &amp; 12 course into something you try, get wrong, and try again, not just read. Simple explanations, real unit structure, and a streak that keeps you coming back.</p>
 
       <div class="hero-fan">
         <div class="hfan-card hfan-l4" style="background:linear-gradient(155deg,#6a5cf5,#4a2fbe);"><svg class="icon"><use href="#i-briefcase"/></svg><span>Business</span></div>
-        <div class="hfan-card hfan-l3" style="background:linear-gradient(155deg,#9575ff,#6a45e0);"><svg class="icon"><use href="#i-globe"/></svg><span>Social Science</span></div>
-        <div class="hfan-card hfan-l2" style="background:linear-gradient(155deg,#22b573,#0f7d50);"><svg class="icon"><use href="#i-flask"/></svg><span>Science</span></div>
+        <div class="hfan-card hfan-l3" style="background:linear-gradient(155deg,#3fae6e,#0f7d50);"><svg class="icon"><use href="#i-leaf"/></svg><span>Biology</span></div>
+        <div class="hfan-card hfan-l2" style="background:linear-gradient(155deg,#22b573,#0f7d50);"><svg class="icon"><use href="#i-flask"/></svg><span>Chemistry</span></div>
         <div class="hfan-card hfan-l1" style="background:linear-gradient(155deg,#f5a623,#d98816);"><svg class="icon"><use href="#i-book"/></svg><span>English</span></div>
 
         <div class="hero-demo-section">
@@ -2420,7 +2479,7 @@
 
         <div class="hfan-card hfan-r1" style="background:linear-gradient(155deg,#ff7a54,#e2431f);"><svg class="icon"><use href="#i-sigma"/></svg><span>Math</span></div>
         <div class="hfan-card hfan-r2" style="background:linear-gradient(155deg,#ff5a36,#ffb35c);"><svg class="icon"><use href="#i-flame"/></svg><span>Daily streaks</span></div>
-        <div class="hfan-card hfan-r3" style="background:linear-gradient(155deg,#4a2fbe,#7c5cff);"><svg class="icon"><use href="#i-brain"/></svg><span>Spaced review</span></div>
+        <div class="hfan-card hfan-r3" style="background:linear-gradient(155deg,#4a2fbe,#7c5cff);"><svg class="icon"><use href="#i-sliders"/></svg><span>Interactive practice</span></div>
         <div class="hfan-card hfan-r4" style="background:linear-gradient(155deg,#159a63,#4ecb96);"><svg class="icon"><use href="#i-trophy"/></svg><span>XP &amp; badges</span></div>
       </div>
 
@@ -2436,34 +2495,103 @@
   <section class="home-section">
     <div class="home-section-head">
       <div class="eyebrow">Why Modilix</div>
-      <h2>Learning that responds to <em>you</em>, not the other way around</h2>
+      <h2>Learn by doing, <em>not</em> by memorizing</h2>
+      <p class="home-section-sub">No walls of text to memorize — try something, see what happens, adjust, try again. Simple explanations plus trial-and-error practice, every single lesson. Tap any card below to feel how it works.</p>
     </div>
     <div class="home-feature-grid">
-      <div class="home-feature-card" id="feat-subjects">
-        <div class="home-feature-icon" style="background:var(--green-bg); color:var(--green);"><svg class="icon"><use href="#i-globe"/></svg></div>
-        <h3>Every subject, one place</h3>
-        <p>Math, Science, English, Social Science, Business — your whole Grade 11 &amp; 12 course load lives in one hub instead of five different sites.</p>
-      </div>
+
       <div class="home-feature-card" id="feat-interactive">
         <div class="home-feature-icon" style="background:var(--blue-bg); color:var(--blue);"><svg class="icon"><use href="#i-sliders"/></svg></div>
-        <h3>Interactive, not just readable</h3>
-        <p>Drag sliders, plot points, and manipulate real tools live — the same demo you just tried above shows up throughout every lesson.</p>
+        <h3>Interactive practice</h3>
+        <p>Drag sliders, plot points, and answer real questions live — you try it right there in the lesson instead of just reading about it.</p>
+        <div class="feat-demo" id="feat-demo-interactive">
+          <p class="feat-demo-prompt">Quick try — solve for x:</p>
+          <div class="feat-demo-row">
+            <span class="mono">2x = 8, x =</span>
+            <input type="text" inputmode="numeric" id="feat-practice-input" class="feat-demo-input" placeholder="?" maxlength="3" onkeydown="if(event.key==='Enter') checkFeatPractice();">
+            <button class="btn-sm btn-outline" onclick="checkFeatPractice()">Check</button>
+          </div>
+          <div class="feat-demo-feedback" id="feat-practice-feedback"></div>
+        </div>
+        <button class="feat-try-btn" onclick="toggleFeatDemo('feat-demo-interactive', this)">Try it <svg class="icon"><use href="#i-chevron-down"/></svg></button>
       </div>
+
+      <div class="home-feature-card" id="feat-trial-error">
+        <div class="home-feature-icon" style="background:var(--red-bg); color:var(--red-ink,var(--red));"><svg class="icon"><use href="#i-refresh-cw"/></svg></div>
+        <h3>Wrong answers are part of the plan</h3>
+        <p>No pressure to get it right the first time. Guess, see what happens, adjust, guess again — that's the actual method, not an exception to it.</p>
+        <div class="feat-demo" id="feat-demo-trial">
+          <p class="feat-demo-prompt">Guess the number, 1–5:</p>
+          <div class="feat-trial-btns" id="feat-trial-btns">
+            <button onclick="tryFeatGuess(1,this)">1</button>
+            <button onclick="tryFeatGuess(2,this)">2</button>
+            <button onclick="tryFeatGuess(3,this)">3</button>
+            <button onclick="tryFeatGuess(4,this)">4</button>
+            <button onclick="tryFeatGuess(5,this)">5</button>
+          </div>
+          <div class="feat-demo-feedback" id="feat-trial-feedback">Attempts so far: <span id="feat-trial-count">0</span></div>
+        </div>
+        <button class="feat-try-btn" onclick="toggleFeatDemo('feat-demo-trial', this)">Try it <svg class="icon"><use href="#i-chevron-down"/></svg></button>
+      </div>
+
       <div class="home-feature-card" id="feat-streaks">
         <div class="home-feature-icon" style="background:var(--teal-bg); color:var(--teal);"><svg class="icon"><use href="#i-flame"/></svg></div>
         <h3>Streaks that keep you consistent</h3>
         <p>A daily streak and XP system built to make five minutes of practice a habit, not a chore.</p>
+        <div class="feat-demo" id="feat-demo-streak">
+          <p class="feat-demo-prompt">Tap the flame a few times:</p>
+          <div class="feat-streak-demo-row">
+            <button class="feat-streak-flame-btn" id="feat-streak-flame-btn" onclick="bumpFeatStreak()" aria-label="Add a day to the demo streak"><svg class="icon"><use href="#i-flame"/></svg></button>
+            <div><div class="feat-streak-demo-num" id="feat-streak-demo-num">0</div><div class="feat-streak-demo-label">day streak</div></div>
+          </div>
+        </div>
+        <button class="feat-try-btn" onclick="toggleFeatDemo('feat-demo-streak', this)">Try it <svg class="icon"><use href="#i-chevron-down"/></svg></button>
       </div>
+
       <div class="home-feature-card" id="feat-review">
         <div class="home-feature-icon" style="background:var(--purple-bg); color:var(--purple);"><svg class="icon"><use href="#i-brain"/></svg></div>
         <h3>Spaced review, built in</h3>
-        <p>Daily Review resurfaces exactly the questions you're close to forgetting, using the same idea behind flashcard apps like Anki.</p>
+        <p>Daily Review resurfaces exactly the questions you're close to forgetting — the same idea behind flashcard apps like Anki.</p>
+        <div class="feat-demo" id="feat-demo-review">
+          <div class="feat-flashcard" id="feat-flashcard" onclick="flipFeatFlashcard()">
+            <div class="feat-flashcard-face feat-flashcard-front">What's the derivative of x²?</div>
+            <div class="feat-flashcard-face feat-flashcard-back">2x — tap to flip back</div>
+          </div>
+          <p class="feat-demo-hint">Tap the card to flip it</p>
+        </div>
+        <button class="feat-try-btn" onclick="toggleFeatDemo('feat-demo-review', this)">Try it <svg class="icon"><use href="#i-chevron-down"/></svg></button>
       </div>
+
       <div class="home-feature-card" id="feat-unit">
         <div class="home-feature-icon" style="background:var(--gold-bg); color:var(--gold-ink);"><svg class="icon"><use href="#i-chart"/></svg></div>
         <h3>Real unit structure</h3>
         <p>Every course is organized the way your class actually is — by unit, with worksheets building up to a proper unit test.</p>
+        <div class="feat-demo" id="feat-demo-unit">
+          <div class="feat-unit-row done" onclick="cycleFeatUnit(this)"><svg class="icon"><use href="#i-check"/></svg> Unit 1 — done</div>
+          <div class="feat-unit-row active" onclick="cycleFeatUnit(this)"><span class="feat-unit-dot"></span> Unit 2 — in progress</div>
+          <div class="feat-unit-row locked" onclick="cycleFeatUnit(this)"><svg class="icon"><use href="#i-lock"/></svg> Unit 3 — locked</div>
+        </div>
+        <button class="feat-try-btn" onclick="toggleFeatDemo('feat-demo-unit', this)">Try it <svg class="icon"><use href="#i-chevron-down"/></svg></button>
       </div>
+
+      <div class="home-feature-card" id="feat-subjects">
+        <div class="home-feature-icon" style="background:var(--green-bg); color:var(--green);"><svg class="icon"><use href="#i-globe"/></svg></div>
+        <h3>Every subject, one place</h3>
+        <p>Math, English, Business, Biology, and Chemistry all live in one hub instead of five different sites.</p>
+        <div class="feat-demo" id="feat-demo-subjects">
+          <p class="feat-demo-prompt">Tap a subject:</p>
+          <div class="feat-subject-chips" id="feat-subject-chips">
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Math','y = x² is just a parabola — drag a slider and watch it move.',this)">Math</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('English','Annotate a passage and get feedback on your reading, not just a mark.',this)">English</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Business','Build a mini income statement and watch the numbers react as you edit.',this)">Business</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Biology','Label a cell diagram and get told exactly which part you missed.',this)">Biology</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Chemistry','Balance an equation and watch the atoms count themselves.',this)">Chemistry</button>
+          </div>
+          <div class="feat-demo-feedback" id="feat-subject-feedback"></div>
+        </div>
+        <button class="feat-try-btn" onclick="toggleFeatDemo('feat-demo-subjects', this)">Try it <svg class="icon"><use href="#i-chevron-down"/></svg></button>
+      </div>
+
     </div>
   </section>
 
@@ -3845,6 +3973,96 @@ function initHeroDemo(){
 }
 document.addEventListener('DOMContentLoaded', initHeroDemo);
 if(document.readyState !== 'loading') initHeroDemo();
+
+/* ── Home page "Why Modilix" mini demos ──
+   Small, self-contained interactions so each pitch (interactive practice,
+   trial-and-error, streaks, spaced review, unit structure, subjects) is
+   something a visitor can actually try on the marketing page, not just
+   read about. Each is independent, keeps its own tiny bit of state, and
+   fails silently if its markup isn't present. */
+function toggleFeatDemo(demoId, btn){
+  const demo = document.getElementById(demoId);
+  if(!demo) return;
+  const opening = !demo.classList.contains('open');
+  demo.classList.toggle('open', opening);
+  btn.classList.toggle('open', opening);
+  btn.firstChild.textContent = opening ? 'Hide it ' : 'Try it ';
+}
+
+// Interactive practice card — trial and error with real feedback, no penalty for a wrong guess.
+function checkFeatPractice(){
+  const input = document.getElementById('feat-practice-input');
+  const fb = document.getElementById('feat-practice-feedback');
+  if(!input || !fb) return;
+  const val = Number(input.value.trim());
+  fb.classList.remove('correct','incorrect');
+  if(input.value.trim() === ''){ fb.textContent = 'Give it a guess — you can always try again.'; return; }
+  if(val === 4){ fb.textContent = "Exactly — x = 4. That's the whole loop: try, check, done."; fb.classList.add('correct'); }
+  else { fb.textContent = `Not quite — ${val || input.value} doesn't balance the equation. Try another number.`; fb.classList.add('incorrect'); }
+}
+
+// Wrong-answers-welcome card — every guess is logged and colour-coded, nothing resets on a miss.
+let featTrialTarget = 1 + Math.floor(Math.random()*5);
+let featTrialCount = 0;
+let featTrialSolved = false;
+function tryFeatGuess(n, btn){
+  if(featTrialSolved) return;
+  featTrialCount++;
+  const countEl = document.getElementById('feat-trial-count');
+  const fbEl = document.getElementById('feat-trial-feedback');
+  if(countEl) countEl.textContent = featTrialCount;
+  if(n === featTrialTarget){
+    btn.classList.add('tried-right');
+    featTrialSolved = true;
+    if(fbEl) fbEl.innerHTML = `Got it in ${featTrialCount} ${featTrialCount===1?'try':'tries'} — every attempt before that still counted. <span id="feat-trial-count" style="display:none;">${featTrialCount}</span>`;
+  } else {
+    btn.classList.add('tried-wrong');
+    if(fbEl) fbEl.innerHTML = `Not it — go again. Attempts so far: <span id="feat-trial-count">${featTrialCount}</span>`;
+  }
+}
+
+// Streak card — tapping simulates "another day" so the habit loop is felt, not just described.
+let featStreakDemoNum = 0;
+function bumpFeatStreak(){
+  featStreakDemoNum++;
+  const numEl = document.getElementById('feat-streak-demo-num');
+  const flameBtn = document.getElementById('feat-streak-flame-btn');
+  if(numEl) numEl.textContent = featStreakDemoNum;
+  if(flameBtn){
+    flameBtn.classList.add('lit');
+    flameBtn.style.transform = 'scale(1.12)';
+    setTimeout(()=>{ flameBtn.style.transform = ''; }, 180);
+  }
+}
+
+// Spaced review card — a real flip, same interaction used in Daily Review.
+function flipFeatFlashcard(){
+  document.getElementById('feat-flashcard')?.classList.toggle('flipped');
+}
+
+// Unit structure card — tapping a row previews what each state means, instead of just labeling it.
+function cycleFeatUnit(row){
+  const label = row.classList.contains('done') ? 'Completed units stay unlocked for review any time.'
+    : row.classList.contains('active') ? "You're partway through — pick up right where you left off."
+    : 'Locked units open automatically once the one before it is done.';
+  let note = row.querySelector('.feat-unit-note');
+  if(!note){
+    note = document.createElement('div');
+    note.className = 'feat-unit-note';
+    note.style.cssText = 'font-size:.72rem; color:var(--ink-faint); margin:-.2rem 0 .4rem .2rem;';
+    row.insertAdjacentElement('afterend', note);
+  }
+  note.textContent = label;
+}
+
+// Subjects card — picking a chip shows a one-line taste of that subject's interactive tool.
+function pickFeatSubject(name, blurb, btn){
+  document.querySelectorAll('#feat-subject-chips .feat-subject-chip').forEach(c=>c.classList.remove('picked'));
+  btn.classList.add('picked');
+  const fb = document.getElementById('feat-subject-feedback');
+  if(fb) fb.innerHTML = `<b>${name}:</b> ${blurb}`;
+}
+
 function fxMappingRuleStr(k, d, a, c){
   const xPart = (k===1) ? 'x' : `x/${k}`;
   const xFull = d===0 ? xPart : `${xPart} ${d>0?'+':'−'} ${Math.abs(d)}`;
