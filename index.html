@@ -315,7 +315,7 @@
   .hero-signin-option .icon { width:17px; height:17px; flex-shrink:0; color:rgba(246,244,239,.6); }
   .hero-signin-option:hover { background:rgba(255,255,255,.08); }
   .educator-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem;
-    padding:.55rem .5rem .55rem 1.1rem; border-radius:999px 10px 10px 999px; display:none; align-items:center; gap:.7rem;
+    padding:.55rem .5rem .55rem 1.1rem; border-radius:999px; display:none; align-items:center; gap:.7rem;
     background:linear-gradient(var(--board), var(--board)) padding-box, var(--brand-gradient) border-box; border:2px solid transparent; color:var(--board-ink); }
   .educator-badge.visible { display:flex; }
   .educator-badge button { background:none; border:none; cursor:pointer; font-size:.7rem; color:rgba(246,244,239,.75); text-decoration:underline; }
@@ -323,7 +323,7 @@
 
   /* ── centered headline + copy ── */
   .hero-body { position:relative; z-index:3; flex:1; display:flex; flex-direction:column; align-items:center;
-    text-align:center; padding:3.5rem 2rem 4.5rem; }
+    text-align:center; padding:1.25rem 2rem 4.5rem; }
   .hero-eyebrow { font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:.76rem; letter-spacing:.12em;
     text-transform:uppercase; color:var(--blue-dark); margin-bottom:1.3rem; display:inline-flex; align-items:center;
     gap:.55rem; background:var(--blue-bg); border-radius:100px; padding:.4rem .9rem .4rem .7rem; }
@@ -368,6 +368,49 @@
   .hfan-r4 { transform:rotateY(-36deg) translateY(-20px); }
   .hero-demo-section { margin:0 4px; }
   .hfan-card:hover { transform:translateY(-6px) !important; }
+  .hfan-card { cursor:pointer; }
+  .hfan-card:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+  .hfan-card .hfan-hint { position:absolute; top:8px; right:8px; z-index:1; width:16px; height:16px; border-radius:50%;
+    background:rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; }
+  .hfan-card .hfan-hint svg { width:9px; height:9px; color:#fff; }
+  .hfan-card:hover .hfan-hint { opacity:1; }
+  @keyframes hfanPop { 0% { transform:scale(1); } 40% { transform:scale(.93); } 100% { transform:scale(1); } }
+  .hfan-card.hfan-clicked { animation:hfanPop .34s var(--ease-premium); }
+
+  /* ── Hero fan info panel: real, backend-sourced content for each
+     tapped card (course codes, streak/XP mechanics, a live question) —
+     shown inline in the hero instead of redirecting anywhere. Brand
+     fonts throughout: Sora for headings/labels/buttons, Inter for body
+     copy, IBM Plex Mono for course codes and numbers. ── */
+  .hfan-panel { max-width:640px; margin:0 auto; width:100%; background:var(--paper); border:1.5px solid var(--rule); border-radius:18px;
+    max-height:0; opacity:0; overflow:hidden; transition:max-height .4s var(--ease-premium), opacity .3s, margin .4s; position:relative; }
+  .hfan-panel.open { max-height:520px; opacity:1; margin-top:2rem; padding:1.5rem 1.5rem 1.25rem; overflow-y:auto; }
+  .hfan-panel-close { position:absolute; top:.85rem; right:.85rem; width:26px; height:26px; border-radius:50%; border:none;
+    background:var(--paper-2); color:var(--ink-soft); font-size:.85rem; cursor:pointer; line-height:1; }
+  .hfan-panel-title { font-family:'Sora',sans-serif; font-weight:800; font-size:1.05rem; margin:0 1.9rem .8rem 0; text-align:left; }
+  .hfan-panel-copy { font-family:'Inter',sans-serif; font-size:.88rem; color:var(--ink-soft); line-height:1.6; text-align:left; margin-bottom:.85rem; }
+  .hfan-panel-empty { font-family:'Inter',sans-serif; font-size:.85rem; color:var(--ink-faint); text-align:left; }
+  .hfan-course-row, .hfan-course-rows-inline .hfan-course-row { display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+    padding:.6rem .15rem; border-bottom:1px solid var(--rule); text-align:left; }
+  .hfan-course-row:last-child { border-bottom:none; }
+  .hfan-course-code { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.85rem; color:var(--ink); }
+  .hfan-course-name { font-family:'Inter',sans-serif; font-size:.78rem; color:var(--ink-faint); margin-top:.1rem; }
+  .hfan-course-rows-inline { margin-top:.6rem; text-align:left; }
+  .hfan-xp-list { text-align:left; margin-bottom:1rem; }
+  .hfan-xp-row { display:flex; align-items:center; justify-content:space-between; padding:.4rem 0; border-bottom:1px dashed var(--rule);
+    font-family:'Inter',sans-serif; font-size:.82rem; color:var(--ink-soft); }
+  .hfan-xp-row b { font-family:'IBM Plex Mono',monospace; color:var(--ink); }
+  .hfan-quiz-q { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; text-align:left; margin-bottom:.7rem; }
+  .hfan-quiz-opts { display:grid; gap:.5rem; text-align:left; }
+  .hfan-quiz-opt { font-family:'Inter',sans-serif; font-size:.84rem; text-align:left; padding:.6rem .8rem; border-radius:10px;
+    border:1.5px solid var(--rule); background:var(--paper-2); color:var(--ink); cursor:pointer; transition:all .15s; }
+  .hfan-quiz-opt:hover:not(:disabled) { border-color:var(--blue); }
+  .hfan-quiz-opt.right { background:var(--green-bg); border-color:var(--green); color:var(--green); font-weight:600; }
+  .hfan-quiz-opt.wrong { background:var(--red-bg); border-color:var(--red); color:var(--red-ink,var(--red)); }
+  .hfan-quiz-opt:disabled { cursor:default; }
+  .hfan-quiz-feedback { font-family:'Sora',sans-serif; font-weight:700; font-size:.8rem; text-align:left; margin-top:.65rem; }
+  .hfan-quiz-feedback.correct { color:var(--green); }
+  .hfan-quiz-feedback.incorrect { color:var(--red); }
 
   /* ── small brand-color vector doodles scattered in the hero, gallery-poster style ── */
   .hero-vector { position:absolute; z-index:1; pointer-events:none; opacity:.55; }
@@ -422,7 +465,7 @@
 
   @media (max-width:900px){
     .hero-topbar { padding:1.4rem 1.5rem 0; }
-    .hero-body { padding:3rem 1.5rem 3.5rem; }
+    .hero-body { padding:1.25rem 1.5rem 3.5rem; }
   }
 
   /* ── Home page marketing sections ── */
@@ -2450,15 +2493,13 @@
         </defs>
       </svg>
 
-      <div class="hero-eyebrow">Ontario · Grade 11 &amp; 12 · All courses</div>
       <h1 class="hero-wordmark">One platform.<br>Every course, <em>actually learned</em>.</h1>
-      <p class="hero-card-sub">From Functions to Chemistry to persuasive essays — Modilix turns every Grade 11 &amp; 12 course into something you try, get wrong, and try again, not just read. Simple explanations, real unit structure, and a streak that keeps you coming back.</p>
 
       <div class="hero-fan">
-        <div class="hfan-card hfan-l4" style="background:linear-gradient(155deg,#6a5cf5,#4a2fbe);"><svg class="icon"><use href="#i-briefcase"/></svg><span>Business</span></div>
-        <div class="hfan-card hfan-l3" style="background:linear-gradient(155deg,#3fae6e,#0f7d50);"><svg class="icon"><use href="#i-leaf"/></svg><span>Biology</span></div>
-        <div class="hfan-card hfan-l2" style="background:linear-gradient(155deg,#22b573,#0f7d50);"><svg class="icon"><use href="#i-flask"/></svg><span>Chemistry</span></div>
-        <div class="hfan-card hfan-l1" style="background:linear-gradient(155deg,#f5a623,#d98816);"><svg class="icon"><use href="#i-book"/></svg><span>English</span></div>
+        <div class="hfan-card hfan-l4" style="background:linear-gradient(155deg,#6a5cf5,#4a2fbe);" role="button" tabindex="0" aria-label="Business — tap to see real Business course codes" onclick="hfanSubjectClick(this,'Business','business')" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-briefcase"/></svg><span>Business</span></div>
+        <div class="hfan-card hfan-l3" style="background:linear-gradient(155deg,#3fae6e,#0f7d50);" role="button" tabindex="0" aria-label="Biology — tap to see real Biology course codes" onclick="hfanSubjectClick(this,'Biology','science','biology')" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-leaf"/></svg><span>Biology</span></div>
+        <div class="hfan-card hfan-l2" style="background:linear-gradient(155deg,#22b573,#0f7d50);" role="button" tabindex="0" aria-label="Chemistry — tap to see real Chemistry course codes" onclick="hfanSubjectClick(this,'Chemistry','science','chemistry')" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-flask"/></svg><span>Chemistry</span></div>
+        <div class="hfan-card hfan-l1" style="background:linear-gradient(155deg,#f5a623,#d98816);" role="button" tabindex="0" aria-label="English — tap to see real English course codes" onclick="hfanSubjectClick(this,'English','english')" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-book"/></svg><span>English</span></div>
 
         <div class="hero-demo-section">
           <div class="hero-demo-card">
@@ -2477,10 +2518,15 @@
           </div>
         </div>
 
-        <div class="hfan-card hfan-r1" style="background:linear-gradient(155deg,#ff7a54,#e2431f);"><svg class="icon"><use href="#i-sigma"/></svg><span>Math</span></div>
-        <div class="hfan-card hfan-r2" style="background:linear-gradient(155deg,#ff5a36,#ffb35c);"><svg class="icon"><use href="#i-flame"/></svg><span>Daily streaks</span></div>
-        <div class="hfan-card hfan-r3" style="background:linear-gradient(155deg,#4a2fbe,#7c5cff);"><svg class="icon"><use href="#i-sliders"/></svg><span>Interactive practice</span></div>
-        <div class="hfan-card hfan-r4" style="background:linear-gradient(155deg,#159a63,#4ecb96);"><svg class="icon"><use href="#i-trophy"/></svg><span>XP &amp; badges</span></div>
+        <div class="hfan-card hfan-r1" style="background:linear-gradient(155deg,#ff7a54,#e2431f);" role="button" tabindex="0" aria-label="Math — tap to see Math courses and change the graph above" onclick="hfanMathClick(this)" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-sigma"/></svg><span>Math</span></div>
+        <div class="hfan-card hfan-r2" style="background:linear-gradient(155deg,#ff5a36,#ffb35c);" role="button" tabindex="0" aria-label="Daily streaks — tap to see how streaks work" onclick="hfanStreakClick(this)" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-flame"/></svg><span>Daily streaks</span></div>
+        <div class="hfan-card hfan-r3" style="background:linear-gradient(155deg,#4a2fbe,#7c5cff);" role="button" tabindex="0" aria-label="Interactive practice — tap to try a real practice question" onclick="hfanInteractiveClick(this)" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-sliders"/></svg><span>Interactive practice</span></div>
+        <div class="hfan-card hfan-r4" style="background:linear-gradient(155deg,#159a63,#4ecb96);" role="button" tabindex="0" aria-label="XP and badges — tap to see how XP is actually earned" onclick="hfanXpClick(this)" onkeydown="hfanKeyGo(event,this)"><span class="hfan-hint"><svg><use href="#i-sparkle"/></svg></span><svg class="icon"><use href="#i-trophy"/></svg><span>XP &amp; badges</span></div>
+      </div>
+
+      <div class="hfan-panel" id="hfan-panel">
+        <button class="hfan-panel-close" onclick="hfanPanelClose()" aria-label="Close">✕</button>
+        <div id="hfan-panel-body"></div>
       </div>
 
       <div class="hero-cta-bar" id="home-cta-signin-btn">
@@ -2581,11 +2627,11 @@
         <div class="feat-demo" id="feat-demo-subjects">
           <p class="feat-demo-prompt">Tap a subject:</p>
           <div class="feat-subject-chips" id="feat-subject-chips">
-            <button class="feat-subject-chip" onclick="pickFeatSubject('Math','y = x² is just a parabola — drag a slider and watch it move.',this)">Math</button>
-            <button class="feat-subject-chip" onclick="pickFeatSubject('English','Annotate a passage and get feedback on your reading, not just a mark.',this)">English</button>
-            <button class="feat-subject-chip" onclick="pickFeatSubject('Business','Build a mini income statement and watch the numbers react as you edit.',this)">Business</button>
-            <button class="feat-subject-chip" onclick="pickFeatSubject('Biology','Label a cell diagram and get told exactly which part you missed.',this)">Biology</button>
-            <button class="feat-subject-chip" onclick="pickFeatSubject('Chemistry','Balance an equation and watch the atoms count themselves.',this)">Chemistry</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Math','math',null,this)">Math</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('English','english',null,this)">English</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Business','business',null,this)">Business</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Biology','science','biology',this)">Biology</button>
+            <button class="feat-subject-chip" onclick="pickFeatSubject('Chemistry','science','chemistry',this)">Chemistry</button>
           </div>
           <div class="feat-demo-feedback" id="feat-subject-feedback"></div>
         </div>
@@ -4055,12 +4101,123 @@ function cycleFeatUnit(row){
   note.textContent = label;
 }
 
-// Subjects card — picking a chip shows a one-line taste of that subject's interactive tool.
-function pickFeatSubject(name, blurb, btn){
+// Subjects card — picking a chip shows the real course codes for that subject, pulled from the courses table.
+function pickFeatSubject(name, subjectKey, nameFilter, btn){
   document.querySelectorAll('#feat-subject-chips .feat-subject-chip').forEach(c=>c.classList.remove('picked'));
   btn.classList.add('picked');
   const fb = document.getElementById('feat-subject-feedback');
-  if(fb) fb.innerHTML = `<b>${name}:</b> ${blurb}`;
+  if(fb) fb.innerHTML = `<b>${esc(name)}:</b><div class="hfan-course-rows-inline">${hfanCourseRowsHTML(hfanCourseList(subjectKey, nameFilter))}</div>`;
+}
+
+/* ── Hero fan cards (Business/Biology/Chemistry/English/Math/streaks/
+   practice/XP) — each does something real on tap: course cards pull the
+   actual course codes out of Supabase and offer a real "Go to course"
+   button; streaks/XP show the real mechanics (and real numbers, if
+   signed in); Interactive practice serves an actual question from a
+   real course instead of an invented one. Nothing here is fake data. ── */
+function hfanPop(card){
+  card.classList.remove('hfan-clicked'); void card.offsetWidth; card.classList.add('hfan-clicked');
+}
+function hfanKeyGo(e, card){
+  if(e.key==='Enter' || e.key===' ' || e.key==='Spacebar'){ e.preventDefault(); card.click(); }
+}
+function hfanPanelOpen(title, html){
+  const panel = document.getElementById('hfan-panel');
+  const body = document.getElementById('hfan-panel-body');
+  if(!panel || !body) return;
+  body.innerHTML = `<h3 class="hfan-panel-title">${esc(title)}</h3>${html}`;
+  panel.classList.add('open');
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 60);
+}
+function hfanPanelClose(){
+  document.getElementById('hfan-panel')?.classList.remove('open');
+}
+function hfanCourseList(subjectKey, nameFilter){
+  const list = (typeof courses !== 'undefined' ? courses : []).filter(c=>{
+    if(c.subject !== subjectKey) return false;
+    if(nameFilter && !(c.name||'').toLowerCase().includes(nameFilter)) return false;
+    return true;
+  });
+  return list.slice().sort((a,b)=>(a.code||'').localeCompare(b.code||''));
+}
+function hfanCourseRowsHTML(list){
+  if(!list.length) return `<p class="hfan-panel-empty">Course codes are still loading — give it a second, or open the full catalog.</p>`;
+  return list.map(c=>`<div class="hfan-course-row">
+      <div><div class="hfan-course-code mono">${esc(c.code)}</div><div class="hfan-course-name">${esc(c.name)} · Grade ${esc(c.grade)}</div></div>
+      <button class="btn-sm btn-outline" onclick="hfanGoToCourse('${c.id}')">Go to course</button>
+    </div>`).join('');
+}
+function hfanGoToCourse(courseId){
+  hfanPanelClose();
+  if(currentUser){ openCourseDetail(courseId); }
+  else { studentModalMode='signup'; renderStudentModal(); openModal('student-overlay'); }
+}
+function hfanSubjectClick(card, label, subjectKey, nameFilter){
+  hfanPop(card);
+  hfanPanelOpen(`${label} courses on Modilix`, hfanCourseRowsHTML(hfanCourseList(subjectKey, nameFilter)));
+}
+function hfanMathClick(card){
+  hfanPop(card);
+  const sliders = ['hero-demo-a','hero-demo-d','hero-demo-c'].map(id=>document.getElementById(id));
+  if(sliders.every(Boolean)){
+    const [a,d,c] = sliders;
+    a.value = [-2,-1,-0.5,0.5,1,2][Math.floor(Math.random()*6)];
+    d.value = Math.round((Math.random()*8-4)*2)/2;
+    c.value = Math.round((Math.random()*8-4)*2)/2;
+    a.dispatchEvent(new Event('input'));
+  }
+  hfanPanelOpen('Math courses on Modilix', hfanCourseRowsHTML(hfanCourseList('math')));
+}
+function hfanStreakClick(card){
+  hfanPop(card);
+  let html;
+  if(currentUser){
+    html = `<p class="hfan-panel-copy">You're on a <b>${studentProgress.current_streak||0}-day streak</b> (longest: ${studentProgress.longest_streak||0}), with <b>${studentProgress.xp||0} XP</b> total. Finish one lesson or quiz today to keep it going.</p>
+      <button class="btn-sm btn-outline" onclick="hfanPanelClose(); showPage('dashboard');">Go to dashboard</button>`;
+  } else {
+    html = `<p class="hfan-panel-copy">Finish at least one lesson or quiz and your streak goes up by one — miss a day and it resets to zero. Premium's Streak Shield forgives one missed day. That's the whole mechanic.</p>
+      <button class="btn-sm btn-outline" onclick="hfanPanelClose(); studentModalMode='signup'; renderStudentModal(); openModal('student-overlay');">Start your streak — free</button>`;
+  }
+  hfanPanelOpen('How streaks actually work', html);
+}
+function hfanInteractiveClick(card){
+  hfanPop(card);
+  const pool = (typeof items !== 'undefined' ? items : []).filter(it=>it.status==='published' && Array.isArray(it.questions) && it.questions.length && typeof it.questions[0].correct === 'number');
+  if(!pool.length){
+    hfanPanelOpen('Interactive practice', `<p class="hfan-panel-empty">Practice questions are still loading — give it a second and try again.</p>`);
+    return;
+  }
+  const it = pool[Math.floor(Math.random()*pool.length)];
+  const q = it.questions[Math.floor(Math.random()*it.questions.length)];
+  const course = (typeof courses!=='undefined'?courses:[]).find(c=>c.id===it.courseId);
+  const optsHtml = (q.options||[]).map((opt,i)=>`<button class="hfan-quiz-opt" onclick="hfanQuizCheck(this,${i},${q.correct})">${esc(opt)}</button>`).join('');
+  const html = `<p class="hfan-panel-copy">A real question from <b>${course?esc(course.code):'a Modilix course'}</b> — ${esc(it.title)}:</p>
+    <p class="hfan-quiz-q">${esc(q.text)}</p>
+    <div class="hfan-quiz-opts">${optsHtml}</div>
+    <div class="hfan-quiz-feedback" id="hfan-quiz-feedback"></div>
+    ${course?`<button class="btn-sm btn-outline" style="margin-top:.75rem;" onclick="hfanGoToCourse('${course.id}')">Go to ${esc(course.code)}</button>`:''}`;
+  hfanPanelOpen('Try a real question', html);
+}
+function hfanQuizCheck(btn, i, correct){
+  document.querySelectorAll('.hfan-quiz-opt').forEach(b=>b.disabled = true);
+  const opts = document.querySelectorAll('.hfan-quiz-opt');
+  const fb = document.getElementById('hfan-quiz-feedback');
+  if(i===correct){
+    btn.classList.add('right');
+    if(fb){ fb.classList.add('correct'); fb.textContent = 'Correct.'; }
+  } else {
+    btn.classList.add('wrong');
+    if(opts[correct]) opts[correct].classList.add('right');
+    if(fb){ fb.classList.add('incorrect'); fb.textContent = "Not quite — that's the trial-and-error loop in action. See the right answer above."; }
+  }
+}
+function hfanXpClick(card){
+  hfanPop(card);
+  const rows = [['Correct multiple-choice answer','+5 XP each'],['Finishing a quiz or test','+10 XP bonus'],['Finishing a lesson','+20 XP'],['Daily Review session','+10 XP, +2 per correct card'],['Using a hint','\u22122 XP']];
+  const rowsHtml = rows.map(r=>`<div class="hfan-xp-row"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join('');
+  const totalLine = currentUser ? `<p class="hfan-panel-copy">You currently have <b>${studentProgress.xp||0} XP</b>. Here's how you got there:</p>` : `<p class="hfan-panel-copy">Here's exactly how XP is earned — no randomness, no fake numbers:</p>`;
+  const cta = currentUser ? `<button class="btn-sm btn-outline" onclick="hfanPanelClose(); showPage('dashboard');">Go to dashboard</button>` : `<button class="btn-sm btn-outline" onclick="hfanPanelClose(); studentModalMode='signup'; renderStudentModal(); openModal('student-overlay');">Sign up to start earning</button>`;
+  hfanPanelOpen('How XP actually works', `${totalLine}<div class="hfan-xp-list">${rowsHtml}</div>${cta}`);
 }
 
 function fxMappingRuleStr(k, d, a, c){
