@@ -328,12 +328,23 @@
   .educator-badge button { background:none; border:none; cursor:pointer; font-size:.7rem; color:rgba(246,244,239,.75); text-decoration:underline; white-space:nowrap; flex-shrink:0; }
   #account-badge-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   @media (max-width:640px){
-    .hero-btn-signin, .hero-logo-word { font-size:.72rem; } .hero-btn-start { padding:.55rem 1rem; }
-    .hero-topbar-actions { width:100%; flex-wrap:wrap; row-gap:.5rem; }
-    .hero-topbar-actions .hero-signin-wrap, .hero-topbar-actions .hero-btn-start { flex:1; }
-    .hero-topbar-actions .hero-btn-signin { width:100%; }
+    .hero-topbar { flex-wrap:nowrap; gap:.4rem; padding:1.1rem 1rem 0; }
+    .hero-logo-pill { padding:.4rem .5rem .4rem .65rem; gap:.4rem; flex-shrink:0; }
+    .hero-nav-pill-badge { width:19px; height:19px; }
+    .hero-logo-div { display:none; }
+    .hero-nav-pill-menu { width:24px; height:24px; }
+    .hero-btn-signin, .hero-logo-word { font-size:.68rem; }
+    .hero-btn-signin, .hero-btn-start { padding:.5rem .8rem; white-space:nowrap; }
+    .hero-btn-start { font-size:.68rem; }
+    .hero-topbar-actions { flex-wrap:nowrap; gap:.35rem; flex-shrink:0; }
+    .hero-topbar-actions .hero-signin-wrap, .hero-topbar-actions .hero-btn-start { flex:0 0 auto; }
+    .hero-topbar-actions .hero-btn-signin { width:auto; }
     .educator-badge { font-size:.68rem; padding:.45rem .55rem .45rem .85rem; gap:.5rem; width:100%; justify-content:space-between; }
     #account-badge-text { max-width:calc(100% - 4.2rem); }
+  }
+  @media (max-width:400px){
+    .hero-logo-word { display:none; }
+    .hero-btn-signin, .hero-btn-start { padding:.45rem .6rem; font-size:.64rem; }
   }
   @media (max-width:400px){ #account-badge-text { max-width:calc(100% - 3.6rem); font-size:.66rem; } }
 
