@@ -112,8 +112,8 @@
   .btn-primary:hover { box-shadow:var(--shadow-glow-blue); transform:translateY(-1px); filter:brightness(1.05); background-position:100% 50%; }
   .btn-primary:active { transform:translateY(0) scale(.97); box-shadow:0 2px 6px rgba(255,90,54,.25); }
 
-  nav { transition:box-shadow .25s ease, background .25s ease; }
-  nav.scrolled { box-shadow:var(--shadow-glow-board); background:linear-gradient(180deg, var(--board-2), var(--board)); backdrop-filter:blur(10px); }
+  #site-nav { transition:box-shadow .25s ease, background .25s ease; }
+  #site-nav.scrolled { box-shadow:var(--shadow-glow-board); background:linear-gradient(180deg, var(--board-2), var(--board)); backdrop-filter:blur(10px); }
 
   .lp-block { animation:fadeInUp .4s cubic-bezier(.22,1,.36,1) both; }
   .lp-feedback { animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both; }
@@ -200,7 +200,7 @@
   }
 
   /* ── NAV ── */
-  nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
+  #site-nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
     display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:60px;
     border-bottom:1px solid rgba(255,255,255,.08); gap:.5rem; }
   .nav-logo { flex-shrink:0; }
@@ -250,10 +250,14 @@
      (hero-signin-btn, hero-signup-btn, hero-demo-*, etc.) — only the visual
      language changed. ── */
   .hero { position:relative; z-index:0; width:100%; min-height:100vh; overflow:hidden;
-    display:flex; flex-direction:column; background:var(--paper);
-    animation:heroCardIn .6s var(--ease-premium) both; }
+    display:flex; flex-direction:column; background:var(--paper); }
   @keyframes heroCardIn { 0% { opacity:0; } 100% { opacity:1; } }
-  @media (prefers-reduced-motion:reduce){ .hero { animation:none; } }
+  /* The fade-in lives on the content layers (topbar/body), not on .hero itself —
+     animating opacity on the element that also carries the masked, repeating dot
+     background caused some browsers to leave that background stuck mid-transition
+     (a dead band with no dots) after the animation settled. */
+  .hero-topbar, .hero-body { animation:heroCardIn .6s var(--ease-premium) both; }
+  @media (prefers-reduced-motion:reduce){ .hero-topbar, .hero-body { animation:none; } }
   .hero::before { content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
     background-image:radial-gradient(var(--rule) 1.4px, transparent 1.4px);
     background-size:26px 26px; background-position:-4px -4px;
@@ -325,7 +329,9 @@
   #account-badge-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
   @media (max-width:640px){
     .hero-btn-signin, .hero-logo-word { font-size:.72rem; } .hero-btn-start { padding:.55rem 1rem; }
-    .hero-topbar-actions { width:100%; justify-content:flex-end; flex-wrap:wrap; row-gap:.5rem; }
+    .hero-topbar-actions { width:100%; flex-wrap:wrap; row-gap:.5rem; }
+    .hero-topbar-actions .hero-signin-wrap, .hero-topbar-actions .hero-btn-start { flex:1; }
+    .hero-topbar-actions .hero-btn-signin { width:100%; }
     .educator-badge { font-size:.68rem; padding:.45rem .55rem .45rem .85rem; gap:.5rem; width:100%; justify-content:space-between; }
     #account-badge-text { max-width:calc(100% - 4.2rem); }
   }
@@ -1883,7 +1889,6 @@
     .nav-streak, .nav-xp { font-size:.7rem; padding:.3rem .5rem; }
     nav { padding:0 1.25rem; }
     .nav-links { right:1.25rem; top:52px; }
-    .hero { padding:6.5rem 1.25rem 3rem; }
     .subject-section { padding:2rem 1.25rem; }
     .cd-hero { padding:6rem 1.25rem 2rem; }
     .cd-layout { padding:1.75rem 1.25rem 3rem; }
@@ -4659,7 +4664,7 @@ document.addEventListener('click', (e)=>{
   }
 });
 document.addEventListener('click',e=>{if(!navToggle.contains(e.target)&&!navLinks.contains(e.target))closeNav();});
-const mainNavEl = document.querySelector('nav');
+const mainNavEl = document.getElementById('site-nav');
 window.addEventListener('scroll', ()=>{ mainNavEl.classList.toggle('scrolled', window.scrollY > 8); }, { passive:true });
 
 // Body scroll lock — without this, scrolling while a modal/overlay is open just
