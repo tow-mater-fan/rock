@@ -1878,22 +1878,42 @@
   html[data-ember-skin="ember_skin_royal"] #ember-svg,
   html[data-ember-skin="ember_skin_royal"] .tutor-avatar { filter: hue-rotate(210deg) saturate(1.2) brightness(1.05); }
 
-  /* ── Rewards Shop ── */
+  /* ── Rewards Shop ──────────────────────────────────────────────────
+     Signature move: the wallet-style hero at the top of the modal is the
+     one place the token coin gets to be big and a little showy (brand
+     gradient glow + a slow idle float) — everything below it stays quiet
+     so the coin and the balance are what you remember. */
+  .rewards-hero { display:flex; align-items:center; gap:1.1rem; background:var(--brand-gradient-subtle);
+    border:1px solid var(--rule); border-radius:20px; padding:1.1rem 1.3rem; margin-top:1rem; }
+  .rewards-hero-coin { flex-shrink:0; line-height:0; }
+  .rewards-hero-coin .icon { width:60px; height:60px; filter:drop-shadow(0 8px 18px rgba(139,60,232,.35)); animation:rewardsCoinFloat 3.4s ease-in-out infinite; }
+  @keyframes rewardsCoinFloat { 0%,100% { transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-4px) rotate(-4deg); } }
+  @media (prefers-reduced-motion: reduce) { .rewards-hero-coin .icon { animation:none; } }
+  .rewards-hero-info { flex:1; min-width:0; }
+  .rewards-hero-balance-row { display:flex; align-items:baseline; gap:.45rem; }
+  .rewards-hero-balance { font-family:'Fraunces',serif; font-weight:700; font-size:2.3rem; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .rewards-hero-balance-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--ink-soft); }
+  .rewards-hero-hint { font-size:.82rem; color:var(--ink-soft); margin-top:.3rem; line-height:1.45; max-width:36ch; }
+
   .reward-section-title { font-family:'Sora',sans-serif; font-weight:800; font-size:.82rem; text-transform:uppercase; letter-spacing:.04em;
-    color:var(--ink-faint); margin:1.1rem 0 .55rem; }
+    color:var(--ink-faint); margin:1.3rem 0 .6rem; }
   .reward-section-title:first-child { margin-top:0; }
-  .reward-item { display:flex; align-items:center; gap:.85rem; padding:.8rem .9rem; border-radius:14px; border:1px solid var(--rule);
-    margin-bottom:.5rem; background:var(--paper); }
-  .reward-item-swatch { width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; }
+  .reward-item { display:flex; align-items:center; gap:1rem; padding:.95rem 1.05rem; border-radius:16px; border:1px solid var(--rule);
+    margin-bottom:.55rem; background:var(--paper); transition:border-color .15s var(--ease-premium), box-shadow .15s var(--ease-premium), opacity .15s; }
+  .reward-item:hover { border-color:var(--purple); box-shadow:var(--shadow-sm); }
+  .reward-item.is-unaffordable { opacity:.72; }
+  .reward-item-swatch { width:46px; height:46px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:var(--shadow-xs); }
+  .reward-item-swatch .icon { width:22px; height:22px; }
   .reward-item-body { flex:1; min-width:0; }
-  .reward-item-name { font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; color:var(--ink); }
-  .reward-item-desc { font-size:.78rem; color:var(--ink-faint); margin-top:.1rem; line-height:1.4; }
-  .reward-item-action { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:.3rem; }
-  .reward-cost { font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--ink-soft); display:flex; align-items:center; gap:.25rem; }
-  .reward-cost .icon { width:.9em; height:.9em; color:var(--purple); }
+  .reward-item-name { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--ink); display:flex; align-items:center; gap:.4rem; }
+  .reward-item-desc { font-size:.79rem; color:var(--ink-faint); margin-top:.15rem; line-height:1.4; }
+  .reward-item-action { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:.35rem; }
+  .reward-cost { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.86rem; color:var(--ink); display:flex; align-items:center; gap:.3rem; }
+  .reward-cost .icon { width:1.25em; height:1.25em; }
+  .reward-need-more { font-family:'Inter',sans-serif; font-size:.68rem; color:var(--ink-faint); white-space:nowrap; }
   .reward-buy-btn { font-family:'Sora',sans-serif; font-weight:700; font-size:.74rem; padding:.4rem .85rem; border-radius:100px; border:1.5px solid var(--purple);
     background:var(--purple); color:#fff; cursor:pointer; transition:all .15s; white-space:nowrap; }
-  .reward-buy-btn:hover { filter:brightness(1.08); }
+  .reward-buy-btn:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
   .reward-buy-btn:disabled { background:var(--paper-2); border-color:var(--rule); color:var(--ink-faint); cursor:not-allowed; }
   .reward-buy-btn.owned { background:var(--green-bg); border-color:var(--green); color:var(--green-dark); }
   .reward-buy-btn.equipped { background:var(--green); border-color:var(--green); color:#fff; }
@@ -2167,9 +2187,15 @@
   <div class="modal wide">
     <button class="modal-close" id="rewards-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow">Rewards Shop</div>
-    <h2 style="display:flex; align-items:center; gap:.5rem;">Spend your Tokens <svg class="icon" style="color:var(--purple);"><use href="#i-token"/></svg></h2>
-    <p class="desc">You have <strong id="rewards-balance">0</strong> Tokens. Earn more by finishing lessons and quizzes and keeping your streak alive.</p>
-    <div id="rewards-list" style="max-height:56vh; overflow-y:auto; padding-right:.4rem; margin-top:.6rem;"></div>
+    <h2>Spend your Tokens</h2>
+    <div class="rewards-hero">
+      <div class="rewards-hero-coin" aria-hidden="true"><svg class="icon"><use href="#i-token"/></svg></div>
+      <div class="rewards-hero-info">
+        <div class="rewards-hero-balance-row"><span class="rewards-hero-balance" id="rewards-balance">0</span><span class="rewards-hero-balance-label">Tokens</span></div>
+        <p class="rewards-hero-hint">Earn more by finishing lessons and quizzes, and keeping your streak alive.</p>
+      </div>
+    </div>
+    <div id="rewards-list" style="max-height:50vh; overflow-y:auto; padding-right:.4rem; margin-top:1.1rem;"></div>
   </div>
 </div>
 
@@ -5668,20 +5694,24 @@ function renderRewardsModal(){
       const visual = REWARD_VISUALS[item.key] || { bg:'var(--purple)', icon:'i-token' };
       const owned = ownedRewards[item.key];
       const equippedKey = ['frame','ember_skin','confetti'].includes(item.category) ? equippedKeyForCategory(item.category) : null;
-      let actionHtml;
+      const balance = studentProgress.tokens||0;
+      const afford = balance >= item.cost_tokens;
+      const shortBy = item.cost_tokens - balance;
+      let actionHtml, needMoreHtml = '';
       if(item.consumable){
         const qty = owned || 0;
         const atMax = item.max_qty && qty >= item.max_qty;
-        const afford = (studentProgress.tokens||0) >= item.cost_tokens;
         actionHtml = `<button class="reward-buy-btn" ${(atMax||!afford)?'disabled':''} onclick="buyReward('${item.key}')">${atMax ? 'Max held' : `Buy (own ${qty})`}</button>`;
+        if(!atMax && !afford) needMoreHtml = `<div class="reward-need-more">Need ${shortBy} more</div>`;
       } else if(owned){
         const equipped = equippedKey === item.key;
         actionHtml = `<button class="reward-buy-btn ${equipped?'equipped':'owned'}" onclick="equipReward('${item.category}','${equipped?'':item.key}')">${equipped ? '✓ Equipped' : 'Equip'}</button>`;
       } else {
-        const afford = (studentProgress.tokens||0) >= item.cost_tokens;
         actionHtml = `<button class="reward-buy-btn" ${afford?'':'disabled'} onclick="buyReward('${item.key}')">Buy</button>`;
+        if(!afford) needMoreHtml = `<div class="reward-need-more">Need ${shortBy} more</div>`;
       }
-      return `<div class="reward-item">
+      const isUnaffordable = !owned && !afford;
+      return `<div class="reward-item${isUnaffordable?' is-unaffordable':''}">
         <div class="reward-item-swatch" style="background:${visual.bg};"><svg class="icon"><use href="#${visual.icon}"/></svg></div>
         <div class="reward-item-body">
           <div class="reward-item-name">${item.name}</div>
@@ -5690,6 +5720,7 @@ function renderRewardsModal(){
         <div class="reward-item-action">
           <div class="reward-cost"><svg class="icon"><use href="#i-token"/></svg> ${item.cost_tokens}</div>
           ${actionHtml}
+          ${needMoreHtml}
         </div>
       </div>`;
     }).join('');
