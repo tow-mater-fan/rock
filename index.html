@@ -1608,9 +1608,67 @@
     background:var(--blue-bg); color:var(--blue); text-decoration:none; display:inline-flex; align-items:center; gap:.3rem; }
   .file-pill:hover { background:var(--blue); color:var(--white); }
 
-  footer { background:var(--board); padding:2.25rem 2.5rem 1.5rem; }
-  .footer-inner { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; max-width:1200px; margin:0 auto; }
-  .footer-copy { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:rgba(246,244,239,.4); }
+  footer.site-footer {
+    position: relative;
+    background: var(--board);
+    padding: 3.5rem 2.5rem 1.75rem;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .footer-glow {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(60% 140% at 18% 30%, rgba(255,209,102,.16), transparent 60%),
+      radial-gradient(55% 130% at 45% 55%, rgba(255,90,54,.14), transparent 62%),
+      radial-gradient(60% 140% at 75% 45%, rgba(180,107,255,.14), transparent 60%),
+      radial-gradient(65% 150% at 100% 30%, rgba(74,47,190,.18), transparent 65%);
+    filter: blur(2px);
+  }
+  .footer-inner { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem;
+    flex-wrap: wrap; padding-bottom: 2.75rem; border-bottom: 1px solid rgba(246,244,239,.1);
+  }
+  .footer-blurb {
+    font-family: 'Inter',sans-serif; font-size: .92rem; line-height: 1.6; color: rgba(246,244,239,.62);
+    max-width: 460px;
+  }
+  .footer-nav { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+  .footer-nav a {
+    font-family: 'IBM Plex Mono',monospace; font-size: .74rem; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: rgba(246,244,239,.75); text-decoration: none; cursor: pointer;
+    transition: color .18s var(--ease-premium);
+  }
+  .footer-nav a:hover { color: var(--board-ink); }
+  .footer-wordmark-row {
+    display: flex; align-items: center; gap: clamp(.6rem,1.6vw,1.5rem);
+    padding: 2.25rem 0 1.75rem;
+  }
+  .footer-wordmark-badge { width: clamp(2.2rem,5vw,4.2rem); height: clamp(2.2rem,5vw,4.2rem); flex-shrink: 0; }
+  .footer-wordmark {
+    font-family: 'Sora',sans-serif; font-weight: 800; letter-spacing: -.03em; line-height: .95;
+    font-size: clamp(2.8rem, 9vw, 7.5rem); color: var(--board-ink);
+  }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+    padding-top: 1.5rem; border-top: 1px solid rgba(246,244,239,.1);
+  }
+  .footer-copy {
+    font-family: 'Sora',sans-serif; font-weight: 600; font-size: .72rem; color: rgba(246,244,239,.4);
+  }
+  .footer-location {
+    font-family: 'IBM Plex Mono',monospace; font-size: .7rem; letter-spacing: .1em; color: rgba(246,244,239,.4);
+  }
+  .footer-legal a {
+    font-family: 'IBM Plex Mono',monospace; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase;
+    color: rgba(246,244,239,.4); text-decoration: none; cursor: pointer; transition: color .18s var(--ease-premium);
+  }
+  .footer-legal a:hover { color: rgba(246,244,239,.75); }
+  @media (max-width:640px){
+    footer.site-footer { padding: 2.5rem 1.25rem 1.5rem; }
+    .footer-top { align-items: flex-start; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  }
 
   @media(max-width:900px){
     .cd-layout { grid-template-columns:1fr; }
@@ -3468,10 +3526,38 @@
   </div>
 </div>
 
-<footer>
+<footer class="site-footer">
+  <div class="footer-glow" aria-hidden="true"></div>
   <div class="footer-inner">
-    <div class="footer-copy">Modilix — original practice material for Ontario high school students.</div>
-    <div class="footer-copy"><a href="#" id="footer-privacy-link" style="color:inherit; text-decoration:underline;">Privacy Policy</a> · <a href="mailto:modilix@outlook.com" style="color:inherit; text-decoration:underline;">modilix@outlook.com</a> · © 2025</div>
+
+    <div class="footer-top">
+      <p class="footer-blurb">Students lose hours hunting for practice that matches their actual course. Modilix turns any Ontario course into instant practice, real-time feedback, and progress you can see.</p>
+      <nav class="footer-nav">
+        <a onclick="showPage('courses')">Courses</a>
+        <a href="mailto:modilix@outlook.com">Support</a>
+        <a href="#" id="footer-privacy-link">Privacy Policy</a>
+      </nav>
+    </div>
+
+    <div class="footer-wordmark-row">
+      <svg class="footer-wordmark-badge" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="footerBrandGrad" cx="30%" cy="25%" r="85%">
+            <stop offset="0" stop-color="#ffd166"/><stop offset=".4" stop-color="#ff5a36"/><stop offset=".75" stop-color="#b46bff"/><stop offset="1" stop-color="#4a2fbe"/>
+          </radialGradient>
+        </defs>
+        <rect width="40" height="40" rx="13" fill="url(#footerBrandGrad)"/>
+        <path d="M9 29 L9 12 L20 21 L31 12 L31 29 L25.5 29 L25.5 18.5 L20 23.5 L14.5 18.5 L14.5 29 Z" fill="#fff"/>
+      </svg>
+      <span class="footer-wordmark">Modilix</span>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Modilix, Inc. All rights reserved.</div>
+      <div class="footer-location">ONTARIO · CANADA</div>
+      <div class="footer-legal"><a href="#" id="footer-privacy-link-2">Privacy Policy</a></div>
+    </div>
+
   </div>
 </footer>
 
@@ -9557,6 +9643,7 @@ document.getElementById('educator-signin-btn').onclick = ()=>{ document.getEleme
 document.getElementById('educator-close').onclick = ()=>closeModal('educator-overlay');
 document.getElementById('privacy-close').onclick = ()=>closeModal('privacy-overlay');
 document.getElementById('footer-privacy-link').onclick = (e)=>{ e.preventDefault(); openModal('privacy-overlay'); };
+document.getElementById('footer-privacy-link-2').onclick = (e)=>{ e.preventDefault(); openModal('privacy-overlay'); };
 document.getElementById('educator-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('educator-email').value.trim();
   const password = document.getElementById('educator-pass').value;
