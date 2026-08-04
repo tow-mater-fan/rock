@@ -2968,6 +2968,58 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="privacy-overlay">
+  <div class="modal wide">
+    <button class="modal-close" id="privacy-close"><svg class="icon"><use href="#i-close"/></svg></button>
+    <div class="modal-eyebrow">Legal</div>
+    <h2>Privacy Policy</h2>
+    <p style="color:var(--ink-faint); font-size:.8rem; margin-bottom:1rem;">Last updated August 3, 2026</p>
+    <div style="max-height:65vh; overflow-y:auto; padding-right:.5rem; color:var(--ink-soft); font-size:.88rem; line-height:1.65;">
+      <p>Modilix ("we", "us") provides online course practice, lessons, and tools for students and educators. This policy explains what information we collect, why, and what choices you have. It applies to the Modilix website and app.</p>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Information we collect</h3>
+      <ul style="padding-left:1.2rem; margin:.4rem 0;">
+        <li><strong>Account info:</strong> email address and password (handled by our authentication provider, Supabase — we never see your raw password), or your Google account info (name, email, profile photo) if you sign in with Google.</li>
+        <li><strong>Profile & school info:</strong> your role (student/educator), display name, avatar, and school/class association if you join or create a school.</li>
+        <li><strong>Learning activity:</strong> course progress, quiz/test answers and scores, XP, streaks, notes, and discussion posts you create.</li>
+        <li><strong>AI tutor conversations:</strong> messages you send to the in-lesson AI tutor are sent to our AI provider (Google Gemini) to generate a response, and a usage count is stored so we can enforce fair-use limits.</li>
+        <li><strong>Payment info:</strong> if you subscribe to Premium, payment is processed by Stripe. We do not store your card details — Stripe shares with us only what's needed to manage your subscription (plan, status, billing dates).</li>
+        <li><strong>Device & technical data:</strong> a randomly generated device identifier stored in your browser, and your IP address at signup, used only to prevent spam accounts and abuse of free trials — not to track you across the web.</li>
+      </ul>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">How we use it</h3>
+      <ul style="padding-left:1.2rem; margin:.4rem 0;">
+        <li>To provide the service: save your progress, show your courses, run the AI tutor, and process subscriptions.</li>
+        <li>To keep the platform trustworthy: detect and limit spam signups, fraudulent free-trial claims, and abusive posting.</li>
+        <li>To communicate with you about your account, such as billing or security notices.</li>
+        <li>We do not sell your personal information, and we do not use your learning data for advertising.</li>
+      </ul>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Students & minors</h3>
+      <p>Modilix is built for high school students, many of whom are minors. Educators create or manage school/class associations, and we collect only the information needed to run the course (progress, scores, and account basics) — not more than a typical school platform would need. Parents or guardians with questions about a student's data can contact us using the details below.</p>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Data sharing</h3>
+      <p>We share data only with the service providers that help us run Modilix — Supabase (database & authentication), Google/Firebase (sign-in), Google Gemini (AI tutor responses), and Stripe (payments) — each bound by their own privacy and security obligations. We don't share your data with advertisers or data brokers.</p>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Your choices</h3>
+      <ul style="padding-left:1.2rem; margin:.4rem 0;">
+        <li>You can review and update your profile info from Settings at any time.</li>
+        <li>You can delete your account from Settings, which removes your profile and associated learning data.</li>
+        <li>You can ask us to access, correct, or delete your personal data by contacting us.</li>
+      </ul>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Data retention & security</h3>
+      <p>We keep your data for as long as your account is active, or as needed to provide the service and meet legal obligations. Data is stored with our infrastructure provider (Supabase) using encryption in transit and access controls limiting who can see it.</p>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Changes to this policy</h3>
+      <p>If we make material changes, we'll update the date at the top of this page and, where appropriate, notify you in the app.</p>
+
+      <h3 style="margin-top:1.1rem; color:var(--ink);">Contact us</h3>
+      <p>Questions about this policy or your data? Reach out via the support link in your account settings.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════ MODALS ═══════ -->
 <div class="modal-overlay" id="educator-overlay">
   <div class="modal">
@@ -2994,6 +3046,10 @@
         <input type="text" id="educator-join-code" placeholder="e.g. DEMO2026" autocomplete="off">
       </div>
     </div>
+    <label id="educator-privacy-row" style="display:none; align-items:flex-start; gap:.55rem; font-size:.78rem; color:var(--ink-soft); line-height:1.4; margin:.2rem 0 .9rem; cursor:pointer;">
+      <input type="checkbox" id="educator-privacy-check" style="margin-top:.2rem; flex-shrink:0;">
+      <span>I agree to the <a href="#" id="educator-privacy-link" style="color:var(--blue); text-decoration:underline;">Privacy Policy</a> and Terms.</span>
+    </label>
     <button class="modal-btn" id="educator-confirm-btn">Sign in</button>
     <button class="modal-btn secondary" id="educator-toggle-mode-btn">Need an account? Sign up</button>
     <div class="modal-error" id="educator-error"></div>
@@ -3040,6 +3096,10 @@
     <div class="form-group"><label for="student-email-input">Email</label><input type="email" id="student-email-input" placeholder="you@example.com" autocomplete="off"></div>
     <div class="form-group"><label for="student-password-input">Password</label><input type="password" id="student-password-input" placeholder="••••••••" autocomplete="off"></div>
     <div class="form-group" id="student-join-code-group" style="display:none;"><label for="student-join-code">School join code <span style="color:var(--ink-faint); font-weight:500;">(optional)</span></label><input type="text" id="student-join-code" placeholder="e.g. DEMO2026 — or skip, join anytime in Settings" autocomplete="off"></div>
+    <label id="student-privacy-row" style="display:none; align-items:flex-start; gap:.55rem; font-size:.78rem; color:var(--ink-soft); line-height:1.4; margin:.2rem 0 .9rem; cursor:pointer;">
+      <input type="checkbox" id="student-privacy-check" style="margin-top:.2rem; flex-shrink:0;">
+      <span>I agree to the <a href="#" id="student-privacy-link" style="color:var(--blue); text-decoration:underline;">Privacy Policy</a> and Terms.</span>
+    </label>
     <button class="modal-btn" id="student-confirm-btn">Sign in</button>
     <button class="modal-btn secondary" id="student-toggle-mode-btn">Need an account? Sign up</button>
     <div class="modal-error" id="student-error"></div>
@@ -3389,7 +3449,7 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-copy">Modilix — original practice material for Ontario high school students.</div>
-    <div class="footer-copy">© 2025</div>
+    <div class="footer-copy"><a href="#" id="footer-privacy-link" style="color:inherit; text-decoration:underline;">Privacy Policy</a> · © 2025</div>
   </div>
 </footer>
 
@@ -3406,6 +3466,42 @@ const SUPABASE_URL = 'https://oohclfpwffhrlwwseotz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vaGNsZnB3ZmZocmx3d3Nlb3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjg2MzYsImV4cCI6MjA5ODg0NDYzNn0.iW_1x03_-77E2QnM_C2Dg10SIY_f1Tcz3tsojz2UU1s';
 const FILES_BUCKET = 'course-files';
 const AVATAR_BUCKET = 'avatars';
+const PRIVACY_POLICY_VERSION = '2026-08-03';
+
+/* ══════════════════════════════════════
+   Signup abuse prevention
+   A persistent per-browser id, sent to the check-signup-limit edge function
+   before we ever call auth.signUp(). The real enforcement lives server-side
+   (device + IP caps) — this id is just the client's contribution to that
+   check, so clearing localStorage/using a private window is the only way
+   around it, same as any other client-side device id.
+   ══════════════════════════════════════ */
+function getDeviceId(){
+  try{
+    let id = localStorage.getItem('mdlx_device_id');
+    if(!id){
+      id = (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+        const r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8); return v.toString(16);
+      }));
+      localStorage.setItem('mdlx_device_id', id);
+    }
+    return id;
+  } catch(e){ return 'no-storage'; }
+}
+async function checkSignupAllowed(role){
+  try{
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/check-signup-limit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({ device_id: getDeviceId(), role }),
+    });
+    const data = await res.json().catch(()=>({ allowed: true, degraded: true }));
+    return data;
+  } catch(e){
+    // Network hiccup shouldn't block a legitimate signup.
+    return { allowed: true, degraded: true };
+  }
+}
 
 /* ══════════════════════════════════════
    STRIPE CONFIG — paste your publishable key here
@@ -9415,6 +9511,8 @@ function renderEducatorModal(){
   document.getElementById('educator-confirm-btn').textContent = isSignup ? 'Sign up' : 'Sign in';
   document.getElementById('educator-toggle-mode-btn').textContent = isSignup ? 'Already have an account? Sign in' : 'Need an account? Sign up';
   document.getElementById('educator-school-fields').style.display = isSignup ? '' : 'none';
+  document.getElementById('educator-privacy-row').style.display = isSignup ? 'flex' : 'none';
+  document.getElementById('educator-privacy-check').checked = false;
   document.getElementById('educator-error').textContent = '';
   renderEducatorSchoolMode();
 }
@@ -9431,14 +9529,27 @@ function renderEducatorSchoolMode(){
 document.getElementById('educator-school-mode-create').onclick = ()=>{ educatorSchoolMode='create'; renderEducatorSchoolMode(); };
 document.getElementById('educator-school-mode-join').onclick = ()=>{ educatorSchoolMode='join'; renderEducatorSchoolMode(); };
 document.getElementById('educator-toggle-mode-btn').onclick = ()=>{ educatorModalMode = educatorModalMode==='signin' ? 'signup' : 'signin'; renderEducatorModal(); };
+document.getElementById('educator-privacy-link').onclick = (e)=>{ e.preventDefault(); openModal('privacy-overlay'); };
+document.getElementById('student-privacy-link').onclick = (e)=>{ e.preventDefault(); openModal('privacy-overlay'); };
 document.getElementById('educator-signin-btn').onclick = ()=>{ document.getElementById('hero-signin-popover')?.classList.remove('open'); educatorModalMode='signin'; renderEducatorModal(); openModal('educator-overlay'); };
 document.getElementById('educator-close').onclick = ()=>closeModal('educator-overlay');
+document.getElementById('privacy-close').onclick = ()=>closeModal('privacy-overlay');
+document.getElementById('footer-privacy-link').onclick = (e)=>{ e.preventDefault(); openModal('privacy-overlay'); };
 document.getElementById('educator-confirm-btn').onclick = async ()=>{
   const email = document.getElementById('educator-email').value.trim();
   const password = document.getElementById('educator-pass').value;
   if(!email || !password){ document.getElementById('educator-error').textContent='Email and password are required.'; return; }
 
   if(educatorModalMode==='signup'){
+    if(!document.getElementById('educator-privacy-check').checked){
+      document.getElementById('educator-error').textContent = 'Please agree to the Privacy Policy to continue.';
+      return;
+    }
+    const limitCheck = await checkSignupAllowed('educator');
+    if(!limitCheck.allowed){
+      document.getElementById('educator-error').textContent = limitCheck.error || 'Sign-up is temporarily unavailable from this device. Please try again later.';
+      return;
+    }
     let schoolId;
     if(educatorSchoolMode==='create'){
       const schoolName = document.getElementById('educator-school-name').value.trim();
@@ -9461,7 +9572,7 @@ document.getElementById('educator-confirm-btn').onclick = async ()=>{
       return;
     }
     db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
-    const { error: profileErr } = await db.from('profiles').insert({ id: data.user.id, role: 'educator', school_id: schoolId });
+    const { error: profileErr } = await db.from('profiles').insert({ id: data.user.id, role: 'educator', school_id: schoolId, device_id: getDeviceId(), privacy_accepted_at: new Date().toISOString(), privacy_version: PRIVACY_POLICY_VERSION });
     if(profileErr){ document.getElementById('educator-error').textContent = profileErr.message; return; }
     const { data: profile } = await db.from('profiles').select('*').eq('id', data.user.id).single();
     currentUser = data.user; currentProfile = profile; isEducator = true;
@@ -9505,6 +9616,8 @@ function renderStudentModal(){
   document.getElementById('student-confirm-btn').textContent = studentModalMode==='signin' ? 'Sign in' : 'Sign up';
   document.getElementById('student-toggle-mode-btn').textContent = studentModalMode==='signin' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
   document.getElementById('student-join-code-group').style.display = studentModalMode==='signup' ? '' : 'none';
+  document.getElementById('student-privacy-row').style.display = studentModalMode==='signup' ? 'flex' : 'none';
+  document.getElementById('student-privacy-check').checked = false;
   document.getElementById('student-error').textContent='';
 }
 document.getElementById('student-auth-btn').onclick = ()=>{ document.getElementById('hero-signin-popover')?.classList.remove('open'); studentModalMode='signin'; renderStudentModal(); openModal('student-overlay'); };
@@ -9524,6 +9637,10 @@ document.getElementById('student-toggle-mode-btn').onclick = ()=>{ studentModalM
 
 document.getElementById('student-google-btn').onclick = async ()=>{
   document.getElementById('student-error').textContent = '';
+  if(studentModalMode==='signup' && !document.getElementById('student-privacy-check').checked){
+    document.getElementById('student-error').textContent = 'Please agree to the Privacy Policy to continue.';
+    return;
+  }
   try {
     const result = await firebaseAuth.signInWithPopup(googleProvider);
     firebaseUser = result.user;
@@ -9534,6 +9651,12 @@ document.getElementById('student-google-btn').onclick = async ()=>{
     const { data: existingProfile } = await db.from('profiles').select('id').eq('id', firebaseUser.uid).maybeSingle();
     const isNewGoogleSignup = !existingProfile;
     if(!existingProfile){
+      const limitCheck = await checkSignupAllowed('student');
+      if(!limitCheck.allowed){
+        document.getElementById('student-error').textContent = limitCheck.error || 'Sign-up is temporarily unavailable from this device. Please try again later.';
+        await firebaseAuth.signOut(); firebaseUser = null;
+        return;
+      }
       const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
       let schoolId = null;
       if(joinCode){
@@ -9542,7 +9665,7 @@ document.getElementById('student-google-btn').onclick = async ()=>{
         schoolId = school.id;
       }
       await db.from('profiles').upsert(
-        { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null, school_id: schoolId },
+        { id: firebaseUser.uid, role: 'student', display_name: firebaseUser.displayName || null, school_id: schoolId, device_id: getDeviceId(), privacy_accepted_at: new Date().toISOString(), privacy_version: PRIVACY_POLICY_VERSION },
         { onConflict: 'id', ignoreDuplicates: true }
       );
     }
@@ -9571,12 +9694,21 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
   db = sbAuth; firebaseUser = null; studentAccessToken = null; studentAccessTokenExpiresAt = 0;
   let user;
   if(studentModalMode==='signup'){
+    if(!document.getElementById('student-privacy-check').checked){
+      document.getElementById('student-error').textContent = 'Please agree to the Privacy Policy to continue.';
+      return;
+    }
     const joinCode = document.getElementById('student-join-code').value.trim().toUpperCase();
     let schoolId = null;
     if(joinCode){
       const { data: school, error: schoolErr } = await sbAuth.from('schools').select('id').eq('join_code', joinCode).single();
       if(schoolErr || !school){ document.getElementById('student-error').textContent = 'Invalid school join code.'; return; }
       schoolId = school.id;
+    }
+    const limitCheck = await checkSignupAllowed('student');
+    if(!limitCheck.allowed){
+      document.getElementById('student-error').textContent = limitCheck.error || 'Sign-up is temporarily unavailable from this device. Please try again later.';
+      return;
     }
     const { data, error } = await sbAuth.auth.signUp({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
@@ -9585,7 +9717,7 @@ document.getElementById('student-confirm-btn').onclick = async ()=>{
       return;
     }
     user = data.user;
-    await db.from('profiles').insert({ id: user.id, role: 'student', school_id: schoolId });
+    await db.from('profiles').insert({ id: user.id, role: 'student', school_id: schoolId, device_id: getDeviceId(), privacy_accepted_at: new Date().toISOString(), privacy_version: PRIVACY_POLICY_VERSION });
   } else {
     const { data, error } = await sbAuth.auth.signInWithPassword({ email, password });
     if(error){ document.getElementById('student-error').textContent = error.message; return; }
