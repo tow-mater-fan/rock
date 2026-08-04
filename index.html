@@ -3997,6 +3997,7 @@ function gbRedraw(){
     [{ fn:x=>fxEval(gbState.parent, gbState.a, gbState.k, gbState.d, gbState.c, x), parent:gbState.parent }], [], yRange);
 }
 function openGraphBuilder(){
+  leaveHomeChrome();
   document.getElementById('home-page').style.display='none';
   document.getElementById('dashboard-page').style.display='none';
   document.getElementById('courses-page').style.display='none';
@@ -4201,6 +4202,7 @@ function drbToolRender(){
   };
 }
 function openDRBuilderTool(){
+  leaveHomeChrome();
   document.getElementById('home-page').style.display='none';
   document.getElementById('dashboard-page').style.display='none';
   document.getElementById('courses-page').style.display='none';
@@ -4727,6 +4729,17 @@ document.addEventListener('mouseleave', ()=>{
 });
 
 /* ── Nav ── */
+// Shared by showPage() and every function that swaps to a full-page view
+// directly (openCourseDetail, openTest, tool builders) without going through
+// showPage() — the footer is a homepage-only marketing element, so anything
+// that isn't the home page should hide it and make sure the real header is
+// showing.
+function leaveHomeChrome(){
+  const siteNav = document.getElementById('site-nav');
+  if(siteNav) siteNav.style.display = 'flex';
+  const siteFooter = document.querySelector('footer.site-footer');
+  if(siteFooter) siteFooter.style.display = 'none';
+}
 function showPage(page){
   document.getElementById('home-page').style.display='none';
   document.getElementById('dashboard-page').style.display='none';
@@ -4748,6 +4761,8 @@ function showPage(page){
   // other page.
   const siteNav = document.getElementById('site-nav');
   if(siteNav) siteNav.style.display = (page==='home') ? 'none' : 'flex';
+  const siteFooter = document.querySelector('footer.site-footer');
+  if(siteFooter) siteFooter.style.display = (page==='home') ? '' : 'none';
   if(page==='home'){
     // Home is the public marketing page — same content whether you're signed in or not.
     const el = document.getElementById('home-page');
@@ -6196,6 +6211,7 @@ document.getElementById('course-save-btn').onclick = async ()=>{
 
 /* ── COURSE DETAIL ── */
 function openCourseDetail(courseId){
+  leaveHomeChrome();
   currentCourseId = courseId;
   currentUnitId = null;
   const c = courses.find(x=>x.id===courseId);
@@ -6533,6 +6549,7 @@ function openTest(itemId){
   showLessonIntro(()=>_openTestInner(itemId));
 }
 function _openTestInner(itemId){
+  leaveHomeChrome();
   currentItemId = itemId;
   const it = items.find(i=>i.id===itemId);
   if(!it) return;
@@ -11858,6 +11875,7 @@ document.getElementById('lb-open-templates').onclick = async ()=>{
 };
 document.getElementById('lb-preview-btn').onclick = ()=>{
   if(!lessonBlocks.length){ alert('Add at least one block first.'); return; }
+  leaveHomeChrome();
   const tempItem = { id:'__preview__', content: JSON.parse(JSON.stringify(lessonBlocks)) };
   lpPreviewMode = true;
   closeModal('test-overlay');
