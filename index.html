@@ -1691,10 +1691,10 @@
     display:flex; align-items:center; gap:.3rem; transition:transform .2s, background .2s, border-color .2s, box-shadow .2s; }
   .nav-streak.bump, .nav-xp.bump { animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
   .nav-xp span, .nav-streak span { color:var(--gold); }
-  .nav-sparks-btn { font-family:inherit; cursor:pointer; }
-  .nav-sparks-btn .icon { color:var(--purple); }
-  .nav-sparks-btn span { color:var(--board-ink); }
-  .nav-sparks-btn:hover { background:rgba(246,244,239,.16); border-color:rgba(246,244,239,.28); }
+  .nav-tokens-btn { font-family:inherit; cursor:pointer; }
+  .nav-tokens-btn .icon { color:var(--purple); }
+  .nav-tokens-btn span { color:var(--board-ink); }
+  .nav-tokens-btn:hover { background:rgba(246,244,239,.16); border-color:rgba(246,244,239,.28); }
   /* Streak chip gets its own, bolder treatment than XP once it's actually lit
      (streak > 0) — a warm gradient fill + glow + a bigger, flame-colored icon
      — so it reads as a distinct, prominent thing rather than blending into
@@ -1716,8 +1716,8 @@
   .xp-toast { position:fixed; top:70px; right:1.5rem; z-index:950; display:flex; flex-direction:column; gap:.5rem; pointer-events:none; }
   .xp-toast-item { background:var(--board); color:var(--board-ink); font-family:'Sora',sans-serif; font-weight:800; font-size:.85rem;
     padding:.6rem 1.1rem; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.25); animation:xpToastIn .45s cubic-bezier(.34,1.56,.64,1) both, xpToastOut .4s ease 1.8s forwards; }
-  .sparks-toast-item { background:linear-gradient(120deg, rgba(124,92,255,.92), rgba(74,47,190,.92)); }
-  .sparks-toast-item .icon { color:#ffd166; }
+  .tokens-toast-item { background:linear-gradient(120deg, rgba(124,92,255,.92), rgba(74,47,190,.92)); }
+  .tokens-toast-item .icon { color:#ffd166; }
   @keyframes xpToastIn { from{opacity:0; transform:translateX(30px) scale(.7);} to{opacity:1; transform:translateX(0) scale(1);} }
   @keyframes xpToastOut { to{opacity:0; transform:translateX(30px) scale(.85);} }
 
@@ -1858,7 +1858,7 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.85rem; transition:background .15s; }
   .acct-avatar-edit:hover { background:var(--blue); }
 
-  /* ── Sparks rewards: equipped cosmetics ──────────────────────────────
+  /* ── Tokens rewards: equipped cosmetics ──────────────────────────────
      Applied as data attributes on <html> once a student's profile loads
      (see applyEquippedCosmetics()), so every avatar/Ember instance on the
      page picks them up automatically without per-component wiring. */
@@ -2062,7 +2062,7 @@
     <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol>
     <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4" /> <path d="m21 2-9.6 9.6" /> <circle cx="7.5" cy="15.5" r="5.5" /></symbol>
     <symbol id="i-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol>
-    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z" /> <path d="M2 9h20" /> <path d="M9 3 8 9l4 12 4-12-1-6" /></symbol>
+    <symbol id="i-token" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 6.75v10.5" /> <path d="M9.25 8.9c0-1.15 1.15-2.05 2.75-2.05s2.75.78 2.75 1.95c0 2.55-5.5 1.5-5.5 4.05 0 1.17 1.15 1.95 2.75 1.95s2.75-.9 2.75-2.05" /></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /> <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /> <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /> <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /> <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></symbol>
     <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /> <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /> <path d="m7 10 5 5 5-5" /></symbol>
@@ -2115,7 +2115,7 @@
     <button class="nav-premium-btn" id="nav-educator-premium-btn" style="display:none;" onclick="openEducatorPremiumModal()"><svg class="icon"><use href="#i-sparkle"/></svg> <span class="np-label">Go Premium</span></button>
     <span class="nav-streak" id="nav-streak-chip" title="Daily streak"><svg class="icon"><use href="#i-flame"/></svg> <span id="nav-streak-count">0</span></span>
     <span class="nav-xp" id="nav-xp-chip" title="Total XP"><svg class="icon"><use href="#i-bolt"/></svg> <span id="nav-xp-count">0</span> XP</span>
-    <button class="nav-xp nav-sparks-btn" id="nav-sparks-chip" title="Sparks — spend them in the Rewards Shop" onclick="openRewardsModal()"><svg class="icon"><use href="#i-spark"/></svg> <span id="nav-sparks-count">0</span></button>
+    <button class="nav-xp nav-tokens-btn" id="nav-tokens-chip" title="Tokens — spend them in the Rewards Shop" onclick="openRewardsModal()"><svg class="icon"><use href="#i-token"/></svg> <span id="nav-tokens-count">0</span></button>
     <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button>
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
@@ -2149,8 +2149,8 @@
   <div class="modal wide">
     <button class="modal-close" id="rewards-close"><svg class="icon"><use href="#i-close"/></svg></button>
     <div class="modal-eyebrow">Rewards Shop</div>
-    <h2 style="display:flex; align-items:center; gap:.5rem;">Spend your Sparks <svg class="icon" style="color:var(--purple);"><use href="#i-spark"/></svg></h2>
-    <p class="desc">You have <strong id="rewards-balance">0</strong> Sparks. Earn more by finishing lessons and quizzes and keeping your streak alive.</p>
+    <h2 style="display:flex; align-items:center; gap:.5rem;">Spend your Tokens <svg class="icon" style="color:var(--purple);"><use href="#i-token"/></svg></h2>
+    <p class="desc">You have <strong id="rewards-balance">0</strong> Tokens. Earn more by finishing lessons and quizzes and keeping your streak alive.</p>
     <div id="rewards-list" style="max-height:56vh; overflow-y:auto; padding-right:.4rem; margin-top:.6rem;"></div>
   </div>
 </div>
@@ -2421,8 +2421,8 @@
         <div class="acct-stat-label"><svg class="icon"><use href="#i-trophy"/></svg> Longest streak</div>
       </div>
       <div class="acct-stat-card" style="cursor:pointer;" onclick="openRewardsModal()" title="Open the Rewards Shop">
-        <div class="acct-stat-num" id="acct-stat-sparks">0</div>
-        <div class="acct-stat-label"><svg class="icon"><use href="#i-spark"/></svg> Sparks — shop</div>
+        <div class="acct-stat-num" id="acct-stat-tokens">0</div>
+        <div class="acct-stat-label"><svg class="icon"><use href="#i-token"/></svg> Tokens — shop</div>
       </div>
     </div>
 
@@ -4984,7 +4984,7 @@ let isEducator=false;
 let currentCourseId=null, currentUnitId=null;
 
 /* ── Streak / XP state (see streaks_xp_schema.sql) ── */
-let studentProgress = { xp:0, sparks:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false };
+let studentProgress = { xp:0, tokens:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false };
 let ownedRewards = {}; // reward_key -> qty, loaded alongside progress
 let usePathView = true; // toggled per-course by the little switch above the unit content
 
@@ -4995,15 +4995,15 @@ async function loadProgress(){
   }
   const { data, error } = await db.from('student_progress').select('*').eq('student_id', currentUser.id).maybeSingle();
   if(!error && data){
-    studentProgress = { xp:data.xp||0, sparks:data.sparks||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date, is_premium:!!data.is_premium };
+    studentProgress = { xp:data.xp||0, tokens:data.tokens||0, current_streak:data.current_streak||0, longest_streak:data.longest_streak||0, last_active_date:data.last_active_date, is_premium:!!data.is_premium };
   } else if(!error && !data){
     // First time we've seen this student — seed their row so later reads/writes
     // (streaks, XP, premium flag) have something to attach to.
     const { data: created, error: insertErr } = await db.from('student_progress')
-      .insert({ student_id: currentUser.id, xp:0, sparks:0, current_streak:0, longest_streak:0 })
+      .insert({ student_id: currentUser.id, xp:0, tokens:0, current_streak:0, longest_streak:0 })
       .select().maybeSingle();
     if(!insertErr && created){
-      studentProgress = { xp:created.xp||0, sparks:created.sparks||0, current_streak:created.current_streak||0, longest_streak:created.longest_streak||0, last_active_date:created.last_active_date, is_premium:!!created.is_premium };
+      studentProgress = { xp:created.xp||0, tokens:created.tokens||0, current_streak:created.current_streak||0, longest_streak:created.longest_streak||0, last_active_date:created.last_active_date, is_premium:!!created.is_premium };
     } else if(insertErr){
       console.error('student_progress seed error', insertErr);
     }
@@ -5031,11 +5031,11 @@ function renderNavProgress(){
   if(!currentUser){ wrap.style.display='none'; } else { wrap.style.display='flex'; }
   document.getElementById('nav-streak-chip').style.display = (currentUser && !isEducator) ? '' : 'none';
   document.getElementById('nav-xp-chip').style.display = (currentUser && !isEducator) ? '' : 'none';
-  document.getElementById('nav-sparks-chip').style.display = (currentUser && !isEducator) ? '' : 'none';
+  document.getElementById('nav-tokens-chip').style.display = (currentUser && !isEducator) ? '' : 'none';
   if(currentUser && !isEducator){
     document.getElementById('nav-streak-count').textContent = studentProgress.current_streak;
     document.getElementById('nav-xp-count').textContent = studentProgress.xp;
-    document.getElementById('nav-sparks-count').textContent = studentProgress.sparks||0;
+    document.getElementById('nav-tokens-count').textContent = studentProgress.tokens||0;
     document.getElementById('nav-streak-chip').classList.toggle('lit', (studentProgress.current_streak||0) > 0);
   }
   const studentBtn = document.getElementById('nav-premium-btn');
@@ -5548,11 +5548,11 @@ function showXpToast(amount){
   host.appendChild(el);
   setTimeout(()=>el.remove(), 2200);
 }
-function showSparksToast(amount){
+function showTokensToast(amount){
   const host = document.getElementById('xp-toast');
   const el = document.createElement('div');
-  el.className = 'xp-toast-item sparks-toast-item';
-  el.innerHTML = `<svg class="icon"><use href="#i-spark"/></svg> +${amount}`;
+  el.className = 'xp-toast-item tokens-toast-item';
+  el.innerHTML = `<svg class="icon"><use href="#i-token"/></svg> +${amount}`;
   host.appendChild(el);
   setTimeout(()=>el.remove(), 2200);
 }
@@ -5570,15 +5570,15 @@ async function awardXp(amount){
   if(!currentUser || isEducator || !amount) return;
   const priorStreak = studentProgress.current_streak;
   const priorDate = studentProgress.last_active_date;
-  const priorSparks = studentProgress.sparks||0;
+  const priorTokens = studentProgress.tokens||0;
   const hadFreeze = !!ownedRewards.streak_freeze;
   const { data, error } = await db.rpc('award_progress', { p_student_id: currentUser.id, p_xp: amount });
   if(error){ console.error('award_progress error', error); return; }
-  studentProgress = { xp:data.xp, sparks:data.sparks||0, current_streak:data.current_streak, longest_streak:data.longest_streak, last_active_date:data.last_active_date, is_premium:studentProgress.is_premium };
+  studentProgress = { xp:data.xp, tokens:data.tokens||0, current_streak:data.current_streak, longest_streak:data.longest_streak, last_active_date:data.last_active_date, is_premium:studentProgress.is_premium };
   renderNavProgress();
   bumpChip('nav-xp-chip'); showXpToast(amount); sfx.xp();
-  const sparksGained = studentProgress.sparks - priorSparks;
-  if(sparksGained > 0){ bumpChip('nav-sparks-chip'); showSparksToast(sparksGained); }
+  const tokensGained = studentProgress.tokens - priorTokens;
+  if(tokensGained > 0){ bumpChip('nav-tokens-chip'); showTokensToast(tokensGained); }
   // Match the server's day boundary (America/Toronto), not UTC, or this
   // comparison drifts out of sync with the streak the SQL function computed.
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' });
@@ -5597,11 +5597,11 @@ async function awardXp(amount){
 }
 document.getElementById('streak-modal-close').onclick = ()=>document.getElementById('streak-modal-overlay').classList.remove('open');
 
-/* ── Sparks Rewards Shop ──────────────────────────────────────────────
-   Sparks are earned automatically server-side (see award_progress() RPC);
+/* ── Tokens Rewards Shop ──────────────────────────────────────────────
+   Tokens are earned automatically server-side (see award_progress() RPC);
    this section is purely the spending side: load the catalog, render it
    against what the student owns, and let them buy/equip via the
-   spend_sparks() RPC (atomic — see migration). */
+   spend_tokens() RPC (atomic — see migration). */
 let rewardCatalog = null; // cached after first load
 const REWARD_VISUALS = {
   streak_freeze:     { bg:'linear-gradient(135deg,#4fa8ff,#2563eb)', icon:'i-shield' },
@@ -5640,27 +5640,27 @@ function equippedKeyForCategory(category){
 }
 
 function renderRewardsModal(){
-  document.getElementById('rewards-balance').textContent = studentProgress.sparks||0;
+  document.getElementById('rewards-balance').textContent = studentProgress.tokens||0;
   const list = document.getElementById('rewards-list');
   const cats = ['functional','frame','ember_skin','confetti'];
   list.innerHTML = cats.map(cat=>{
     const items = (rewardCatalog||[]).filter(r=>r.category===cat);
     if(!items.length) return '';
     const rows = items.map(item=>{
-      const visual = REWARD_VISUALS[item.key] || { bg:'var(--purple)', icon:'i-spark' };
+      const visual = REWARD_VISUALS[item.key] || { bg:'var(--purple)', icon:'i-token' };
       const owned = ownedRewards[item.key];
       const equippedKey = ['frame','ember_skin','confetti'].includes(item.category) ? equippedKeyForCategory(item.category) : null;
       let actionHtml;
       if(item.consumable){
         const qty = owned || 0;
         const atMax = item.max_qty && qty >= item.max_qty;
-        const afford = (studentProgress.sparks||0) >= item.cost_sparks;
+        const afford = (studentProgress.tokens||0) >= item.cost_tokens;
         actionHtml = `<button class="reward-buy-btn" ${(atMax||!afford)?'disabled':''} onclick="buyReward('${item.key}')">${atMax ? 'Max held' : `Buy (own ${qty})`}</button>`;
       } else if(owned){
         const equipped = equippedKey === item.key;
         actionHtml = `<button class="reward-buy-btn ${equipped?'equipped':'owned'}" onclick="equipReward('${item.category}','${equipped?'':item.key}')">${equipped ? '✓ Equipped' : 'Equip'}</button>`;
       } else {
-        const afford = (studentProgress.sparks||0) >= item.cost_sparks;
+        const afford = (studentProgress.tokens||0) >= item.cost_tokens;
         actionHtml = `<button class="reward-buy-btn" ${afford?'':'disabled'} onclick="buyReward('${item.key}')">Buy</button>`;
       }
       return `<div class="reward-item">
@@ -5670,7 +5670,7 @@ function renderRewardsModal(){
           <div class="reward-item-desc">${item.description}</div>
         </div>
         <div class="reward-item-action">
-          <div class="reward-cost"><svg class="icon"><use href="#i-spark"/></svg> ${item.cost_sparks}</div>
+          <div class="reward-cost"><svg class="icon"><use href="#i-token"/></svg> ${item.cost_tokens}</div>
           ${actionHtml}
         </div>
       </div>`;
@@ -5681,10 +5681,10 @@ function renderRewardsModal(){
 
 async function buyReward(key){
   if(!currentUser || isEducator) return;
-  const { data, error } = await db.rpc('spend_sparks', { p_student_id: currentUser.id, p_reward_key: key });
-  if(error){ alert('Something went wrong. Please try again.'); console.error('spend_sparks error', error); return; }
+  const { data, error } = await db.rpc('spend_tokens', { p_student_id: currentUser.id, p_reward_key: key });
+  if(error){ alert('Something went wrong. Please try again.'); console.error('spend_tokens error', error); return; }
   if(!data.ok){ alert(data.error || 'Could not complete purchase.'); return; }
-  studentProgress.sparks = data.sparks;
+  studentProgress.tokens = data.tokens;
   await loadOwnedRewards();
   renderNavProgress();
   renderRewardsModal();
@@ -6142,7 +6142,7 @@ function updateAccountUI(){
   document.getElementById('nav-account-li').style.display = (currentUser && !isEducator) ? 'block' : 'none';
   document.getElementById('nav-educator-account-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   text.onclick = currentUser ? (()=>showPage(isEducator ? 'educator-account' : 'account')) : null;
-  if(!currentUser){ studentProgress = { xp:0, sparks:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false }; ownedRewards = {}; applyEquippedCosmetics(); }
+  if(!currentUser){ studentProgress = { xp:0, tokens:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false }; ownedRewards = {}; applyEquippedCosmetics(); }
   renderNavProgress();
 }
 
@@ -10190,7 +10190,7 @@ function renderAccountPage(){
   document.getElementById('acct-stat-xp').textContent = studentProgress.xp || 0;
   document.getElementById('acct-stat-streak').textContent = studentProgress.current_streak || 0;
   document.getElementById('acct-stat-longest').textContent = studentProgress.longest_streak || 0;
-  document.getElementById('acct-stat-sparks').textContent = studentProgress.sparks || 0;
+  document.getElementById('acct-stat-tokens').textContent = studentProgress.tokens || 0;
 
   // Week calendar (mirrors the dashboard's week logic)
   const cal = document.getElementById('acct-cal-row');
