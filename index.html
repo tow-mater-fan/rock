@@ -111,7 +111,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
   body { font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); overflow-x:hidden; }
-  h1,h2,h3,h4 { font-family:'Inter',sans-serif; font-weight:800; }
+  h1,h2,h3,h4 { font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-.015em; }
   code, .mono { font-family:'IBM Plex Mono',monospace; }
   button { font-family:inherit; }
 
@@ -374,8 +374,6 @@
   .hero-wordmark { font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-.015em;
     font-size:clamp(2.4rem,5.4vw,4.2rem); line-height:1.06; margin:0 0 1.25rem; text-transform:none;
     color:var(--ink); user-select:none; }
-  .hero-wordmark em { font-style:italic; font-weight:500;
-    background:var(--brand-gradient-text); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .hero-card-sub { display:block; font-family:'Inter',sans-serif; font-size:1.05rem; line-height:1.65;
     color:var(--ink-soft); max-width:520px; margin:0 auto; }
 
@@ -710,7 +708,12 @@
   .feat-trial-btns button.tried-wrong { background:var(--red-bg); border-color:var(--red); color:var(--red-ink,var(--red)); }
   .feat-trial-btns button.tried-right { background:var(--green-bg); border-color:var(--green); color:var(--green); }
 
-  .eyebrow { font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--blue); margin-bottom:.9rem; }
+  /* Section marker, not a corporate eyebrow: reads like a margin annotation on a
+     problem set (mono numeral-ish tick + label) rather than a tracked-out caps
+     label sitting decoratively above every heading. */
+  .eyebrow { font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:.78rem; color:var(--ink-faint); margin-bottom:.6rem; display:flex; align-items:center; gap:.45rem; }
+  .eyebrow::before { content:''; width:7px; height:7px; border-radius:2px; background:var(--blue); flex-shrink:0; transform:rotate(45deg); }
+  .eyebrow[style*="color"]::before { background:currentColor; }
 
   /* ── SUBJECT SECTIONS (home) ── */
   .subject-section { padding:2.75rem 2.5rem; max-width:1200px; margin:0 auto; }
@@ -1302,7 +1305,7 @@
   .mr-eqn { font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:700; color:var(--purple); text-align:center; margin-bottom:.75rem; }
   .mr-slider-row { display:flex; align-items:center; gap:.75rem; margin:1rem .25rem .5rem; font-family:'Inter',sans-serif; font-weight:700; font-size:.9rem; color:var(--ink-soft); }
   .mr-slider-row input[type=range] { flex:1; accent-color:var(--purple); }
-  .mr-notation { text-align:center; font-family:'IBM Plex Mono',monospace; font-size:1rem; font-weight:700; color:var(--board-ink,#1a1530); background:var(--paper-2); border-radius:10px; padding:.6rem; margin:.5rem 0; }
+  .mr-notation { text-align:center; font-family:'IBM Plex Mono',monospace; font-size:1rem; font-weight:700; color:var(--ink); background:var(--paper-2); border-radius:10px; padding:.6rem; margin:.5rem 0; }
   .mr-table td.mr-active, .mr-table th.mr-active { background:var(--purple); color:#fff; }
   .iv-lines { display:flex; flex-direction:column; gap:.4rem; margin-top:.9rem; }
   .iv-line { font-family:'IBM Plex Mono',monospace; font-size:.92rem; background:var(--paper-2); border-radius:10px; padding:.55rem .8rem; display:flex; gap:.5rem; }
@@ -1401,6 +1404,12 @@
   .lp-flashcard:hover { transform:translateY(-3px); }
   .lp-flashcard-inner { box-shadow:var(--shadow-sm); border-radius:var(--radius-md); }
   .lp-flashcard:hover .lp-flashcard-inner { box-shadow:var(--shadow-md); }
+  /* The card front is var(--board) — near-black — same as the lesson stage
+     behind it, so the light shadow tuned for a paper background gives it
+     almost no definition there. A thin translucent edge keeps the card
+     reading as a distinct object instead of a hole in the page. */
+  #test-page.lp-mode .lp-flashcard-inner { box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 12px 28px -10px rgba(0,0,0,.6); }
+  #test-page.lp-mode .lp-flashcard-inner > div:first-child { border:1px solid rgba(255,255,255,.14); }
   .lp-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; }
 
   /* ── Full-screen lesson mode ── condensed header + a vertically-centered
@@ -1455,6 +1464,39 @@
   #test-page.lp-mode .lp-text { font-size:1.35rem; line-height:1.9; }
   #test-page.lp-mode .lp-text-lead { font-size:1.5rem; }
   #test-page.lp-mode .lp-check-q { font-size:1.45rem; color:var(--board-ink); border-image:none; border-left-color:var(--green); }
+  /* Most block-type templates (fillblank inputs, function-machine tiles,
+     sequence/factory boxes, tables, accordions, tabs, the trig unit-circle
+     diagram, etc.) were authored against the light-mode token system —
+     pale --rule borders and --white/--paper-2 fills meant to sit on paper,
+     not on this dark full-screen stage. Rather than hand-patch 30+ block
+     templates individually, we re-point those tokens to dark-appropriate
+     equivalents only within the block stage itself (not the tutor panel or
+     nav, which are already hand-tuned for dark). Every block then reads
+     correctly — light "chip" surfaces for solid elements, soft frosted
+     fills for secondary ones, crisp translucent borders — without touching
+     a single render function. */
+  #test-page.lp-mode #lp-block-slot {
+    --white: rgba(255,255,255,.94);
+    --paper: var(--board);
+    --paper-2: rgba(255,255,255,.08);
+    --rule: rgba(255,255,255,.22);
+    --ink-faint: rgba(246,244,239,.5);
+    --ink-soft: rgba(246,244,239,.75);
+  }
+  /* The function-graph engine (used by vlt/tov/mapping/multirep/domainrange
+     and more) hardcodes its grid and axis strokes rather than reading a
+     token, since it's shared with the light-mode graphing tool elsewhere.
+     Dim just those two lines for the dark stage so the grid reads as a
+     quiet reference instead of a bright cyan-white lattice. */
+  #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:rgba(255,255,255,.1); }
+  #test-page.lp-mode #lp-block-slot .fx-axis { stroke:rgba(255,255,255,.32); }
+  /* Table cell text (tov blocks) inherits plain body ink with no light chip
+     behind it, unlike the header row — on the dark stage that's dark text
+     on a dark board. Give the whole table the same light surface as its
+     header so the values read as one consistent light strip. */
+  #test-page.lp-mode #lp-block-slot .fx-table td,
+  #test-page.lp-mode #lp-block-slot .fx-table th { background:var(--paper-2); color:var(--board-ink); }
+  #test-page.lp-mode #lp-block-slot .fx-table input { color:var(--ink); }
   #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; }
   #test-page.lp-mode .lp-nav-row { max-width:1020px; margin:0 auto; width:100%; padding:1.1rem 3vw 1.8rem; flex-shrink:0; }
   #test-page.lp-mode #lp-prev-btn { color:rgba(246,244,239,.55); background:transparent; }
@@ -2181,6 +2223,120 @@
     input, select, textarea { font-size:16px !important; }
     .btn-sm, button, .nav-toggle, .lb-move-btns button { min-height:38px; }
   }
+
+  /* ── Study Timer (Pomodoro) ── */
+  #study-timer { position:fixed; top:72px; right:1.5rem; z-index:200; display:none; }
+  #study-timer.visible { display:flex; }
+  .st-pill { display:flex; align-items:center; gap:.5rem; background:var(--white); border:1.5px solid var(--rule);
+    border-radius:999px; padding:.45rem .85rem .45rem .65rem; box-shadow:var(--shadow-md); cursor:pointer;
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.82rem; color:var(--ink);
+    transition:box-shadow .18s, transform .18s; user-select:none; }
+  .st-pill:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+  .st-pill .st-dot { width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; }
+  .st-pill .st-dot.paused { background:var(--gold); }
+  .st-pill .st-dot.break-time { background:var(--blue); animation:pulseRing 2s ease infinite; }
+  .st-panel { position:absolute; top:calc(100% + .6rem); right:0; width:260px; background:var(--white);
+    border:1px solid var(--rule); border-radius:var(--radius-md); padding:1.1rem;
+    box-shadow:var(--shadow-lg); display:none; }
+  .st-panel.open { display:block; animation:fadeInUp .2s var(--ease-premium) both; }
+  .st-panel h4 { font-size:.82rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:.6rem; }
+  .st-time-display { font-family:'IBM Plex Mono',monospace; font-size:2rem; font-weight:700; text-align:center;
+    color:var(--ink); margin-bottom:.75rem; }
+  .st-controls { display:flex; gap:.4rem; justify-content:center; margin-bottom:.6rem; }
+  .st-controls button { padding:.45rem .85rem; border-radius:999px; border:1.5px solid var(--rule);
+    background:var(--white); font-family:'Inter',sans-serif; font-weight:700; font-size:.75rem;
+    cursor:pointer; transition:all .15s; }
+  .st-controls button:hover { border-color:var(--blue); color:var(--blue); }
+  .st-controls button.active { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .st-stats { font-family:'Inter',sans-serif; font-size:.72rem; color:var(--ink-faint); text-align:center; }
+
+  /* ── Keyboard Shortcuts Modal ── */
+  .kbd-grid { display:grid; grid-template-columns:auto 1fr; gap:.4rem .9rem; align-items:center; }
+  .kbd-key { font-family:'IBM Plex Mono',monospace; font-size:.72rem; font-weight:600;
+    background:var(--paper-2); border:1px solid var(--rule); border-radius:6px;
+    padding:.2rem .45rem; color:var(--ink); display:inline-block; min-width:28px; text-align:center;
+    box-shadow:0 1px 0 var(--rule); }
+  .kbd-desc { font-family:'Inter',sans-serif; font-size:.82rem; color:var(--ink-soft); }
+
+  /* ── Bookmarks ── */
+  .bookmark-btn { width:32px; height:32px; border-radius:50%; border:1.5px solid var(--rule);
+    background:var(--white); color:var(--ink-faint); cursor:pointer; display:flex; align-items:center;
+    justify-content:center; transition:all .15s; flex-shrink:0; }
+  .bookmark-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .bookmark-btn.bookmarked { background:var(--gold-bg); border-color:var(--gold); color:var(--gold); }
+
+  /* ── Formula Sheet Drawer ── */
+  #formula-drawer { position:fixed; top:0; right:-380px; width:380px; max-width:92vw; height:100vh;
+    background:var(--white); border-left:1px solid var(--rule); box-shadow:-10px 0 40px rgba(20,20,30,.12);
+    z-index:500; transition:right .3s var(--ease-premium); overflow-y:auto; padding:1.5rem; }
+  #formula-drawer.open { right:0; }
+  .fd-backdrop { position:fixed; inset:0; z-index:499; background:rgba(15,48,96,.25); opacity:0;
+    pointer-events:none; transition:opacity .25s; }
+  .fd-backdrop.open { opacity:1; pointer-events:all; }
+  .fd-close { position:absolute; top:1rem; right:1rem; width:28px; height:28px; border-radius:50%;
+    border:none; background:var(--paper-2); color:var(--ink-soft); cursor:pointer; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center; }
+  .fd-section { margin-bottom:1.5rem; }
+  .fd-section h4 { font-family:'Inter',sans-serif; font-weight:800; font-size:.88rem; margin-bottom:.5rem; }
+  .fd-formula { font-family:'IBM Plex Mono',monospace; font-size:.82rem; background:var(--paper-2);
+    border:1px solid var(--rule); border-radius:8px; padding:.5rem .7rem; margin-bottom:.35rem;
+    color:var(--ink); line-height:1.5; }
+
+  /* ── Challenge Mode Timer Bar ── */
+  .challenge-timer-bar { position:sticky; top:60px; z-index:50; background:var(--board-2);
+    border-bottom:1px solid rgba(255,255,255,.08); padding:.5rem 1.5rem; display:flex;
+    align-items:center; gap:1rem; }
+  .challenge-timer-bar .ct-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem;
+    color:rgba(246,244,239,.6); text-transform:uppercase; letter-spacing:.04em; }
+  .challenge-timer-bar .ct-time { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1rem;
+    color:var(--board-ink); }
+  .challenge-timer-bar .ct-time.urgent { color:var(--red); animation:pulseRing 1s ease infinite; }
+  .challenge-timer-bar .ct-track { flex:1; height:4px; background:rgba(255,255,255,.1); border-radius:999px; overflow:hidden; }
+  .challenge-timer-bar .ct-fill { height:100%; background:var(--green); border-radius:999px; transition:width 1s linear; }
+  .challenge-timer-bar .ct-fill.urgent { background:var(--red); }
+
+  /* ── Onboarding Welcome Flow ── */
+  .onboard-overlay { position:fixed; inset:0; z-index:2000; background:var(--paper); display:none;
+    align-items:center; justify-content:center; padding:1.5rem; }
+  .onboard-overlay.open { display:flex; animation:fadeIn .3s ease both; }
+  .onboard-card { max-width:480px; width:100%; text-align:center; }
+  .onboard-card h2 { font-size:1.6rem; margin-bottom:.5rem; }
+  .onboard-card p { color:var(--ink-soft); font-size:.92rem; line-height:1.6; margin-bottom:1.5rem; }
+  .onboard-steps { display:flex; flex-direction:column; gap:.6rem; text-align:left; margin-bottom:1.5rem; }
+  .onboard-step { display:flex; align-items:flex-start; gap:.75rem; padding:.85rem 1rem;
+    background:var(--paper-2); border-radius:var(--radius-md); }
+  .onboard-step-num { width:28px; height:28px; border-radius:50%; background:var(--blue);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif; font-weight:800; font-size:.78rem; flex-shrink:0; }
+  .onboard-step-text { font-family:'Inter',sans-serif; font-size:.85rem; color:var(--ink); line-height:1.45; }
+  .onboard-step-text strong { font-weight:700; }
+
+  /* ── Recently Visited Cards (Dashboard) ── */
+  .recent-cards { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.5rem; scrollbar-width:thin; }
+  .recent-card { flex-shrink:0; width:200px; padding:.85rem 1rem; background:var(--white);
+    border:1px solid var(--rule); border-radius:var(--radius-md); cursor:pointer;
+    transition:box-shadow .15s, transform .15s; }
+  .recent-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+  .recent-card-title { font-family:'Inter',sans-serif; font-weight:700; font-size:.82rem; color:var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:.2rem; }
+  .recent-card-meta { font-family:'IBM Plex Mono',monospace; font-size:.62rem; color:var(--ink-faint);
+    text-transform:uppercase; }
+
+  /* ── Difficulty/Time Indicators ── */
+  .lesson-meta-pills { display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.25rem; }
+  .meta-pill { font-family:'Inter',sans-serif; font-weight:600; font-size:.62rem; padding:.15rem .45rem;
+    border-radius:999px; background:var(--paper-2); color:var(--ink-faint); }
+  .meta-pill.time { color:var(--blue); background:var(--blue-bg); }
+  .meta-pill.difficulty-easy { color:var(--green); background:var(--green-bg); }
+  .meta-pill.difficulty-medium { color:var(--gold-ink); background:var(--gold-bg); }
+  .meta-pill.difficulty-hard { color:var(--red-ink); background:var(--red-bg); }
+
+  /* ── Improved Error States ── */
+  .error-banner { display:flex; align-items:center; gap:.6rem; padding:.75rem 1rem;
+    background:var(--red-bg); border:1px solid rgba(209,72,77,.2); border-radius:var(--radius-sm);
+    font-family:'Inter',sans-serif; font-size:.82rem; color:var(--red-ink); margin-bottom:1rem; }
+  .error-banner svg { width:18px; height:18px; flex-shrink:0; }
+  .error-banner button { margin-left:auto; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -2538,6 +2694,7 @@
       </div>
     </div>
     <div class="dash-col-right">
+      <div id="dash-recent-slot"></div>
       <div class="dash-recommend-card" id="dash-recommend-card"></div>
     </div>
   </div>
@@ -2817,7 +2974,7 @@
         </defs>
       </svg>
 
-      <h1 class="hero-wordmark">Ontario Course<em>Content</em></h1>
+      <h1 class="hero-wordmark">Your Ontario courses, made interactive</h1>
 
       <div class="hcar-wrap">
         <div class="hcar-stage">
@@ -2888,7 +3045,7 @@
         </svg>
       </div>
       <div class="eyebrow" style="justify-content:center;">Why Modilix</div>
-      <h2>Learn by doing, <em>not</em> by memorizing</h2>
+      <h2>Learn by doing, skip the memorizing</h2>
     </div>
 
     <div class="kj-rows">
@@ -2946,7 +3103,7 @@
           </div>
         </div>
         <div class="kj-copy-col">
-          <div class="eyebrow">Built to make you <em>think</em></div>
+          <div class="eyebrow">Built to make you think</div>
           <h3>Wrong answers are part of the plan</h3>
         </div>
       </div>
@@ -2996,6 +3153,25 @@
     <button class="btn btn-ghost" id="courses-gate-educator-btn">Educator sign-in</button>
   </div>
   <div id="courses-signedin-body" style="display:none;">
+    <div id="courses-filter-bar" style="max-width:680px; margin:0 auto 1.5rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center;">
+      <div style="flex:1; min-width:200px; position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2" style="position:absolute; left:.85rem; top:50%; transform:translateY(-50%); width:16px; height:16px; pointer-events:none;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="course-search-input" placeholder="Search courses by name, code, or subject…" style="width:100%; padding:.7rem .9rem .7rem 2.5rem; border:1.5px solid var(--rule); border-radius:999px; font-family:'Inter',sans-serif; font-size:.85rem; background:var(--white); color:var(--ink); outline:none; transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--rule)'">
+      </div>
+      <select id="course-grade-filter" style="padding:.6rem .9rem; border:1.5px solid var(--rule); border-radius:999px; font-family:'Inter',sans-serif; font-weight:600; font-size:.82rem; background:var(--white); color:var(--ink); cursor:pointer;">
+        <option value="">All grades</option>
+        <option value="11">Grade 11</option>
+        <option value="12">Grade 12</option>
+      </select>
+      <select id="course-subject-filter" style="padding:.6rem .9rem; border:1.5px solid var(--rule); border-radius:999px; font-family:'Inter',sans-serif; font-weight:600; font-size:.82rem; background:var(--white); color:var(--ink); cursor:pointer;">
+        <option value="">All subjects</option>
+        <option value="math">Mathematics</option>
+        <option value="science">Science</option>
+        <option value="english">English</option>
+        <option value="social">Social Science</option>
+        <option value="business">Business</option>
+      </select>
+    </div>
     <button class="btn btn-outline" id="btn-new-course" style="display:none; margin:0 auto 1.75rem; width:max-content;">+ New Course</button>
     <div id="tools-sections"></div>
     <div id="subject-sections"></div>
@@ -3008,12 +3184,29 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="eyebrow">About</div>
-      <h1>Study material, written from <em>scratch</em></h1>
+      <h1>Study material built for Ontario classrooms</h1>
       <p>Every test, worksheet, and quiz on this site is original — written specifically for practice, not copied from any school's actual exams. The goal is straightforward: give Ontario high school students more ways to check their understanding before the real thing.</p>
     </div>
   </section>
-  <div class="subject-section">
-    <p style="max-width:640px; color:var(--ink-soft); line-height:1.8; font-size:.95rem;"> Course material for highschools in ontario..</p>
+  <div class="subject-section" style="max-width:780px; margin:0 auto;">
+    <div style="display:grid; gap:2.5rem;">
+      <div>
+        <h3 style="font-size:1.15rem; margin-bottom:.6rem;">Built for Ontario curriculum</h3>
+        <p style="color:var(--ink-soft); line-height:1.8; font-size:.95rem;">Every course on Modilix maps directly to an Ontario Ministry of Education course code — MCR3U, SPH4U, MHF4U, and more. The content follows the actual curriculum expectations your teachers use, so what you practice here is what shows up on your real tests.</p>
+      </div>
+      <div>
+        <h3 style="font-size:1.15rem; margin-bottom:.6rem;">Original material, not recycled exams</h3>
+        <p style="color:var(--ink-soft); line-height:1.8; font-size:.95rem;">Nothing here is pulled from any school's actual tests. Every question, lesson, and worksheet is written from scratch — designed to build understanding, not just memorize answers. That means you can practice without worrying you're "spoiling" a real assessment.</p>
+      </div>
+      <div>
+        <h3 style="font-size:1.15rem; margin-bottom:.6rem;">Interactive lessons, not just PDFs</h3>
+        <p style="color:var(--ink-soft); line-height:1.8; font-size:.95rem;">Modilix lessons work like guided tutorials — you read a concept, try a question, get instant feedback, and move on. It's the same active-learning approach used by platforms like Brilliant, adapted for Ontario high school courses. The AI tutor Ember is there if you get stuck.</p>
+      </div>
+      <div>
+        <h3 style="font-size:1.15rem; margin-bottom:.6rem;">For students, by someone who gets it</h3>
+        <p style="color:var(--ink-soft); line-height:1.8; font-size:.95rem;">Modilix was built by someone who went through the Ontario system and knows what it's like to hunt for good practice material the night before a test. The platform is free to start, with Premium unlocking deeper analytics, AI study plans, and unlimited practice.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3752,6 +3945,121 @@
     <div id="acct-del-error" style="color:var(--red); font-size:.8rem; margin-bottom:.75rem;"></div>
     <button class="modal-btn btn-danger" id="acct-del-confirm-btn">Delete my account</button>
     <button class="modal-btn secondary" id="acct-del-cancel-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════ STUDY TIMER (Pomodoro) ═══════ -->
+<div id="study-timer">
+  <div class="st-pill" id="st-pill" onclick="toggleStudyTimerPanel()">
+    <span class="st-dot" id="st-dot"></span>
+    <span id="st-pill-time">25:00</span>
+  </div>
+  <div class="st-panel" id="st-panel">
+    <h4>Study Timer</h4>
+    <div class="st-time-display" id="st-display">25:00</div>
+    <div class="st-controls">
+      <button id="st-start-btn" onclick="studyTimerToggle()">Start</button>
+      <button onclick="studyTimerReset()">Reset</button>
+      <button onclick="studyTimerSkip()">Skip</button>
+    </div>
+    <div class="st-controls">
+      <button class="active" data-st-mode="25" onclick="setStudyTimerMode(25,this)">25 min</button>
+      <button data-st-mode="50" onclick="setStudyTimerMode(50,this)">50 min</button>
+      <button data-st-mode="5" onclick="setStudyTimerMode(5,this)">5 break</button>
+    </div>
+    <div class="st-stats" id="st-stats">0 sessions today</div>
+  </div>
+</div>
+
+<!-- ═══════ FORMULA SHEET DRAWER ═══════ -->
+<div class="fd-backdrop" id="fd-backdrop" onclick="closeFormulaDrawer()"></div>
+<div id="formula-drawer">
+  <button class="fd-close" onclick="closeFormulaDrawer()">✕</button>
+  <h3 style="font-size:1.1rem; margin-bottom:.3rem;">Formula Reference</h3>
+  <p style="font-size:.78rem; color:var(--ink-faint); margin-bottom:1.25rem;">Quick reference for the current course. Press <kbd style="font-family:'IBM Plex Mono'; font-size:.68rem; background:var(--paper-2); padding:.1rem .35rem; border-radius:4px; border:1px solid var(--rule);">F</kbd> to toggle.</p>
+  <div id="fd-content">
+    <div class="fd-section">
+      <h4>Quadratics</h4>
+      <div class="fd-formula">y = a(x − h)² + k &nbsp; (vertex form)</div>
+      <div class="fd-formula">y = a(x − r)(x − s) &nbsp; (factored form)</div>
+      <div class="fd-formula">x = (−b ± √(b²−4ac)) / 2a &nbsp; (quadratic formula)</div>
+      <div class="fd-formula">Discriminant: D = b² − 4ac</div>
+    </div>
+    <div class="fd-section">
+      <h4>Trigonometry</h4>
+      <div class="fd-formula">sin²θ + cos²θ = 1</div>
+      <div class="fd-formula">sin(A±B) = sinA·cosB ± cosA·sinB</div>
+      <div class="fd-formula">cos(A±B) = cosA·cosB ∓ sinA·sinB</div>
+      <div class="fd-formula">Law of Sines: a/sinA = b/sinB = c/sinC</div>
+      <div class="fd-formula">Law of Cosines: c² = a² + b² − 2ab·cosC</div>
+    </div>
+    <div class="fd-section">
+      <h4>Exponentials &amp; Logarithms</h4>
+      <div class="fd-formula">aˣ · aʸ = aˣ⁺ʸ</div>
+      <div class="fd-formula">log_a(xy) = log_a(x) + log_a(y)</div>
+      <div class="fd-formula">log_a(x/y) = log_a(x) − log_a(y)</div>
+      <div class="fd-formula">log_a(xⁿ) = n·log_a(x)</div>
+      <div class="fd-formula">A = P(1 + r/n)^(nt) &nbsp; (compound interest)</div>
+    </div>
+    <div class="fd-section">
+      <h4>Calculus (MCV4U)</h4>
+      <div class="fd-formula">f'(x) = lim[h→0] (f(x+h) − f(x)) / h</div>
+      <div class="fd-formula">d/dx [xⁿ] = nxⁿ⁻¹ &nbsp; (power rule)</div>
+      <div class="fd-formula">d/dx [f·g] = f'g + fg' &nbsp; (product rule)</div>
+      <div class="fd-formula">d/dx [f/g] = (f'g − fg') / g² &nbsp; (quotient rule)</div>
+      <div class="fd-formula">d/dx [f(g(x))] = f'(g(x))·g'(x) &nbsp; (chain rule)</div>
+    </div>
+    <div class="fd-section">
+      <h4>Physics (SPH3U / SPH4U)</h4>
+      <div class="fd-formula">v = d/t &nbsp; &nbsp; a = Δv/Δt</div>
+      <div class="fd-formula">d = v₁t + ½at²</div>
+      <div class="fd-formula">v₂² = v₁² + 2ad</div>
+      <div class="fd-formula">F = ma &nbsp; &nbsp; W = Fd·cosθ</div>
+      <div class="fd-formula">E_k = ½mv² &nbsp; &nbsp; E_p = mgh</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ KEYBOARD SHORTCUTS MODAL ═══════ -->
+<div class="modal-overlay" id="kbd-overlay">
+  <div class="modal" style="max-width:400px;">
+    <button class="modal-close" onclick="document.getElementById('kbd-overlay').classList.remove('open')">✕</button>
+    <h2 style="font-size:1.2rem; margin-bottom:1rem;">Keyboard shortcuts</h2>
+    <div class="kbd-grid">
+      <span class="kbd-key">→</span><span class="kbd-desc">Next block / question</span>
+      <span class="kbd-key">←</span><span class="kbd-desc">Previous block</span>
+      <span class="kbd-key">1-4</span><span class="kbd-desc">Select answer option</span>
+      <span class="kbd-key">Enter</span><span class="kbd-desc">Submit / check answer</span>
+      <span class="kbd-key">F</span><span class="kbd-desc">Toggle formula sheet</span>
+      <span class="kbd-key">T</span><span class="kbd-desc">Toggle study timer</span>
+      <span class="kbd-key">Esc</span><span class="kbd-desc">Close panel / go back</span>
+      <span class="kbd-key">?</span><span class="kbd-desc">Show this help</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ONBOARDING OVERLAY ═══════ -->
+<div class="onboard-overlay" id="onboard-overlay">
+  <div class="onboard-card">
+    <div style="font-size:2.8rem; margin-bottom:.75rem;">👋</div>
+    <h2>Welcome to Modilix</h2>
+    <p>Your Ontario course practice hub. Here's how to get started in under a minute.</p>
+    <div class="onboard-steps">
+      <div class="onboard-step">
+        <div class="onboard-step-num">1</div>
+        <div class="onboard-step-text"><strong>Pick a course</strong> — find your course code (like MCR3U or SPH4U) in the catalog. Each one maps to your real Ontario curriculum.</div>
+      </div>
+      <div class="onboard-step">
+        <div class="onboard-step-num">2</div>
+        <div class="onboard-step-text"><strong>Start a lesson or quiz</strong> — work through interactive lessons step by step, or jump into a quiz to test yourself. You get instant feedback on every answer.</div>
+      </div>
+      <div class="onboard-step">
+        <div class="onboard-step-num">3</div>
+        <div class="onboard-step-text"><strong>Track your progress</strong> — earn XP, build a streak, and watch your mastery grow. Ember (the AI tutor) is always in the corner if you get stuck.</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="closeOnboarding()" style="width:100%; border-radius:999px; padding:.85rem;">Let's go</button>
+    <div style="font-size:.72rem; color:var(--ink-faint); margin-top:.75rem;">Press <kbd style="font-family:'IBM Plex Mono'; font-size:.68rem; background:var(--paper-2); padding:.1rem .35rem; border-radius:4px; border:1px solid var(--rule);">?</kbd> anytime for keyboard shortcuts</div>
   </div>
 </div>
 
@@ -6640,6 +6948,10 @@ function renderDashboard(){
     continueCard.style.display = 'none';
   }
 
+  // Recently visited
+  const recentSlot = document.getElementById('dash-recent-slot');
+  if(recentSlot) recentSlot.innerHTML = renderRecentlyVisited();
+
   const rec = findRecommendedItem();
   const card = document.getElementById('dash-recommend-card');
   if(!rec){
@@ -6691,7 +7003,7 @@ function renderCourses(){
       const [c1,c2] = SUBJECT_GRADIENTS[c.subject] || SUBJECT_GRADIENTS.other;
       const glyph = `<svg class=\"icon\"><use href=\"#i-${SUBJECT_GLYPHS[c.subject]||'star'}\"/></svg>`;
       const ctaLabel = pct > 0 ? 'Continue' : 'Start course';
-      return `<div class="course-tile stagger-in ${pct>=100?'course-tile-mastered':''}" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}">
+      return `<div class="course-tile stagger-in ${pct>=100?'course-tile-mastered':''}" style="animation-delay:${ci*0.05}s; --tile-c1:${c1}; --tile-c2:${c2};" data-course="${c.id}" data-course-name="${esc(c.name)}" data-course-code="${esc(c.code)}" data-course-subject="${c.subject}" data-course-grade="${c.grade}">
         <div class="course-tile-top">
           <div class="course-tile-shimmer"></div>
           <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:.3rem; align-items:flex-start;">
@@ -6956,6 +7268,10 @@ function renderUnitContent(){
         <div class="lesson-row-text">
           <div class="lesson-row-title">${esc(it.title)}</div>
           <div class="lesson-row-meta">${it.type==='lesson' ? `${TYPE_LABELS[it.type]} · ${it.content.length} block${it.content.length===1?'':'s'}` : `${TYPE_LABELS[it.type]} · ${it.questions.length} question${it.questions.length===1?'':'s'}`}${it.status==='draft' && isEducator ? ' · <span style="color:var(--gold);">DRAFT</span>' : ''}</div>
+          <div class="lesson-meta-pills">
+            <span class="meta-pill time">${estimateItemTime(it)}</span>
+            <span class="meta-pill difficulty-${estimateItemDifficulty(it)}">${estimateItemDifficulty(it)}</span>
+          </div>
           ${filePills}
         </div>
         <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
@@ -7104,6 +7420,7 @@ function _openTestInner(itemId){
   currentCourseId = it.courseId;
   currentUnitId = it.unitId;
   const c = courses.find(x=>x.id===it.courseId);
+  trackRecentlyVisited(itemId, it.title, it.type, c ? c.code : '');
   document.getElementById('home-page').style.display='none';
   document.getElementById('dashboard-page').style.display='none';
   document.getElementById('courses-page').style.display='none';
@@ -13084,6 +13401,279 @@ const lpFeedbackObserver = new MutationObserver((mutations)=>{
 });
 lpFeedbackObserver.observe(document.getElementById('lp-player'), { childList:true, subtree:true });
 
+/* ══════════════════════════════════════
+   NEW FEATURES — Study Timer, Formula Drawer, Keyboard Shortcuts,
+   Course Filtering, Onboarding, Recently Visited, Bookmarks
+   ══════════════════════════════════════ */
+
+/* ── Study Timer (Pomodoro) ── */
+let stSeconds = 25*60, stRunning = false, stInterval = null, stMode = 25, stSessions = 0;
+function studyTimerFormat(s){ return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+function studyTimerRender(){
+  const t = studyTimerFormat(stSeconds);
+  document.getElementById('st-display').textContent = t;
+  document.getElementById('st-pill-time').textContent = t;
+  const dot = document.getElementById('st-dot');
+  dot.className = 'st-dot' + (!stRunning ? ' paused' : stMode <= 5 ? ' break-time' : '');
+  document.getElementById('st-start-btn').textContent = stRunning ? 'Pause' : 'Start';
+  document.getElementById('st-stats').textContent = `${stSessions} session${stSessions===1?'':'s'} today`;
+}
+function studyTimerTick(){
+  if(stSeconds <= 0){ studyTimerDone(); return; }
+  stSeconds--; studyTimerRender();
+}
+function studyTimerDone(){
+  clearInterval(stInterval); stRunning = false;
+  if(stMode > 5){ stSessions++; sfx.streak?.(); }
+  else { sfx.correct?.(); }
+  stSeconds = stMode * 60; studyTimerRender();
+}
+function studyTimerToggle(){
+  if(stRunning){ clearInterval(stInterval); stRunning = false; }
+  else { stInterval = setInterval(studyTimerTick, 1000); stRunning = true; }
+  studyTimerRender();
+}
+function studyTimerReset(){ clearInterval(stInterval); stRunning = false; stSeconds = stMode * 60; studyTimerRender(); }
+function studyTimerSkip(){ clearInterval(stInterval); stRunning = false; studyTimerDone(); }
+function setStudyTimerMode(mins, btn){
+  stMode = mins; studyTimerReset();
+  document.querySelectorAll('[data-st-mode]').forEach(b => b.classList.toggle('active', +b.dataset.stMode === mins));
+}
+function toggleStudyTimerPanel(){
+  document.getElementById('st-panel').classList.toggle('open');
+}
+function showStudyTimer(){ document.getElementById('study-timer').classList.add('visible'); studyTimerRender(); }
+function hideStudyTimer(){ document.getElementById('study-timer').classList.remove('visible'); }
+
+/* ── Formula Sheet Drawer ── */
+function openFormulaDrawer(){
+  document.getElementById('formula-drawer').classList.add('open');
+  document.getElementById('fd-backdrop').classList.add('open');
+  // Update formula content based on current course subject
+  updateFormulaContent();
+}
+function closeFormulaDrawer(){
+  document.getElementById('formula-drawer').classList.remove('open');
+  document.getElementById('fd-backdrop').classList.remove('open');
+}
+function toggleFormulaDrawer(){
+  const d = document.getElementById('formula-drawer');
+  d.classList.contains('open') ? closeFormulaDrawer() : openFormulaDrawer();
+}
+function updateFormulaContent(){
+  // Formula content is already in the HTML — in a more advanced version,
+  // this would filter by the current course's subject. For now, show all.
+}
+
+/* ── Keyboard Shortcuts ── */
+document.addEventListener('keydown', (e) => {
+  // Don't trigger shortcuts when typing in inputs
+  const tag = e.target.tagName;
+  const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable;
+  if(isInput) return;
+
+  const testPage = document.getElementById('test-page');
+  const inLesson = testPage.classList.contains('visible') && testPage.classList.contains('lp-mode');
+  const inTest = testPage.classList.contains('visible') && !testPage.classList.contains('lp-mode');
+
+  // ? — show keyboard shortcuts
+  if(e.key === '?' && !e.ctrlKey && !e.metaKey){
+    e.preventDefault();
+    document.getElementById('kbd-overlay').classList.toggle('open');
+    return;
+  }
+
+  // F — toggle formula sheet
+  if(e.key === 'f' || e.key === 'F'){
+    if(!e.ctrlKey && !e.metaKey){ e.preventDefault(); toggleFormulaDrawer(); }
+    return;
+  }
+
+  // T — toggle study timer
+  if((e.key === 't' || e.key === 'T') && !e.ctrlKey && !e.metaKey){
+    e.preventDefault(); toggleStudyTimerPanel();
+    return;
+  }
+
+  // Escape — close panels
+  if(e.key === 'Escape'){
+    closeFormulaDrawer();
+    document.getElementById('st-panel').classList.remove('open');
+    document.getElementById('kbd-overlay').classList.remove('open');
+    return;
+  }
+
+  // Arrow keys for lesson navigation
+  if(inLesson){
+    const nextBtn = document.getElementById('lp-next-btn');
+    const prevBtn = document.getElementById('lp-prev-btn');
+    if(e.key === 'ArrowRight' && nextBtn && !nextBtn.disabled){ e.preventDefault(); nextBtn.click(); }
+    if(e.key === 'ArrowLeft' && prevBtn){ e.preventDefault(); prevBtn.click(); }
+    // Number keys to select options in multiple choice
+    if(e.key >= '1' && e.key <= '4'){
+      const opts = document.querySelectorAll('#lp-block-slot .lp-check-opt:not(.selected):not(.disabled)');
+      const idx = parseInt(e.key) - 1;
+      if(opts[idx]) opts[idx].click();
+    }
+    // Enter to check/submit
+    if(e.key === 'Enter'){
+      const checkBtn = document.querySelector('#lp-block-slot .lp-check-btn:not(:disabled)');
+      if(checkBtn) checkBtn.click();
+    }
+  }
+
+  // In test mode — number keys for MCQ
+  if(inTest){
+    if(e.key >= '1' && e.key <= '4'){
+      const opts = document.querySelectorAll('.tp-option:not(.correct):not(.incorrect)');
+      const idx = parseInt(e.key) - 1;
+      if(opts[idx]){ const input = opts[idx].querySelector('input'); if(input) input.click(); }
+    }
+  }
+});
+
+/* ── Course Search & Filtering ── */
+function setupCourseFiltering(){
+  const searchInput = document.getElementById('course-search-input');
+  const gradeFilter = document.getElementById('course-grade-filter');
+  const subjectFilter = document.getElementById('course-subject-filter');
+  if(!searchInput) return;
+
+  const doFilter = () => {
+    const q = (searchInput.value || '').toLowerCase().trim();
+    const grade = gradeFilter.value;
+    const subject = subjectFilter.value;
+
+    document.querySelectorAll('#subject-sections .subject-section').forEach(section => {
+      let anyVisible = false;
+      section.querySelectorAll('.course-tile').forEach(tile => {
+        const name = (tile.dataset.courseName || '').toLowerCase();
+        const code = (tile.dataset.courseCode || '').toLowerCase();
+        const subj = tile.dataset.courseSubject || '';
+        const gr = tile.dataset.courseGrade || '';
+
+        const matchSearch = !q || name.includes(q) || code.includes(q) || subj.includes(q);
+        const matchGrade = !grade || gr === grade;
+        const matchSubject = !subject || subj === subject;
+        const show = matchSearch && matchGrade && matchSubject;
+        tile.style.display = show ? '' : 'none';
+        if(show) anyVisible = true;
+      });
+      section.style.display = anyVisible ? '' : 'none';
+    });
+  };
+
+  searchInput.addEventListener('input', doFilter);
+  gradeFilter.addEventListener('change', doFilter);
+  subjectFilter.addEventListener('change', doFilter);
+}
+
+/* ── Recently Visited ── */
+function trackRecentlyVisited(itemId, title, type, courseCode){
+  try {
+    let recents = JSON.parse(localStorage.getItem('mdlx_recents') || '[]');
+    recents = recents.filter(r => r.id !== itemId);
+    recents.unshift({ id: itemId, title, type, courseCode, ts: Date.now() });
+    recents = recents.slice(0, 8);
+    localStorage.setItem('mdlx_recents', JSON.stringify(recents));
+  } catch(e){}
+}
+function getRecentlyVisited(){
+  try { return JSON.parse(localStorage.getItem('mdlx_recents') || '[]'); } catch(e){ return []; }
+}
+function renderRecentlyVisited(){
+  const recents = getRecentlyVisited();
+  if(!recents.length) return '';
+  return `<div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:.88rem; color:var(--ink-soft); margin-bottom:.6rem;">Recently visited</h3>
+    <div class="recent-cards">${recents.map(r => `
+      <div class="recent-card" onclick="openTest('${r.id}')">
+        <div class="recent-card-title">${esc(r.title)}</div>
+        <div class="recent-card-meta">${r.courseCode || ''} · ${r.type || ''}</div>
+      </div>
+    `).join('')}</div>
+  </div>`;
+}
+
+/* ── Bookmarks ── */
+function getBookmarks(){
+  try { return JSON.parse(localStorage.getItem('mdlx_bookmarks') || '[]'); } catch(e){ return []; }
+}
+function toggleBookmark(itemId, title, courseCode){
+  let bm = getBookmarks();
+  const exists = bm.find(b => b.id === itemId);
+  if(exists) bm = bm.filter(b => b.id !== itemId);
+  else bm.push({ id: itemId, title, courseCode, ts: Date.now() });
+  try { localStorage.setItem('mdlx_bookmarks', JSON.stringify(bm)); } catch(e){}
+  return !exists; // returns true if now bookmarked
+}
+function isBookmarked(itemId){
+  return getBookmarks().some(b => b.id === itemId);
+}
+
+/* ── Onboarding ── */
+function showOnboarding(){
+  if(!currentUser || isEducator) return;
+  try {
+    if(localStorage.getItem('mdlx_onboarded')) return;
+  } catch(e){}
+  document.getElementById('onboard-overlay').classList.add('open');
+}
+function closeOnboarding(){
+  document.getElementById('onboard-overlay').classList.remove('open');
+  try { localStorage.setItem('mdlx_onboarded', '1'); } catch(e){}
+}
+
+/* ── Challenge Mode (timed quizzes) ── */
+let challengeTimer = null, challengeSeconds = 0, challengeTotal = 0;
+function startChallengeTimer(totalSeconds){
+  challengeTotal = totalSeconds;
+  challengeSeconds = totalSeconds;
+  updateChallengeTimerUI();
+  clearInterval(challengeTimer);
+  challengeTimer = setInterval(() => {
+    challengeSeconds--;
+    updateChallengeTimerUI();
+    if(challengeSeconds <= 0){
+      clearInterval(challengeTimer);
+      // Auto-submit when time runs out
+      const submitBtn = document.querySelector('#test-page .tp-submit-row .btn-primary');
+      if(submitBtn && !submitBtn.disabled) submitBtn.click();
+    }
+  }, 1000);
+}
+function stopChallengeTimer(){ clearInterval(challengeTimer); }
+function updateChallengeTimerUI(){
+  const bar = document.querySelector('.challenge-timer-bar');
+  if(!bar) return;
+  const timeEl = bar.querySelector('.ct-time');
+  const fillEl = bar.querySelector('.ct-fill');
+  if(timeEl) {
+    timeEl.textContent = studyTimerFormat(challengeSeconds);
+    timeEl.classList.toggle('urgent', challengeSeconds <= 30);
+  }
+  if(fillEl){
+    const pct = challengeTotal > 0 ? (challengeSeconds / challengeTotal * 100) : 0;
+    fillEl.style.width = pct + '%';
+    fillEl.classList.toggle('urgent', challengeSeconds <= 30);
+  }
+}
+
+/* ── Difficulty/Time Estimation ── */
+function estimateItemTime(item){
+  if(item.type === 'lesson') return `~${Math.max(2, Math.round(item.content.length * 1.5))} min`;
+  const qCount = item.questions?.length || 0;
+  if(item.type === 'unittest') return `~${Math.max(5, qCount * 3)} min`;
+  return `~${Math.max(2, qCount * 1.5)} min`;
+}
+function estimateItemDifficulty(item){
+  // Estimate based on question count and type
+  const qCount = item.questions?.length || item.content?.length || 0;
+  if(item.type === 'unittest' || qCount > 15) return 'hard';
+  if(qCount > 8 || item.type === 'quiz') return 'medium';
+  return 'easy';
+}
+
 /* ── Init ── */
 // Firebase resolves its persisted session asynchronously, so we wait for
 // its first callback before deciding "no student is signed in".
@@ -13155,12 +13745,17 @@ async function ensureProfileExists(uid, existingProfile){
   }
   updateAccountUI();
   renderSoundToggle();
+  setupCourseFiltering();
   // Signed-in students (whether via a persisted session or an auto-resumed
   // Google popup/redirect) land straight on their dashboard instead of the
   // marketing home page. Educators don't have a dashboard, so they still
   // land on home.
   showPage((currentUser && !isEducator) ? 'dashboard' : 'home');
-  if(currentUser && !isEducator) checkPremiumRedirectResult();
+  if(currentUser && !isEducator){
+    checkPremiumRedirectResult();
+    showStudyTimer();
+    showOnboarding();
+  }
 })();
 </script>
 </body>
