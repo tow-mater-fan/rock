@@ -1445,81 +1445,167 @@
   #test-page.lp-mode .tp-header { padding:1.1rem 1.75rem .9rem; flex-shrink:0; background:transparent; border-bottom:none; }
   #test-page.lp-mode .tp-header h1 { display:none; }
   #test-page.lp-mode .tp-code, #test-page.lp-mode .cd-code { display:none; }
-  #test-page.lp-mode #tp-back-btn { position:fixed; top:76px; left:1.75rem; display:flex; align-items:center; gap:.4rem; height:34px; padding:0 .9rem 0 .7rem; border-radius:999px; font-size:0; z-index:300;
-    background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.14); color:transparent; transition:background .18s var(--ease-premium), transform .18s var(--ease-premium), border-color .18s; }
-  #test-page.lp-mode #tp-back-btn::before { content:'←'; font-size:.95rem; color:rgba(246,244,239,.85); font-family:'Inter',sans-serif; line-height:1; }
-  #test-page.lp-mode #tp-back-btn::after { content:'Exit'; font-size:.85rem; font-weight:600; color:rgba(246,244,239,.85); font-family:'Inter',sans-serif; line-height:1; }
-  #test-page.lp-mode #tp-back-btn:hover { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.24); transform:translateX(-1px); }
-  #test-page.lp-mode #tp-back-btn:hover::before, #test-page.lp-mode #tp-back-btn:hover::after { color:var(--board-ink); }
-  #test-page.lp-mode .tp-progress-track { display:none; }
-  #test-page.lp-mode .tp-progress-fill { background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:999px; box-shadow:0 0 12px rgba(34,197,94,.5); }
+
+  /* ── EXIT BUTTON: always visible with readable text, frosted glass pill ── */
+  #test-page.lp-mode #tp-back-btn { position:fixed; top:1.1rem; left:1.25rem; display:flex; align-items:center; gap:.45rem;
+    height:38px; padding:0 1rem 0 .8rem; border-radius:999px; z-index:300;
+    background:rgba(255,255,255,.1); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.18); color:rgba(246,244,239,.85);
+    font-family:'Inter',sans-serif; font-weight:600; font-size:.82rem;
+    cursor:pointer; transition:background .18s var(--ease-premium), transform .18s var(--ease-premium), border-color .18s; }
+  #test-page.lp-mode #tp-back-btn::before { content:'← Exit'; }
+  #test-page.lp-mode #tp-back-btn::after { content:none; }
+  #test-page.lp-mode #tp-back-btn:hover { background:rgba(255,255,255,.2); border-color:rgba(255,255,255,.3); transform:translateX(-2px); }
+
+  /* ── PROGRESS BAR: thin, glowing, at the very top ── */
+  #test-page.lp-mode .tp-progress-track { position:fixed; top:0; left:0; right:0; height:4px; background:rgba(255,255,255,.08); z-index:500; border-radius:0; margin:0; display:block; }
+  #test-page.lp-mode .tp-progress-fill { background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:0 2px 2px 0; box-shadow:0 0 16px rgba(34,197,94,.6); height:100%; }
+
+  /* ── BODY LAYOUT: true full-viewport, vertically + horizontally centered ── */
   #test-page.lp-mode .tp-body { flex:1; display:flex; flex-direction:column; padding:0; max-width:none; min-height:0; }
   #test-page.lp-mode #lp-player { flex:1; display:flex; flex-direction:column; min-height:0; }
-  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center; padding:2.5rem 3vw; overflow-y:auto; min-height:0; }
-  #test-page.lp-mode #lp-block-slot { width:100%; max-width:1020px; }
-  #test-page.lp-mode .lp-block { background:transparent; border:none; box-shadow:none; padding:0; }
-  #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.045); padding:1.6rem 1.9rem; }
-  #test-page.lp-mode .lp-text-card-lead::before { background:linear-gradient(180deg, var(--green), #21c584); }
+  #test-page.lp-mode .lp-stage { flex:1; display:flex; align-items:center; justify-content:center;
+    padding:1rem 3vw 0; overflow-y:auto; min-height:0; }
+  #test-page.lp-mode #lp-block-slot { width:100%; max-width:720px; }
+
+  /* ── BLOCKS: glass-morphism card feel, not invisible ── */
+  #test-page.lp-mode .lp-block { background:transparent; border:none; box-shadow:none; padding:0; animation:fadeInUp .35s var(--ease-premium) both; }
+
+  /* ── TEXT CARDS: frosted glass, prominent, readable ── */
+  #test-page.lp-mode .lp-text-card { background:rgba(255,255,255,.06); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:2rem 2.2rem; }
+  #test-page.lp-mode .lp-text-card-lead { border-left:none; padding-left:2.2rem; }
+  #test-page.lp-mode .lp-text-card-lead::before { left:0; width:4px; border-radius:4px;
+    background:linear-gradient(180deg, var(--green), #21c584); }
   #test-page.lp-mode .lp-text, #test-page.lp-mode .lp-caption { color:rgba(246,244,239,.92); }
-  #test-page.lp-mode .lp-text { font-size:1.35rem; line-height:1.9; }
-  #test-page.lp-mode .lp-text-lead { font-size:1.5rem; }
-  #test-page.lp-mode .lp-check-q { font-size:1.45rem; color:var(--board-ink); border-image:none; border-left-color:var(--green); }
-  /* Most block-type templates (fillblank inputs, function-machine tiles,
-     sequence/factory boxes, tables, accordions, tabs, the trig unit-circle
-     diagram, etc.) were authored against the light-mode token system —
-     pale --rule borders and --white/--paper-2 fills meant to sit on paper,
-     not on this dark full-screen stage. Rather than hand-patch 30+ block
-     templates individually, we re-point those tokens to dark-appropriate
-     equivalents only within the block stage itself (not the tutor panel or
-     nav, which are already hand-tuned for dark). Every block then reads
-     correctly — light "chip" surfaces for solid elements, soft frosted
-     fills for secondary ones, crisp translucent borders — without touching
-     a single render function. */
+  #test-page.lp-mode .lp-text { font-size:1.25rem; line-height:1.85; }
+  #test-page.lp-mode .lp-text-lead { font-size:1.4rem; }
+  #test-page.lp-mode .lp-check-q { font-size:1.35rem; color:var(--board-ink); border-image:none; border-left-color:var(--green); }
+
+  /* ── MC OPTIONS: clearly visible, pill-shaped, good contrast ── */
+  #test-page.lp-mode .tp-option { background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.2);
+    color:rgba(246,244,239,.92); border-radius:14px; padding:.95rem 1.3rem; font-size:.95rem; font-weight:500;
+    transition:all .2s var(--ease-premium); }
+  #test-page.lp-mode .tp-option:hover { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.35); transform:translateY(-2px);
+    box-shadow:0 8px 20px -6px rgba(0,0,0,.3); }
+  #test-page.lp-mode .tp-option input[type="radio"] { appearance:none; -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+    border:2px solid rgba(255,255,255,.35); flex-shrink:0; transition:all .15s; position:relative; }
+  #test-page.lp-mode .tp-option input[type="radio"]:checked { border-color:var(--green); background:var(--green); }
+  #test-page.lp-mode .tp-option input[type="radio"]:checked::after { content:''; position:absolute; inset:4px; border-radius:50%; background:#fff; }
+  #test-page.lp-mode .tp-option.correct { background:rgba(34,197,94,.15); border-color:var(--green); }
+  #test-page.lp-mode .tp-option.correct span { color:#4ade80; }
+  #test-page.lp-mode .tp-option.incorrect { background:rgba(239,68,68,.15); border-color:var(--red); }
+  #test-page.lp-mode .tp-option.incorrect span { color:#f87171; }
+
+  /* ── FEEDBACK: Brilliant-style speech bubble with strong glow ── */
+  #test-page.lp-mode .lp-feedback { background:rgba(255,255,255,.08); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:1.1rem 1.4rem; margin-top:1.2rem;
+    font-size:.95rem; font-weight:600; color:rgba(246,244,239,.95); line-height:1.5; }
+  #test-page.lp-mode .lp-feedback::before { display:none; }
+  #test-page.lp-mode .lp-feedback.correct { border-color:rgba(34,197,94,.4);
+    box-shadow:0 0 0 1px rgba(34,197,94,.3) inset, 0 12px 32px -8px rgba(34,197,94,.35); }
+  #test-page.lp-mode .lp-feedback.incorrect { border-color:rgba(239,68,68,.4);
+    box-shadow:0 0 0 1px rgba(239,68,68,.3) inset, 0 12px 32px -8px rgba(239,68,68,.35); }
+
+  /* ── NAV ROW: Brilliant-style bottom dock, always visible ── */
+  #test-page.lp-mode .lp-nav-row { max-width:720px; margin:0 auto; width:100%;
+    padding:1rem 3vw 1.5rem; flex-shrink:0; display:flex; justify-content:space-between; align-items:center; }
+
+  /* ── BACK BUTTON: readable, subtle ── */
+  #test-page.lp-mode #lp-prev-btn { color:rgba(246,244,239,.6); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    border-radius:999px; padding:.7rem 1.2rem; font-size:.85rem; font-weight:600; transition:all .18s var(--ease-premium); }
+  #test-page.lp-mode #lp-prev-btn:hover { color:rgba(246,244,239,.95); background:rgba(255,255,255,.12); }
+
+  /* ── CONTINUE BUTTON: big, prominent, Brilliant-green when enabled ── */
+  #test-page.lp-mode #lp-next-btn { background:linear-gradient(135deg, #22c55e, #16a34a); color:#fff; border-radius:999px;
+    padding:1rem 2.8rem; font-size:1.05rem; font-weight:700; font-family:'Inter',sans-serif;
+    border:none; cursor:pointer;
+    box-shadow:0 8px 24px -6px rgba(34,197,94,.45); transition:all .2s var(--ease-premium); }
+  #test-page.lp-mode #lp-next-btn:hover:not(:disabled) { transform:translateY(-2px);
+    box-shadow:0 12px 32px -6px rgba(34,197,94,.6); filter:brightness(1.05); }
+  #test-page.lp-mode #lp-next-btn:disabled { background:rgba(255,255,255,.08); color:rgba(246,244,239,.3);
+    box-shadow:none; cursor:not-allowed; }
+  #test-page.lp-mode #lp-next-btn:not(:disabled) { animation:none; }
+
+  /* ── STEP COUNTER: show block position like Brilliant ── */
+  #test-page.lp-mode .lp-progress-track ~ .lp-stage::before {
+    content:attr(data-step-label); position:fixed; top:1.25rem; right:1.25rem; z-index:300;
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.75rem; color:rgba(246,244,239,.4);
+    background:rgba(255,255,255,.06); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:.4rem .8rem; }
+
+  /* ── Token overrides for block content on dark stage ── */
   #test-page.lp-mode #lp-block-slot {
     --white: rgba(255,255,255,.94);
     --paper: var(--board);
     --paper-2: rgba(255,255,255,.08);
     --rule: rgba(255,255,255,.22);
+    --ink: rgba(246,244,239,.92);
     --ink-faint: rgba(246,244,239,.5);
     --ink-soft: rgba(246,244,239,.75);
   }
-  /* The function-graph engine (used by vlt/tov/mapping/multirep/domainrange
-     and more) hardcodes its grid and axis strokes rather than reading a
-     token, since it's shared with the light-mode graphing tool elsewhere.
-     Dim just those two lines for the dark stage so the grid reads as a
-     quiet reference instead of a bright cyan-white lattice. */
+  /* ── btn-outline in dark lesson context ── */
+  #test-page.lp-mode .btn-outline, #test-page.lp-mode .btn-sm {
+    background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.2); color:rgba(246,244,239,.85);
+    border-radius:10px; padding:.6rem 1.1rem; font-weight:600; cursor:pointer; transition:all .15s; }
+  #test-page.lp-mode .btn-outline:hover, #test-page.lp-mode .btn-sm:hover {
+    background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.35); }
+
+  /* ── Inputs in dark lesson context ── */
+  #test-page.lp-mode #lp-block-slot input[type="text"],
+  #test-page.lp-mode #lp-block-slot input[type="number"],
+  #test-page.lp-mode #lp-block-slot select,
+  #test-page.lp-mode #lp-block-slot textarea {
+    background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.2); color:rgba(246,244,239,.92);
+    border-radius:8px; padding:.5rem .7rem; }
+  #test-page.lp-mode #lp-block-slot input:focus,
+  #test-page.lp-mode #lp-block-slot select:focus,
+  #test-page.lp-mode #lp-block-slot textarea:focus { border-color:var(--green); outline:none; }
+
+  /* ── Flashcards in dark context ── */
+  #test-page.lp-mode .lp-flashcard-inner { box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 12px 28px -10px rgba(0,0,0,.6); }
+  #test-page.lp-mode .lp-flashcard-inner > div:first-child { border:1px solid rgba(255,255,255,.14); }
+
+  /* ── FX graph in dark context ── */
   #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:rgba(255,255,255,.1); }
   #test-page.lp-mode #lp-block-slot .fx-axis { stroke:rgba(255,255,255,.32); }
-  /* Table cell text (tov blocks) inherits plain body ink with no light chip
-     behind it, unlike the header row — on the dark stage that's dark text
-     on a dark board. Give the whole table the same light surface as its
-     header so the values read as one consistent light strip. */
   #test-page.lp-mode #lp-block-slot .fx-table td,
   #test-page.lp-mode #lp-block-slot .fx-table th { background:var(--paper-2); color:var(--board-ink); }
   #test-page.lp-mode #lp-block-slot .fx-table input { color:var(--ink); }
-  #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; }
-  #test-page.lp-mode .lp-nav-row { max-width:1020px; margin:0 auto; width:100%; padding:1.1rem 3vw 1.8rem; flex-shrink:0; }
-  #test-page.lp-mode #lp-prev-btn { color:rgba(246,244,239,.55); background:transparent; }
-  #test-page.lp-mode #lp-prev-btn:hover { color:var(--board-ink); }
-  #test-page.lp-mode #lp-next-btn { background:#fff; color:#12172a; border-radius:999px; padding:1rem 2.4rem; font-size:1rem;
-    box-shadow:0 10px 28px -6px rgba(0,0,0,.45); border:none; }
-  #test-page.lp-mode #lp-next-btn:hover { background:#f2f2f2; box-shadow:0 12px 32px -6px rgba(0,0,0,.55); }
-  #test-page.lp-mode #lp-next-btn:not(:disabled) { animation:none; }
-  /* Diagrams / interactive visuals get the soft glow highlight from the
-     reference screenshot instead of sitting flat on the dark background. */
+
+  /* ── Images ── */
+  #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; border-radius:var(--radius-md); }
+
+  /* ── Hint box in dark context ── */
+  #test-page.lp-mode .hint-box { margin-top:1rem; }
+  #test-page.lp-mode .hint-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:rgba(246,244,239,.7);
+    border-radius:999px; padding:.5rem 1rem; font-size:.82rem; cursor:pointer; transition:all .15s; }
+  #test-page.lp-mode .hint-btn:hover { background:rgba(255,255,255,.12); color:rgba(246,244,239,.95); }
+  #test-page.lp-mode .hint-revealed { color:rgba(246,244,239,.75); font-size:.88rem; padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,.1); }
+
+  /* ── Diagram glow ── */
   #test-page.lp-mode .lp-glow-target { position:relative; }
   #test-page.lp-mode .lp-glow-target::before { content:''; position:absolute; inset:10%; border-radius:50%;
     background:radial-gradient(circle, rgba(37,99,235,.55), transparent 70%); filter:blur(18px); z-index:0;
     animation:lpDiagramGlow 3.5s ease-in-out infinite; }
   @keyframes lpDiagramGlow { 0%,100% { opacity:.55; transform:scale(1); } 50% { opacity:.85; transform:scale(1.08); } }
+
+  /* ── Block entrance animation ── */
+  @keyframes lpBlockSlideIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  #test-page.lp-mode .lp-block { animation:lpBlockSlideIn .4s var(--ease-premium) both; }
+
+  /* ── Responsive ── */
   @media (max-width:900px){
-    #test-page.lp-mode #lp-block-slot, #test-page.lp-mode .lp-nav-row { max-width:680px; }
+    #test-page.lp-mode #lp-block-slot, #test-page.lp-mode .lp-nav-row { max-width:600px; }
   }
   @media (max-width:640px){
-    #test-page.lp-mode .lp-stage { padding:1.5rem 1rem; }
-    #test-page.lp-mode .lp-block { padding:1.5rem 1.4rem; }
-    #test-page.lp-mode .lp-text { font-size:1.1rem; }
-    #test-page.lp-mode .lp-check-q { font-size:1.15rem; }
+    #test-page.lp-mode .lp-stage { padding:1rem .8rem 0; }
+    #test-page.lp-mode .lp-text-card { padding:1.4rem 1.2rem; }
+    #test-page.lp-mode .lp-text { font-size:1.05rem; }
+    #test-page.lp-mode .lp-check-q { font-size:1.1rem; }
+    #test-page.lp-mode #lp-next-btn { padding:.85rem 1.8rem; font-size:.95rem; }
+    #test-page.lp-mode #tp-back-btn { top:.7rem; left:.7rem; height:34px; padding:0 .8rem 0 .65rem; font-size:.75rem; }
+    #test-page.lp-mode .tp-option { padding:.8rem 1rem; font-size:.88rem; }
   }
 
   /* ── AI tutor widget: "Ember", Modilix's tutor ── only shown while inside a lesson (#lp-player).
@@ -2539,6 +2625,423 @@
     .badge-card { padding:.85rem .6rem; }
     .a11y-toolbar { bottom:70px; right:10px; }
     .a11y-btn { width:34px; height:34px; }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     DESIGN LANGUAGE: "Liquid Depth"
+     ──────────────────────────────────────────────────────────────────────────
+     A cohesive visual system built around three ideas:
+
+     1. DEPTH LAYERS — every surface has a subtle translucency and inner
+        light, as if carved from slightly frosted resin. Cards aren't flat
+        rectangles — they have an inner gradient shimmer, a soft top-light
+        highlight, and a layered shadow that makes them feel like they
+        float above the page with real depth.
+
+     2. AMBIENT GRADIENTS — the page itself has slow-moving, barely-visible
+        gradient mesh blobs (blue/indigo, the brand palette) that shift
+        with a glacial pace, giving the background organic life without
+        drawing attention. The feel is an aurora seen through frosted glass.
+
+     3. INTERACTIVE PRESENCE — elements respond to attention: cards lift and
+        glow on hover, buttons have a pressure-release feel on click, input
+        fields breathe with a subtle ring animation on focus. Nothing is
+        static — but nothing is distracting either.
+
+     Brand anchors: Modilix blue (#2563eb → #1d4ed8), the board dark
+     (#12172a), board-ink cream (#f6f4ef). The gradient mesh uses these
+     plus a touch of indigo-violet for the secondary blobs.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ── Ambient gradient mesh on the page background ── */
+  :root {
+    --glass: rgba(255,255,255,.55);
+    --glass-border: rgba(255,255,255,.65);
+    --glass-hover: rgba(255,255,255,.72);
+    --glass-blur: 12px;
+    --depth-1: 0 1px 2px rgba(20,20,30,.04), 0 2px 8px rgba(20,20,30,.04), inset 0 1px 0 rgba(255,255,255,.7);
+    --depth-2: 0 2px 4px rgba(20,20,30,.04), 0 8px 24px -4px rgba(20,20,30,.08), inset 0 1px 0 rgba(255,255,255,.8);
+    --depth-3: 0 4px 8px rgba(20,20,30,.05), 0 16px 40px -8px rgba(20,20,30,.12), inset 0 1px 0 rgba(255,255,255,.9);
+    --depth-glow: 0 4px 20px -4px rgba(37,99,235,.18);
+    --surface-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
+  }
+  html[data-theme="dark"] {
+    --glass: rgba(255,255,255,.06);
+    --glass-border: rgba(255,255,255,.1);
+    --glass-hover: rgba(255,255,255,.1);
+    --glass-blur: 14px;
+    --depth-1: 0 1px 2px rgba(0,0,0,.2), 0 2px 8px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.04);
+    --depth-2: 0 2px 4px rgba(0,0,0,.2), 0 8px 24px -4px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+    --depth-3: 0 4px 8px rgba(0,0,0,.25), 0 16px 40px -8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    --depth-glow: 0 4px 20px -4px rgba(37,99,235,.25);
+  }
+
+  /* Page-level ambient mesh — two slow-drifting gradient blobs */
+  body::before, body::after {
+    content:''; position:fixed; border-radius:50%; pointer-events:none; z-index:-1;
+    opacity:.45; filter:blur(80px);
+  }
+  body::before {
+    width:55vw; height:55vw; max-width:800px; max-height:800px;
+    background:radial-gradient(circle, rgba(37,99,235,.18), rgba(110,90,216,.1) 40%, transparent 70%);
+    top:-10vw; right:-10vw;
+    animation:ambientDrift1 25s ease-in-out infinite;
+  }
+  body::after {
+    width:45vw; height:45vw; max-width:650px; max-height:650px;
+    background:radial-gradient(circle, rgba(29,78,216,.14), rgba(63,44,160,.08) 45%, transparent 70%);
+    bottom:-8vw; left:-8vw;
+    animation:ambientDrift2 30s ease-in-out infinite;
+  }
+  @keyframes ambientDrift1 {
+    0%,100% { transform:translate(0,0) scale(1); }
+    33% { transform:translate(-4vw, 6vw) scale(1.08); }
+    66% { transform:translate(3vw, -3vw) scale(.95); }
+  }
+  @keyframes ambientDrift2 {
+    0%,100% { transform:translate(0,0) scale(1); }
+    40% { transform:translate(5vw, -4vw) scale(1.1); }
+    70% { transform:translate(-3vw, 3vw) scale(.92); }
+  }
+  html[data-theme="dark"] body::before { opacity:.3; }
+  html[data-theme="dark"] body::after { opacity:.25; }
+  /* Disable mesh on the home page (it has its own hero visuals) */
+  body:has(#home-page[style*="display:block"])::before,
+  body:has(#home-page[style*="display:block"])::after { opacity:0; }
+
+  /* ── GLASS CARDS — the primary surface ── */
+  .dash-card, .acct-card, .prog-section, .acct-header, .acct-stat-card,
+  .prog-stat-card, .tool-tile, .pomodoro-card, .dash-goal-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2);
+    position:relative;
+    overflow:hidden;
+  }
+  /* Inner top-light highlight — simulates light hitting a resin surface from above */
+  .dash-card::before, .acct-card::before, .prog-section::before,
+  .acct-stat-card::before, .prog-stat-card::before, .tool-tile::before,
+  .pomodoro-card::before, .dash-goal-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:50%;
+    background:linear-gradient(180deg, rgba(255,255,255,.12), transparent);
+    pointer-events:none; border-radius:inherit; z-index:0;
+  }
+  .dash-card > *, .acct-card > *, .prog-section > *,
+  .acct-stat-card > *, .prog-stat-card > *, .tool-tile > *,
+  .pomodoro-card > *, .dash-goal-card > * { position:relative; z-index:1; }
+
+  .dash-card:hover, .acct-card:hover, .acct-stat-card:hover, .tool-tile:hover {
+    box-shadow:var(--depth-3), var(--depth-glow);
+    border-color:rgba(37,99,235,.2) !important;
+  }
+
+  /* ── COURSE TILES — deeper glass with colored gradient preserved ── */
+  .course-tile {
+    box-shadow:var(--depth-2) !important;
+    border:1px solid var(--glass-border) !important;
+    overflow:hidden;
+  }
+  .course-tile:hover {
+    box-shadow:var(--depth-3), var(--depth-glow) !important;
+    border-color:rgba(37,99,235,.25) !important;
+  }
+  .course-tile-body {
+    background:var(--glass);
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+  }
+
+  /* ── UNIT SIDEBAR — frosted panel ── */
+  .unit-sidebar {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2);
+  }
+  .unit-nav-item.active {
+    background:rgba(37,99,235,.1);
+    border-left:3px solid var(--blue);
+  }
+
+  /* ── BUTTONS — pressure-release feel ── */
+  .btn-primary {
+    box-shadow:0 2px 0 rgba(0,0,0,.08), 0 4px 14px -4px rgba(37,99,235,.35),
+      inset 0 1px 0 rgba(255,255,255,.2);
+    transition:all .15s var(--ease-premium);
+  }
+  .btn-primary:hover {
+    box-shadow:0 1px 0 rgba(0,0,0,.06), 0 8px 22px -4px rgba(37,99,235,.45),
+      inset 0 1px 0 rgba(255,255,255,.25);
+    transform:translateY(-2px);
+  }
+  .btn-primary:active {
+    transform:translateY(1px) scale(.98);
+    box-shadow:0 0 0 rgba(0,0,0,0), 0 2px 6px -2px rgba(37,99,235,.3),
+      inset 0 2px 4px rgba(0,0,0,.1);
+  }
+
+  .btn-sm, .btn-ghost {
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+    transition:all .15s var(--ease-premium);
+  }
+  .btn-sm:hover, .btn-ghost:hover {
+    box-shadow:var(--depth-1), var(--depth-glow);
+  }
+  .btn-sm:active, .btn-ghost:active {
+    transform:translateY(1px) scale(.97);
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.08);
+  }
+
+  /* ── INPUT FIELDS — breathing focus ring ── */
+  input:not([type=radio]):not([type=checkbox]):not([type=range]):not([type=file]),
+  select, textarea {
+    transition:border-color .2s, box-shadow .2s;
+  }
+  input:not([type=radio]):not([type=checkbox]):not([type=range]):not([type=file]):focus,
+  select:focus, textarea:focus {
+    border-color:var(--blue) !important;
+    box-shadow:0 0 0 3px rgba(37,99,235,.12), var(--depth-1);
+    outline:none;
+  }
+  @keyframes focusBreathe {
+    0%,100% { box-shadow:0 0 0 3px rgba(37,99,235,.12), var(--depth-1); }
+    50% { box-shadow:0 0 0 5px rgba(37,99,235,.08), var(--depth-1); }
+  }
+
+  /* ── NAV — frosted glass bar ── */
+  #site-nav {
+    background:rgba(18,23,42,.82) !important;
+    backdrop-filter:blur(16px) saturate(1.4); -webkit-backdrop-filter:blur(16px) saturate(1.4);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  #site-nav.scrolled {
+    background:rgba(18,23,42,.92) !important;
+    box-shadow:0 8px 32px -8px rgba(0,0,0,.4);
+  }
+
+  /* ── NAV LINKS dropdown — frosted glass ── */
+  .nav-links {
+    background:rgba(23,29,51,.88) !important;
+    backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 24px 60px -16px rgba(0,0,0,.5);
+  }
+
+  /* ── NAV STAT CHIPS — glass pills ── */
+  .nav-streak, .nav-xp {
+    background:rgba(255,255,255,.06);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.1);
+  }
+
+  /* ── MODALS — frosted overlay ── */
+  .modal-overlay {
+    background:rgba(18,23,42,.5);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  }
+  .modal {
+    background:var(--glass) !important;
+    backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+
+  /* ── STREAK MODAL — glass ── */
+  .streak-modal {
+    background:var(--glass) !important;
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3), 0 0 60px -20px rgba(37,99,235,.2);
+  }
+
+  /* ── LESSON ROWS — subtle glass ── */
+  .lesson-row {
+    background:var(--glass) !important;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-1);
+    transition:all .2s var(--ease-premium);
+  }
+  .lesson-row:hover {
+    box-shadow:var(--depth-2), var(--depth-glow);
+    border-color:rgba(37,99,235,.2) !important;
+    transform:translateX(4px);
+  }
+
+  /* ── UP-NEXT CARD — glass over gradient ── */
+  .upnext-card {
+    backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+    box-shadow:var(--depth-3), 0 0 40px -12px rgba(37,99,235,.3) !important;
+  }
+
+  /* ── PROGRESS BARS — inner glow ── */
+  .course-tile-bar-fill, .prog-bar-fill, .dash-goal-fill, .lp-progress-fill, .tp-progress-fill {
+    box-shadow:0 0 8px 1px currentColor;
+    position:relative;
+  }
+  .course-tile-bar-fill::after, .dash-goal-fill::after {
+    content:''; position:absolute; top:0; left:0; right:0; bottom:0;
+    background:linear-gradient(180deg, rgba(255,255,255,.3), transparent);
+    border-radius:inherit;
+  }
+
+  /* ── RECOMMEND CARD — aurora glass ── */
+  .dash-recommend-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2);
+    border-radius:20px !important;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ── SKILL CARDS — glass with depth ── */
+  .skill-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-1);
+  }
+  .skill-card:hover { box-shadow:var(--depth-2), var(--depth-glow); }
+  .skill-card.skill-unlocked {
+    border-color:rgba(20,138,92,.25) !important;
+    box-shadow:var(--depth-2), 0 4px 16px -4px rgba(20,138,92,.2);
+  }
+
+  /* ── BADGE CARDS — glass ── */
+  .badge-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-1);
+  }
+
+  /* ── SECTION HEADERS — subtle gradient underline instead of flat ── */
+  .subject-head h2 { position:relative; padding-bottom:.5rem; }
+  .subject-head h2::after {
+    content:''; position:absolute; bottom:0; left:0; width:3rem; height:3px;
+    background:var(--brand-gradient-cta); border-radius:2px;
+  }
+
+  /* ── COURSE DETAIL HERO — deeper frosted glass ── */
+  .cd-hero {
+    position:relative;
+    overflow:hidden;
+  }
+  .cd-hero::before {
+    content:''; position:absolute; inset:0; z-index:0;
+    background:radial-gradient(ellipse at 30% 40%, rgba(37,99,235,.2), transparent 60%),
+               radial-gradient(ellipse at 80% 70%, rgba(110,90,216,.15), transparent 55%);
+    animation:ambientDrift1 20s ease-in-out infinite;
+  }
+  .cd-hero > * { position:relative; z-index:1; }
+
+  /* ── WEEK DAY RINGS — glass ── */
+  .dash-day-ring {
+    background:var(--glass);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border:2px solid var(--glass-border);
+    box-shadow:var(--depth-1);
+  }
+  .dash-day.active .dash-day-ring {
+    background:rgba(220,156,52,.12);
+    border-color:var(--gold);
+    box-shadow:var(--depth-1), 0 0 12px -2px rgba(220,156,52,.25);
+  }
+
+  /* ── ACCOUNT HEADER — glass card with glow ── */
+  .acct-header {
+    position:relative;
+    overflow:hidden;
+  }
+  .acct-header::after {
+    content:''; position:absolute; top:-40%; right:-10%; width:200px; height:200px;
+    background:radial-gradient(circle, rgba(37,99,235,.12), transparent 65%);
+    border-radius:50%; pointer-events:none; filter:blur(20px);
+  }
+
+  /* ── QUOTE CARD — glass ── */
+  .dash-quote-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+  }
+
+  /* ── NOTES PANEL — frosted ── */
+  .notes-panel {
+    background:var(--glass) !important;
+    backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
+    border-left:1px solid var(--glass-border) !important;
+    box-shadow:-16px 0 48px -12px rgba(20,20,30,.15);
+  }
+  .note-card {
+    background:rgba(255,255,255,.4) !important;
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-1);
+  }
+  .note-card:hover { box-shadow:var(--depth-2); }
+
+  /* ── COMMAND PALETTE — deep glass ── */
+  .cmd-palette {
+    background:var(--glass) !important;
+    backdrop-filter:blur(24px) saturate(1.5); -webkit-backdrop-filter:blur(24px) saturate(1.5);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3), 0 0 80px -20px rgba(37,99,235,.15);
+  }
+
+  /* ── TOAST — glass pills ── */
+  .toast-item {
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    box-shadow:var(--depth-2) !important;
+  }
+  .toast-item.success { background:rgba(20,138,92,.88) !important; }
+  .toast-item.info { background:rgba(37,99,235,.88) !important; }
+  .toast-item.warning { background:rgba(220,156,52,.9) !important; }
+
+  /* ── XP TOAST — glass ── */
+  .xp-toast-item {
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    background:rgba(18,23,42,.82) !important;
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  /* ── CONFETTI PIECE — now glass shards ── */
+  .confetti-piece { opacity:.85; border-radius:3px; }
+
+  /* ── EMBER — stronger glow ── */
+  #tutor-launcher::before { filter:blur(18px); }
+
+  /* ── FOOTER — glass top ── */
+  footer.site-footer {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border-top:1px solid var(--glass-border);
+  }
+
+  /* ── PREMIUM CHECKOUT — glass ── */
+  .pc-card {
+    background:rgba(28,31,44,.75) !important;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  }
+
+  /* ── Disable glass effects on systems that can't handle them ── */
+  @supports not (backdrop-filter: blur(1px)) {
+    .dash-card, .acct-card, .prog-section, .modal, .notes-panel, .cmd-palette,
+    .lesson-row, .course-tile-body, .badge-card, .skill-card, .unit-sidebar {
+      background:var(--white) !important;
+    }
+    html[data-theme="dark"] .dash-card, html[data-theme="dark"] .acct-card,
+    html[data-theme="dark"] .modal, html[data-theme="dark"] .notes-panel {
+      background:var(--paper-2) !important;
+    }
+  }
+
+  /* ── Respect reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    body::before, body::after { animation:none !important; }
+    .cd-hero::before { animation:none !important; }
+    .dash-card, .lesson-row, .course-tile, .btn-primary { transition:none !important; }
   }
 </style>
 </head>
@@ -4653,6 +5156,38 @@ async function dbWrite(queryFn, { label='Saving', retries=2, queueKind=null, que
 }
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+/* ── Safe HTML renderer for lesson content — allows a whitelist of
+   formatting tags (strong, em, br, code, sup, sub, u, mark, span, svg/use,
+   a[href]) while escaping everything else. This fixes the "renders as code"
+   bug where educator-authored rich text was being fully escaped. ── */
+function safeHtml(s){
+  if(!s) return '';
+  // Allow these safe HTML tags through; strip everything else
+  const allowed = /^(strong|em|b|i|u|br|code|sup|sub|mark|span|a|svg|use|div|p|ul|ol|li|hr|img|table|thead|tbody|tr|th|td)$/i;
+  // Use a temporary element to parse, then walk and whitelist
+  const temp = document.createElement('div');
+  temp.innerHTML = s;
+  function sanitize(node){
+    if(node.nodeType === 3) return; // text nodes are safe
+    if(node.nodeType === 1){
+      if(!allowed.test(node.tagName)){
+        // Replace disallowed element with its text content
+        const text = document.createTextNode(node.textContent);
+        node.parentNode?.replaceChild(text, node);
+        return;
+      }
+      // Remove dangerous attributes but keep safe ones
+      const safeAttrs = ['class','style','href','src','alt','width','height','viewBox','xmlns','fill','stroke','stroke-width','d','cx','cy','r','x1','y1','x2','y2','points','transform','data-*'];
+      [...node.attributes].forEach(attr=>{
+        if(attr.name === 'href' && !/^(https?:|mailto:|#)/.test(attr.value)) node.removeAttribute(attr.name);
+        else if(attr.name.startsWith('on')) node.removeAttribute(attr.name); // no event handlers
+      });
+      [...node.childNodes].forEach(child=>sanitize(child));
+    }
+  }
+  [...temp.childNodes].forEach(child=>sanitize(child));
+  return temp.innerHTML;
+}
 // Keeps any {...} set-builder notation inside a prompt from line-breaking in an
 // awkward spot (e.g. right before the closing bound) by replacing the spaces
 // inside braces with non-breaking spaces, so the whole expression wraps as one unit.
@@ -8419,6 +8954,10 @@ function renderLpBlockInner(){
   const total = lpItem.content.length;
   const block = lpItem.content[lpIndex];
   document.getElementById('lp-progress-fill').style.width = `${((lpIndex+1)/total)*100}%`;
+  // Update step counter on the stage element
+  const stageEl = document.querySelector('#test-page.lp-mode .lp-stage');
+  if(stageEl) stageEl.setAttribute('data-step-label', `${lpIndex+1} / ${total}`);
+  document.getElementById('tp-progress-fill').style.width = `${((lpIndex+1)/total)*100}%`;
   document.getElementById('lp-prev-btn').style.visibility = lpIndex===0 ? 'hidden' : 'visible';
   document.getElementById('lp-next-btn').textContent = lpIndex===total-1 ? 'Finish lesson' : 'Continue';
 
@@ -8428,7 +8967,7 @@ function renderLpBlockInner(){
   if(block.type==='text'){
     const isLead = lpIndex===0;
     slot.innerHTML = `<div class="lp-block"><div class="lp-text-card${isLead?' lp-text-card-lead':''}">
-      <div class="lp-text${isLead?' lp-text-lead':''}">${esc(block.text).replace(/\n/g,'<br>')}</div>
+      <div class="lp-text${isLead?' lp-text-lead':''}">${safeHtml(block.text).replace(/\n/g,'<br>')}</div>
     </div></div>`;
     lpSetContinueEnabled(true);
     return;
@@ -8457,8 +8996,8 @@ function renderLpBlockInner(){
       <div style="background:${st.bg};border-left:4px solid ${st.border};border-radius:var(--radius-md);padding:1rem 1.2rem;box-shadow:var(--shadow-xs);display:flex;gap:.75rem;align-items:flex-start;">
         <div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:.95rem;box-shadow:var(--shadow-xs);">${st.icon}</div>
         <div style="flex:1;min-width:0;">
-          ${block.title ? `<div style="font-weight:700;font-family:'Inter',sans-serif;margin-bottom:.3rem;color:${st.ink};letter-spacing:-.005em;">${esc(block.title)}</div>` : ''}
-          <div style="line-height:1.6;">${esc(block.text||'').replace(/\n/g,'<br>')}</div>
+          ${block.title ? `<div style="font-weight:700;font-family:'Inter',sans-serif;margin-bottom:.3rem;color:${st.ink};letter-spacing:-.005em;">${safeHtml(block.title)}</div>` : ''}
+          <div style="line-height:1.6;">${safeHtml(block.text||'').replace(/\n/g,'<br>')}</div>
         </div>
       </div>
     </div>`;
@@ -8484,7 +9023,7 @@ function renderLpBlockInner(){
   if(block.type==='quote'){
     slot.innerHTML = `<div class="lp-block">
       <blockquote style="border-left:4px solid var(--gold);background:var(--paper-2);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:1rem 1.3rem;font-family:'Inter',sans-serif;font-weight:600;font-size:1.1rem;font-style:italic;color:var(--ink);box-shadow:var(--shadow-xs);">
-        “${esc(block.text||'')}”
+        “${safeHtml(block.text||'')}”
         ${block.attribution ? `<div style="margin-top:.5rem;font-size:.8rem;font-weight:700;font-style:normal;color:var(--ink-faint);">— ${esc(block.attribution)}</div>` : ''}
       </blockquote>
     </div>`;
@@ -8573,8 +9112,8 @@ function renderLpBlockInner(){
       ${block.title ? `<div class="lp-check-q" style="margin-bottom:.6rem;">${esc(block.title)}</div>` : ''}
       <div style="display:flex;flex-direction:column;gap:.5rem;">
         ${items_.map((it,ii)=>`<details style="border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.6rem .9rem;background:var(--white);">
-          <summary style="cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;">${esc(it.q||'')}</summary>
-          <div style="margin-top:.5rem;color:var(--ink-soft);">${esc(it.a||'').replace(/\n/g,'<br>')}</div>
+          <summary style="cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;">${safeHtml(it.q||'')}</summary>
+          <div style="margin-top:.5rem;color:var(--ink-soft);">${safeHtml(it.a||'').replace(/\n/g,'<br>')}</div>
         </details>`).join('')}
       </div>
     </div>`;
@@ -8644,14 +9183,14 @@ function renderLpBlockInner(){
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;border-bottom:1px solid var(--rule);margin-bottom:.8rem;" id="lp-tabs-nav">
         ${tabs_.map((t,ti)=>`<button type="button" class="btn-sm lp-tab-btn" data-tab-i="${ti}" style="border-radius:8px 8px 0 0;${ti===0?'background:var(--paper-2);font-weight:700;':''}">${esc(t.title||('Tab '+(ti+1)))}</button>`).join('')}
       </div>
-      <div id="lp-tabs-content">${esc(tabs_[0]?.content||'').replace(/\n/g,'<br>')}</div>
+      <div id="lp-tabs-content">${safeHtml(tabs_[0]?.content||'').replace(/\n/g,'<br>')}</div>
     </div>`;
     document.querySelectorAll('.lp-tab-btn').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const ti = +btn.dataset.tabI;
         document.querySelectorAll('.lp-tab-btn').forEach(b=>{ b.style.background=''; b.style.fontWeight=''; });
         btn.style.background = 'var(--paper-2)'; btn.style.fontWeight = '700';
-        document.getElementById('lp-tabs-content').innerHTML = esc(tabs_[ti]?.content||'').replace(/\n/g,'<br>');
+        document.getElementById('lp-tabs-content').innerHTML = safeHtml(tabs_[ti]?.content||'').replace(/\n/g,'<br>');
       });
     });
     lpSetContinueEnabled(true);
@@ -8672,7 +9211,7 @@ function renderLpBlockInner(){
     const pairs = block.pairs || [];
     const rightShuffled = alreadyAnswered ? pairs.map(p=>p.right) : shuffleArray(pairs.map(p=>p.right));
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt||'Match each item on the left to its pair on the right.')}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt||'Match each item on the left to its pair on the right.')}</div>
       <div style="display:flex;gap:1.2rem;margin-top:.7rem;flex-wrap:wrap;">
         <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:.5rem;" id="lp-mt-left">
           ${pairs.map((p,pi)=>`<button type="button" class="tp-option" data-mt-l="${pi}" style="text-align:left;">${esc(p.left)}</button>`).join('')}
@@ -8716,7 +9255,7 @@ function renderLpBlockInner(){
         mtSelectedLeft = null;
         if(mtMatched.size===pairs.length){
           const correct = mtWrongCount===0;
-          document.getElementById('lp-mt-feedback').innerHTML = `<div class="lp-feedback correct">✓ All matched!${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+          document.getElementById('lp-mt-feedback').innerHTML = `<div class="lp-feedback correct">✓ All matched!${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
           lpAnswered[lpIndex] = true;
           lpSetContinueEnabled(true);
           lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt, hint: block.explanation });
@@ -8739,7 +9278,7 @@ function renderLpBlockInner(){
         const correct = !!e.data.correct;
         window.removeEventListener('message', handler);
         const fb = document.getElementById('lp-ch-feedback');
-        if(fb) fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        if(fb) fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
         sfx[correct?'correct':'incorrect']();
         lpAnswered[lpIndex] = true;
         lpSetContinueEnabled(true);
@@ -8767,7 +9306,7 @@ function renderLpBlockInner(){
       const correct = block.caseSensitive ? val===target : val.toLowerCase()===target.toLowerCase();
       const fb = document.getElementById('lp-fillblank-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the answer was "${esc(block.answer)}".`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the answer was "${esc(block.answer)}".`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       lpAnswered[lpIndex] = true;
       document.getElementById('lp-fillblank-input').disabled = true;
       lpSetContinueEnabled(true);
@@ -8799,8 +9338,8 @@ function renderLpBlockInner(){
   }
   if(block.type==='check'){
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.text)}</div>
-      <div class="tp-options" id="lp-check-options">${block.options.map((o,oi)=>`<label class="tp-option" data-oi="${oi}"><input type="radio" name="lp-check" value="${oi}"><span>${esc(o)}</span></label>`).join('')}</div>
+      <div class="lp-check-q">${safeHtml(block.text)}</div>
+      <div class="tp-options" id="lp-check-options">${block.options.map((o,oi)=>`<label class="tp-option" data-oi="${oi}"><input type="radio" name="lp-check" value="${oi}"><span>${safeHtml(o)}</span></label>`).join('')}</div>
       <div id="lp-check-feedback"></div>
     </div>`;
     lpSetContinueEnabled(alreadyAnswered);
@@ -8816,7 +9355,7 @@ function renderLpBlockInner(){
         const correct = chosen===block.correct;
         const fb = document.getElementById('lp-check-feedback');
         sfx[correct?'correct':'incorrect']();
-        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
         lpAnswered[lpIndex] = true;
         lpSetContinueEnabled(true);
         lpRecordResult(correct, {
@@ -8830,7 +9369,7 @@ function renderLpBlockInner(){
   if(block.type==='slider'){
     const startVal = Math.round((block.min + block.max) / 2);
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="lp-slider-row">
         <input type="range" id="lp-slider" min="${block.min}" max="${block.max}" value="${startVal}" ${alreadyAnswered?'disabled':''}>
         <span class="lp-slider-val mono" id="lp-slider-val">${startVal}</span>
@@ -8846,7 +9385,7 @@ function renderLpBlockInner(){
       const correct = Math.abs(val - block.target) <= (block.tolerance||0);
       const fb = document.getElementById('lp-slider-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target was ${block.target}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target was ${block.target}.`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       slider.disabled = true;
       document.getElementById('lp-slider-check').style.display='none';
       lpAnswered[lpIndex] = true;
@@ -8895,7 +9434,7 @@ function renderLpBlockInner(){
         </div>`;
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || `Drag the point to θ = ${targetDeg}° on the unit circle, then check your sin/cos/tan values.`)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || `Drag the point to θ = ${targetDeg}° on the unit circle, then check your sin/cos/tan values.`)}</div>
       <div class="fx-wrap">
         <div id="trc-svg-slot" style="display:flex;justify-content:center;padding:.5rem 0;"></div>
         <div id="trc-readout" style="margin-top:.4rem;"></div>
@@ -8941,7 +9480,7 @@ function renderLpBlockInner(){
       renderCircle();
       const fb = document.getElementById('trc-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target angle (gold ring) was ${targetDeg}°.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target angle (gold ring) was ${targetDeg}°.`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       document.getElementById('trc-check').style.display = 'none';
       lpAnswered[lpIndex] = true;
       lpSetContinueEnabled(true);
@@ -8975,7 +9514,7 @@ function renderLpBlockInner(){
       document.getElementById('sim-count').textContent = `${results.length} / ${trials} trials`;
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || `Out of ${trials} ${kind==='coin'?'flips':'rolls'}, how many times do you predict we'll get ${faceLabel(targetFace)}?`)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || `Out of ${trials} ${kind==='coin'?'flips':'rolls'}, how many times do you predict we'll get ${faceLabel(targetFace)}?`)}</div>
       <div class="fx-wrap">
         <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.9rem;flex-wrap:wrap;">
           <input type="number" id="sim-predict" min="0" max="${trials}" placeholder="Your prediction" ${alreadyAnswered?'disabled':''} style="max-width:120px;">
@@ -9008,7 +9547,7 @@ function renderLpBlockInner(){
           const correct = Math.abs(predicted-actual) <= tol;
           const fb = document.getElementById('sim-feedback');
           sfx[correct?'correct':'incorrect']();
-          fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?`✓ Close! You predicted ${predicted}, actual was ${actual}.`:`Actual result: ${actual} (you predicted ${predicted}).`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+          fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?`✓ Close! You predicted ${predicted}, actual was ${actual}.`:`Actual result: ${actual} (you predicted ${predicted}).`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
           runBtn.style.display='none';
           lpAnswered[lpIndex] = true;
           lpSetContinueEnabled(true);
@@ -9047,7 +9586,7 @@ function renderLpBlockInner(){
       document.getElementById('fx-seq-row').innerHTML = rows;
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || `This is ${isArith?'an arithmetic':'a geometric'} sequence. Find the value of term n = ${askN}.`)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || `This is ${isArith?'an arithmetic':'a geometric'} sequence. Find the value of term n = ${askN}.`)}</div>
       <div class="fx-wrap">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink-soft);margin-bottom:.6rem;">${isArith ? `tₙ = a₁ + (n − 1)d &nbsp;·&nbsp; a₁ = ${a1}, d = ${r}` : `tₙ = a₁ · r⁽ⁿ⁻¹⁾ &nbsp;·&nbsp; a₁ = ${a1}, r = ${r}`}</div>
         <div id="fx-seq-row" style="display:flex;gap:.4rem;overflow-x:auto;padding:.4rem 0 .8rem;"></div>
@@ -9067,7 +9606,7 @@ function renderLpBlockInner(){
       const correct = Math.abs(val - target) < 0.01;
       const fb = document.getElementById('fx-seq-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — t${askN} = ${Math.round(target*100)/100}.`}${block.explanation?' '+esc(block.explanation):''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — t${askN} = ${Math.round(target*100)/100}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
       answered = true;
       document.getElementById('fx-seq-answer').disabled = true;
       chk.style.display = 'none';
@@ -9084,7 +9623,7 @@ function renderLpBlockInner(){
     let checked = alreadyAnswered;
     const initialOrder = checked ? items.map((_,i)=>i) : shuffleArray(items.map((_,i)=>i));
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || 'Drag the items into the correct order.')}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || 'Drag the items into the correct order.')}</div>
       <div class="fx-hint" style="text-align:left;margin:0 0 .3rem;">Use the ⠿ handle to drag and reorder.</div>
       <div id="lp-drag-list" class="lp-drag-list"></div>
       <button class="btn-sm" id="lp-drag-check" style="margin-top:.85rem;${checked?'display:none;':''}">Check order</button>
@@ -9117,7 +9656,7 @@ function renderLpBlockInner(){
         });
         const fb = document.getElementById('lp-drag-feedback');
         sfx[correct?'correct':'incorrect']();
-        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct order!':'✗ Not quite — the correct order is now shown.'}${block.explanation?' '+esc(block.explanation):''}</div>`;
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct order!':'✗ Not quite — the correct order is now shown.'}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
         document.getElementById('lp-drag-check').style.display='none';
         lpAnswered[lpIndex] = true;
         lpSetContinueEnabled(true);
@@ -9134,7 +9673,7 @@ function renderLpBlockInner(){
     const target = gVal===null ? null : fxEval(block.fParent, block.fA, 1, 0, block.fC, gVal);
     let answered = alreadyAnswered;
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || `Given the functions below, evaluate (f ∘ g)(${block.x0}) = f(g(${block.x0})).`)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || `Given the functions below, evaluate (f ∘ g)(${block.x0}) = f(g(${block.x0})).`)}</div>
       <div class="fx-wrap">
         <div class="fx-eq" id="fx-compose-f">${esc(fLabel)}</div>
         <div class="fx-eq" id="fx-compose-g" style="background:var(--teal-bg);color:var(--teal);margin-left:.4rem;">${esc(gLabel)}</div>
@@ -9152,7 +9691,7 @@ function renderLpBlockInner(){
       const correct = target!==null && Math.abs(val-target) < (block.tolerance||0.05);
       const fb = document.getElementById('fx-compose-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — g(${block.x0}) = ${gVal===null?'undefined':Math.round(gVal*100)/100}, so f(g(${block.x0})) = ${target===null?'undefined':Math.round(target*100)/100}.`}${block.explanation?' '+esc(block.explanation):''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — g(${block.x0}) = ${gVal===null?'undefined':Math.round(gVal*100)/100}, so f(g(${block.x0})) = ${target===null?'undefined':Math.round(target*100)/100}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
       answered = true;
       document.getElementById('fx-compose-answer').disabled = true;
       chk.style.display='none';
@@ -9169,7 +9708,7 @@ function renderLpBlockInner(){
     let answered = alreadyAnswered;
     const curves = [{ fn:x=>fxEval(block.parent, block.a, 1, block.d||0, block.c||0, x), parent:block.parent }, { fn:x=>x, dashed:true }];
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || `The graph shows y = f(x). The dashed line is y = x. If f(${block.x0}) = ${target===null?'undefined':Math.round(target*100)/100}, what is f⁻¹(${target===null?'?':Math.round(target*100)/100})?`)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || `The graph shows y = f(x). The dashed line is y = x. If f(${block.x0}) = ${target===null?'undefined':Math.round(target*100)/100}, what is f⁻¹(${target===null?'?':Math.round(target*100)/100})?`)}</div>
       <div class="fx-wrap">
         <div class="fx-eq">${esc(fxEquationStr(block.parent, block.a, 1, block.d||0, block.c||0))}</div>
         <div id="fx-inverse-svg-slot"></div>
@@ -9189,7 +9728,7 @@ function renderLpBlockInner(){
       const correct = Math.abs(val-block.x0) < (block.tolerance||0.05);
       const fb = document.getElementById('fx-inverse-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — f⁻¹ undoes f, so the answer is ${block.x0}.`}${block.explanation?' '+esc(block.explanation):''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — f⁻¹ undoes f, so the answer is ${block.x0}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
       answered = true;
       document.getElementById('fx-inverse-answer').disabled = true;
       chk.style.display='none';
@@ -9217,7 +9756,7 @@ function renderLpBlockInner(){
       document.getElementById('fx-graph-mapping').textContent = fxMappingRuleStr(cur.k, cur.d, cur.a, cur.c);
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="fx-eq" id="fx-graph-eq"></div>
         <div class="fx-eq" id="fx-graph-mapping" style="background:var(--blue-bg); color:var(--blue); margin-left:.4rem;"></div>
@@ -9258,7 +9797,7 @@ function renderLpBlockInner(){
         const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
         const fb = document.getElementById('fx-graph-feedback');
         sfx[correct?'correct':'incorrect']();
-        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Graphs match!':'✗ Not quite — keep adjusting the sliders.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Graphs match!':'✗ Not quite — keep adjusting the sliders.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
         if(correct){ lpAnswered[lpIndex] = true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>{ document.getElementById('fx-'+p).disabled=true; document.getElementById(`fx-${p}-val`).disabled=true; }); }
       });
     } else {
@@ -9290,7 +9829,7 @@ function renderLpBlockInner(){
       });
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap"><div id="fx-points-svg-slot"></div><div class="fx-hint">Click anywhere on the grid to place your point, then Check.</div></div>
       <button class="btn-sm" id="fx-points-check" style="margin-top:.85rem;${checked?'display:none;':''}">Check</button>
       <div id="fx-points-feedback"></div>
@@ -9309,7 +9848,7 @@ function renderLpBlockInner(){
       renderPoints();
       const fb = document.getElementById('fx-points-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target point is now shown in gold.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the target point is now shown in gold.`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       document.getElementById('fx-points-check').style.display='none';
       lpAnswered[lpIndex] = true;
       lpSetContinueEnabled(true);
@@ -9344,7 +9883,7 @@ function renderLpBlockInner(){
       document.getElementById('nl-interval-text').textContent = intervalText();
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap"><div id="fx-dr-svg-slot"></div></div>
       <div class="nl-wrap">
         <div class="nl-interval" id="nl-interval-text"></div>
@@ -9417,7 +9956,7 @@ function renderLpBlockInner(){
         const correctText = fxInequalityStr(iv, block.lo, block.loInf, block.loIncl, block.hi, block.hiInf, block.hiIncl);
         const fb = document.getElementById('nl-feedback');
         sfx[correct?'correct':'incorrect']();
-        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the correct answer is ${correctText}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the correct answer is ${correctText}.`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
         document.getElementById('nl-check').style.display='none';
         document.querySelectorAll('.nl-inf-row input').forEach(i=>i.disabled=true);
         lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
@@ -9563,7 +10102,7 @@ function renderLpBlockInner(){
         paint();
         const fb = document.getElementById('drb-feedback');
         sfx[correct?'correct':'incorrect']();
-        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite — check the green vs. red slots above.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite — check the green vs. red slots above.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
         document.getElementById('drb-check').style.display='none';
         lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
       });
@@ -9605,7 +10144,7 @@ function renderLpBlockInner(){
       document.querySelectorAll('[data-st-remove]').forEach(btn=>btn.onclick=()=>{ studentSteps.splice(+btn.dataset.stRemove,1); paint(); });
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:.78rem;color:var(--ink-soft);margin-bottom:.4rem;">The machine turns each input into an output. Study the examples:</div>
       <div class="mach-examples" id="mach-examples-slot"></div>
       <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:.78rem;color:var(--ink-soft);margin-bottom:.4rem;">Build the machine's rule:</div>
@@ -9630,7 +10169,7 @@ function renderLpBlockInner(){
         }
         const fb = document.getElementById('mach-feedback');
         sfx[allOk?'correct':'incorrect']();
-        fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ Your rule matches the machine!':'✗ Not quite — test a few inputs by hand and compare to the examples above.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+        fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ Your rule matches the machine!':'✗ Not quite — test a few inputs by hand and compare to the examples above.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
         if(allOk){
           lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
           document.getElementById('mach-addstep').style.display='none';
@@ -9660,7 +10199,7 @@ function renderLpBlockInner(){
       </div>`;
     }).join('');
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap"><div id="fx-pw-svg-slot"></div></div>
       <div id="pw-rows-slot" style="margin-top:1rem;">${renderRows()}</div>
       <button class="btn-sm" id="pw-check" style="margin-top:.6rem;${alreadyAnswered?'display:none;':''}">Check</button>
@@ -9691,7 +10230,7 @@ function renderLpBlockInner(){
       });
       const fb = document.getElementById('pw-feedback');
       sfx[allOk?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ All domain restrictions correct!':'✗ One or more pieces are off — double check the endpoints and open/closed brackets.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}">${allOk?'✓ All domain restrictions correct!':'✗ One or more pieces are off — double check the endpoints and open/closed brackets.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       document.getElementById('pw-check').style.display='none';
       document.querySelectorAll('#pw-rows-slot input, #pw-rows-slot button').forEach(el=>el.disabled=true);
       lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
@@ -9712,7 +10251,7 @@ function renderLpBlockInner(){
     if(y1!==null) pts.push({x:Number(block.x1), y:y1, target:true});
     if(y2!==null) pts.push({x:Number(block.x2), y:y2, target:true});
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap"><div id="fx-roc-svg-slot"></div><div class="fx-hint">Gold dashed line = the secant line through your two points</div></div>
       <div class="lp-slider-row" style="margin-top:1rem;align-items:center;gap:.6rem;">
         <span class="mono" style="font-size:.85rem;">Average rate of change =</span>
@@ -9729,7 +10268,7 @@ function renderLpBlockInner(){
       const correct = target!==null && Number.isFinite(val) && Math.abs(val-target)<=tol;
       const fb = document.getElementById('roc-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the average rate of change is ${target!==null?Math.round(target*100)/100:'undefined'}.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the average rate of change is ${target!==null?Math.round(target*100)/100:'undefined'}.`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       document.getElementById('roc-answer').disabled = true;
       document.getElementById('roc-check').style.display='none';
       lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
@@ -9778,7 +10317,7 @@ function renderLpBlockInner(){
           <div id="ff-predict-feedback"></div>`;
       } else {
         const ruleStr = block.steps.map(s=> s.op==='square'?'x²' : s.op==='sqrt'?'√x' : `x ${opSym[s.op]} ${s.val}`).join(' then ');
-        body = `<div class="lp-feedback correct">The machine's rule: ${esc(ruleStr)}${block.explanation ? ' — '+esc(block.explanation):''}</div>`;
+        body = `<div class="lp-feedback correct">The machine's rule: ${esc(ruleStr)}${block.explanation ? ' — '+safeHtml(block.explanation):''}</div>`;
       }
       const el = document.getElementById('ff-slot-inner');
       if(el) el.innerHTML = body;
@@ -9806,7 +10345,7 @@ function renderLpBlockInner(){
     };
 
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="ff-wrap" id="ff-slot-inner"></div>
     </div>`;
     lpSetContinueEnabled(alreadyAnswered);
@@ -9996,7 +10535,7 @@ function renderLpBlockInner(){
     </div>`;
 
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       ${introDone ? quizHTML : introHTML}
     </div>`;
 
@@ -10007,7 +10546,7 @@ function renderLpBlockInner(){
 
     const beginQuiz = ()=>{
       const container = slot.querySelector('.lp-block');
-      container.innerHTML = `<div class="lp-check-q">${esc(block.prompt)}</div>${quizHTML}`;
+      container.innerHTML = `<div class="lp-check-q">${safeHtml(block.prompt)}</div>${quizHTML}`;
       paint();
       document.getElementById('vlt-fn-btn').onclick = ()=>answer(true);
       document.getElementById('vlt-notfn-btn').onclick = ()=>answer(false);
@@ -10075,7 +10614,7 @@ function renderLpBlockInner(){
     };
 
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt || 'Is this mapping diagram a function?')}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt || 'Is this mapping diagram a function?')}</div>
       <div class="map-wrap">
         <div class="vlt-progress" id="map-progress"></div>
         <div id="map-svg-slot"></div>
@@ -10142,7 +10681,7 @@ function renderLpBlockInner(){
     };
 
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="vlt-wrap">
         <div class="vlt-progress" id="tov-progress"></div>
         <div id="tov-table-slot"></div>
@@ -10193,7 +10732,7 @@ function renderLpBlockInner(){
     };
 
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div id="se-svg-slot"></div>
         <div class="se-hint-label">The equation below claims to match this graph — but one parameter is wrong. Tap it.</div>
@@ -10212,7 +10751,7 @@ function renderLpBlockInner(){
           document.getElementById('se-eq-row').innerHTML = eqPartsHTML(true);
           sfx[isCorrect?'correct':'incorrect']();
           document.getElementById('se-feedback').innerHTML =
-            `<div class="lp-feedback ${isCorrect?'correct':'incorrect'}">${isCorrect?'✓ Correct!':`✗ Not quite — ${block.wrongParam} was the wrong one.`}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+            `<div class="lp-feedback ${isCorrect?'correct':'incorrect'}">${isCorrect?'✓ Correct!':`✗ Not quite — ${block.wrongParam} was the wrong one.`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
           lpAnswered[lpIndex] = true;
           lpSetContinueEnabled(true);
         });
@@ -10234,7 +10773,7 @@ function renderLpBlockInner(){
       if(eqEl) eqEl.textContent = fxEquationStr(block.parent, cur.a, cur.k, cur.d, cur.c);
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="bd-desc-card">${esc(block.description)}</div>
       <div class="fx-wrap">
         <div class="fx-eq" id="bd-eq"></div>
@@ -10272,7 +10811,7 @@ function renderLpBlockInner(){
       const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
       const fb = document.getElementById('bd-feedback');
       sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Matches the description!':'✗ Not quite — re-read the description and adjust.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Matches the description!':'✗ Not quite — re-read the description and adjust.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       if(correct){ lpAnswered[lpIndex]=true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>{ document.getElementById('bd-'+p).disabled=true; document.getElementById(`bd-${p}-val`).disabled=true; }); }
     });
     return;
@@ -10287,7 +10826,7 @@ function renderLpBlockInner(){
     let curX = xVals[Math.floor(xVals.length/2)];
     const eqn = fxEquationStr(block.parent, a, k, d, c);
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="mr-eqn">${esc(eqn)}</div>
         <div id="mr-svg-slot"></div>
@@ -10344,7 +10883,7 @@ function renderLpBlockInner(){
       document.getElementById('iv-interval').textContent = fxIntervalStr(st.lo, st.loInf, st.loIncl, st.hi, st.hiInf, st.hiIncl);
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="nl-wrap">
           <div class="nl-track" id="iv-track">
@@ -10426,7 +10965,7 @@ function renderLpBlockInner(){
         <div class="pg-feature-row"><b>Symmetry</b><span>${f.symmetry}</span></div>`;
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="pg-chips">${parents.map(p=>`<button class="pg-chip" data-p="${p}">${FX_PARENTS[p].label.split(' — ')[0]}</button>`).join('')}</div>
         <div class="mr-eqn" id="pg-eqn"></div>
@@ -10446,7 +10985,7 @@ function renderLpBlockInner(){
     const options = shuffleArray([target, ...(block.distractors||[])].map((o,i)=>({ ...o, orig:i })));
     let chosen = alreadyAnswered ? true : false;
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="mr-eqn">${esc(fxEquationStr(block.parent, target.a, target.k, target.d, target.c))}</div>
         <div id="tpq-svg-slot"></div>
@@ -10482,7 +11021,7 @@ function renderLpBlockInner(){
             if(cc===c) cc.classList.add(correct?'chosen-correct':'chosen-incorrect');
             if(!correct && cc.dataset.correct==='1') cc.classList.add('reveal-correct');
           });
-          document.getElementById('tp-feedback').innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite — the correct graph is now outlined in green.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+          document.getElementById('tp-feedback').innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite — the correct graph is now outlined in green.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
           lpAnswered[lpIndex]=true; lpSetContinueEnabled(true);
         });
       });
@@ -10506,7 +11045,7 @@ function renderLpBlockInner(){
       document.getElementById('mt-svg-slot').innerHTML = fxBuildSVG('mt-svg', range, curves, pts);
     };
     slot.innerHTML = `<div class="lp-block">
-      <div class="lp-check-q">${esc(block.prompt)}</div>
+      <div class="lp-check-q">${safeHtml(block.prompt)}</div>
       <div class="fx-wrap">
         <div class="mr-eqn">${esc(fxMappingRuleStr(k,d,a,c))}</div>
         <div id="mt-svg-slot"></div>
@@ -10544,7 +11083,7 @@ function renderLpBlockInner(){
   const td = tIsLegacy ? (block.h||0) : (block.d||0);
   const tc = tIsLegacy ? (block.k||0) : (block.c||0);
   slot.innerHTML = `<div class="lp-block">
-    <div class="lp-check-q">${esc(block.prompt)}</div>
+    <div class="lp-check-q">${safeHtml(block.prompt)}</div>
     <table class="fx-table">
       <tr><th>x</th>${xVals.map(x=>`<td>${x}</td>`).join('')}</tr>
       <tr><th>y</th>${xVals.map((x,xi)=>`<td><input type="text" inputmode="decimal" data-fx-cell="${xi}" ${alreadyAnswered?'disabled':''}></td>`).join('')}</tr>
@@ -10568,7 +11107,7 @@ function renderLpBlockInner(){
     });
     const fb = document.getElementById('fx-table-feedback');
     sfx[allCorrect?'correct':'incorrect']();
-    fb.innerHTML = `<div class="lp-feedback ${allCorrect?'correct':'incorrect'}">${allCorrect?'✓ All correct!':'✗ A few values are off — correct ones are highlighted in green.'}${block.explanation ? ' '+esc(block.explanation) : ''}</div>`;
+    fb.innerHTML = `<div class="lp-feedback ${allCorrect?'correct':'incorrect'}">${allCorrect?'✓ All correct!':'✗ A few values are off — correct ones are highlighted in green.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
     document.getElementById('fx-table-check').style.display='none';
     lpAnswered[lpIndex] = true;
     lpSetContinueEnabled(true);
