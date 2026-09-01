@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <script>
-  // Modilix is light-mode only now — dark mode has been retired.
+  // Restore the user's theme + accent before first paint to prevent a flash.
   try {
-    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('modilix-theme') || 'light');
     document.documentElement.setAttribute('data-accent', localStorage.getItem('modilix-accent') || 'ocean');
   } catch(e) {}
 </script>
@@ -2337,6 +2337,209 @@
     font-family:'Inter',sans-serif; font-size:.82rem; color:var(--red-ink); margin-bottom:1rem; }
   .error-banner svg { width:18px; height:18px; flex-shrink:0; }
   .error-banner button { margin-left:auto; flex-shrink:0; }
+
+  /* ══════════════════════════════════════════════════════════════
+     UPGRADE v2.0 — 20 New Features + UI/UX/Brand improvements
+     ══════════════════════════════════════════════════════════════ */
+
+  /* ── 1. COMMAND PALETTE (Cmd+K) ── */
+  .cmd-palette-overlay { position:fixed; inset:0; z-index:3500; background:rgba(18,23,42,.65); backdrop-filter:blur(8px);
+    display:none; align-items:flex-start; justify-content:center; padding-top:min(18vh,140px); }
+  .cmd-palette-overlay.open { display:flex; animation:fadeIn .15s ease; }
+  .cmd-palette { width:100%; max-width:540px; background:var(--white); border:1px solid var(--rule); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lg); overflow:hidden; }
+  .cmd-palette-input-wrap { display:flex; align-items:center; gap:.6rem; padding:.85rem 1.1rem; border-bottom:1px solid var(--rule); }
+  .cmd-palette-input-wrap .icon { width:18px; height:18px; color:var(--ink-faint); flex-shrink:0; }
+  .cmd-palette-input { flex:1; border:none; outline:none; font-family:'Inter',sans-serif; font-size:.95rem; font-weight:500; background:transparent; color:var(--ink); }
+  .cmd-palette-input::placeholder { color:var(--ink-faint); }
+  .cmd-palette-kbd { font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--ink-faint); background:var(--paper-2); border:1px solid var(--rule);
+    padding:.15rem .4rem; border-radius:5px; flex-shrink:0; }
+  .cmd-palette-results { max-height:320px; overflow-y:auto; padding:.35rem; }
+  .cmd-palette-item { display:flex; align-items:center; gap:.7rem; padding:.65rem .85rem; border-radius:10px; cursor:pointer;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:.88rem; color:var(--ink); transition:background .1s; }
+  .cmd-palette-item:hover, .cmd-palette-item.active { background:var(--blue-bg); color:var(--blue-dark); }
+  .cmd-palette-item .icon { width:16px; height:16px; color:var(--ink-faint); flex-shrink:0; }
+  .cmd-palette-item:hover .icon, .cmd-palette-item.active .icon { color:var(--blue); }
+  .cmd-palette-item-hint { margin-left:auto; font-size:.72rem; color:var(--ink-faint); font-weight:500; }
+  .cmd-palette-empty { padding:2rem 1rem; text-align:center; color:var(--ink-faint); font-size:.88rem; }
+  .cmd-palette-section { font-family:'Inter',sans-serif; font-weight:700; font-size:.68rem; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-faint); padding:.6rem .85rem .3rem; }
+
+  /* ── 2. DARK MODE TOGGLE ── */
+  .theme-toggle { width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08);
+    color:var(--board-ink); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+    transition:background .15s, transform .15s; }
+  .theme-toggle:hover { background:rgba(255,255,255,.16); transform:scale(1.05); }
+  .theme-toggle .icon { width:16px; height:16px; }
+
+  /* ── 3. NOTES SYSTEM ── */
+  .notes-panel { position:fixed; right:0; top:60px; bottom:0; width:380px; max-width:92vw; background:var(--white); border-left:1px solid var(--rule);
+    box-shadow:-12px 0 40px rgba(20,20,30,.12); z-index:800; transform:translateX(100%); transition:transform .3s var(--ease-premium); display:flex; flex-direction:column; }
+  .notes-panel.open { transform:translateX(0); }
+  .notes-panel-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.25rem; border-bottom:1px solid var(--rule); flex-shrink:0; }
+  .notes-panel-head h3 { font-size:1rem; display:flex; align-items:center; gap:.5rem; }
+  .notes-panel-close { width:30px; height:30px; border-radius:50%; border:none; background:var(--paper-2); color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .notes-list { flex:1; overflow-y:auto; padding:.75rem; display:flex; flex-direction:column; gap:.5rem; }
+  .note-card { background:var(--paper-2); border:1px solid var(--rule); border-radius:12px; padding:.85rem 1rem; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+  .note-card:hover { border-color:var(--blue); box-shadow:var(--shadow-sm); }
+  .note-card-title { font-family:'Inter',sans-serif; font-weight:700; font-size:.88rem; margin-bottom:.25rem; }
+  .note-card-preview { font-size:.78rem; color:var(--ink-faint); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .note-card-meta { font-size:.68rem; color:var(--ink-faint); margin-top:.35rem; }
+  .note-editor { flex:1; display:flex; flex-direction:column; padding:.75rem; display:none; }
+  .note-editor.active { display:flex; }
+  .note-editor-title { font-family:'Inter',sans-serif; font-weight:700; font-size:1rem; border:none; outline:none; padding:.5rem .7rem; background:transparent; color:var(--ink); border-bottom:1px solid var(--rule); margin-bottom:.5rem; }
+  .note-editor-body { flex:1; font-family:'Inter',sans-serif; font-size:.88rem; line-height:1.7; border:none; outline:none; resize:none; padding:.5rem .7rem; background:transparent; color:var(--ink); }
+  .notes-panel-actions { display:flex; gap:.5rem; padding:.75rem 1.25rem; border-top:1px solid var(--rule); flex-shrink:0; }
+
+  /* ── 4. COURSE SEARCH ── */
+  .course-search-wrap { display:flex; align-items:center; gap:.6rem; max-width:400px; margin-bottom:1.25rem; }
+  .course-search-input { flex:1; font-family:'Inter',sans-serif; font-size:.88rem; font-weight:500; padding:.65rem 1rem .65rem 2.4rem; border:1.5px solid var(--rule);
+    border-radius:100px; background:var(--white); color:var(--ink); outline:none; transition:border-color .15s, box-shadow .15s;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b8fa3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:.85rem center; }
+  .course-search-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+
+  /* ── 5. DAILY GOAL ── */
+  .dash-goal-card { background:var(--white); border:1px solid var(--rule); border-radius:var(--radius-lg); padding:1.25rem; }
+  .dash-goal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.75rem; }
+  .dash-goal-head h4 { font-family:'Inter',sans-serif; font-weight:800; font-size:.92rem; display:flex; align-items:center; gap:.4rem; }
+  .dash-goal-bar { height:10px; background:var(--paper-2); border-radius:100px; overflow:hidden; margin-bottom:.5rem; }
+  .dash-goal-fill { height:100%; border-radius:100px; background:linear-gradient(90deg, var(--blue), var(--green)); transition:width .8s var(--ease-premium); }
+  .dash-goal-status { font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-soft); }
+  .dash-goal-edit { font-size:.72rem; color:var(--blue); cursor:pointer; font-weight:600; background:none; border:none; font-family:'Inter',sans-serif; }
+
+  /* ── 6. BOOKMARKS ── */
+  .bookmark-btn { width:32px; height:32px; border-radius:50%; border:1.5px solid var(--rule); background:var(--white); color:var(--ink-faint);
+    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; flex-shrink:0; }
+  .bookmark-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .bookmark-btn.active { border-color:var(--gold); background:var(--gold-bg); color:var(--gold-ink); }
+  .bookmark-btn .icon { width:15px; height:15px; }
+
+  /* ── 7. ACHIEVEMENT BADGES ── */
+  .badge-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.9rem; }
+  .badge-card { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.1rem; text-align:center; transition:transform .2s var(--ease-premium), box-shadow .2s; }
+  .badge-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .badge-card.locked { opacity:.5; filter:grayscale(.7); }
+  .badge-icon { font-size:2rem; margin-bottom:.5rem; display:block; }
+  .badge-name { font-family:'Inter',sans-serif; font-weight:700; font-size:.82rem; color:var(--ink); margin-bottom:.2rem; }
+  .badge-desc { font-size:.72rem; color:var(--ink-faint); line-height:1.35; }
+  .badge-date { font-size:.65rem; color:var(--ink-faint); margin-top:.35rem; }
+
+  /* ── 8. QUICK QUIZ MODE ── */
+  .quick-quiz-btn { display:flex; align-items:center; gap:.5rem; }
+  .qq-counter { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.1rem; color:var(--blue); }
+
+  /* ── 9. FOCUS/ZEN MODE ── */
+  .zen-mode #site-nav { transform:translateY(-100%); }
+  .zen-mode .notes-panel { display:none; }
+  .zen-mode #study-timer { display:none; }
+  .zen-active-indicator { position:fixed; top:12px; right:12px; z-index:3000; padding:.4rem .8rem; border-radius:100px;
+    background:rgba(18,23,42,.85); color:rgba(246,244,239,.85); font-family:'Inter',sans-serif; font-weight:600; font-size:.72rem;
+    display:none; cursor:pointer; backdrop-filter:blur(6px); }
+  .zen-mode .zen-active-indicator { display:flex; align-items:center; gap:.4rem; }
+
+  /* ── 10. DISCUSSION THREADS ── */
+  .discussion-section { margin-top:1.5rem; border-top:1px solid var(--rule); padding-top:1.25rem; }
+  .discussion-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .discussion-head h4 { font-size:.95rem; display:flex; align-items:center; gap:.45rem; }
+  .discussion-post { background:var(--paper-2); border-radius:12px; padding:.85rem 1rem; margin-bottom:.6rem; }
+  .discussion-post-head { display:flex; align-items:center; gap:.5rem; margin-bottom:.4rem; }
+  .discussion-post-avatar { width:28px; height:28px; border-radius:50%; background:var(--blue); display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; color:#fff; flex-shrink:0; }
+  .discussion-post-name { font-family:'Inter',sans-serif; font-weight:700; font-size:.82rem; }
+  .discussion-post-time { font-size:.7rem; color:var(--ink-faint); margin-left:auto; }
+  .discussion-post-body { font-size:.85rem; line-height:1.6; color:var(--ink-soft); }
+  .discussion-compose { display:flex; gap:.5rem; margin-top:.75rem; }
+  .discussion-compose textarea { flex:1; min-height:42px; padding:.55rem .75rem; border:1.5px solid var(--rule); border-radius:10px;
+    font-family:'Inter',sans-serif; font-size:.85rem; resize:vertical; background:var(--white); color:var(--ink); outline:none; }
+  .discussion-compose textarea:focus { border-color:var(--blue); }
+
+  /* ── 11. CALENDAR VIEW ── */
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-top:.75rem; }
+  .cal-day-head { font-family:'Inter',sans-serif; font-weight:700; font-size:.68rem; color:var(--ink-faint); text-align:center; padding:.4rem; }
+  .cal-day { min-height:52px; background:var(--paper-2); border-radius:6px; padding:.3rem; font-size:.7rem; color:var(--ink-soft); position:relative; }
+  .cal-day.today { background:var(--blue-bg); font-weight:700; }
+  .cal-day.other-month { opacity:.35; }
+  .cal-day-num { font-family:'IBM Plex Mono',monospace; font-size:.7rem; }
+  .cal-event-dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+  .cal-event-dot.test { background:var(--red); }
+  .cal-event-dot.assignment { background:var(--blue); }
+  .cal-event-dot.event { background:var(--green); }
+
+  /* ── 12. STUDY TIMER (POMODORO) ── */
+  .pomodoro-card { background:var(--white); border:1px solid var(--rule); border-radius:var(--radius-lg); padding:1.25rem; text-align:center; }
+  .pomodoro-display { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:2.2rem; color:var(--ink); margin:.5rem 0; letter-spacing:.02em; }
+  .pomodoro-label { font-size:.78rem; color:var(--ink-faint); font-weight:600; margin-bottom:.75rem; }
+  .pomodoro-actions { display:flex; gap:.5rem; justify-content:center; }
+
+  /* ── 13. MOTIVATIONAL QUOTES ── */
+  .dash-quote-card { background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-lg); padding:1.1rem 1.3rem; font-style:italic;
+    font-family:'Inter',sans-serif; font-size:.88rem; line-height:1.6; color:var(--ink-soft); position:relative; }
+  .dash-quote-card::before { content:'"'; position:absolute; top:-.15rem; left:.6rem; font-size:2.5rem; font-style:normal; color:var(--blue); opacity:.25; font-family:serif; }
+  .dash-quote-author { font-size:.75rem; font-style:normal; font-weight:700; color:var(--ink-faint); margin-top:.5rem; display:block; }
+
+  /* ── 14. PROGRESS SHARING ── */
+  .share-btn { display:inline-flex; align-items:center; gap:.4rem; font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem;
+    padding:.5rem .9rem; border-radius:100px; border:1.5px solid var(--rule); background:var(--white); color:var(--ink-soft); cursor:pointer; transition:all .15s; }
+  .share-btn:hover { border-color:var(--blue); color:var(--blue); }
+  .share-btn .icon { width:14px; height:14px; }
+
+  /* ── 15. COURSE COMPLETION CERTIFICATE ── */
+  .cert-card { background:linear-gradient(135deg, #faf8f5, #f0ebe2); border:2px solid var(--gold); border-radius:20px; padding:2rem; text-align:center; margin-top:1rem; }
+  .cert-card h3 { font-size:1.3rem; color:var(--ink); margin-bottom:.25rem; }
+  .cert-card .cert-sub { color:var(--ink-soft); font-size:.88rem; margin-bottom:.75rem; }
+  .cert-card .cert-stamp { font-size:2.5rem; margin-bottom:.5rem; }
+
+  /* ── 16. KEYBOARD SHORTCUT HINTS ── */
+  .kbd-hint { font-family:'IBM Plex Mono',monospace; font-size:.62rem; color:var(--ink-faint); background:var(--paper-2); border:1px solid var(--rule);
+    padding:.1rem .3rem; border-radius:4px; margin-left:.4rem; vertical-align:middle; }
+
+  /* ── 17. IMPROVED LOADING STATES ── */
+  .skeleton { background:linear-gradient(90deg, var(--paper-2) 25%, var(--rule) 50%, var(--paper-2) 75%); background-size:300px 100%;
+    animation:shimmer 1.4s infinite linear; border-radius:8px; }
+  .skeleton-text { height:14px; margin-bottom:.5rem; }
+  .skeleton-title { height:22px; width:60%; margin-bottom:.75rem; }
+  .skeleton-card { height:160px; border-radius:var(--radius-lg); }
+
+  /* ── 18. TOAST IMPROVEMENTS ── */
+  .toast-stack { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:3000; display:flex; flex-direction:column; gap:.4rem; align-items:center; }
+  .toast-item { font-family:'Inter',sans-serif; font-weight:600; font-size:.82rem; padding:.65rem 1.1rem; border-radius:100px;
+    box-shadow:var(--shadow-md); animation:fadeInUp .3s var(--ease-premium); white-space:nowrap; }
+  .toast-item.success { background:var(--green); color:#fff; }
+  .toast-item.info { background:var(--blue); color:#fff; }
+  .toast-item.warning { background:var(--gold); color:#fff; }
+
+  /* ── 19. MICRO-INTERACTIONS & POLISH ── */
+  @keyframes successPulse { 0%,100% { box-shadow:0 0 0 0 rgba(21,154,99,.35); } 50% { box-shadow:0 0 0 8px rgba(21,154,99,0); } }
+  @keyframes gentleBounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
+  .lesson-row:hover .lesson-row-status svg { animation:gentleBounce .4s ease; }
+  .btn-primary:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+  a:focus-visible, button:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+  /* Smooth scroll-snap for lesson blocks on mobile */
+  @media (max-width:640px) {
+    #test-page.lp-mode .lp-stage { scroll-snap-type:y mandatory; }
+    #test-page.lp-mode .lp-block { scroll-snap-align:center; }
+  }
+
+  /* ── 20. ACCESSIBILITY TOOLBAR ── */
+  .a11y-toolbar { position:fixed; bottom:80px; right:16px; z-index:2500; display:flex; flex-direction:column; gap:.35rem; }
+  .a11y-btn { width:38px; height:38px; border-radius:50%; border:1px solid var(--rule); background:var(--white); color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow-sm); transition:all .15s; font-size:.85rem; }
+  .a11y-btn:hover { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
+  html.font-lg { font-size:18px; }
+  html.font-xl { font-size:20px; }
+  html.high-contrast { --paper:#fff; --paper-2:#f0f0f0; --rule:#999; --ink:#000; --ink-soft:#333; --ink-faint:#555; }
+  html.high-contrast .course-tile, html.high-contrast .dash-card { border-width:2px; }
+
+  /* ── CLEANED UP: Consolidated responsive overrides ── */
+  @media (max-width:640px) {
+    .cmd-palette { max-width:calc(100vw - 2rem); }
+    .notes-panel { width:100%; max-width:none; }
+    .badge-grid { grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:.6rem; }
+    .badge-card { padding:.85rem .6rem; }
+    .a11y-toolbar { bottom:70px; right:10px; }
+    .a11y-btn { width:34px; height:34px; }
+  }
 </style>
 </head>
 <body>
@@ -2381,6 +2584,15 @@
     <symbol id="i-sound" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></symbol>
     <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /></symbol>
     <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
     <symbol id="i-idea" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /> <path d="M9 18h6" /> <path d="M10 22h4" /></symbol>
     <symbol id="i-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5" /> <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" /> <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" /> <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" /> <path d="M18 18a4 4 0 0 0 2-7.464" /> <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" /> <path d="M6 18a4 4 0 0 1-2-7.464" /> <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" /></symbol>
     <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M4.929 4.929 19.07 19.071" /></symbol>
@@ -2430,6 +2642,8 @@
     <span class="nav-xp" id="nav-xp-chip" title="Total XP"><svg class="icon"><use href="#i-bolt"/></svg> <span id="nav-xp-count">0</span> XP</span>
     <button class="nav-xp nav-tokens-btn" id="nav-tokens-chip" title="Tokens — spend them in the Rewards Shop" onclick="openRewardsModal()"><svg class="icon"><use href="#i-token"/></svg> <span id="nav-tokens-count">0</span></button>
     <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button>
+    <button class="theme-toggle" id="nav-theme-toggle" title="Toggle dark mode" onclick="toggleTheme()"><svg class="icon"><use href="#i-moon"/></svg></button>
+    <button class="nav-sound-btn" id="nav-notes-toggle" title="Open notes (N)" onclick="toggleNotesPanel()" style="display:none;"><svg class="icon"><use href="#i-book"/></svg></button>
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   <ul class="nav-links" id="nav-links">
@@ -2694,6 +2908,47 @@
       </div>
     </div>
     <div class="dash-col-right">
+      <!-- Daily Goal -->
+      <div class="dash-card dash-goal-card" id="dash-goal-card">
+        <div class="dash-goal-head">
+          <h4><svg class="icon" style="width:16px;height:16px;"><use href="#i-target"/></svg> Daily goal</h4>
+          <button class="dash-goal-edit" id="dash-goal-edit" onclick="editDailyGoal()">Edit</button>
+        </div>
+        <div class="dash-goal-bar"><div class="dash-goal-fill" id="dash-goal-fill" style="width:0%"></div></div>
+        <div class="dash-goal-status" id="dash-goal-status">0 / 50 XP today</div>
+      </div>
+
+      <!-- Quick Quiz -->
+      <div class="dash-card" style="cursor:pointer;" onclick="startQuickQuiz()">
+        <div style="display:flex;align-items:center;gap:.65rem;">
+          <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">
+            <svg class="icon" style="width:20px;height:20px;color:#fff;"><use href="#i-zap"/></svg>
+          </div>
+          <div>
+            <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:.92rem;">Quick Quiz</div>
+            <div style="font-size:.78rem;color:var(--ink-soft);">5 random questions · earn bonus XP</div>
+          </div>
+          <svg viewBox="0 0 12 12" fill="none" style="width:14px;height:14px;margin-left:auto;color:var(--ink-faint);"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <!-- Motivational Quote -->
+      <div class="dash-card dash-quote-card" id="dash-quote-card">
+        <span id="dash-quote-text">The expert in anything was once a beginner.</span>
+        <span class="dash-quote-author" id="dash-quote-author">— Helen Hayes</span>
+      </div>
+
+      <!-- Pomodoro Timer -->
+      <div class="dash-card pomodoro-card" id="pomodoro-card">
+        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);">Study timer</div>
+        <div class="pomodoro-display" id="pomodoro-display">25:00</div>
+        <div class="pomodoro-label" id="pomodoro-label">Focus session</div>
+        <div class="pomodoro-actions">
+          <button class="btn-sm" id="pomodoro-start" onclick="pomodoroToggle()">▶ Start</button>
+          <button class="btn-sm" id="pomodoro-reset" onclick="pomodoroReset()">↺ Reset</button>
+        </div>
+      </div>
+
       <div id="dash-recent-slot"></div>
       <div class="dash-recommend-card" id="dash-recommend-card"></div>
     </div>
@@ -2744,6 +2999,15 @@
         <div class="acct-stat-num" id="acct-stat-tokens">0</div>
         <div class="acct-stat-label"><svg class="icon"><use href="#i-token"/></svg> Tokens — shop</div>
       </div>
+    </div>
+
+    <div class="acct-card" id="acct-badges-section">
+      <h3>Achievements</h3>
+      <div class="badge-grid"></div>
+    </div>
+
+    <div style="display:flex;gap:.6rem;margin-bottom:0;">
+      <button class="share-btn" onclick="shareProgress()"><svg class="icon"><use href="#i-share"/></svg> Share my progress</button>
     </div>
 
     <div class="acct-card">
@@ -3417,6 +3681,8 @@
       <button class="modal-btn" style="width:auto;" id="tp-submit-btn">Check answers</button>
       <span class="tp-score" id="tp-score"></span>
     </div>
+    <!-- Discussion thread for this item -->
+    <div id="tp-discussion-slot"></div>
     <div id="lp-player" style="display:none;">
       <div id="lp-edge-glow"></div>
       <div class="lp-progress-track"><div class="lp-progress-fill" id="lp-progress-fill"></div></div>
@@ -3521,6 +3787,51 @@
     </div>
   </div>
 </div>
+
+<!-- ═══════ NEW FEATURES v2.0 ═══════ -->
+
+<!-- Command Palette -->
+<div class="cmd-palette-overlay" id="cmd-palette-overlay">
+  <div class="cmd-palette">
+    <div class="cmd-palette-input-wrap">
+      <svg class="icon"><use href="#i-search"/></svg>
+      <input type="text" class="cmd-palette-input" id="cmd-palette-input" placeholder="Search pages, courses, actions…" autocomplete="off">
+      <span class="cmd-palette-kbd">Esc</span>
+    </div>
+    <div class="cmd-palette-results" id="cmd-palette-results"></div>
+  </div>
+</div>
+
+<!-- Notes Panel -->
+<div class="notes-panel" id="notes-panel">
+  <div class="notes-panel-head">
+    <h3><svg class="icon" style="width:18px;height:18px;"><use href="#i-book"/></svg> My Notes</h3>
+    <button class="notes-panel-close" id="notes-panel-close"><svg class="icon" style="width:14px;height:14px;"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="notes-list" id="notes-list"></div>
+  <div class="note-editor" id="note-editor">
+    <input class="note-editor-title" id="note-editor-title" placeholder="Note title…">
+    <textarea class="note-editor-body" id="note-editor-body" placeholder="Start writing…"></textarea>
+  </div>
+  <div class="notes-panel-actions" id="notes-panel-actions">
+    <button class="btn-sm" id="notes-new-btn" style="flex:1;"><svg class="icon"><use href="#i-plus"/></svg> New note</button>
+    <button class="btn-sm" id="notes-back-btn" style="display:none;"><svg class="icon"><use href="#i-arrow-left"/></svg> Back</button>
+    <button class="btn-sm" id="notes-save-btn" style="display:none; flex:1; border-color:var(--blue); color:var(--blue);">Save</button>
+    <button class="btn-sm" id="notes-delete-note-btn" style="display:none; color:var(--red);">Delete</button>
+  </div>
+</div>
+
+<!-- Zen Mode indicator -->
+<div class="zen-active-indicator" id="zen-indicator" onclick="toggleZenMode()">🧘 Zen Mode · click to exit</div>
+
+<!-- Accessibility toolbar -->
+<div class="a11y-toolbar" id="a11y-toolbar">
+  <button class="a11y-btn" onclick="cycleA11yFont()" title="Increase text size">A+</button>
+  <button class="a11y-btn" onclick="toggleHighContrast()" title="Toggle high contrast">◑</button>
+</div>
+
+<!-- Toast stack (improved) -->
+<div class="toast-stack" id="toast-stack"></div>
 
 <!-- ═══════ MODALS ═══════ -->
 <div class="modal-overlay" id="educator-overlay">
@@ -5421,21 +5732,20 @@ function leaveHomeChrome(){
   const siteFooter = document.querySelector('footer.site-footer');
   if(siteFooter) siteFooter.style.display = 'none';
 }
+// ── Consolidated page-hide helper (reduces 14-line duplication to 1 call) ──
+function hideAllPages(){
+  ['home-page','dashboard-page','courses-page','about-page','review-page','skills-page',
+   'analytics-page','account-page','educator-account-page','progress-page'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  ['course-detail-page','test-page','tool-graphbuilder-page','tool-drbuilder-page'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.classList.remove('visible');
+  });
+  const tp=document.getElementById('test-page'); if(tp) tp.classList.remove('lp-mode');
+}
+
 function showPage(page){
-  document.getElementById('home-page').style.display='none';
-  document.getElementById('dashboard-page').style.display='none';
-  document.getElementById('courses-page').style.display='none';
-  document.getElementById('about-page').style.display='none';
-  document.getElementById('review-page').style.display='none';
-  document.getElementById('skills-page').style.display='none';
-  document.getElementById('analytics-page').style.display='none';
-  document.getElementById('account-page').style.display='none';
-  document.getElementById('educator-account-page').style.display='none';
-  document.getElementById('progress-page').style.display='none';
-  document.getElementById('course-detail-page').classList.remove('visible');
-  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
-  document.getElementById('tool-graphbuilder-page').classList.remove('visible');
-  document.getElementById('tool-drbuilder-page').classList.remove('visible');
+  hideAllPages();
   updateNavActive(page);
   // The hero on the home page is a full-screen visual with its own pill nav
   // baked in, so the real fixed header is hidden there and restored on every
@@ -7071,18 +7381,7 @@ function openCourseDetail(courseId){
   currentUnitId = null;
   const c = courses.find(x=>x.id===courseId);
   if(!c) return;
-  document.getElementById('home-page').style.display='none';
-  document.getElementById('dashboard-page').style.display='none';
-  document.getElementById('courses-page').style.display='none';
-  document.getElementById('about-page').style.display='none';
-  document.getElementById('review-page').style.display='none';
-  document.getElementById('skills-page').style.display='none';
-  document.getElementById('analytics-page').style.display='none';
-  document.getElementById('account-page').style.display='none';
-  document.getElementById('educator-account-page').style.display='none';
-  document.getElementById('tool-graphbuilder-page').classList.remove('visible');
-  document.getElementById('tool-drbuilder-page').classList.remove('visible');
-  document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
+  hideAllPages();
   document.getElementById('course-detail-page').classList.add('visible');
   document.getElementById('course-detail-page').classList.remove('page-fade'); void document.getElementById('course-detail-page').offsetWidth; document.getElementById('course-detail-page').classList.add('page-fade');
   document.getElementById('cd-code').textContent = c.code;
@@ -7275,6 +7574,7 @@ function renderUnitContent(){
           ${filePills}
         </div>
         <span class="lesson-row-badge ${badgeMap[ms.cls]}">${ms.label}</span>
+        ${!isEducator ? `<button class="bookmark-btn ${isBookmarked(it.id)?'active':''}" data-bookmark="${it.id}" onclick="event.stopPropagation();toggleBookmark('${it.id}');this.classList.toggle('active');" title="${isBookmarked(it.id)?'Remove bookmark':'Bookmark this'}"><svg class="icon"><use href="#i-bookmark"/></svg></button>` : ''}
         ${adminBtns}
       </div>`;
     }).join('');
@@ -7480,6 +7780,9 @@ function _openTestInner(itemId){
   });
   document.querySelectorAll('.tp-textarea').forEach(ta=>{ ta.addEventListener('input', updateTpProgress); });
   updateTpProgress();
+  // Render discussion thread under the quiz/test
+  const discussionSlot = document.getElementById('tp-discussion-slot');
+  if(discussionSlot && currentUser) renderDiscussionSection(itemId, discussionSlot);
   window.scrollTo(0,0);
 }
 
@@ -13583,33 +13886,38 @@ function getRecentlyVisited(){
 }
 function renderRecentlyVisited(){
   const recents = getRecentlyVisited();
-  if(!recents.length) return '';
-  return `<div style="margin-bottom:1.5rem;">
-    <h3 style="font-size:.88rem; color:var(--ink-soft); margin-bottom:.6rem;">Recently visited</h3>
-    <div class="recent-cards">${recents.map(r => `
-      <div class="recent-card" onclick="openTest('${r.id}')">
-        <div class="recent-card-title">${esc(r.title)}</div>
-        <div class="recent-card-meta">${r.courseCode || ''} · ${r.type || ''}</div>
-      </div>
-    `).join('')}</div>
-  </div>`;
+  // Add bookmarked items section
+  const bmItems = bookmarks.map(id=>items.find(i=>i.id===id)).filter(Boolean);
+  let bmHtml = '';
+  if(bmItems.length){
+    bmHtml = `<div style="margin-bottom:1.5rem;">
+      <h3 style="font-size:.88rem; color:var(--gold-ink); margin-bottom:.6rem; display:flex; align-items:center; gap:.4rem;"><svg class="icon" style="width:14px;height:14px;"><use href="#i-bookmark"/></svg> Bookmarked</h3>
+      <div class="recent-cards">${bmItems.slice(0,4).map(it => {
+        const course = courses.find(c=>c.id===it.courseId);
+        return `<div class="recent-card" onclick="openTest('${it.id}')" style="border-color:var(--gold);border-width:1.5px;">
+          <div class="recent-card-title">${esc(it.title)}</div>
+          <div class="recent-card-meta">${course?esc(course.code):''} · ${TYPE_LABELS[it.type]||it.type}</div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }
+  let recentHtml = '';
+  if(recents.length){
+    recentHtml = `<div style="margin-bottom:1.5rem;">
+      <h3 style="font-size:.88rem; color:var(--ink-soft); margin-bottom:.6rem;">Recently visited</h3>
+      <div class="recent-cards">${recents.map(r => `
+        <div class="recent-card" onclick="openTest('${r.id}')">
+          <div class="recent-card-title">${esc(r.title)}</div>
+          <div class="recent-card-meta">${r.courseCode || ''} · ${r.type || ''}</div>
+        </div>
+      `).join('')}</div>
+    </div>`;
+  }
+  return bmHtml + recentHtml;
 }
 
-/* ── Bookmarks ── */
-function getBookmarks(){
-  try { return JSON.parse(localStorage.getItem('mdlx_bookmarks') || '[]'); } catch(e){ return []; }
-}
-function toggleBookmark(itemId, title, courseCode){
-  let bm = getBookmarks();
-  const exists = bm.find(b => b.id === itemId);
-  if(exists) bm = bm.filter(b => b.id !== itemId);
-  else bm.push({ id: itemId, title, courseCode, ts: Date.now() });
-  try { localStorage.setItem('mdlx_bookmarks', JSON.stringify(bm)); } catch(e){}
-  return !exists; // returns true if now bookmarked
-}
-function isBookmarked(itemId){
-  return getBookmarks().some(b => b.id === itemId);
-}
+/* ── Old localStorage bookmarks removed — replaced by Supabase-backed
+   toggleBookmark/isBookmarked/loadBookmarks defined in the v2 feature block ── */
 
 /* ── Onboarding ── */
 function showOnboarding(){
@@ -13703,6 +14011,547 @@ async function ensureProfileExists(uid, existingProfile){
   return refetched || null;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   NEW FEATURES v2.0 — 20 features
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. COMMAND PALETTE (Cmd+K / Ctrl+K) ─────────────────────────────────── */
+const CMD_ACTIONS = [
+  { label:'Dashboard', page:'dashboard', icon:'i-star', section:'Pages', keys:'D' },
+  { label:'Courses', page:'courses', icon:'i-book', section:'Pages', keys:'C' },
+  { label:'Daily Review', page:'review', icon:'i-bolt', section:'Pages', keys:'R' },
+  { label:'Skills', page:'skills', icon:'i-trophy', section:'Pages', keys:'S' },
+  { label:'Progress', page:'progress', icon:'i-shield', section:'Pages', keys:'P' },
+  { label:'Account', page:'account', icon:'i-star', section:'Pages' },
+  { label:'Toggle dark mode', action:()=>toggleTheme(), icon:'i-moon', section:'Actions' },
+  { label:'Toggle zen mode', action:()=>toggleZenMode(), icon:'i-star', section:'Actions' },
+  { label:'Open notes', action:()=>toggleNotesPanel(), icon:'i-book', section:'Actions', keys:'N' },
+  { label:'Quick Quiz', action:()=>startQuickQuiz(), icon:'i-zap', section:'Actions' },
+  { label:'Share progress', action:()=>shareProgress(), icon:'i-share', section:'Actions' },
+];
+let cmdPaletteActive = -1;
+
+function openCommandPalette(){
+  const overlay = document.getElementById('cmd-palette-overlay');
+  overlay.classList.add('open');
+  const input = document.getElementById('cmd-palette-input');
+  input.value = '';
+  input.focus();
+  renderCommandResults('');
+  lockBodyScroll();
+}
+function closeCommandPalette(){
+  document.getElementById('cmd-palette-overlay').classList.remove('open');
+  unlockBodyScroll();
+}
+function renderCommandResults(query){
+  const results = document.getElementById('cmd-palette-results');
+  const q = query.toLowerCase().trim();
+  // Add courses to the action list dynamically
+  const dynamicActions = [...CMD_ACTIONS];
+  courses.forEach(c=>{
+    dynamicActions.push({ label:`${c.code} — ${c.name}`, action:()=>{ closeCommandPalette(); openCourseDetail(c.id); }, icon:'i-book', section:'Courses' });
+  });
+  const filtered = q ? dynamicActions.filter(a=> a.label.toLowerCase().includes(q)) : dynamicActions;
+  if(!filtered.length){ results.innerHTML = '<div class="cmd-palette-empty">No results found</div>'; return; }
+  const sections = {};
+  filtered.forEach(a=>{ (sections[a.section]=sections[a.section]||[]).push(a); });
+  results.innerHTML = Object.keys(sections).map(sec=>{
+    const items = sections[sec].map((a,i)=>`<div class="cmd-palette-item" data-cmd-idx="${dynamicActions.indexOf(a)}">
+      <svg class="icon"><use href="#${a.icon||'i-star'}"/></svg>
+      <span>${esc(a.label)}</span>
+      ${a.keys?`<span class="cmd-palette-item-hint">${a.keys}</span>`:''}
+    </div>`).join('');
+    return `<div class="cmd-palette-section">${sec}</div>${items}`;
+  }).join('');
+  results.querySelectorAll('.cmd-palette-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const idx = +el.dataset.cmdIdx;
+      const action = dynamicActions[idx];
+      if(action.page){ closeCommandPalette(); showPage(action.page); }
+      else if(action.action){ closeCommandPalette(); action.action(); }
+    });
+  });
+  cmdPaletteActive = -1;
+}
+document.addEventListener('keydown', e=>{
+  if((e.metaKey||e.ctrlKey) && e.key==='k'){ e.preventDefault(); openCommandPalette(); }
+  if(e.key==='Escape' && document.getElementById('cmd-palette-overlay').classList.contains('open')){ closeCommandPalette(); }
+});
+document.getElementById('cmd-palette-input')?.addEventListener('input', e=> renderCommandResults(e.target.value));
+document.getElementById('cmd-palette-overlay')?.addEventListener('click', e=>{
+  if(e.target===document.getElementById('cmd-palette-overlay')) closeCommandPalette();
+});
+
+/* ── 2. DARK MODE TOGGLE ─────────────────────────────────────────────────── */
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('modilix-theme', next);
+  updateThemeToggleIcon();
+  sfx.click();
+}
+function updateThemeToggleIcon(){
+  const btn = document.getElementById('nav-theme-toggle');
+  if(!btn) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  btn.innerHTML = isDark ? '<svg class="icon"><use href="#i-sun"/></svg>' : '<svg class="icon"><use href="#i-moon"/></svg>';
+}
+// Restore saved theme
+try {
+  const saved = localStorage.getItem('modilix-theme');
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+} catch(e){}
+
+/* ── 3. NOTES SYSTEM (uses existing Supabase `notes` table) ──────────────── */
+let studentNotes = [];
+let editingNoteId = null;
+
+async function loadNotes(){
+  if(!currentUser || isEducator) return;
+  try {
+    const { data, error } = await db.from('notes').select('*').eq('student_id', currentUser.id).order('updated_at', {ascending:false});
+    if(!error) studentNotes = data || [];
+  } catch(e){ console.warn('Notes load failed', e); }
+}
+function toggleNotesPanel(){
+  const panel = document.getElementById('notes-panel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')) renderNotesList();
+}
+function renderNotesList(){
+  editingNoteId = null;
+  document.getElementById('notes-list').style.display = '';
+  document.getElementById('note-editor').classList.remove('active');
+  document.getElementById('notes-new-btn').style.display = '';
+  document.getElementById('notes-back-btn').style.display = 'none';
+  document.getElementById('notes-save-btn').style.display = 'none';
+  document.getElementById('notes-delete-note-btn').style.display = 'none';
+  const list = document.getElementById('notes-list');
+  if(!studentNotes.length){ list.innerHTML = '<div style="color:var(--ink-faint);font-size:.85rem;text-align:center;padding:2rem;">No notes yet — start one!</div>'; return; }
+  list.innerHTML = studentNotes.map(n=>{
+    const course = courses.find(c=>c.id===n.course_id);
+    const date = new Date(n.updated_at).toLocaleDateString('en-CA', {month:'short', day:'numeric'});
+    return `<div class="note-card" onclick="openNote('${n.id}')">
+      <div class="note-card-title">${esc(n.title||'Untitled')}</div>
+      <div class="note-card-preview">${esc((n.body||'').slice(0,100))}</div>
+      <div class="note-card-meta">${course?esc(course.code)+' · ':''}${date}</div>
+    </div>`;
+  }).join('');
+}
+function openNote(noteId){
+  const note = studentNotes.find(n=>n.id===noteId);
+  if(!note) return;
+  editingNoteId = noteId;
+  document.getElementById('notes-list').style.display = 'none';
+  document.getElementById('note-editor').classList.add('active');
+  document.getElementById('note-editor-title').value = note.title||'';
+  document.getElementById('note-editor-body').value = note.body||'';
+  document.getElementById('notes-new-btn').style.display = 'none';
+  document.getElementById('notes-back-btn').style.display = '';
+  document.getElementById('notes-save-btn').style.display = '';
+  document.getElementById('notes-delete-note-btn').style.display = '';
+}
+function openNewNote(){
+  editingNoteId = null;
+  document.getElementById('notes-list').style.display = 'none';
+  document.getElementById('note-editor').classList.add('active');
+  document.getElementById('note-editor-title').value = '';
+  document.getElementById('note-editor-body').value = '';
+  document.getElementById('notes-new-btn').style.display = 'none';
+  document.getElementById('notes-back-btn').style.display = '';
+  document.getElementById('notes-save-btn').style.display = '';
+  document.getElementById('notes-delete-note-btn').style.display = 'none';
+}
+async function saveNote(){
+  if(!currentUser) return;
+  const title = document.getElementById('note-editor-title').value.trim() || 'Untitled';
+  const body = document.getElementById('note-editor-body').value;
+  const courseId = currentCourseId || (courses.length ? courses[0].id : null);
+  if(editingNoteId){
+    await db.from('notes').update({ title, body, updated_at: new Date().toISOString() }).eq('id', editingNoteId);
+    const n = studentNotes.find(x=>x.id===editingNoteId);
+    if(n){ n.title=title; n.body=body; n.updated_at=new Date().toISOString(); }
+  } else {
+    const payload = { student_id:currentUser.id, course_id:courseId, item_id:currentItemId||null, title, body };
+    const { data } = await db.from('notes').insert(payload).select().single();
+    if(data) studentNotes.unshift(data);
+  }
+  showToast('Note saved', 'success');
+  renderNotesList();
+}
+async function deleteNote(){
+  if(!editingNoteId) return;
+  if(!confirm('Delete this note?')) return;
+  await db.from('notes').delete().eq('id', editingNoteId);
+  studentNotes = studentNotes.filter(n=>n.id!==editingNoteId);
+  showToast('Note deleted', 'info');
+  renderNotesList();
+}
+document.getElementById('notes-new-btn')?.addEventListener('click', openNewNote);
+document.getElementById('notes-back-btn')?.addEventListener('click', renderNotesList);
+document.getElementById('notes-save-btn')?.addEventListener('click', saveNote);
+document.getElementById('notes-delete-note-btn')?.addEventListener('click', deleteNote);
+document.getElementById('notes-panel-close')?.addEventListener('click', ()=>document.getElementById('notes-panel').classList.remove('open'));
+
+/* ── 4. DAILY GOAL ───────────────────────────────────────────────────────── */
+let dailyGoal = parseInt(localStorage.getItem('modilix-daily-goal')||'50');
+let dailyXpToday = 0;
+
+async function updateDailyGoal(){
+  const fill = document.getElementById('dash-goal-fill');
+  const status = document.getElementById('dash-goal-status');
+  if(!fill||!status) return;
+  dailyXpToday = await computeTodayXp();
+  const pct = Math.min(100, Math.round(dailyXpToday / dailyGoal * 100));
+  fill.style.width = pct + '%';
+  if(pct >= 100) status.textContent = `🎉 Goal reached! ${dailyXpToday} / ${dailyGoal} XP`;
+  else status.textContent = `${dailyXpToday} / ${dailyGoal} XP today`;
+}
+async function computeTodayXp(){
+  if(!currentUser) return 0;
+  try {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone:'America/Toronto' });
+    const { data } = await db.from('daily_xp').select('xp_earned').eq('student_id', currentUser.id).eq('day', today).maybeSingle();
+    return data?.xp_earned || 0;
+  } catch(e){ return 0; }
+}
+function editDailyGoal(){
+  const val = prompt('Set your daily XP goal:', dailyGoal);
+  const parsed = parseInt(val);
+  if(!isNaN(parsed) && parsed > 0 && parsed <= 1000){
+    dailyGoal = parsed;
+    localStorage.setItem('modilix-daily-goal', dailyGoal);
+    updateDailyGoal();
+    showToast(`Daily goal set to ${dailyGoal} XP`, 'success');
+  }
+}
+
+/* ── 5. BOOKMARKS / FAVORITES (Supabase-backed) ─────────────────────────── */
+let bookmarks = [];
+
+async function loadBookmarks(){
+  if(!currentUser || isEducator) return;
+  try {
+    const { data } = await db.from('bookmarks').select('item_id').eq('student_id', currentUser.id);
+    bookmarks = (data||[]).map(b=>b.item_id);
+  } catch(e){ console.warn('Bookmarks load failed', e); }
+}
+async function toggleBookmark(itemId){
+  if(!currentUser) return;
+  const idx = bookmarks.indexOf(itemId);
+  if(idx >= 0){
+    bookmarks.splice(idx,1);
+    showToast('Bookmark removed','info');
+    db.from('bookmarks').delete().eq('student_id', currentUser.id).eq('item_id', itemId).then(()=>{});
+  } else {
+    bookmarks.push(itemId);
+    showToast('Bookmarked!','success'); sfx.click();
+    db.from('bookmarks').upsert({ student_id:currentUser.id, item_id:itemId }, { onConflict:'student_id,item_id', ignoreDuplicates:true }).then(()=>{});
+  }
+}
+function isBookmarked(itemId){ return bookmarks.includes(itemId); }
+
+/* ── 6. ACHIEVEMENT BADGES ───────────────────────────────────────────────── */
+const BADGES = [
+  { id:'first_lesson', name:'First Steps', icon:'🌱', desc:'Complete your first lesson', check:()=>(Object.values(studentResponses).filter(r=>r.submitted).length >= 1) },
+  { id:'five_lessons', name:'Getting Started', icon:'📚', desc:'Complete 5 lessons', check:()=>(Object.values(studentResponses).filter(r=>r.submitted).length >= 5) },
+  { id:'ten_lessons', name:'Dedicated', icon:'🔥', desc:'Complete 10 lessons', check:()=>(Object.values(studentResponses).filter(r=>r.submitted).length >= 10) },
+  { id:'streak_3', name:'3-Day Streak', icon:'⚡', desc:'Maintain a 3-day streak', check:()=>(studentProgress.current_streak >= 3) },
+  { id:'streak_7', name:'Week Warrior', icon:'🏆', desc:'Maintain a 7-day streak', check:()=>(studentProgress.current_streak >= 7) },
+  { id:'streak_30', name:'Monthly Master', icon:'👑', desc:'30-day streak', check:()=>(studentProgress.longest_streak >= 30) },
+  { id:'xp_100', name:'Century Club', icon:'💯', desc:'Earn 100 XP', check:()=>(studentProgress.xp >= 100) },
+  { id:'xp_500', name:'XP Hunter', icon:'⭐', desc:'Earn 500 XP', check:()=>(studentProgress.xp >= 500) },
+  { id:'xp_1000', name:'XP Legend', icon:'🌟', desc:'Earn 1000 XP', check:()=>(studentProgress.xp >= 1000) },
+  { id:'perfect_score', name:'Perfectionist', icon:'💎', desc:'Score 100% on any test', check:()=>(Object.values(studentResponses).some(r=>r.submitted && r.total > 0 && r.score === r.total)) },
+  { id:'all_courses', name:'Explorer', icon:'🗺️', desc:'Start every available course', check:()=>{
+    if(!courses.length) return false;
+    return courses.every(c=>items.filter(i=>i.courseId===c.id).some(i=>studentResponses[i.id]?.submitted));
+  }},
+  { id:'note_taker', name:'Note Taker', icon:'📝', desc:'Create 5 notes', check:()=>(studentNotes.length >= 5) },
+];
+function getEarnedBadges(){
+  return BADGES.filter(b=>b.check());
+}
+
+/* ── 7. QUICK QUIZ MODE ──────────────────────────────────────────────────── */
+function startQuickQuiz(){
+  if(!currentUser){ studentModalMode='signin'; renderStudentModal(); openModal('student-overlay'); return; }
+  // Gather all MC questions from all items the student has access to
+  const allMcQuestions = [];
+  items.forEach(it=>{
+    const qs = it.type==='lesson' ? (it.content||[]).filter(b=>b.type==='mc') : (it.questions||[]).filter(q=>q.type==='mc');
+    qs.forEach(q=>allMcQuestions.push({ ...q, itemTitle:it.title, courseId:it.courseId }));
+  });
+  if(allMcQuestions.length < 3){
+    showToast('Not enough questions available yet','warning');
+    return;
+  }
+  const picked = shuffleArray(allMcQuestions).slice(0,5);
+  // Build a temporary quiz item
+  const qqItem = {
+    id: 'quick-quiz-' + uid(),
+    title: 'Quick Quiz',
+    type: 'practice',
+    questions: picked.map(q=>({ type:'mc', text:q.prompt||q.text, options:q.options, correct:q.correct ?? q.correctIndex ?? 0 })),
+    courseId: picked[0].courseId,
+    unitId: null,
+    description: '5 random questions from your courses',
+  };
+  currentItemId = qqItem.id;
+  items.push(qqItem);
+  openTest(qqItem.id);
+  showToast('Quick Quiz started — 5 random questions!','info');
+}
+
+/* ── 8. POMODORO TIMER ───────────────────────────────────────────────────── */
+let pomodoroInterval = null, pomodoroSeconds = 25*60, pomodoroRunning = false, pomodoroMode = 'focus';
+
+function pomodoroToggle(){
+  if(pomodoroRunning){ pomodoroPause(); } else { pomodoroStart(); }
+}
+function pomodoroStart(){
+  pomodoroRunning = true;
+  document.getElementById('pomodoro-start').textContent = '⏸ Pause';
+  pomodoroInterval = setInterval(()=>{
+    pomodoroSeconds--;
+    pomodoroRenderTime();
+    if(pomodoroSeconds <= 0){
+      pomodoroPause();
+      sfx.lessonComplete();
+      if(pomodoroMode==='focus'){
+        pomodoroMode='break'; pomodoroSeconds=5*60;
+        document.getElementById('pomodoro-label').textContent='Break time!';
+        showToast('Focus session complete! Take a 5-minute break.','success');
+      } else {
+        pomodoroMode='focus'; pomodoroSeconds=25*60;
+        document.getElementById('pomodoro-label').textContent='Focus session';
+        showToast('Break over — ready for another focus session?','info');
+      }
+      pomodoroRenderTime();
+    }
+  }, 1000);
+}
+function pomodoroPause(){
+  pomodoroRunning = false;
+  clearInterval(pomodoroInterval);
+  document.getElementById('pomodoro-start').textContent = '▶ Start';
+}
+function pomodoroReset(){
+  pomodoroPause();
+  pomodoroMode='focus'; pomodoroSeconds=25*60;
+  document.getElementById('pomodoro-label').textContent='Focus session';
+  pomodoroRenderTime();
+}
+function pomodoroRenderTime(){
+  const m = Math.floor(pomodoroSeconds/60).toString().padStart(2,'0');
+  const s = (pomodoroSeconds%60).toString().padStart(2,'0');
+  const el = document.getElementById('pomodoro-display');
+  if(el) el.textContent = `${m}:${s}`;
+}
+
+/* ── 9. ZEN/FOCUS MODE ───────────────────────────────────────────────────── */
+let zenMode = false;
+function toggleZenMode(){
+  zenMode = !zenMode;
+  document.body.classList.toggle('zen-mode', zenMode);
+  if(zenMode) showToast('Zen mode on — click indicator to exit','info');
+  else showToast('Zen mode off','info');
+}
+
+/* ── 10. DISCUSSION THREADS (uses existing `discussion_posts` table) ─────── */
+async function loadDiscussionPosts(itemId){
+  if(!currentUser) return [];
+  try {
+    const { data } = await db.from('discussion_posts').select('*').eq('item_id', itemId).eq('deleted', false).order('created_at');
+    return data || [];
+  } catch(e){ return []; }
+}
+async function postDiscussion(itemId, body, parentId){
+  if(!currentUser || !body.trim()) return null;
+  const payload = {
+    item_id: itemId,
+    author_id: currentUser.id,
+    author_name: currentProfile?.display_name || currentUser.email?.split('@')[0] || 'Student',
+    author_role: isEducator ? 'educator' : 'student',
+    body: body.trim(),
+    parent_id: parentId || null,
+  };
+  const { data } = await db.from('discussion_posts').insert(payload).select().single();
+  return data;
+}
+function renderDiscussionSection(itemId, container){
+  if(!container || !currentUser) return;
+  container.innerHTML = `<div class="discussion-section">
+    <div class="discussion-head"><h4><svg class="icon" style="width:16px;height:16px;"><use href="#i-star"/></svg> Discussion</h4></div>
+    <div id="discussion-posts-list"><div style="color:var(--ink-faint);font-size:.82rem;">Loading…</div></div>
+    <div class="discussion-compose">
+      <textarea id="discussion-input" placeholder="Ask a question or share a thought…"></textarea>
+      <button class="btn-sm" onclick="submitDiscussion('${itemId}')" style="align-self:flex-end;">Post</button>
+    </div>
+  </div>`;
+  loadDiscussionPosts(itemId).then(posts=>{
+    const list = document.getElementById('discussion-posts-list');
+    if(!posts.length){ list.innerHTML = '<div style="color:var(--ink-faint);font-size:.82rem;">No posts yet — be the first!</div>'; return; }
+    list.innerHTML = posts.map(p=>{
+      const initial = (p.author_name||'?')[0].toUpperCase();
+      const time = new Date(p.created_at).toLocaleDateString('en-CA',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      return `<div class="discussion-post">
+        <div class="discussion-post-head">
+          <div class="discussion-post-avatar">${initial}</div>
+          <span class="discussion-post-name">${esc(p.author_name)}${p.author_role==='educator'?' <span style="color:var(--blue);font-size:.7rem;">Educator</span>':''}</span>
+          <span class="discussion-post-time">${time}</span>
+        </div>
+        <div class="discussion-post-body">${esc(p.body)}</div>
+      </div>`;
+    }).join('');
+  });
+}
+window.submitDiscussion = async function(itemId){
+  const input = document.getElementById('discussion-input');
+  if(!input || !input.value.trim()) return;
+  const post = await postDiscussion(itemId, input.value);
+  if(post){ input.value=''; renderDiscussionSection(itemId, document.querySelector('.discussion-section')?.parentElement); showToast('Posted!','success'); }
+};
+
+/* ── 11. MOTIVATIONAL QUOTES ─────────────────────────────────────────────── */
+const QUOTES = [
+  { text:'The expert in anything was once a beginner.', author:'Helen Hayes' },
+  { text:'Education is not preparation for life; education is life itself.', author:'John Dewey' },
+  { text:'The more that you read, the more things you will know.', author:'Dr. Seuss' },
+  { text:'Tell me and I forget. Teach me and I remember. Involve me and I learn.', author:'Benjamin Franklin' },
+  { text:'It does not matter how slowly you go as long as you do not stop.', author:'Confucius' },
+  { text:'The only way to learn mathematics is to do mathematics.', author:'Paul Halmos' },
+  { text:'Success is the sum of small efforts repeated day in and day out.', author:'Robert Collier' },
+  { text:'A person who never made a mistake never tried anything new.', author:'Albert Einstein' },
+  { text:'You don\'t have to be great to start, but you have to start to be great.', author:'Zig Ziglar' },
+  { text:'Practice makes progress.', author:'Unknown' },
+  { text:'Every accomplishment starts with the decision to try.', author:'John F. Kennedy' },
+  { text:'The beautiful thing about learning is that no one can take it away from you.', author:'B.B. King' },
+];
+function renderDailyQuote(){
+  const day = Math.floor(Date.now()/86400000) % QUOTES.length;
+  const q = QUOTES[day];
+  const text = document.getElementById('dash-quote-text');
+  const author = document.getElementById('dash-quote-author');
+  if(text) text.textContent = q.text;
+  if(author) author.textContent = '— ' + q.author;
+}
+
+/* ── 12. PROGRESS SHARING ────────────────────────────────────────────────── */
+function shareProgress(){
+  if(!currentUser) return;
+  const streak = studentProgress.current_streak || 0;
+  const xp = studentProgress.xp || 0;
+  const completed = Object.values(studentResponses).filter(r=>r.submitted).length;
+  const text = `🔥 ${streak}-day streak · ⚡ ${xp} XP · 📚 ${completed} lessons completed on Modilix!`;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>showToast('Progress copied to clipboard!','success'));
+  } else {
+    showToast('Share: ' + text, 'info');
+  }
+}
+
+/* ── 13. COURSE COMPLETION CERTIFICATE ───────────────────────────────────── */
+function canShowCertificate(courseId){
+  return courseCompletionPct(courseId) >= 100;
+}
+
+/* ── 14. KEYBOARD SHORTCUTS ──────────────────────────────────────────────── */
+document.addEventListener('keydown', e=>{
+  // Don't fire when typing in inputs
+  if(e.target.matches('input,textarea,select,[contenteditable]')) return;
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+
+  const testPage = document.getElementById('test-page');
+  const inLesson = testPage?.classList.contains('visible') && testPage?.classList.contains('lp-mode');
+  if(inLesson){
+    if(e.key==='ArrowRight' || e.key===' '){ e.preventDefault(); document.getElementById('lp-next-btn')?.click(); }
+    if(e.key==='ArrowLeft'){ e.preventDefault(); document.getElementById('lp-prev-btn')?.click(); }
+    if(e.key==='Escape'){ document.getElementById('tp-back-btn')?.click(); }
+    return;
+  }
+  if(e.key==='n'||e.key==='N') toggleNotesPanel();
+  if(e.key==='z'||e.key==='Z') toggleZenMode();
+});
+
+/* ── 15. ACCESSIBILITY TOOLBAR ───────────────────────────────────────────── */
+let a11yFontLevel = 0;
+function cycleA11yFont(){
+  a11yFontLevel = (a11yFontLevel + 1) % 3;
+  document.documentElement.classList.remove('font-lg','font-xl');
+  if(a11yFontLevel===1) document.documentElement.classList.add('font-lg');
+  if(a11yFontLevel===2) document.documentElement.classList.add('font-xl');
+  showToast(a11yFontLevel===0?'Default text size':a11yFontLevel===1?'Large text':'Extra large text','info');
+}
+function toggleHighContrast(){
+  document.documentElement.classList.toggle('high-contrast');
+  showToast(document.documentElement.classList.contains('high-contrast')?'High contrast on':'High contrast off','info');
+}
+
+/* ── 16. IMPROVED TOAST SYSTEM ───────────────────────────────────────────── */
+function showToast(msg, type='info'){
+  const stack = document.getElementById('toast-stack');
+  if(!stack) return;
+  const el = document.createElement('div');
+  el.className = 'toast-item ' + type;
+  el.textContent = msg;
+  stack.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(), 300); }, 2800);
+}
+
+/* ── 17. ENHANCED DASHBOARD RENDER (patch) ───────────────────────────────── */
+const _origRenderDashboard = typeof renderDashboard === 'function' ? renderDashboard : null;
+// We'll call our new features after the original renders
+function renderDashboardV2(){
+  renderDailyQuote();
+  updateDailyGoal();
+  pomodoroRenderTime();
+  // Show notes toggle for signed-in students
+  const notesBtn = document.getElementById('nav-notes-toggle');
+  if(notesBtn) notesBtn.style.display = (currentUser && !isEducator) ? '' : 'none';
+  updateThemeToggleIcon();
+}
+
+/* ── 18. ACHIEVEMENT BADGE SECTION IN ACCOUNT PAGE ───────────────────────── */
+function renderBadgesSection(){
+  const container = document.getElementById('acct-badges-section');
+  if(!container) return;
+  const earned = getEarnedBadges();
+  container.innerHTML = `<h3 style="margin-bottom:.75rem;">Achievements <span style="font-weight:500;color:var(--ink-faint);font-size:.82rem;">${earned.length}/${BADGES.length}</span></h3>
+    <div class="badge-grid">${BADGES.map(b=>{
+      const isEarned = earned.includes(b);
+      return `<div class="badge-card ${isEarned?'':'locked'}">
+        <span class="badge-icon">${b.icon}</span>
+        <div class="badge-name">${b.name}</div>
+        <div class="badge-desc">${b.desc}</div>
+        ${isEarned?'<div class="badge-date" style="color:var(--green);">✓ Earned</div>':''}
+      </div>`;
+    }).join('')}</div>`;
+}
+
+/* ── 19. CALENDAR VIEW ───────────────────────────────────────────────────── */
+async function loadCalendarEvents(){
+  if(!currentUser) return [];
+  try {
+    const { data } = await db.from('calendar_events').select('*').order('due_at');
+    return data || [];
+  } catch(e){ return []; }
+}
+
+/* ── 20. ENHANCED renderCourses WITH BOOKMARK SUPPORT ────────────────────── */
+// Bookmarks are shown in the dashboard's recently visited section
+
+/* ── Wire up notes toggle visibility on page changes ── */
+const _origShowPage = showPage;
+showPage = function(page){
+  _origShowPage(page);
+  // After page renders, add our v2 enhancements
+  if(page==='dashboard') renderDashboardV2();
+  if(page==='account') setTimeout(renderBadgesSection, 50);
+};
+
 (async function init(){
   renderEducatorModal();
   // Everything in this try block depends on the backend (Supabase/Firebase)
@@ -13740,6 +14589,8 @@ async function ensureProfileExists(uid, existingProfile){
     await loadResponses();
     await loadProgress();
     await loadReviewLog();
+    await loadNotes();
+    await loadBookmarks();
   } catch(err){
     console.error('Startup data load failed — continuing in signed-out mode so the page stays usable', err);
   }
@@ -13755,7 +14606,10 @@ async function ensureProfileExists(uid, existingProfile){
     checkPremiumRedirectResult();
     showStudyTimer();
     showOnboarding();
+    renderDashboardV2();
+    updateThemeToggleIcon();
   }
+  updateThemeToggleIcon();
 })();
 </script>
 </body>
