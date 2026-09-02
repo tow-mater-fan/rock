@@ -2215,7 +2215,7 @@
   .dash-rec-blob-2 { position:absolute; bottom:-20%; left:-10%; width:45%; height:45%; border-radius:50%;
     background:radial-gradient(circle, var(--dash-rec-accent, var(--blue)), transparent 70%); opacity:.09; filter:blur(28px);
     z-index:0; pointer-events:none; }
-  .dash-rec-inner { padding:1.5rem 1.5rem 1.25rem; flex:1; display:flex; flex-direction:column; gap:1.1rem; min-height:0; }
+  .dash-rec-inner { padding:1.5rem 1.5rem 1.25rem; flex:1; display:flex; flex-direction:column; justify-content:center; gap:1.1rem; min-height:0; }
   .dash-rec-badge-row { display:flex; align-items:center; justify-content:space-between; }
   .dash-rec-eyebrow { font-family:'Inter',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase;
     color:#fff; background:var(--dash-rec-accent, var(--blue)); display:inline-block; padding:.32rem .75rem; border-radius:100px; }
@@ -2232,7 +2232,6 @@
     border:1px solid var(--rule); padding:.32rem .7rem; border-radius:100px; white-space:nowrap; box-shadow:var(--depth-1); }
   .dash-rec-unit-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.8rem; color:var(--ink-soft); display:flex; align-items:center; gap:.4rem; }
   .dash-rec-unit-label .icon { width:14px; height:14px; color:var(--dash-rec-accent, var(--blue)); flex-shrink:0; }
-  .dash-rec-spacer { flex:1; min-height:.5rem; }
   .dash-rec-meta { display:flex; align-items:center; gap:.6rem; color:var(--ink-soft); font-family:'Inter',sans-serif; font-weight:700; font-size:.82rem; }
   .dash-rec-meta-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--dash-rec-accent, var(--blue)); }
   .dash-rec-visual { display:none; }
@@ -7981,7 +7980,6 @@ function renderDashboard(){
       </div>
       ${rec.unit ? `<div class="dash-rec-unit-label"><svg class="icon"><use href="#i-book"/></svg> Part of ${esc(rec.unit.name)}</div>` : ''}
       <div class="dash-rec-chips">${chips.map(c=>`<span class="dash-rec-chip">${esc(c)}</span>`).join('') || `<span class="dash-rec-chip">${blockList.length} step${blockList.length===1?'':'s'}</span>`}</div>
-      <div class="dash-rec-spacer"></div>
       <div class="dash-rec-meta"><span class="dash-rec-meta-dot"></span>${meta}</div>
     </div>
     <button class="dash-rec-btn" id="dash-rec-start">Start lesson <svg class="icon" style="width:15px;height:15px;"><use href="#i-arrow-right"/></svg></button>
