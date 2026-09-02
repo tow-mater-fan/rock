@@ -1957,7 +1957,7 @@
   .streak-modal-sub { color:var(--ink-soft); font-size:.85rem; margin-bottom:1.25rem; }
 
   /* ── DASHBOARD (Home) ── */
-  .dash-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:320px minmax(0,1fr); gap:1.25rem; align-items:start; overflow:hidden; }
+  .dash-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:320px minmax(0,1fr); gap:1.25rem; align-items:stretch; overflow:hidden; }
   .dash-col-left { display:flex; flex-direction:column; gap:1.25rem; }
   .dash-card { background:var(--white); border:1px solid var(--rule); border-radius:18px; padding:1.5rem;
     animation:fadeInUp .5s var(--ease-premium) both; transition:transform .22s var(--ease-premium), box-shadow .22s var(--ease-premium); }
@@ -2389,13 +2389,10 @@
   .onboard-step-text strong { font-weight:700; }
 
   /* ── Recently Visited Cards (Dashboard) ── */
-  .recent-cards-wrap { position:relative; }
-  .recent-cards-wrap::after { content:''; position:absolute; top:0; right:0; bottom:.25rem; width:32px; pointer-events:none;
-    background:linear-gradient(90deg, transparent, var(--glass) 75%); border-radius:0 12px 12px 0; }
   .recent-cards { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.25rem;
     scrollbar-width:none; -ms-overflow-style:none; }
   .recent-cards::-webkit-scrollbar { display:none; }
-  .recent-card { flex-shrink:0; width:200px; padding:.85rem 1rem; background:var(--white);
+  .recent-card { flex-shrink:0; width:175px; padding:.85rem 1rem; background:var(--white);
     border:1px solid var(--rule); border-radius:var(--radius-md); cursor:pointer;
     transition:box-shadow .15s, transform .15s; }
   .recent-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
@@ -14535,32 +14532,32 @@ function getRecentlyVisited(){
   try { return JSON.parse(localStorage.getItem('mdlx_recents') || '[]'); } catch(e){ return []; }
 }
 function renderRecentlyVisited(){
-  const recents = getRecentlyVisited();
+  const recents = getRecentlyVisited().slice(0,3);
   // Add bookmarked items section
-  const bmItems = bookmarks.map(id=>items.find(i=>i.id===id)).filter(Boolean);
+  const bmItems = bookmarks.map(id=>items.find(i=>i.id===id)).filter(Boolean).slice(0,3);
   let bmHtml = '';
   if(bmItems.length){
     bmHtml = `<div style="margin-bottom:1.5rem;">
       <h3 style="font-size:.88rem; color:var(--gold-ink); margin-bottom:.6rem; display:flex; align-items:center; gap:.4rem;"><svg class="icon" style="width:14px;height:14px;"><use href="#i-bookmark"/></svg> Bookmarked</h3>
-      <div class="recent-cards-wrap"><div class="recent-cards">${bmItems.slice(0,4).map(it => {
+      <div class="recent-cards">${bmItems.map(it => {
         const course = courses.find(c=>c.id===it.courseId);
         return `<div class="recent-card" onclick="openTest('${it.id}')" style="border-color:var(--gold);border-width:1.5px;">
           <div class="recent-card-title">${esc(it.title)}</div>
           <div class="recent-card-meta">${course?esc(course.code):''} · ${TYPE_LABELS[it.type]||it.type}</div>
         </div>`;
-      }).join('')}</div></div>
+      }).join('')}</div>
     </div>`;
   }
   let recentHtml = '';
   if(recents.length){
     recentHtml = `<div style="margin-bottom:1.5rem;">
       <h3 style="font-size:.88rem; color:var(--ink-soft); margin-bottom:.6rem;">Recently visited</h3>
-      <div class="recent-cards-wrap"><div class="recent-cards">${recents.map(r => `
+      <div class="recent-cards">${recents.map(r => `
         <div class="recent-card" onclick="openTest('${r.id}')">
           <div class="recent-card-title">${esc(r.title)}</div>
           <div class="recent-card-meta">${r.courseCode || ''} · ${r.type || ''}</div>
         </div>
-      `).join('')}</div></div>
+      `).join('')}</div>
     </div>`;
   }
   return bmHtml + recentHtml;
