@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <script>
-  // Restore the user's theme + accent before first paint to prevent a flash.
+  // Set accent before first paint.
   try {
-    document.documentElement.setAttribute('data-theme', localStorage.getItem('modilix-theme') || 'light');
+    document.documentElement.setAttribute('data-theme', 'light');
     document.documentElement.setAttribute('data-accent', localStorage.getItem('modilix-accent') || 'ocean');
   } catch(e) {}
 </script>
@@ -80,37 +80,18 @@
        surfaces and the logo mark only. */
     --brand-gradient-cta: linear-gradient(120deg, var(--blue) 0%, var(--blue-dark) 100%);
   }
-  /* ── Dark mode ── swaps the paper/ink surface tokens; every component
-     already reads from these vars, so this cascades app-wide with no
-     per-component overrides needed. */
-  html[data-theme="dark"] {
-    --paper: #14161f; --paper-2: #1c1f2c; --rule: #2c3040;
-    --ink: #eef0f6; --ink-soft: #b7bccb; --ink-faint: #7d8299;
-    --white: #1a1d29;
-    --blue-bg: #3a2018; --gold-bg: #3a2f10; --green-bg: #103326; --purple-bg: #241f3f; --teal-bg: #221a4a; --red-bg: #3a1616;
-    --gold-ink: #ffcf5c; --red-ink: #ff6b6b; --purple-ink: #c9a6f5; --code-ink: #c9d3e0;
-    --shadow-xs: 0 1px 2px rgba(0,0,0,.3); --shadow-sm: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.3);
-    --shadow-md: 0 8px 24px -6px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3); --shadow-lg: 0 20px 48px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.3);
-    color-scheme: dark;
-  }
-  html[data-theme="dark"] img, html[data-theme="dark"] .lp-image { filter: brightness(.92); }
   /* ── Accent personalization ── swaps the --blue token, which drives
      primary buttons, active states, and highlights across the app. */
   html[data-accent="ocean"] { --blue:#2563eb; --blue-dark:#1d4ed8; --blue-bg:#dbe8fe; }
-  html[data-theme="dark"][data-accent="ocean"] { --blue-bg:#122240; }
   html[data-accent="forest"] { --blue:#159a63; --blue-dark:#0f7d50; --blue-bg:#e3f7ee; }
-  html[data-theme="dark"][data-accent="forest"] { --blue-bg:#103326; }
   html[data-accent="grape"] { --blue:#7c5cff; --blue-dark:#6440e8; --blue-bg:#efeaff; }
-  html[data-theme="dark"][data-accent="grape"] { --blue-bg:#241f3f; }
   html[data-accent="sunset"] { --blue:#d9522c; --blue-dark:#b13f1f; --blue-bg:#fbe9e0; }
-  html[data-theme="dark"][data-accent="sunset"] { --blue-bg:#33201a; }
   html[data-accent="rose"] { --blue:#e5487a; --blue-dark:#c72f61; --blue-bg:#fde3ec; }
-  html[data-theme="dark"][data-accent="rose"] { --blue-bg:#3a1826; }
   html { transition: background .2s var(--ease-premium); }
   body { transition: background .2s var(--ease-premium), color .2s var(--ease-premium); }
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
-  body { font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); overflow-x:hidden; }
+  body { font-family:'Inter',sans-serif; color:var(--ink); overflow-x:hidden; }
   h1,h2,h3,h4 { font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-.015em; }
   code, .mono { font-family:'IBM Plex Mono',monospace; }
   button { font-family:inherit; }
@@ -794,11 +775,11 @@
   .add-course-tile:hover { border-color:var(--blue); color:var(--blue); }
 
   /* ── COURSE DETAIL PAGE (two-column) ── */
-  #course-detail-page { display:none; min-height:100vh; background:var(--paper); }
+  #course-detail-page { display:none; min-height:100vh; }
   #course-detail-page.visible { display:block; }
-  #tool-graphbuilder-page { display:none; min-height:100vh; background:var(--paper); }
+  #tool-graphbuilder-page { display:none; min-height:100vh; }
   #tool-graphbuilder-page.visible { display:block; }
-  #tool-drbuilder-page { display:none; min-height:100vh; background:var(--paper); }
+  #tool-drbuilder-page { display:none; min-height:100vh; }
   #tool-drbuilder-page.visible { display:block; }
   .tool-tile { background:var(--white); border:1px solid var(--rule); border-radius:16px; padding:1.1rem 1.2rem; display:flex; gap:.9rem; align-items:flex-start; cursor:pointer; transition:transform .18s, box-shadow .18s, border-color .18s; }
   .tool-tile:hover { transform:translateY(-3px); box-shadow:0 14px 30px -12px rgba(15,48,96,.2); border-color:transparent; }
@@ -1221,8 +1202,6 @@
      dark navy — the original light-gray grid/axis strokes were tuned for a
      white canvas and become nearly invisible against it, so give them a
      lighter, higher-contrast pair for dark mode. */
-  html[data-theme="dark"] .fx-grid-line { stroke:#333a4d; }
-  html[data-theme="dark"] .fx-axis { stroke:#8b96b3; }
   /* The hero "try it" demo graph sits on a translucent card over the nav's
      permanently-dark board color (not the theme-flipping page background),
      in both light and dark mode — so it needs its own fixed, always-light
@@ -1983,7 +1962,7 @@
   .dash-col-left .dash-card:nth-child(2) { animation-delay:.09s; }
   .dash-col-left .dash-card:nth-child(3) { animation-delay:.15s; }
   .dash-col-left .dash-card:nth-child(4) { animation-delay:.21s; }
-  .dash-col-right { animation:fadeInUp .5s var(--ease-premium) .12s both; }
+  .dash-col-right { animation:fadeInUp .5s var(--ease-premium) .12s both; display:flex; flex-direction:column; gap:1.25rem; }
   .dash-streak-flame { display:inline-block; animation:flameFlicker 1.8s ease-in-out infinite; }
   @keyframes flameFlicker { 0%,100% { transform:scale(1) rotate(0deg); } 25% { transform:scale(1.08) rotate(-3deg); } 50% { transform:scale(.97) rotate(2deg); } 75% { transform:scale(1.05) rotate(-1deg); } }
   .dash-streak-head { display:flex; align-items:center; gap:.4rem; }
@@ -2451,12 +2430,6 @@
   .cmd-palette-section { font-family:'Inter',sans-serif; font-weight:700; font-size:.68rem; text-transform:uppercase; letter-spacing:.05em;
     color:var(--ink-faint); padding:.6rem .85rem .3rem; }
 
-  /* ── 2. DARK MODE TOGGLE ── */
-  .theme-toggle { width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08);
-    color:var(--board-ink); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
-    transition:background .15s, transform .15s; }
-  .theme-toggle:hover { background:rgba(255,255,255,.16); transform:scale(1.05); }
-  .theme-toggle .icon { width:16px; height:16px; }
 
   /* ── 3. NOTES SYSTEM ── */
   .notes-panel { position:fixed; right:0; top:60px; bottom:0; width:380px; max-width:92vw; background:var(--white); border-left:1px solid var(--rule);
@@ -2643,10 +2616,6 @@
     background:linear-gradient(165deg, #f0f4fb 0%, #f8f6f3 35%, #f2f0fa 70%, #eef3fb 100%) !important;
     background-attachment:fixed !important;
   }
-  html[data-theme="dark"] body {
-    background:#0d1117 !important;
-    background:linear-gradient(165deg, #0d1117 0%, #111827 35%, #0f1629 70%, #0d1117 100%) !important;
-  }
 
   /* ── Ambient mesh — visible ── */
   body::before, body::after {
@@ -2676,8 +2645,6 @@
     40% { transform:translate(4vw, -3vw) scale(1.08); }
     70% { transform:translate(-2vw, 2vw) scale(.94); }
   }
-  html[data-theme="dark"] body::before { opacity:.35; }
-  html[data-theme="dark"] body::after { opacity:.25; }
   body:has(#home-page[style*="display:block"])::before,
   body:has(#home-page[style*="display:block"])::after { opacity:0; }
 
@@ -2692,18 +2659,10 @@
     --depth-glow: 0 4px 20px -4px rgba(37,99,235,.18);
     --inner-light: inset 0 1px 0 rgba(255,255,255,.85);
   }
-  html[data-theme="dark"] {
-    --glass: rgba(255,255,255,.05);
-    --glass-border: rgba(255,255,255,.08);
-    --depth-1: 0 1px 3px rgba(0,0,0,.3);
-    --depth-2: 0 4px 16px -2px rgba(0,0,0,.4);
-    --depth-3: 0 12px 40px -8px rgba(0,0,0,.5);
-    --depth-glow: 0 4px 20px -4px rgba(37,99,235,.3);
-    --inner-light: inset 0 1px 0 rgba(255,255,255,.04);
-  }
 
   /* ── GLASS CARDS ── */
-  .dash-card, .acct-card, .prog-section, .acct-header, .acct-stat-card,
+  .dash-card:not(.dash-premium-upsell):not(.dash-recommend-card),
+  .acct-card, .prog-section, .acct-header, .acct-stat-card,
   .prog-stat-card, .tool-tile {
     background:var(--glass) !important;
     backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
@@ -2711,7 +2670,8 @@
     box-shadow:var(--depth-2), var(--inner-light);
     transition:transform .22s var(--ease-premium), box-shadow .22s var(--ease-premium);
   }
-  .dash-card:hover, .acct-card:hover, .acct-stat-card:hover, .tool-tile:hover {
+  .dash-card:not(.dash-premium-upsell):not(.dash-recommend-card):hover,
+  .acct-card:hover, .acct-stat-card:hover, .tool-tile:hover {
     transform:translateY(-4px);
     box-shadow:var(--depth-3), var(--depth-glow);
   }
@@ -2720,9 +2680,6 @@
   .dash-col-left > .dash-card:first-child {
     background:linear-gradient(135deg, rgba(255,240,220,.7), rgba(255,224,178,.35), rgba(255,255,255,.6)) !important;
     border-color:rgba(220,156,52,.2) !important;
-  }
-  html[data-theme="dark"] .dash-col-left > .dash-card:first-child {
-    background:linear-gradient(135deg, rgba(220,156,52,.12), rgba(255,144,54,.06), var(--glass)) !important;
   }
 
   /* ── DAILY GOAL — blue-green ── */
@@ -2970,11 +2927,24 @@
     background:var(--brand-gradient-cta); border-radius:2px;
   }
 
-  /* ── PREMIUM CARD fix ── */
-  .dash-premium-upsell { border-radius:18px !important; border:none !important; overflow:hidden; position:relative; }
+  /* ── PREMIUM CARD — keep its own gradient, don't glass it ── */
+  .dash-premium-upsell {
+    border-radius:18px !important; border:none !important; overflow:hidden; position:relative;
+    background:var(--brand-gradient-text) !important; background-size:180% 180% !important;
+    backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+    box-shadow:var(--depth-3), 0 8px 30px -6px rgba(37,99,235,.3) !important;
+    animation:gradientDrift 9s ease-in-out infinite;
+    color:#fff !important;
+  }
+  .dash-premium-upsell:hover { transform:translateY(-4px); }
+  .dash-premium-upsell * { color:#fff; }
+  .dash-premium-upsell .dash-premium-btn { color:var(--blue-dark) !important; }
 
-  /* ── RECOMMEND CARD ── */
-  .dash-recommend-card { box-shadow:var(--depth-3) !important; border-radius:20px !important; overflow:hidden; }
+  /* ── RECOMMEND CARD — keep its own dark board, not glass ── */
+  .dash-recommend-card {
+    box-shadow:var(--depth-3) !important; border-radius:20px !important; overflow:hidden;
+    backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  }
 
   /* ── ACCOUNT HEADER glow ── */
   .acct-header { position:relative; overflow:hidden; }
@@ -2991,10 +2961,224 @@
     border-top:1px solid var(--glass-border);
   }
 
+  /* ── GRAPH BUILDER & DR BUILDER panels ── */
+  .gb-controls, .gb-graph-wrap {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2), var(--inner-light);
+  }
+
+  /* ── FORMULA DRAWER ── */
+  #formula-drawer {
+    background:rgba(248,250,252,.92) !important;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-left:1px solid var(--glass-border) !important;
+    box-shadow:-12px 0 40px rgba(20,20,30,.1);
+  }
+
+  /* ── MODAL ── */
+  .modal {
+    background:rgba(255,255,255,.88) !important;
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+  .modal-overlay { backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+
+  /* ── STREAK MODAL ── */
+  .streak-modal {
+    background:rgba(255,255,255,.9) !important;
+    backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    box-shadow:var(--depth-3), 0 0 80px -20px rgba(220,156,52,.25);
+  }
+  .streak-modal-overlay { backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+
+  /* ── ONBOARDING OVERLAY ── */
+  .onboard-overlay {
+    background:linear-gradient(165deg, #f0f4fb 0%, #f8f6f3 35%, #f2f0fa 70%, #eef3fb 100%) !important;
+  }
+  .onboard-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+
+  /* ── STUDY TIMER floating pill + panel ── */
+  #study-timer .st-pill {
+    background:var(--glass) !important;
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    box-shadow:var(--depth-2);
+  }
+  #study-timer .st-panel {
+    background:rgba(255,255,255,.92) !important;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    box-shadow:var(--depth-3);
+    border:1px solid var(--glass-border) !important;
+  }
+
+  /* ── AI TUTOR PANEL ── */
+  .ai-tutor-panel {
+    background:rgba(248,250,252,.92) !important;
+    backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
+    box-shadow:var(--depth-3);
+  }
+  .ai-tutor-header {
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  }
+
+  /* ── SCRATCHPAD ── */
+  .scratchpad-textarea {
+    background:var(--glass) !important;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  }
+
+  /* ── HOME PAGE — full Liquid Depth treatment ── */
+
+  /* Hero background — subtle warm-cool gradient */
+  .hero {
+    background:linear-gradient(175deg, #f0f4fb 0%, #eef0fa 25%, #f4f2f8 50%, #f0f4fb 100%) !important;
+  }
+  .hero::after {
+    background:radial-gradient(circle, rgba(37,99,235,.14), rgba(110,90,216,.06) 55%, transparent 75%);
+    filter:blur(40px);
+  }
+  /* Hero nav pill — glass */
+  .hero-logo-pill {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+  .hero-menu-panel {
+    background:rgba(255,255,255,.92) !important;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+  .hero-signin-popover {
+    background:rgba(255,255,255,.92) !important;
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+  .hero-btn-signin {
+    background:var(--glass) !important;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-1);
+  }
+  .hero-btn-signin:hover { box-shadow:var(--depth-2), var(--depth-glow); }
+  .educator-badge {
+    background:var(--glass) !important;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:1px solid var(--glass-border) !important;
+  }
+
+  /* Hero demo card — premium glass */
+  .hero-demo-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
+    border:1px solid var(--glass-border) !important;
+    box-shadow:0 44px 80px -20px rgba(8,6,20,.3), 0 18px 40px -14px rgba(8,6,20,.18),
+      var(--depth-glow), var(--inner-light) !important;
+  }
+  .hero-demo-card::before { opacity:.5; }
+  .hero-demo-svg-wrap {
+    background:rgba(255,255,255,.5) !important;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border:1px solid var(--glass-border) !important;
+  }
+  .hero-demo-eq {
+    background:rgba(255,255,255,.5) !important;
+    border:1px solid var(--glass-border) !important;
+  }
+
+  /* Hero CTA bar — glass pill */
+  .hero-cta-bar {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+  .hero-cta-bar:hover { box-shadow:var(--depth-3), var(--depth-glow); }
+
+  /* Carousel bar — glass */
+  .hcar-bar {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2);
+  }
+  .hcar-nav-btn { background:rgba(255,255,255,.5); }
+
+  /* Fan cards — depth */
+  .hfan-card.hcar-card { box-shadow:var(--depth-2), inset 0 1px 0 rgba(255,255,255,.2); }
+  .hfan-card.hcar-card.is-active { box-shadow:var(--depth-3), 0 0 30px -8px rgba(37,99,235,.3); }
+
+  /* HFAN panel — glass */
+  .hfan-panel {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2), var(--inner-light);
+  }
+
+  /* Feature cards — glass */
+  .home-feature-card {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2), var(--inner-light);
+    transition:transform .22s var(--ease-premium), box-shadow .22s;
+  }
+  .home-feature-card:hover {
+    transform:translateY(-4px);
+    box-shadow:var(--depth-3), var(--depth-glow);
+    border-color:rgba(37,99,235,.15) !important;
+  }
+
+  /* KJ showcase panels — glass */
+  .kj-visual-panel {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-3);
+  }
+  .kj-subject-chip {
+    background:var(--glass) !important;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  }
+
+  /* ── REMAINING PAGES — glass treatment ── */
+
+  .review-card, .review-summary {
+    background:var(--glass) !important;
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border) !important;
+    box-shadow:var(--depth-2), var(--inner-light);
+  }
+  .course-search-input {
+    background:var(--glass) !important;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  }
+  .xp-toast-item {
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    background:rgba(18,23,42,.88) !important;
+    border:1px solid rgba(255,255,255,.1);
+  }
+  .subject-head h2 { position:relative; padding-bottom:.5rem; }
+  .subject-head h2::after {
+    content:''; position:absolute; bottom:0; left:0; width:3rem; height:3px;
+    background:var(--brand-gradient-cta); border-radius:2px;
+  }
+
   /* ── Fallback ── */
   @supports not (backdrop-filter: blur(1px)) {
     .dash-card, .acct-card, .lesson-row, .course-tile-body, .unit-sidebar,
-    .modal, .notes-panel, .cmd-palette, .skill-card, .badge-card, .recent-card {
+    .modal, .notes-panel, .cmd-palette, .skill-card, .badge-card, .recent-card,
+    .home-feature-card, .kj-visual-panel, .hfan-panel, .gb-controls, .gb-graph-wrap {
       background:var(--white) !important; border:1px solid var(--rule) !important;
     }
   }
@@ -3002,7 +3186,7 @@
   /* ── Reduced motion ── */
   @media (prefers-reduced-motion: reduce) {
     body::before, body::after, .cd-hero::before { animation:none !important; }
-    .dash-card, .lesson-row, .course-tile, .btn-primary { transition:none !important; }
+    .dash-card, .lesson-row, .course-tile, .btn-primary, .home-feature-card { transition:none !important; }
   }
 </style>
 </head>
@@ -3106,7 +3290,6 @@
     <span class="nav-xp" id="nav-xp-chip" title="Total XP"><svg class="icon"><use href="#i-bolt"/></svg> <span id="nav-xp-count">0</span> XP</span>
     <button class="nav-xp nav-tokens-btn" id="nav-tokens-chip" title="Tokens — spend them in the Rewards Shop" onclick="openRewardsModal()"><svg class="icon"><use href="#i-token"/></svg> <span id="nav-tokens-count">0</span></button>
     <button class="nav-sound-btn" id="nav-sound-toggle" title="Toggle sound effects" onclick="toggleSound()"><svg class="icon"><use href="#i-sound"/></svg></button>
-    <button class="theme-toggle" id="nav-theme-toggle" title="Toggle dark mode" onclick="toggleTheme()"><svg class="icon"><use href="#i-moon"/></svg></button>
     <button class="nav-sound-btn" id="nav-notes-toggle" title="Open notes (N)" onclick="toggleNotesPanel()" style="display:none;"><svg class="icon"><use href="#i-book"/></svg></button>
   </div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
@@ -3335,7 +3518,7 @@
   </div>
 </div>
 
-<div id="dashboard-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+<div id="dashboard-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
   <div class="dash-grid">
     <div class="dash-col-left">
       <div class="dash-card">
@@ -3385,7 +3568,7 @@
       <!-- Quick Quiz -->
       <div class="dash-card" style="cursor:pointer;" onclick="startQuickQuiz()">
         <div style="display:flex;align-items:center;gap:.65rem;">
-          <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">
+          <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg class="icon" style="width:20px;height:20px;color:#fff;"><use href="#i-zap"/></svg>
           </div>
           <div>
@@ -3402,17 +3585,6 @@
         <span class="dash-quote-author" id="dash-quote-author">— Helen Hayes</span>
       </div>
 
-      <!-- Pomodoro Timer -->
-      <div class="dash-card pomodoro-card" id="pomodoro-card">
-        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);">Study timer</div>
-        <div class="pomodoro-display" id="pomodoro-display">25:00</div>
-        <div class="pomodoro-label" id="pomodoro-label">Focus session</div>
-        <div class="pomodoro-actions">
-          <button class="btn-sm" id="pomodoro-start" onclick="pomodoroToggle()">▶ Start</button>
-          <button class="btn-sm" id="pomodoro-reset" onclick="pomodoroReset()">↺ Reset</button>
-        </div>
-      </div>
-
       <div id="dash-recent-slot"></div>
       <div class="dash-recommend-card" id="dash-recommend-card"></div>
     </div>
@@ -3420,7 +3592,7 @@
 </div>
 
 <!-- ═══════ ACCOUNT ═══════ -->
-<div id="account-page" style="display:none; min-height:100vh; background:var(--paper);">
+<div id="account-page" style="display:none; min-height:100vh;">
   <div class="acct-wrap">
 
     <div class="acct-header">
@@ -3589,7 +3761,7 @@
 </div>
 
 <!-- ═══════ EDUCATOR ACCOUNT ═══════ -->
-<div id="educator-account-page" style="display:none; min-height:100vh; background:var(--paper);">
+<div id="educator-account-page" style="display:none; min-height:100vh;">
   <div class="acct-wrap">
 
     <div class="acct-header">
@@ -3872,7 +4044,7 @@
 
 
 <!-- ═══════ COURSES (real course catalog — requires sign-in) ═══════ -->
-<div id="courses-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+<div id="courses-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
   <div id="courses-signedout-gate" style="display:none; max-width:520px; margin:2rem auto; text-align:center;">
     <div class="eyebrow">Courses</div>
     <h1 style="font-size:1.9rem; margin-bottom:.6rem;">Sign in to see your courses</h1>
@@ -3908,7 +4080,7 @@
 
 
 <!-- ═══════ ABOUT ═══════ -->
-<div id="about-page" style="display:none; min-height:100vh; background:var(--paper);">
+<div id="about-page" style="display:none; min-height:100vh;">
   <section class="hero">
     <div class="hero-inner">
       <div class="eyebrow">About</div>
@@ -3939,7 +4111,7 @@
 </div>
 
 <!-- ═══════ DAILY REVIEW (spaced repetition) ═══════ -->
-<div id="review-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+<div id="review-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
   <div style="max-width:640px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--teal);">Daily Review</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Keep what you've learned</h1>
@@ -3949,7 +4121,7 @@
 </div>
 
 <!-- ═══════ SKILLS ═══════ -->
-<div id="skills-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+<div id="skills-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
   <div style="max-width:960px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--purple);">Skills</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Unlock a skill by passing its test</h1>
@@ -3960,7 +4132,7 @@
 </div>
 
 <!-- ═══════ STUDENT PROGRESS & ANALYTICS ═══════ -->
-<div id="progress-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+<div id="progress-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
   <div style="max-width:1080px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--blue);">Your Progress</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Progress &amp; Analytics</h1>
@@ -3971,7 +4143,7 @@
 
 
 <!-- ═══════ EDUCATOR ANALYTICS ═══════ -->
-<div id="analytics-page" style="display:none; min-height:100vh; background:var(--paper); padding:6.5rem 2.5rem 3rem;">
+<div id="analytics-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
   <div style="max-width:960px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--purple);">Educator</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Class Analytics</h1>
@@ -14523,7 +14695,6 @@ const CMD_ACTIONS = [
   { label:'Skills', page:'skills', icon:'i-trophy', section:'Pages', keys:'S' },
   { label:'Progress', page:'progress', icon:'i-shield', section:'Pages', keys:'P' },
   { label:'Account', page:'account', icon:'i-star', section:'Pages' },
-  { label:'Toggle dark mode', action:()=>toggleTheme(), icon:'i-moon', section:'Actions' },
   { label:'Toggle zen mode', action:()=>toggleZenMode(), icon:'i-star', section:'Actions' },
   { label:'Open notes', action:()=>toggleNotesPanel(), icon:'i-book', section:'Actions', keys:'N' },
   { label:'Quick Quiz', action:()=>startQuickQuiz(), icon:'i-zap', section:'Actions' },
@@ -14583,26 +14754,7 @@ document.getElementById('cmd-palette-overlay')?.addEventListener('click', e=>{
   if(e.target===document.getElementById('cmd-palette-overlay')) closeCommandPalette();
 });
 
-/* ── 2. DARK MODE TOGGLE ─────────────────────────────────────────────────── */
-function toggleTheme(){
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('modilix-theme', next);
-  updateThemeToggleIcon();
-  sfx.click();
-}
-function updateThemeToggleIcon(){
-  const btn = document.getElementById('nav-theme-toggle');
-  if(!btn) return;
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  btn.innerHTML = isDark ? '<svg class="icon"><use href="#i-sun"/></svg>' : '<svg class="icon"><use href="#i-moon"/></svg>';
-}
-// Restore saved theme
-try {
-  const saved = localStorage.getItem('modilix-theme');
-  if(saved) document.documentElement.setAttribute('data-theme', saved);
-} catch(e){}
+/* Dark mode removed — light only */
 
 /* ── 3. NOTES SYSTEM (uses existing Supabase `notes` table) ──────────────── */
 let studentNotes = [];
@@ -15011,8 +15163,7 @@ function renderDashboardV2(){
   // Show notes toggle for signed-in students
   const notesBtn = document.getElementById('nav-notes-toggle');
   if(notesBtn) notesBtn.style.display = (currentUser && !isEducator) ? '' : 'none';
-  updateThemeToggleIcon();
-}
+  }
 
 /* ── 18. ACHIEVEMENT BADGE SECTION IN ACCOUNT PAGE ───────────────────────── */
 function renderBadgesSection(){
@@ -15107,10 +15258,8 @@ showPage = function(page){
     showStudyTimer();
     showOnboarding();
     renderDashboardV2();
-    updateThemeToggleIcon();
-  }
-  updateThemeToggleIcon();
-})();
+      }
+  })();
 </script>
 </body>
 </html>
