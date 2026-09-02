@@ -1931,7 +1931,9 @@
   .nav-streak.lit .icon { color:#ff9036; filter:drop-shadow(0 0 5px rgba(255,144,54,.65)); animation:flameFlicker 1.8s ease-in-out infinite; }
   .nav-streak.lit span { color:#ffb648; }
   .nav-sound-btn { background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.14); border-radius:50%;
-    width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; transition:transform .15s, background .15s; }
+    width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem;
+    color:var(--board-ink); transition:transform .15s, background .15s; }
+  .nav-sound-btn .icon { color:var(--board-ink); }
   .nav-sound-btn:hover { background:rgba(246,244,239,.16); transform:scale(1.12); }
   .nav-sound-btn:active { transform:scale(.9); }
 
@@ -1972,11 +1974,13 @@
   .dash-streak-flame { font-size:1.8rem; filter:grayscale(1); opacity:.35; }
   .dash-streak-flame.lit { filter:none; opacity:1; }
   .dash-streak-sub { font-family:'Inter',sans-serif; font-weight:700; font-size:.85rem; color:var(--ink-soft); margin:.35rem 0 1.25rem; }
-  .dash-week-row { display:flex; justify-content:space-between; gap:.4rem; }
-  .dash-day { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
-  .dash-day-ring { width:38px; height:38px; border-radius:50%; border:2px solid var(--rule); display:flex; align-items:center; justify-content:center; font-size:.85rem; color:var(--ink-faint); }
-  .dash-day.active .dash-day-ring { border-color:var(--gold); background:var(--gold-bg); color:var(--gold-ink); }
-  .dash-day.today .dash-day-ring { border-width:3px; border-color:var(--blue); }
+  .dash-week-row { display:flex; justify-content:space-between; gap:.35rem; }
+  .dash-day { display:flex; flex-direction:column; align-items:center; gap:.35rem; }
+  .dash-day-ring { width:38px; height:38px; border-radius:50%; border:2.5px solid var(--rule); display:flex; align-items:center; justify-content:center;
+    font-size:.75rem; color:var(--ink-faint); background:var(--white); transition:all .2s var(--ease-premium); }
+  .dash-day.active .dash-day-ring { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
+  .dash-day.today .dash-day-ring { border-color:var(--blue); border-width:3px; }
+  .dash-day.today.active .dash-day-ring { border-color:var(--green); background:var(--green); color:#fff; box-shadow:0 0 0 3px var(--green-bg); }
   .dash-day-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.68rem; color:var(--ink-faint); }
   .dash-league-card { display:flex; align-items:center; gap:1rem; transition:transform .2s var(--ease-premium), border-color .2s; }
   .dash-league-card:hover { transform:translateY(-2px); border-color:var(--blue); }
@@ -2384,7 +2388,9 @@
   .onboard-step-text strong { font-weight:700; }
 
   /* ── Recently Visited Cards (Dashboard) ── */
-  .recent-cards { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.5rem; scrollbar-width:thin; }
+  .recent-cards { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.25rem;
+    scrollbar-width:none; -ms-overflow-style:none; }
+  .recent-cards::-webkit-scrollbar { display:none; }
   .recent-card { flex-shrink:0; width:200px; padding:.85rem 1rem; background:var(--white);
     border:1px solid var(--rule); border-radius:var(--radius-md); cursor:pointer;
     transition:box-shadow .15s, transform .15s; }
@@ -2825,14 +2831,11 @@
 
   /* ── WEEK DAY RINGS ── */
   .dash-day-ring {
-    background:var(--glass);
     backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
     box-shadow:var(--depth-1);
   }
   .dash-day.active .dash-day-ring {
-    background:rgba(220,156,52,.12);
-    border-color:var(--gold) !important;
-    box-shadow:var(--depth-1), 0 0 10px -2px rgba(220,156,52,.3);
+    box-shadow:var(--depth-1), 0 0 8px -2px rgba(20,138,92,.25);
   }
 
   /* ── BADGE / SKILL / NOTE CARDS ── */
@@ -3556,7 +3559,7 @@
       </div>
 
       <div id="dash-recent-slot"></div>
-      <div class="dash-recommend-card" id="dash-recommend-card"></div>
+      <div class="dash-recommend-card" id="dash-recommend-card" style="flex:1;"></div>
     </div>
   </div>
 </div>
@@ -7865,7 +7868,7 @@ function renderDashboardWeek(){
     }
     const isToday = i===0;
     html += `<div class="dash-day ${active?'active':''} ${isToday?'today':''}">
-      <div class="dash-day-ring">${active?'⚡':''}</div>
+      <div class="dash-day-ring">${active?'✓':''}</div>
       <div class="dash-day-label">${labels[d.getDay()]}</div>
     </div>`;
   }
