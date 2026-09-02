@@ -204,9 +204,10 @@
   }
 
   /* ── NAV ── */
-  #site-nav { position:fixed; top:0; left:0; right:0; z-index:100; background:var(--board);
-    display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; height:60px;
-    border-bottom:1px solid rgba(255,255,255,.08); gap:.5rem; }
+  #site-nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(18,23,42,.92);
+    backdrop-filter:blur(20px) saturate(1.4); -webkit-backdrop-filter:blur(20px) saturate(1.4);
+    display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:56px;
+    border-bottom:1px solid rgba(255,255,255,.06); box-shadow:0 4px 20px -4px rgba(0,0,0,.2); gap:.5rem; }
   .nav-logo { flex-shrink:0; }
   .nav-progress { flex-shrink:1; min-width:0; }
   .nav-toggle { flex-shrink:0; }
@@ -217,8 +218,9 @@
   .brand-wordmark { background:linear-gradient(100deg, #60a5fa 0%, #2563eb 55%, #1d4ed8 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent; }
   .icon { width:1em; height:1em; display:inline-block; vertical-align:-0.15em; flex-shrink:0; }
-  .nav-links { display:none; flex-direction:column; gap:2px; list-style:none; position:absolute; top:52px; right:2.5rem;
-    min-width:210px; background:var(--board-2); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:.5rem;
+  .nav-links { display:none; flex-direction:column; gap:2px; list-style:none; position:absolute; top:48px; right:2rem;
+    min-width:210px; background:rgba(23,29,51,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:.5rem;
     box-shadow:0 20px 50px -14px rgba(0,0,0,.55); z-index:150; }
   .nav-links.open { display:flex; animation:navDropIn .16s var(--ease-premium) both; }
   @keyframes navDropIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
@@ -1953,7 +1955,7 @@
   .streak-modal-sub { color:var(--ink-soft); font-size:.85rem; margin-bottom:1.25rem; }
 
   /* ── DASHBOARD (Home) ── */
-  .dash-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:340px 1fr; gap:1.5rem; align-items:start; }
+  .dash-grid { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:320px minmax(0,1fr); gap:1.25rem; align-items:start; overflow:hidden; }
   .dash-col-left { display:flex; flex-direction:column; gap:1.25rem; }
   .dash-card { background:var(--white); border:1px solid var(--rule); border-radius:18px; padding:1.5rem;
     animation:fadeInUp .5s var(--ease-premium) both; transition:transform .22s var(--ease-premium), box-shadow .22s var(--ease-premium); }
@@ -2195,22 +2197,27 @@
   .dash-cta-title { font-family:'Inter',sans-serif; font-weight:800; font-size:.95rem; color:var(--ink); }
   .dash-cta-sub { font-size:.82rem; color:var(--ink-soft); margin-top:.25rem; line-height:1.5; }
 
-  .dash-recommend-card { background:var(--board); border-radius:26px; padding:2.5rem 2.5rem 2rem; min-height:420px; display:flex; flex-direction:column;
-    position:relative; overflow:hidden; box-shadow:0 20px 50px -18px rgba(0,0,0,.4); transition:transform .25s var(--ease-premium), box-shadow .25s var(--ease-premium); }
-  .dash-recommend-card:hover { transform:translateY(-3px); box-shadow:0 26px 60px -16px rgba(0,0,0,.48); }
-  .dash-recommend-card::before { content:''; position:absolute; width:260px; height:260px; border-radius:50%;
-    background:radial-gradient(circle, rgba(124,92,255,.35), transparent 70%); top:-120px; right:-90px; z-index:0; }
-  .dash-recommend-card::after { content:''; position:absolute; width:220px; height:220px; border-radius:50%;
-    background:radial-gradient(circle, rgba(21,154,99,.3), transparent 70%); bottom:-110px; left:-80px; z-index:0; }
+  .dash-recommend-card { background:var(--glass); backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border); border-radius:20px; padding:0; min-height:0; display:flex; flex-direction:column;
+    position:relative; overflow:hidden; box-shadow:var(--depth-2); transition:transform .25s var(--ease-premium), box-shadow .25s var(--ease-premium); }
+  .dash-recommend-card:hover { transform:translateY(-3px); box-shadow:var(--depth-3), var(--depth-glow); }
+  .dash-recommend-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:var(--brand-gradient-cta); z-index:2; }
+  .dash-recommend-card::after { display:none; }
   .dash-recommend-card > * { position:relative; z-index:1; }
+  .dash-rec-inner { padding:1.5rem 1.5rem 1.25rem; }
   .dash-rec-eyebrow { font-family:'Inter',sans-serif; font-weight:800; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase;
-    color:var(--blue); background:var(--blue-bg); display:inline-block; padding:.35rem .8rem; border-radius:100px; margin:0 auto 1rem; }
-  .dash-rec-title { font-family:'Inter',sans-serif; font-weight:800; font-size:1.9rem; color:var(--board-ink); text-align:center; }
-  .dash-rec-sub { font-family:'Inter',sans-serif; font-weight:700; font-size:.85rem; color:var(--gold); text-align:center; letter-spacing:.03em; text-transform:uppercase; margin-top:.4rem; }
-  .dash-rec-visual { flex:1; display:flex; align-items:center; justify-content:center; font-size:5rem; margin:1.5rem 0; }
-  .dash-rec-meta { display:flex; align-items:center; gap:.75rem; color:var(--board-ink); font-family:'Inter',sans-serif; font-weight:700; font-size:.9rem; margin-bottom:1.25rem; }
-  .dash-rec-meta-dot { width:10px; height:10px; border-radius:50%; }
-  .dash-rec-empty { color:rgba(246,244,239,.7); text-align:center; margin:auto; font-family:'Inter',sans-serif; font-weight:700; }
+    color:var(--blue); background:var(--blue-bg); display:inline-block; padding:.3rem .7rem; border-radius:100px; margin-bottom:.65rem; }
+  .dash-rec-title { font-family:'Inter',sans-serif; font-weight:800; font-size:1.15rem; color:var(--ink); text-align:left; line-height:1.3; }
+  .dash-rec-sub { font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink-faint); text-align:left; letter-spacing:.02em; text-transform:uppercase; margin-top:.25rem; }
+  .dash-rec-meta { display:flex; align-items:center; gap:.6rem; color:var(--ink-soft); font-family:'Inter',sans-serif; font-weight:700; font-size:.82rem; margin-top:.85rem; }
+  .dash-rec-meta-dot { width:8px; height:8px; border-radius:50%; }
+  .dash-rec-visual { display:none; }
+  .dash-rec-btn { display:block; width:100%; padding:.85rem; border:none; border-top:1px solid var(--glass-border);
+    background:transparent; font-family:'Inter',sans-serif; font-weight:700; font-size:.88rem; color:var(--blue);
+    cursor:pointer; transition:background .15s; text-align:center; }
+  .dash-rec-btn:hover { background:var(--blue-bg); }
+  .dash-rec-empty { color:var(--ink-faint); text-align:center; margin:auto; font-family:'Inter',sans-serif; font-weight:700; padding:1.5rem; }
 
   @media(max-width:900px){
     .dash-grid { grid-template-columns:1fr; }
@@ -2258,7 +2265,7 @@
     .acct-stats-row { grid-template-columns:repeat(2,1fr); gap:.6rem; }
     .acct-stat-card { padding:.85rem; }
     .acct-stat-num { font-size:1.3rem; }
-    .dash-recommend-card { padding:1.75rem 1.5rem 1.5rem; min-height:auto; }
+    .dash-recommend-card { min-height:auto; }
     .dash-rec-title { font-size:1.4rem; }
     .dash-rec-visual { font-size:3.4rem; margin:1rem 0; }
     .gb-controls, .gb-graph-wrap { min-width:0; flex:1 1 100%; }
@@ -2531,12 +2538,6 @@
   .pomodoro-label { font-size:.78rem; color:var(--ink-faint); font-weight:600; margin-bottom:.75rem; }
   .pomodoro-actions { display:flex; gap:.5rem; justify-content:center; }
 
-  /* ── 13. MOTIVATIONAL QUOTES ── */
-  .dash-quote-card { background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-lg); padding:1.1rem 1.3rem; font-style:italic;
-    font-family:'Inter',sans-serif; font-size:.88rem; line-height:1.6; color:var(--ink-soft); position:relative; }
-  .dash-quote-card::before { content:'"'; position:absolute; top:-.15rem; left:.6rem; font-size:2.5rem; font-style:normal; color:var(--blue); opacity:.25; font-family:serif; }
-  .dash-quote-author { font-size:.75rem; font-style:normal; font-weight:700; color:var(--ink-faint); margin-top:.5rem; display:block; }
-
   /* ── 14. PROGRESS SHARING ── */
   .share-btn { display:inline-flex; align-items:center; gap:.4rem; font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem;
     padding:.5rem .9rem; border-radius:100px; border:1.5px solid var(--rule); background:var(--white); color:var(--ink-soft); cursor:pointer; transition:all .15s; }
@@ -2699,15 +2700,6 @@
     border-color:rgba(110,90,216,.35) !important;
   }
 
-  /* ── QUOTE CARD — warm parchment ── */
-  .dash-quote-card {
-    background:linear-gradient(135deg, rgba(250,240,218,.55), rgba(255,248,235,.6), var(--glass)) !important;
-    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
-    border:1px solid rgba(220,156,52,.12) !important;
-    border-left:3px solid var(--gold) !important;
-    box-shadow:var(--depth-1);
-  }
-
   /* ── POMODORO — dark standout ── */
   .pomodoro-card {
     background:linear-gradient(135deg, rgba(18,23,42,.93), rgba(23,29,51,.9)) !important;
@@ -2787,19 +2779,7 @@
   }
   .unit-nav-item.active { background:rgba(37,99,235,.08); border-left:3px solid var(--blue); }
 
-  /* ── NAV ── */
-  #site-nav {
-    background:rgba(18,23,42,.85) !important;
-    backdrop-filter:blur(20px) saturate(1.4); -webkit-backdrop-filter:blur(20px) saturate(1.4);
-    border-bottom:1px solid rgba(255,255,255,.06);
-    box-shadow:0 4px 24px -4px rgba(0,0,0,.25);
-  }
-  .nav-links {
-    background:rgba(23,29,51,.92) !important;
-    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-    border:1px solid rgba(255,255,255,.08) !important;
-    box-shadow:0 24px 60px -16px rgba(0,0,0,.5);
-  }
+  /* ── NAV — glass already in base rule ── */
 
   /* ── MODALS ── */
   .modal-overlay { backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
@@ -2940,11 +2920,7 @@
   .dash-premium-upsell * { color:#fff; }
   .dash-premium-upsell .dash-premium-btn { color:var(--blue-dark) !important; }
 
-  /* ── RECOMMEND CARD — keep its own dark board, not glass ── */
-  .dash-recommend-card {
-    box-shadow:var(--depth-3) !important; border-radius:20px !important; overflow:hidden;
-    backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
-  }
+  /* ── RECOMMEND CARD — uses new glass base, no override needed ── */
 
   /* ── ACCOUNT HEADER glow ── */
   .acct-header { position:relative; overflow:hidden; }
@@ -3518,7 +3494,7 @@
   </div>
 </div>
 
-<div id="dashboard-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
+<div id="dashboard-page" style="display:none; min-height:100vh; padding:5.5rem 2rem 3rem;">
   <div class="dash-grid">
     <div class="dash-col-left">
       <div class="dash-card">
@@ -3577,12 +3553,6 @@
           </div>
           <svg viewBox="0 0 12 12" fill="none" style="width:14px;height:14px;margin-left:auto;color:var(--ink-faint);"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-      </div>
-
-      <!-- Motivational Quote -->
-      <div class="dash-card dash-quote-card" id="dash-quote-card">
-        <span id="dash-quote-text">The expert in anything was once a beginner.</span>
-        <span class="dash-quote-author" id="dash-quote-author">— Helen Hayes</span>
       </div>
 
       <div id="dash-recent-slot"></div>
@@ -4044,7 +4014,7 @@
 
 
 <!-- ═══════ COURSES (real course catalog — requires sign-in) ═══════ -->
-<div id="courses-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
+<div id="courses-page" style="display:none; min-height:100vh; padding:5.5rem 2rem 3rem;">
   <div id="courses-signedout-gate" style="display:none; max-width:520px; margin:2rem auto; text-align:center;">
     <div class="eyebrow">Courses</div>
     <h1 style="font-size:1.9rem; margin-bottom:.6rem;">Sign in to see your courses</h1>
@@ -4111,7 +4081,7 @@
 </div>
 
 <!-- ═══════ DAILY REVIEW (spaced repetition) ═══════ -->
-<div id="review-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
+<div id="review-page" style="display:none; min-height:100vh; padding:5.5rem 2rem 3rem;">
   <div style="max-width:640px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--teal);">Daily Review</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Keep what you've learned</h1>
@@ -4121,7 +4091,7 @@
 </div>
 
 <!-- ═══════ SKILLS ═══════ -->
-<div id="skills-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
+<div id="skills-page" style="display:none; min-height:100vh; padding:5.5rem 2rem 3rem;">
   <div style="max-width:960px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--purple);">Skills</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Unlock a skill by passing its test</h1>
@@ -4132,7 +4102,7 @@
 </div>
 
 <!-- ═══════ STUDENT PROGRESS & ANALYTICS ═══════ -->
-<div id="progress-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
+<div id="progress-page" style="display:none; min-height:100vh; padding:5.5rem 2rem 3rem;">
   <div style="max-width:1080px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--blue);">Your Progress</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Progress &amp; Analytics</h1>
@@ -4143,7 +4113,7 @@
 
 
 <!-- ═══════ EDUCATOR ANALYTICS ═══════ -->
-<div id="analytics-page" style="display:none; min-height:100vh; padding:6.5rem 2.5rem 3rem;">
+<div id="analytics-page" style="display:none; min-height:100vh; padding:5.5rem 2rem 3rem;">
   <div style="max-width:960px; margin:0 auto;">
     <div class="eyebrow" style="color:var(--purple);">Educator</div>
     <h1 style="font-size:1.9rem; margin-bottom:.5rem;">Class Analytics</h1>
@@ -7939,12 +7909,13 @@ function renderDashboard(){
   const { item, course } = rec;
   const meta = item.type==='lesson' ? `${TYPE_LABELS[item.type]} · ${item.content.length} block${item.content.length===1?'':'s'}` : `${TYPE_LABELS[item.type]} · ${item.questions.length} question${item.questions.length===1?'':'s'}`;
   card.innerHTML = `
-    <div class="dash-rec-eyebrow" style="align-self:center;">Recommended</div>
-    <div class="dash-rec-title">${esc(item.title)}</div>
-    <div class="dash-rec-sub">${esc(course.code)} · ${SUBJECT_LABELS[course.subject]||course.subject}</div>
-    <div class="dash-rec-visual">${item.type==='lesson'?'<svg class="icon"><use href="#i-star"/></svg>':item.type==='unittest'?'<svg class="icon"><use href="#i-trophy"/></svg>':'<svg class="icon"><use href="#i-bolt"/></svg>'}</div>
-    <div class="dash-rec-meta"><span class="dash-rec-meta-dot" style="background:${SUBJECT_COLORS[course.subject]||'var(--ink-faint)'}"></span>${meta}</div>
-    <button class="btn btn-primary" id="dash-rec-start" style="width:100%; padding:.9rem;">Start</button>
+    <div class="dash-rec-inner">
+      <div class="dash-rec-eyebrow">Recommended</div>
+      <div class="dash-rec-title">${esc(item.title)}</div>
+      <div class="dash-rec-sub">${esc(course.code)} · ${SUBJECT_LABELS[course.subject]||course.subject}</div>
+      <div class="dash-rec-meta"><span class="dash-rec-meta-dot" style="background:${SUBJECT_COLORS[course.subject]||'var(--blue)'}"></span>${meta}</div>
+    </div>
+    <button class="dash-rec-btn" id="dash-rec-start">Start →</button>
   `;
   document.getElementById('dash-rec-start').onclick = ()=>{
     currentCourseId = course.id; currentUnitId = rec.unit.id;
@@ -15085,8 +15056,6 @@ const QUOTES = [
 function renderDailyQuote(){
   const day = Math.floor(Date.now()/86400000) % QUOTES.length;
   const q = QUOTES[day];
-  const text = document.getElementById('dash-quote-text');
-  const author = document.getElementById('dash-quote-author');
   if(text) text.textContent = q.text;
   if(author) author.textContent = '— ' + q.author;
 }
