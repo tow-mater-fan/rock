@@ -1966,7 +1966,8 @@
   .dash-col-left .dash-card:nth-child(2) { animation-delay:.09s; }
   .dash-col-left .dash-card:nth-child(3) { animation-delay:.15s; }
   .dash-col-left .dash-card:nth-child(4) { animation-delay:.21s; }
-  .dash-col-right { animation:fadeInUp .5s var(--ease-premium) .12s both; display:flex; flex-direction:column; gap:1.25rem; }
+  .dash-col-right { animation:fadeInUp .5s var(--ease-premium) .12s both; display:flex; flex-direction:column; gap:1.25rem; min-width:0; }
+  .dash-col-right > * { min-width:0; }
   .dash-streak-flame { display:inline-block; animation:flameFlicker 1.8s ease-in-out infinite; }
   @keyframes flameFlicker { 0%,100% { transform:scale(1) rotate(0deg); } 25% { transform:scale(1.08) rotate(-3deg); } 50% { transform:scale(.97) rotate(2deg); } 75% { transform:scale(1.05) rotate(-1deg); } }
   .dash-streak-head { display:flex; align-items:center; gap:.4rem; }
@@ -1974,14 +1975,14 @@
   .dash-streak-flame { font-size:1.8rem; filter:grayscale(1); opacity:.35; }
   .dash-streak-flame.lit { filter:none; opacity:1; }
   .dash-streak-sub { font-family:'Inter',sans-serif; font-weight:700; font-size:.85rem; color:var(--ink-soft); margin:.35rem 0 1.25rem; }
-  .dash-week-row { display:flex; justify-content:space-between; gap:.35rem; }
-  .dash-day { display:flex; flex-direction:column; align-items:center; gap:.35rem; }
-  .dash-day-ring { width:38px; height:38px; border-radius:50%; border:2.5px solid var(--rule); display:flex; align-items:center; justify-content:center;
-    font-size:.75rem; color:var(--ink-faint); background:var(--white); transition:all .2s var(--ease-premium); }
+  .dash-week-row { display:flex; justify-content:space-between; gap:.3rem; }
+  .dash-day { display:flex; flex-direction:column; align-items:center; gap:.3rem; flex:1; min-width:0; }
+  .dash-day-ring { width:32px; height:32px; border-radius:50%; border:2px solid var(--rule); display:flex; align-items:center; justify-content:center;
+    font-size:.68rem; color:var(--ink-faint); background:var(--white); transition:all .2s var(--ease-premium); flex-shrink:0; }
   .dash-day.active .dash-day-ring { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
-  .dash-day.today .dash-day-ring { border-color:var(--blue); border-width:3px; }
-  .dash-day.today.active .dash-day-ring { border-color:var(--green); background:var(--green); color:#fff; box-shadow:0 0 0 3px var(--green-bg); }
-  .dash-day-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.68rem; color:var(--ink-faint); }
+  .dash-day.today .dash-day-ring { border-color:var(--blue); border-width:2.5px; }
+  .dash-day.today.active .dash-day-ring { border-color:var(--green); background:var(--green); color:#fff; box-shadow:0 0 0 2px var(--green-bg); }
+  .dash-day-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.62rem; color:var(--ink-faint); }
   .dash-league-card { display:flex; align-items:center; gap:1rem; transition:transform .2s var(--ease-premium), border-color .2s; }
   .dash-league-card:hover { transform:translateY(-2px); border-color:var(--blue); }
   .dash-league-icon { font-size:1.8rem; }
@@ -2388,6 +2389,9 @@
   .onboard-step-text strong { font-weight:700; }
 
   /* ── Recently Visited Cards (Dashboard) ── */
+  .recent-cards-wrap { position:relative; }
+  .recent-cards-wrap::after { content:''; position:absolute; top:0; right:0; bottom:.25rem; width:32px; pointer-events:none;
+    background:linear-gradient(90deg, transparent, var(--glass) 75%); border-radius:0 12px 12px 0; }
   .recent-cards { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.25rem;
     scrollbar-width:none; -ms-overflow-style:none; }
   .recent-cards::-webkit-scrollbar { display:none; }
@@ -2685,8 +2689,8 @@
 
   /* ── STREAK CARD — warm tint ── */
   .dash-col-left > .dash-card:first-child {
-    background:linear-gradient(135deg, rgba(255,240,220,.7), rgba(255,224,178,.35), rgba(255,255,255,.6)) !important;
-    border-color:rgba(220,156,52,.2) !important;
+    background:rgba(255,247,235,.85) !important;
+    border-color:rgba(220,156,52,.18) !important;
   }
 
   /* ── DAILY GOAL — blue-green ── */
@@ -14538,25 +14542,25 @@ function renderRecentlyVisited(){
   if(bmItems.length){
     bmHtml = `<div style="margin-bottom:1.5rem;">
       <h3 style="font-size:.88rem; color:var(--gold-ink); margin-bottom:.6rem; display:flex; align-items:center; gap:.4rem;"><svg class="icon" style="width:14px;height:14px;"><use href="#i-bookmark"/></svg> Bookmarked</h3>
-      <div class="recent-cards">${bmItems.slice(0,4).map(it => {
+      <div class="recent-cards-wrap"><div class="recent-cards">${bmItems.slice(0,4).map(it => {
         const course = courses.find(c=>c.id===it.courseId);
         return `<div class="recent-card" onclick="openTest('${it.id}')" style="border-color:var(--gold);border-width:1.5px;">
           <div class="recent-card-title">${esc(it.title)}</div>
           <div class="recent-card-meta">${course?esc(course.code):''} · ${TYPE_LABELS[it.type]||it.type}</div>
         </div>`;
-      }).join('')}</div>
+      }).join('')}</div></div>
     </div>`;
   }
   let recentHtml = '';
   if(recents.length){
     recentHtml = `<div style="margin-bottom:1.5rem;">
       <h3 style="font-size:.88rem; color:var(--ink-soft); margin-bottom:.6rem;">Recently visited</h3>
-      <div class="recent-cards">${recents.map(r => `
+      <div class="recent-cards-wrap"><div class="recent-cards">${recents.map(r => `
         <div class="recent-card" onclick="openTest('${r.id}')">
           <div class="recent-card-title">${esc(r.title)}</div>
           <div class="recent-card-meta">${r.courseCode || ''} · ${r.type || ''}</div>
         </div>
-      `).join('')}</div>
+      `).join('')}</div></div>
     </div>`;
   }
   return bmHtml + recentHtml;
