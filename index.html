@@ -87,6 +87,18 @@
   html[data-accent="grape"] { --blue:#7c5cff; --blue-dark:#6440e8; --blue-bg:#efeaff; }
   html[data-accent="sunset"] { --blue:#d9522c; --blue-dark:#b13f1f; --blue-bg:#fbe9e0; }
   html[data-accent="rose"] { --blue:#e5487a; --blue-dark:#c72f61; --blue-bg:#fde3ec; }
+  html[data-accent="aurora"] { --blue:#7c5cff; --blue-dark:#6440e8; --blue-bg:#f1eefe; }
+  /* Aurora is the one Premium-exclusive accent — give it a signature
+     gradient treatment (not just a flat recolor) on the elements a
+     subscriber will actually notice, matching the emerald→violet swatch
+     shown in the picker. */
+  html[data-accent="aurora"] .btn-primary {
+    background:linear-gradient(120deg,#2eb872,#7c5cff) !important;
+    background-size:180% 180%; animation:gradientDrift 8s ease-in-out infinite;
+  }
+  html[data-accent="aurora"] .brand-wordmark, html[data-accent="aurora"] .hero-logo-word {
+    background:linear-gradient(120deg,#2eb872,#7c5cff); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
   html { transition: background .2s var(--ease-premium); }
   body { transition: background .2s var(--ease-premium), color .2s var(--ease-premium); }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -97,6 +109,11 @@
   button { font-family:inherit; }
 
   @keyframes fadeInUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  /* Referenced by 6+ existing rules (premium subscribe button, premium
+     checkout card, dashboard premium upsell, etc.) that had no matching
+     keyframes definition anywhere in the file — those gradients have been
+     static instead of animated this whole time. */
+  @keyframes gradientDrift { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   @keyframes popIn { 0% { opacity:0; transform:scale(.85); } 60% { opacity:1; transform:scale(1.04); } 100% { transform:scale(1); } }
   @keyframes shimmer { 0% { background-position:-300px 0; } 100% { background-position:300px 0; } }
@@ -3021,12 +3038,14 @@
   }
 
   /* ── AI TUTOR PANEL ── */
-  .ai-tutor-panel {
-    background:rgba(248,250,252,.92) !important;
+  #tutor-panel {
+    background:rgba(248,250,252,.94) !important;
     backdrop-filter:blur(20px) saturate(1.3); -webkit-backdrop-filter:blur(20px) saturate(1.3);
+    border:1px solid var(--glass-border) !important;
     box-shadow:var(--depth-3);
   }
-  .ai-tutor-header {
+  #tutor-panel-head {
+    background:transparent !important;
     backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
   }
 
@@ -3155,7 +3174,7 @@
 
   /* ── REMAINING PAGES — glass treatment ── */
 
-  .review-card, .review-summary {
+  #review-body .lp-block {
     background:var(--glass) !important;
     backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
     border:1px solid var(--glass-border) !important;
@@ -6891,8 +6910,7 @@ async function fetchAndMountPremiumCheckout(){
           renderPremiumUI();
         }
         closePremiumCheckout();
-        showXpToast(0);
-        document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> You\'re already on Premium!');
+        showToast('You\'re already on Premium!', 'success');
         return true;
       }
       throw new Error(data.error || 'Could not start checkout');
@@ -7032,9 +7050,6 @@ async function applyPremiumPromoCode(){
     // mirror it next to the promo field too, and fall back to whatever was
     // applied (or wasn't) before this attempt so checkout stays usable.
     const errText = document.getElementById('pc-error').textContent;
-    statusEl.textContent = errText || 'Could not apply that code.';
-    statusEl.style.color = '#ff6b6b';
-    statusEl.classList.remove('hidden');
     pcAppliedPromoCode = previousCode;
     await fetchAndMountPremiumCheckout();
     statusEl.textContent = errText || 'Could not apply that code.';
@@ -7125,8 +7140,7 @@ async function pollPremiumActivation(){
         currentProfile.is_premium = true;
         renderEducatorPremiumUI();
         closePremiumCheckout();
-        showXpToast(0);
-        document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg> Educator Premium activated!');
+        showToast('Educator Premium activated!', 'success');
         return;
       }
     } else {
@@ -7142,9 +7156,8 @@ async function pollPremiumActivation(){
   }
   // Webhook hasn't landed yet — close out anyway, it'll catch up shortly.
   closePremiumCheckout();
-  showXpToast(0);
   const fallbackMsg = pcIsTrial ? 'Trial started — activating…' : 'Payment received — activating…';
-  document.getElementById('xp-toast').lastChild && (document.getElementById('xp-toast').lastChild.innerHTML = `<svg class="icon"><use href="#i-sparkle"/></svg> ${fallbackMsg}`);
+  showToast(fallbackMsg, 'success');
 }
 
 function showXpToast(amount){
@@ -7294,8 +7307,8 @@ function renderRewardsModal(){
 async function buyReward(key){
   if(!currentUser || isEducator) return;
   const { data, error } = await db.rpc('spend_tokens', { p_student_id: currentUser.id, p_reward_key: key });
-  if(error){ alert('Something went wrong. Please try again.'); console.error('spend_tokens error', error); return; }
-  if(!data.ok){ alert(data.error || 'Could not complete purchase.'); return; }
+  if(error){ showToast('Something went wrong. Please try again.', 'warning'); console.error('spend_tokens error', error); return; }
+  if(!data.ok){ showToast(data.error || 'Could not complete purchase.', 'warning'); return; }
   studentProgress.tokens = data.tokens;
   await loadOwnedRewards();
   renderNavProgress();
@@ -7307,7 +7320,7 @@ async function equipReward(category, key){
   if(!currentUser || isEducator) return;
   const field = category==='frame' ? 'equipped_frame' : category==='ember_skin' ? 'equipped_ember_skin' : 'equipped_confetti';
   const { error } = await db.from('profiles').update({ [field]: key || null }).eq('id', currentUser.id);
-  if(error){ alert('Could not update your equipped item.'); console.error('equip error', error); return; }
+  if(error){ showToast('Could not update your equipped item.', 'warning'); console.error('equip error', error); return; }
   currentProfile[field] = key || null;
   applyEquippedCosmetics();
   renderRewardsModal();
@@ -7755,6 +7768,11 @@ function updateAccountUI(){
   document.getElementById('nav-educator-account-li').style.display = (currentUser && isEducator) ? 'block' : 'none';
   text.onclick = currentUser ? (()=>showPage(isEducator ? 'educator-account' : 'account')) : null;
   if(!currentUser){ studentProgress = { xp:0, tokens:0, current_streak:0, longest_streak:0, last_active_date:null, is_premium:false }; ownedRewards = {}; applyEquippedCosmetics(); }
+  // Notes button should reflect signed-in state everywhere, not just on the
+  // dashboard — fixes it staying hidden when sign-in resumes a course page
+  // instead of landing on the dashboard (renderDashboardV2 never ran there).
+  const notesBtn = document.getElementById('nav-notes-toggle');
+  if(notesBtn) notesBtn.style.display = (currentUser && !isEducator) ? '' : 'none';
   renderNavProgress();
 }
 
@@ -8126,7 +8144,7 @@ document.getElementById('cd-public-toggle-btn').onclick = async ()=>{
   if(!c) return;
   const next = !c.isPublic;
   const { error } = await db.from('courses').update({ is_public: next }).eq('id', c.id);
-  if(error){ alert(error.message); return; }
+  if(error){ showToast(error.message, 'warning'); return; }
   c.isPublic = next;
   renderCdPublicToggle(c);
 };
@@ -8174,7 +8192,7 @@ async function renameUnit(unitId){
   renderUnitNav();
   if(currentUnitId===unitId) document.getElementById('unit-content-title').textContent = trimmed;
   const { error } = await db.from('units').update({ name: trimmed }).eq('id', unitId);
-  if(error){ u.name = prev; renderUnitNav(); alert('Could not rename unit: ' + error.message); }
+  if(error){ u.name = prev; renderUnitNav(); showToast('Could not rename unit: ' + error.message, 'warning'); }
 }
 async function moveUnit(unitId, dir){
   const courseUnits = units.filter(u=>u.courseId===currentCourseId).sort((a,b)=>a.position-b.position);
@@ -8189,7 +8207,7 @@ async function moveUnit(unitId, dir){
     db.from('units').update({ position: a.position }).eq('id', a.id),
     db.from('units').update({ position: b.position }).eq('id', b.id),
   ]);
-  if(e1 || e2){ a.position = aPos; b.position = bPos; renderUnitNav(); alert('Could not reorder units.'); }
+  if(e1 || e2){ a.position = aPos; b.position = bPos; renderUnitNav(); showToast('Could not reorder units.', 'warning'); }
 }
 
 function findUpNext(unitId){
@@ -8318,7 +8336,7 @@ async function moveItemOrder(itemId, dir){
     db.from('items').update({ position: a.position }).eq('id', a.id),
     db.from('items').update({ position: b.position }).eq('id', b.id),
   ]);
-  if(e1 || e2){ a.position = aPos; b.position = bPos; renderUnitContent(); alert('Could not reorder items.'); }
+  if(e1 || e2){ a.position = aPos; b.position = bPos; renderUnitContent(); showToast('Could not reorder items.', 'warning'); }
 }
 async function moveItemToUnit(itemId, targetUnitId){
   const it = items.find(i=>i.id===itemId);
@@ -8328,7 +8346,7 @@ async function moveItemToUnit(itemId, targetUnitId){
   it.unitId = targetUnitId; it.position = newPos; // optimistic
   renderUnitNav(); renderUnitContent();
   const { error } = await db.from('items').update({ unit_id: targetUnitId, position: newPos }).eq('id', itemId);
-  if(error){ it.unitId = prevUnitId; it.position = prevPos; renderUnitNav(); renderUnitContent(); alert('Could not move item: ' + error.message); }
+  if(error){ it.unitId = prevUnitId; it.position = prevPos; renderUnitNav(); renderUnitContent(); showToast('Could not move item: ' + error.message, 'warning'); }
 }
 /* Builds the winding node-path markup for a unit's items: nodes sit on a
    gentle sine wave (like Brilliant's course paths) with a smooth SVG curve
@@ -11497,7 +11515,7 @@ document.getElementById('lp-next-btn').onclick = async ()=>{
     ()=>db.from('responses').upsert(lessonPayload, { onConflict: 'student_id,item_id' }),
     { label:'Saving lesson progress', queueKind:'response', queuePayload:lessonPayload }
   );
-  if(error && !/network|fetch|timeout/i.test(error.message||'')){ btn.disabled=false; btn.textContent='Finish lesson'; alert('Could not save: ' + error.message); return; }
+  if(error && !/network|fetch|timeout/i.test(error.message||'')){ btn.disabled=false; btn.textContent='Finish lesson'; showToast('Could not save: ' + error.message, 'warning'); return; }
   studentResponses[currentItemId] = { answers:lpWorkAnswers, score:null, total:null, submitted:true };
   fireConfetti(); sfx.lessonComplete();
   await awardXp(20);
@@ -12287,7 +12305,7 @@ async function lbOpenAiEditPrompt(bi){
       if(body?.requiresPremium){
         lastLessonGenUsage = { isPremium: false, usedThisMonth: body.usedThisMonth, monthlyLimit: body.monthlyLimit };
         renderLessonGenUsageBadge();
-        alert(body.error + ' Upgrade to Educator Premium for more AI edits this month.');
+        showToast(body.error + ' Upgrade to Educator Premium for more AI edits this month.', 'warning');
         return;
       }
       throw new Error(body?.error || error.message || 'Something went wrong updating this block.');
@@ -12303,7 +12321,7 @@ async function lbOpenAiEditPrompt(bi){
     lessonBlocks[bi] = data.block;
     renderLessonBlockList();
   } catch(err){
-    alert(err.message || 'Something went wrong updating this block.');
+    showToast(err.message || 'Something went wrong updating this block.', 'warning');
   } finally {
     if(btn){ btn.disabled = false; btn.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg>'; }
   }
@@ -13265,7 +13283,7 @@ function renderLessonBlockList(){
     const { error } = await db.from('block_templates').insert({
       school_id: currentProfile.school_id, created_by: currentUser.id, name, block_type: block.type, block_data: block
     });
-    if(error){ alert('Could not save template: ' + error.message); return; }
+    if(error){ showToast('Could not save template: ' + error.message, 'warning'); return; }
     await loadBlockTemplates();
     renderTemplatesPanel();
     b.textContent = '✓ Saved';
@@ -13520,7 +13538,7 @@ function renderTemplatesPanel(){
   list.querySelectorAll('[data-tpl-delete]').forEach(b=>b.onclick=async ()=>{
     if(!confirm('Delete this block from the library?')) return;
     const { error } = await db.from('block_templates').delete().eq('id', b.dataset.tplDelete);
-    if(error){ alert(error.message); return; }
+    if(error){ showToast(error.message, 'warning'); return; }
     await loadBlockTemplates();
     renderTemplatesPanel();
   });
@@ -13612,7 +13630,7 @@ document.getElementById('lb-import-file').addEventListener('change', async e=>{
     renderObjectivesList();
     renderLessonBlockList();
   } catch(err){
-    alert('Could not import file: ' + err.message);
+    showToast('Could not import file: ' + err.message, 'warning');
   }
   e.target.value = '';
 });
@@ -13724,7 +13742,7 @@ document.getElementById('lb-ai-copy-prompt-btn').onclick = async ()=>{
 };
 document.getElementById('lb-ai-insert-suggestion-btn').onclick = async ()=>{
   const code = document.getElementById('lb-ai-suggestion-code').value.trim();
-  if(!code){ alert('Paste the code the other AI gave you first.'); return; }
+  if(!code){ showToast('Paste the code the other AI gave you first.', 'warning'); return; }
   const name = document.getElementById('lb-ai-suggestion-name').textContent.replace(/^💡\s*/, '') || 'Custom module';
   lessonBlocks.push({ type:'customhtml', title:name, code, height:450, graded:/checkAnswer\s*\(/.test(code) });
   renderLessonBlockList();
@@ -13734,7 +13752,7 @@ document.getElementById('lb-ai-insert-suggestion-btn').onclick = async ()=>{
     const ok = await saveCustomBlock({
       name, icon:'✨', description: document.getElementById('lb-ai-suggestion-reason').textContent, code, height:450, scope,
     });
-    if(!ok){ const err = document.getElementById('lb-custom-error').textContent; if(err) alert('Block was added to the lesson, but saving to the library failed: ' + err); }
+    if(!ok){ const err = document.getElementById('lb-custom-error').textContent; if(err) showToast('Block was added to the lesson, but saving to the library failed: ' + err, 'warning'); }
   }
   document.getElementById('lb-ai-suggestion-card').style.display = 'none';
 };
@@ -13747,7 +13765,7 @@ document.getElementById('lb-open-templates').onclick = async ()=>{
   if(opening){ await loadBlockTemplates(); renderTemplatesPanel(); }
 };
 document.getElementById('lb-preview-btn').onclick = ()=>{
-  if(!lessonBlocks.length){ alert('Add at least one block first.'); return; }
+  if(!lessonBlocks.length){ showToast('Add at least one block first.', 'warning'); return; }
   leaveHomeChrome();
   const tempItem = { id:'__preview__', content: JSON.parse(JSON.stringify(lessonBlocks)) };
   lpPreviewMode = true;
@@ -15109,27 +15127,12 @@ window.submitDiscussion = async function(itemId){
   if(post){ input.value=''; renderDiscussionSection(itemId, document.querySelector('.discussion-section')?.parentElement); showToast('Posted!','success'); }
 };
 
-/* ── 11. MOTIVATIONAL QUOTES ─────────────────────────────────────────────── */
-const QUOTES = [
-  { text:'The expert in anything was once a beginner.', author:'Helen Hayes' },
-  { text:'Education is not preparation for life; education is life itself.', author:'John Dewey' },
-  { text:'The more that you read, the more things you will know.', author:'Dr. Seuss' },
-  { text:'Tell me and I forget. Teach me and I remember. Involve me and I learn.', author:'Benjamin Franklin' },
-  { text:'It does not matter how slowly you go as long as you do not stop.', author:'Confucius' },
-  { text:'The only way to learn mathematics is to do mathematics.', author:'Paul Halmos' },
-  { text:'Success is the sum of small efforts repeated day in and day out.', author:'Robert Collier' },
-  { text:'A person who never made a mistake never tried anything new.', author:'Albert Einstein' },
-  { text:'You don\'t have to be great to start, but you have to start to be great.', author:'Zig Ziglar' },
-  { text:'Practice makes progress.', author:'Unknown' },
-  { text:'Every accomplishment starts with the decision to try.', author:'John F. Kennedy' },
-  { text:'The beautiful thing about learning is that no one can take it away from you.', author:'B.B. King' },
-];
-function renderDailyQuote(){
-  const day = Math.floor(Date.now()/86400000) % QUOTES.length;
-  const q = QUOTES[day];
-  if(text) text.textContent = q.text;
-  if(author) author.textContent = '— ' + q.author;
-}
+/* ── Motivational quote card was removed from the dashboard; the QUOTES
+   array and renderDailyQuote() were deleted along with it (previously this
+   function referenced undeclared `text`/`author` variables left over from
+   an incomplete cleanup, which threw on every dashboard render and silently
+   killed everything after it in renderDashboardV2() — including the Daily
+   Goal bar update). ── */
 
 /* ── 12. PROGRESS SHARING ────────────────────────────────────────────────── */
 function shareProgress(){
@@ -15197,7 +15200,6 @@ function showToast(msg, type='info'){
 const _origRenderDashboard = typeof renderDashboard === 'function' ? renderDashboard : null;
 // We'll call our new features after the original renders
 function renderDashboardV2(){
-  renderDailyQuote();
   updateDailyGoal();
   pomodoroRenderTime();
   // Show notes toggle for signed-in students
