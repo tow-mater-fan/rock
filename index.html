@@ -1447,6 +1447,31 @@
   .mr-notation { text-align:center; font-family:'IBM Plex Mono',monospace; font-size:1rem; font-weight:700; color:var(--ink); background:var(--paper-2); border-radius:10px; padding:.6rem; margin:.5rem 0; }
   .mr-table td.mr-active, .mr-table th.mr-active { background:var(--purple); color:#fff; }
   .iv-lines { display:flex; flex-direction:column; gap:.4rem; margin-top:.9rem; }
+
+  /* ── polyfeatures block ── */
+  .pf-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.75rem; margin-top:1rem; }
+  .pf-field { display:flex; flex-direction:column; gap:.3rem; }
+  .pf-field span { font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.03em; }
+  .pf-field input, .pf-field select { padding:.5rem .65rem; border:1.5px solid var(--rule); border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:.88rem; background:var(--white); color:var(--ink); }
+  .pf-field input:focus, .pf-field select:focus { outline:none; border-color:var(--blue); }
+  .pf-field input.pf-correct, .pf-field select.pf-correct { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
+  .pf-field input.pf-incorrect, .pf-field select.pf-incorrect { border-color:var(--red); background:var(--red-bg); color:var(--red); }
+
+  /* ── finitediff block ── */
+  .fd-table-wrap { overflow-x:auto; margin-top:1rem; border-radius:12px; border:1px solid var(--rule); }
+  .fd-table { border-collapse:collapse; width:100%; font-family:'IBM Plex Mono',monospace; font-size:.85rem; }
+  .fd-table th { background:var(--paper-2); font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase;
+    letter-spacing:.03em; color:var(--ink-faint); padding:.55rem .5rem; text-align:center; }
+  .fd-table td { padding:.35rem; text-align:center; border-top:1px solid var(--rule); }
+  .fd-table td.fd-x, .fd-table td.fd-y { font-weight:700; color:var(--ink); background:var(--paper-2); }
+  .fd-table td.fd-empty { background:repeating-linear-gradient(135deg, var(--paper-2) 0 4px, transparent 4px 8px); }
+  .fd-cell-input { width:100%; min-width:52px; text-align:center; padding:.4rem .3rem; border:1.5px solid var(--rule); border-radius:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:var(--white); color:var(--ink); }
+  .fd-cell-input:focus { outline:none; border-color:var(--blue); }
+  .fd-cell-input.fd-correct { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
+  .fd-cell-input.fd-incorrect { border-color:var(--red); background:var(--red-bg); color:var(--red); }
+  #fd-degree.fd-correct, #fd-coef.fd-correct { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
+  #fd-degree.fd-incorrect, #fd-coef.fd-incorrect { border-color:var(--red); background:var(--red-bg); color:var(--red); }
   .iv-line { font-family:'IBM Plex Mono',monospace; font-size:.92rem; background:var(--paper-2); border-radius:10px; padding:.55rem .8rem; display:flex; gap:.5rem; }
   .iv-line b { color:var(--purple); font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; flex-shrink:0; align-self:center; }
   .pg-chips { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; justify-content:center; }
@@ -1756,6 +1781,31 @@
   #test-page.lp-mode #lp-block-slot .drb-slot { background:#fff !important; color:#1a1d29 !important; }
   #test-page.lp-mode #lp-block-slot .drb-slot { border-bottom-color:rgba(255,255,255,.25) !important; box-shadow:none !important; }
   #test-page.lp-mode #lp-block-slot .drb-tile { border-color:rgba(255,255,255,.2) !important; border-bottom-color:rgba(255,255,255,.3) !important; }
+  #test-page.lp-mode #lp-block-slot .lp-drag-item.dragging {
+    background:#fff !important; color:#1a1d29 !important; border-color:var(--blue) !important;
+    box-shadow:0 12px 28px -8px rgba(0,0,0,.5) !important;
+  }
+  #test-page.lp-mode #lp-block-slot .lp-drag-item.dragging .lp-drag-text,
+  #test-page.lp-mode #lp-block-slot .lp-drag-item.dragging .lp-drag-num,
+  #test-page.lp-mode #lp-block-slot .lp-drag-item.dragging .lp-drag-handle-ico { color:#1a1d29 !important; }
+  #test-page.lp-mode #lp-block-slot .lp-drag-item.correct { background:rgba(34,197,94,.15) !important; border-color:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot .lp-drag-item.incorrect { background:rgba(239,68,68,.15) !important; border-color:var(--red) !important; }
+  /* ── polyfeatures / finitediff blocks ── */
+  #test-page.lp-mode #lp-block-slot .pf-field input,
+  #test-page.lp-mode #lp-block-slot .pf-field select,
+  #test-page.lp-mode #lp-block-slot .fd-cell-input { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.25) !important; }
+  #test-page.lp-mode #lp-block-slot .pf-field input.pf-correct, #test-page.lp-mode #lp-block-slot .pf-field select.pf-correct,
+  #test-page.lp-mode #lp-block-slot .fd-cell-input.fd-correct, #test-page.lp-mode #lp-block-slot #fd-degree.fd-correct, #test-page.lp-mode #lp-block-slot #fd-coef.fd-correct {
+    background:rgba(34,197,94,.85) !important; color:#fff !important; border-color:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot .pf-field input.pf-incorrect, #test-page.lp-mode #lp-block-slot .pf-field select.pf-incorrect,
+  #test-page.lp-mode #lp-block-slot .fd-cell-input.fd-incorrect, #test-page.lp-mode #lp-block-slot #fd-degree.fd-incorrect, #test-page.lp-mode #lp-block-slot #fd-coef.fd-incorrect {
+    background:rgba(239,68,68,.85) !important; color:#fff !important; border-color:var(--red) !important; }
+  #test-page.lp-mode #lp-block-slot .pf-field span { color:rgba(246,244,239,.55) !important; }
+  #test-page.lp-mode #lp-block-slot .fd-table-wrap { border-color:rgba(255,255,255,.18) !important; }
+  #test-page.lp-mode #lp-block-slot .fd-table th { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.55) !important; }
+  #test-page.lp-mode #lp-block-slot .fd-table td { border-top-color:rgba(255,255,255,.12) !important; }
+  #test-page.lp-mode #lp-block-slot .fd-table td.fd-x, #test-page.lp-mode #lp-block-slot .fd-table td.fd-y { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.92) !important; }
+  #test-page.lp-mode #lp-block-slot .fd-table td.fd-empty { background:repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 4px, transparent 4px 8px) !important; }
   /* ── Hint box in dark context ── */
   #test-page.lp-mode .hint-box { margin-top:1rem; }
   #test-page.lp-mode .hint-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:rgba(246,244,239,.7);
@@ -5832,6 +5882,7 @@ const FX_PARENTS = {
   quadratic:   { label:'Quadratic — f(x) = x²',        fn:x=>x*x,                domain:x=>true },
   absolute:    { label:'Absolute value — f(x) = |x|',  fn:x=>Math.abs(x),        domain:x=>true },
   cubic:       { label:'Cubic — f(x) = x³',            fn:x=>x*x*x,              domain:x=>true },
+  quartic:     { label:'Quartic — f(x) = x⁴',           fn:x=>x*x*x*x,            domain:x=>true },
   sqrt:        { label:'Square root — f(x) = √x',      fn:x=>Math.sqrt(x),       domain:x=>x>=0 },
   reciprocal:  { label:'Reciprocal — f(x) = 1/x',      fn:x=>1/x,                domain:x=>Math.abs(x)>0.05, hasAsymptotes:true },
   exponential: { label:'Exponential — f(x) = 2ˣ',      fn:x=>Math.pow(2,x),      domain:x=>true, hasAsymptotes:true },
@@ -5875,7 +5926,7 @@ function fxEval(parentKey, a, k, d, c, x){
   return Number.isFinite(v) ? v : null;
 }
 function fxEquationStr(parentKey, a, k, d, c){
-  const base = { linear:'x', quadratic:'x²', absolute:'|x|', cubic:'x³', sqrt:'√x', reciprocal:'1/x', exponential:'2ˣ', sine:'sin(x)', cosine:'cos(x)' }[parentKey] || 'x';
+  const base = { linear:'x', quadratic:'x²', absolute:'|x|', cubic:'x³', quartic:'x⁴', sqrt:'√x', reciprocal:'1/x', exponential:'2ˣ', sine:'sin(x)', cosine:'cos(x)' }[parentKey] || 'x';
   let argStr;
   if(d===0){
     argStr = k===1 ? 'x' : (k===-1 ? '−x' : `${k}x`);
@@ -6520,6 +6571,34 @@ function initHeroCarousel(){
 document.addEventListener('DOMContentLoaded', initHeroCarousel);
 if(document.readyState !== 'loading') initHeroCarousel();
 
+// Evaluates a polynomial given its coefficients highest-degree-first, e.g.
+// [2,-12,0,18,1,-10] for 2x^5 -12x^4 +0x^3 +18x^2 +x -10, via Horner's method.
+function fxEvalPoly(coeffs, x){
+  return coeffs.reduce((acc,c)=> acc*x + c, 0);
+}
+function fxPolyDegree(coeffs){ return coeffs.length - 1; }
+// Renders "2x^5 - 12x^4 + 18x^2 + x - 10" style equation text from a
+// highest-degree-first coefficient array.
+function fxPolyEqStr(coeffs){
+  const deg = fxPolyDegree(coeffs);
+  let out = '';
+  coeffs.forEach((c,i)=>{
+    if(c===0) return;
+    const power = deg - i;
+    const sign = c < 0 ? ' − ' : (out ? ' + ' : '');
+    const mag = Math.abs(c);
+    const coefStr = (mag===1 && power!==0) ? '' : String(mag);
+    const varStr = power===0 ? '' : (power===1 ? 'x' : `x^${power}`);
+    out += sign + coefStr + varStr;
+  });
+  return 'f(x) = ' + (out || '0');
+}
+// Builds an SVG-ready superscript equation string (uses actual unicode
+// superscripts so it renders without any special markup).
+function fxPolyEqStrSup(coeffs){
+  const supMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return fxPolyEqStr(coeffs).replace(/\^(\d+)/g, (_,d)=> d.split('').map(ch=>supMap[ch]).join(''));
+}
 function fxMappingRuleStr(k, d, a, c){
   const xPart = (k===1) ? 'x' : `x/${k}`;
   const xFull = d===0 ? xPart : `${xPart} ${d>0?'+':'−'} ${Math.abs(d)}`;
@@ -8867,12 +8946,18 @@ function _openTestInner(itemId){
     document.getElementById('lp-player').style.display='';
     document.getElementById('tp-progress-fill').style.width = '0%';
     document.getElementById('test-page').classList.add('lp-mode');
+    // The lesson player is a self-contained full-screen dark UI with its own
+    // exit button + progress bar — the main site nav was staying visible
+    // underneath it the whole time, cluttering the top of the screen.
+    const siteNavEl = document.getElementById('site-nav');
+    if(siteNavEl) siteNavEl.style.display = 'none';
     openLessonPlayer(it, prior);
     tutorResetForNewLesson();
     window.scrollTo(0,0);
     return;
   }
   document.getElementById('test-page').classList.remove('lp-mode');
+  { const siteNavEl = document.getElementById('site-nav'); if(siteNavEl) siteNavEl.style.display = 'flex'; }
   document.getElementById('tp-questions').style.display='';
   document.getElementById('tp-submit-row').style.display='';
   document.getElementById('lp-player').style.display='none';
@@ -8946,6 +9031,7 @@ function showLessonIntro(callback){
 }
 document.getElementById('tp-back-btn').onclick = ()=>{
   document.getElementById('test-page').classList.remove('visible'); document.getElementById('test-page').classList.remove('lp-mode');
+  const siteNavEl = document.getElementById('site-nav'); if(siteNavEl) siteNavEl.style.display = 'flex';
   if(lpPreviewMode){ lpPreviewMode=false; openModal('test-overlay'); return; }
   if(currentCourseId) openCourseDetail(currentCourseId);
 };
@@ -10261,6 +10347,202 @@ function renderLpBlockInner(){
         lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'drag order', hint: block.explanation });
       });
     }
+    return;
+  }
+
+  if(block.type==='polyfeatures'){
+    // Interactive version of the "investigation table" task: shows a
+    // polynomial's graph and asks the student to identify its defining
+    // characteristics directly, with instant per-field feedback, instead
+    // of a static table they'd fill out by hand on paper.
+    const coeffs = block.coeffs || [1,0,0];
+    const deg = fxPolyDegree(coeffs);
+    const leadCoef = coeffs[0];
+    const range = block.range || 6;
+    // Auto-scale the y-window to the polynomial's actual behaviour instead
+    // of defaulting to the x-range — a degree-4+ polynomial easily reaches
+    // y-values in the hundreds well within a small x-window, which made
+    // the curve shoot off-screen and rendered nothing visible.
+    let yRange = block.yRange;
+    if(!yRange){
+      let maxAbs = 1;
+      for(let i=0;i<=80;i++){
+        const x = -range + (2*range*i/80);
+        const y = fxEvalPoly(coeffs, x);
+        if(isFinite(y)) maxAbs = Math.max(maxAbs, Math.abs(y));
+      }
+      yRange = Math.max(2, maxAbs * 1.15);
+    }
+    const answered = alreadyAnswered;
+    const trueTurningPts = block.turningPoints ?? null;
+    const trueXInts = block.xIntercepts ?? null;
+    const quadFrom = leadCoef>0 ? (deg%2===0?'Q2':'Q3') : (deg%2===0?'Q3':'Q2');
+    const quadTo = leadCoef>0 ? 'Q1' : (deg%2===0?'Q4':'Q4');
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${safeHtml(block.prompt || 'Identify the characteristics of this polynomial function.')}</div>
+      <div class="fx-wrap">
+        <div class="fx-eq">${esc(fxPolyEqStrSup(coeffs))}</div>
+        <div id="pf-svg-slot"></div>
+      </div>
+      <div class="pf-grid">
+        <label class="pf-field"><span>Degree</span><input type="number" id="pf-degree" ${answered?'disabled':''}></label>
+        <label class="pf-field"><span>Parity</span>
+          <select id="pf-parity" ${answered?'disabled':''}><option value="">—</option><option value="even">Even</option><option value="odd">Odd</option></select>
+        </label>
+        <label class="pf-field"><span>Leading coefficient sign</span>
+          <select id="pf-sign" ${answered?'disabled':''}><option value="">—</option><option value="pos">Positive</option><option value="neg">Negative</option></select>
+        </label>
+        <label class="pf-field"><span>Turning points</span><input type="number" id="pf-turns" ${answered?'disabled':''}></label>
+        <label class="pf-field"><span>x-intercepts</span><input type="number" id="pf-xints" ${answered?'disabled':''}></label>
+        <label class="pf-field"><span>Extends from…to…</span>
+          <select id="pf-quad" ${answered?'disabled':''}>
+            <option value="">—</option>
+            <option value="Q2-Q1">Q2 to Q1</option><option value="Q3-Q1">Q3 to Q1</option>
+            <option value="Q3-Q4">Q3 to Q4</option><option value="Q2-Q4">Q2 to Q4</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn-sm" id="pf-check" style="margin-top:.85rem;${answered?'display:none;':''}">Check</button>
+      <div id="pf-feedback"></div>
+    </div>`;
+    const svgEl = document.getElementById('pf-svg-slot');
+    if(svgEl) svgEl.innerHTML = fxBuildSVG('pf-svg', range, [{ fn:x=>fxEvalPoly(coeffs,x) }], [], yRange);
+    if(answered){
+      document.getElementById('pf-degree').value = deg;
+      document.getElementById('pf-parity').value = deg%2===0?'even':'odd';
+      document.getElementById('pf-sign').value = leadCoef>0?'pos':'neg';
+      if(trueTurningPts!=null) document.getElementById('pf-turns').value = trueTurningPts;
+      if(trueXInts!=null) document.getElementById('pf-xints').value = trueXInts;
+      document.getElementById('pf-quad').value = `${quadFrom}-${quadTo}`;
+    }
+    lpSetContinueEnabled(answered);
+    const pfCheck = document.getElementById('pf-check');
+    if(pfCheck) pfCheck.addEventListener('click', ()=>{
+      if(lpAnswered[lpIndex]) return;
+      const gDegRaw = document.getElementById('pf-degree').value;
+      const gDeg = gDegRaw.trim()===''?null:Number(gDegRaw);
+      const gParity = document.getElementById('pf-parity').value;
+      const gSign = document.getElementById('pf-sign').value;
+      const gTurns = document.getElementById('pf-turns').value===''?null:Number(document.getElementById('pf-turns').value);
+      const gXints = document.getElementById('pf-xints').value===''?null:Number(document.getElementById('pf-xints').value);
+      const gQuad = document.getElementById('pf-quad').value;
+      const checks = [
+        { id:'pf-degree', ok: gDeg===deg },
+        { id:'pf-parity', ok: gParity === (deg%2===0?'even':'odd') },
+        { id:'pf-sign', ok: gSign === (leadCoef>0?'pos':'neg') },
+        { id:'pf-quad', ok: gQuad === `${quadFrom}-${quadTo}` },
+      ];
+      if(trueTurningPts!=null) checks.push({ id:'pf-turns', ok: gTurns===trueTurningPts });
+      if(trueXInts!=null) checks.push({ id:'pf-xints', ok: gXints===trueXInts });
+      checks.forEach(c=>{
+        const el = document.getElementById(c.id);
+        el.classList.remove('pf-correct','pf-incorrect');
+        el.classList.add(c.ok ? 'pf-correct' : 'pf-incorrect');
+        el.disabled = true;
+      });
+      const allCorrect = checks.every(c=>c.ok);
+      const fb = document.getElementById('pf-feedback');
+      sfx[allCorrect?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${allCorrect?'correct':'incorrect'}">${allCorrect?'✓ All correct!':`✗ Some fields need another look — degree ${deg}, ${deg%2===0?'even':'odd'}, leading coefficient ${leadCoef>0?'positive':'negative'}, extends ${quadFrom} to ${quadTo}${trueTurningPts!=null?`, ${trueTurningPts} turning point${trueTurningPts===1?'':'s'}`:''}${trueXInts!=null?`, ${trueXInts} x-intercept${trueXInts===1?'':'s'}`:''}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
+      lpAnswered[lpIndex] = true;
+      pfCheck.style.display = 'none';
+      lpSetContinueEnabled(true);
+      lpRecordResult(allCorrect, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'polynomial features', hint: block.explanation });
+    });
+    return;
+  }
+
+  if(block.type==='finitediff'){
+    // Interactive finite-differences table: the student computes each
+    // difference column themselves (checked column by column), then
+    // identifies the degree, sign, and value of the leading coefficient
+    // from the constant difference row — mirrors Example 4/5 in the unit.
+    const xs = block.xs || [];
+    const ys = block.ys || [];
+    const targetDeg = block.degree;
+    const targetCoef = block.leadingCoefficient;
+    // Precompute every difference level so we can grade any cell.
+    const levels = [ys.slice()];
+    for(let lvl=1; lvl<xs.length; lvl++){
+      const prev = levels[lvl-1];
+      const next = [];
+      for(let i=1;i<prev.length;i++) next.push(prev[i]-prev[i-1]);
+      if(next.length===0) break;
+      levels.push(next);
+    }
+    const numDiffLevels = Math.min(targetDeg, levels.length - 1);
+    const answered = alreadyAnswered;
+    const colHeaders = ['x','y'].concat(Array.from({length:numDiffLevels},(_,i)=>
+      i===0?'1st diff':i===1?'2nd diff':i===2?'3rd diff':`${i+1}th diff`));
+    let rowsHtml = '';
+    xs.forEach((xv,ri)=>{
+      let cells = `<td class="fd-x">${esc(xv)}</td><td class="fd-y">${esc(ys[ri])}</td>`;
+      for(let lvl=1; lvl<=numDiffLevels; lvl++){
+        const arr = levels[lvl];
+        const idx = ri - lvl;
+        if(idx>=0 && idx<arr.length){
+          const val = arr[idx];
+          cells += `<td><input type="number" class="fd-cell-input" data-lvl="${lvl}" data-idx="${idx}" ${answered?'disabled':''} ${answered?`value="${val}"`:''}></td>`;
+        } else {
+          cells += `<td class="fd-empty"></td>`;
+        }
+      }
+      rowsHtml += `<tr>${cells}</tr>`;
+    });
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${safeHtml(block.prompt || 'Complete the finite differences table, then determine the degree and leading coefficient.')}</div>
+      <div class="fd-table-wrap"><table class="fd-table"><thead><tr>${colHeaders.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>
+      <button class="btn-sm" id="fd-check-diffs" style="margin-top:.75rem;${answered?'display:none;':''}">Check differences</button>
+      <div id="fd-diffs-feedback"></div>
+      <div class="pf-grid" style="margin-top:1rem;">
+        <label class="pf-field"><span>Degree of the function</span><input type="number" id="fd-degree" ${answered?'disabled':''}></label>
+        <label class="pf-field"><span>Leading coefficient</span><input type="number" step="0.01" id="fd-coef" ${answered?'disabled':''}></label>
+      </div>
+      <button class="btn-sm" id="fd-check-final" style="margin-top:.7rem;${answered?'display:none;':''}">Check answer</button>
+      <div id="fd-final-feedback"></div>
+    </div>`;
+    if(answered){
+      document.getElementById('fd-degree').value = targetDeg;
+      document.getElementById('fd-coef').value = targetCoef;
+    }
+    lpSetContinueEnabled(answered);
+    const diffBtn = document.getElementById('fd-check-diffs');
+    if(diffBtn) diffBtn.addEventListener('click', ()=>{
+      let allOk = true;
+      document.querySelectorAll('.fd-cell-input').forEach(inp=>{
+        const lvl = +inp.dataset.lvl, idx = +inp.dataset.idx;
+        const correct = inp.value.trim() !== '' && Math.abs(Number(inp.value) - levels[lvl][idx]) < 0.001;
+        inp.classList.remove('fd-correct','fd-incorrect');
+        inp.classList.add(correct?'fd-correct':'fd-incorrect');
+        if(!correct) allOk = false;
+      });
+      const fb = document.getElementById('fd-diffs-feedback');
+      sfx[allOk?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}" style="margin-top:.6rem;">${allOk?'✓ All differences correct!':'✗ Check the highlighted cells and try again.'}</div>`;
+    });
+    const finalBtn = document.getElementById('fd-check-final');
+    if(finalBtn) finalBtn.addEventListener('click', ()=>{
+      if(lpAnswered[lpIndex]) return;
+      const gDegRaw = document.getElementById('fd-degree').value, gCoefRaw = document.getElementById('fd-coef').value;
+      const gDeg = gDegRaw.trim()===''?null:Number(gDegRaw);
+      const gCoef = gCoefRaw.trim()===''?null:Number(gCoefRaw);
+      const degOk = gDeg===targetDeg;
+      const coefOk = gCoef!==null && Math.abs(gCoef - targetCoef) < 0.01;
+      const correct = degOk && coefOk;
+      document.getElementById('fd-degree').classList.add(degOk?'fd-correct':'fd-incorrect');
+      document.getElementById('fd-coef').classList.add(coefOk?'fd-correct':'fd-incorrect');
+      const fb = document.getElementById('fd-final-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the degree is ${targetDeg} and the leading coefficient is ${targetCoef}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
+      document.getElementById('fd-degree').disabled = true;
+      document.getElementById('fd-coef').disabled = true;
+      finalBtn.style.display = 'none';
+      if(diffBtn) diffBtn.style.display = 'none';
+      document.querySelectorAll('.fd-cell-input').forEach(inp=>inp.disabled=true);
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'finite differences', hint: block.explanation });
+    });
     return;
   }
 
