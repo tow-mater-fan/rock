@@ -1742,13 +1742,19 @@
   #test-page.lp-mode .lp-flashcard-inner { box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 12px 28px -10px rgba(0,0,0,.6); }
   #test-page.lp-mode .lp-flashcard-inner > div:first-child { border:1px solid rgba(255,255,255,.14); }
 
-  /* ── FX graph in dark context ── */
-  #test-page.lp-mode #lp-block-slot .fx-wrap { background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.16) !important; }
-  #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:rgba(255,255,255,.14) !important; }
-  #test-page.lp-mode #lp-block-slot .fx-axis { stroke:rgba(255,255,255,.4) !important; }
+  /* ── FX graph — solid light card with dark outlines, even inside the
+     dark lesson player. Trying to theme the grid/axis for a dark
+     background kept producing near-invisible lines regardless of how
+     the opacity was tuned; a light "paper" panel floating on the dark
+     page is a normal, reliable pattern and matches how these same
+     graphs already render correctly everywhere else in the app. ── */
+  #test-page.lp-mode #lp-block-slot .fx-wrap { background:#fff !important; border-color:rgba(255,255,255,.16) !important;
+    box-shadow:0 12px 32px -10px rgba(0,0,0,.5); }
+  #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:#e4e9f4 !important; }
+  #test-page.lp-mode #lp-block-slot .fx-axis { stroke:#12172a !important; stroke-width:1.5 !important; }
   #test-page.lp-mode #lp-block-slot .fx-table td,
-  #test-page.lp-mode #lp-block-slot .fx-table th { background:var(--paper-2); color:var(--board-ink); }
-  #test-page.lp-mode #lp-block-slot .fx-table input { color:var(--ink); }
+  #test-page.lp-mode #lp-block-slot .fx-table th { background:#f8fafc !important; color:#12172a !important; }
+  #test-page.lp-mode #lp-block-slot .fx-table input { color:#12172a !important; }
 
   /* ── Images ── */
   #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; border-radius:var(--radius-md); }
@@ -1756,6 +1762,14 @@
   /* ── Interval/inequality notation results ── */
   #test-page.lp-mode #lp-block-slot .iv-line { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.92) !important; }
   #test-page.lp-mode #lp-block-slot .iv-line b { color:#c4b5fd !important; }
+  /* ── Baseline safety net: any table cell not otherwise styled gets
+     readable text by default, so a future/missed block type doesn't
+     repeat this exact bug again. More specific rules above still win. ── */
+  #test-page.lp-mode #lp-block-slot table th { color:rgba(246,244,239,.55); }
+  #test-page.lp-mode #lp-block-slot table td { color:rgba(246,244,239,.92); }
+  /* ── Reference tables (reftable block) ── */
+  #test-page.lp-mode #lp-block-slot .lp-reftable th { color:rgba(246,244,239,.55) !important; border-bottom-color:rgba(255,255,255,.22) !important; }
+  #test-page.lp-mode #lp-block-slot .lp-reftable td { color:rgba(246,244,239,.92) !important; border-bottom-color:rgba(255,255,255,.12) !important; }
   /* ── Any other block-content box using the paper-2/ink pairing — explicit
      overrides instead of relying on custom-property inheritance, since that
      was proving unreliable for dynamically-injected innerHTML content. ── */
@@ -9821,7 +9835,7 @@ function renderLpBlockInner(){
     const rows = (block.rowsRaw||'').split('\n').map(r=>r.split(',').map(c=>c.trim())).filter(r=>r.length && r.some(c=>c));
     slot.innerHTML = `<div class="lp-block">
       ${block.title ? `<div class="lp-check-q" style="margin-bottom:.6rem;">${safeHtml(block.title)}</div>` : ''}
-      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+      <div style="overflow-x:auto;"><table class="lp-reftable" style="width:100%;border-collapse:collapse;font-size:.85rem;">
         ${header.length ? `<thead><tr>${header.map(h=>`<th style="text-align:left;padding:.5rem .7rem;border-bottom:2px solid var(--rule);font-family:'Inter',sans-serif;">${esc(h)}</th>`).join('')}</tr></thead>` : ''}
         <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td style="padding:.5rem .7rem;border-bottom:1px solid var(--rule);">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>
       </table></div>
