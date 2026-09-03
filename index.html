@@ -1303,6 +1303,11 @@
   .scratchpad-symbols { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:.75rem; }
   .scratchpad-symbol-btn { font-family:'IBM Plex Mono',monospace; font-size:.95rem; font-weight:700; padding:.3rem .6rem; border:1px solid var(--rule); border-radius:8px; background:var(--white); cursor:pointer; color:var(--ink); transition:transform .14s var(--ease-premium), border-color .14s, color .14s; }
   .scratchpad-symbol-btn:hover { background:var(--paper); border-color:var(--purple); color:var(--purple); transform:translateY(-1px); }
+  .fillblank-symbol-row { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.7rem; }
+  .fillblank-symbol-btn { font-family:'IBM Plex Mono',monospace; font-size:.88rem; font-weight:700; width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--rule); border-radius:8px; background:var(--white); cursor:pointer; color:var(--ink-soft); transition:transform .14s var(--ease-premium), border-color .14s, color .14s, background .14s; }
+  .fillblank-symbol-btn:hover { background:var(--blue-bg); border-color:var(--blue); color:var(--blue); transform:translateY(-1px); }
+  .fillblank-symbol-btn:active { transform:translateY(0) scale(.94); }
   .scratchpad-textarea { width:100%; min-height:180px; font-family:'IBM Plex Mono',monospace; font-size:1rem; padding:.9rem 1rem; border:1.5px solid var(--rule); border-radius:12px; resize:vertical; background:var(--white); color:var(--ink); line-height:1.6; box-sizing:border-box; transition:border-color .18s, box-shadow .18s; }
   .scratchpad-textarea:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg); }
   .scratchpad-canvas-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin:.9rem 0 .5rem; }
@@ -1491,11 +1496,24 @@
   .lp-block { background:var(--white); border:1px solid var(--rule); border-radius:14px; padding:1.6rem 1.7rem; margin-bottom:0; }
   .lp-image { max-width:100%; border-radius:var(--radius-md); display:block; margin-bottom:.6rem; box-shadow:var(--shadow-sm); }
   .lp-caption { font-size:.8rem; color:var(--ink-faint); text-align:center; letter-spacing:.01em; }
-  .lp-text-card { background:var(--paper-2); border-radius:16px; padding:1.05rem 1.25rem; position:relative; margin:-.2rem 0; }
-  .lp-text-card-lead { padding:1.3rem 1.4rem 1.3rem 1.6rem; }
-  .lp-text-card-lead::before { content:''; position:absolute; left:0; top:1.3rem; bottom:1.3rem; width:4px; border-radius:4px;
-    background:linear-gradient(180deg, var(--blue), var(--purple)); }
-  .lp-text { font-size:1rem; line-height:1.75; color:var(--ink); }
+  .lp-text-card { background:var(--paper-2); border-radius:16px; padding:1.05rem 1.25rem; position:relative; margin:-.2rem 0; overflow:hidden; }
+  .lp-text-card::after { content:''; position:absolute; top:0; left:0; right:0; height:50%; pointer-events:none; z-index:0;
+    background:linear-gradient(180deg, rgba(255,255,255,.05), transparent); }
+  .lp-text-card-lead { padding:1.5rem 1.6rem 1.5rem 2rem; }
+  .lp-text-card-lead::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:linear-gradient(180deg, var(--blue), var(--purple)); z-index:1; }
+  .lp-text-card-lead::after {
+    background:radial-gradient(circle at 90% -10%, rgba(37,99,235,.16), transparent 55%),
+               radial-gradient(circle at 100% 110%, rgba(124,92,255,.12), transparent 50%),
+               linear-gradient(180deg, rgba(255,255,255,.05), transparent 40%);
+  }
+  .lp-text-card-badge { position:relative; z-index:1; display:inline-flex; align-items:center; gap:.4rem; margin-bottom:.7rem;
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.7rem; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--blue); }
+  .lp-text-card-badge svg { width:13px; height:13px; }
+  .lp-text-card:not(.lp-text-card-lead)::before { content:'“'; position:absolute; top:-.3rem; right:.9rem; font-family:'Space Grotesk',sans-serif;
+    font-size:3.2rem; font-weight:600; color:var(--ink); opacity:.06; line-height:1; pointer-events:none; }
+  .lp-text { font-size:1rem; line-height:1.75; color:var(--ink); position:relative; z-index:1; }
   .lp-text-lead { font-size:1.09rem; }
   .lp-check-q { font-size:1.08rem; font-weight:700; font-family:'Inter',sans-serif; margin-bottom:1.1rem; line-height:1.5; letter-spacing:-.005em;
     padding-left:1rem; border-left:4px solid; border-image:linear-gradient(180deg, var(--blue), var(--purple)) 1; }
@@ -1609,6 +1627,7 @@
   #test-page.lp-mode .lp-text-card-lead { border-left:none; padding-left:2.2rem; }
   #test-page.lp-mode .lp-text-card-lead::before { left:0; width:4px; border-radius:4px;
     background:linear-gradient(180deg, var(--green), #21c584); }
+  #test-page.lp-mode .lp-text-card-badge { color:#4ade80; }
   #test-page.lp-mode .lp-text, #test-page.lp-mode .lp-caption { color:rgba(246,244,239,.92); }
   #test-page.lp-mode .lp-text { font-size:1.25rem; line-height:1.85; }
   #test-page.lp-mode .lp-text-lead { font-size:1.4rem; }
@@ -1699,8 +1718,9 @@
   #test-page.lp-mode .lp-flashcard-inner > div:first-child { border:1px solid rgba(255,255,255,.14); }
 
   /* ── FX graph in dark context ── */
-  #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:rgba(255,255,255,.1); }
-  #test-page.lp-mode #lp-block-slot .fx-axis { stroke:rgba(255,255,255,.32); }
+  #test-page.lp-mode #lp-block-slot .fx-wrap { background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.16) !important; }
+  #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:rgba(255,255,255,.14) !important; }
+  #test-page.lp-mode #lp-block-slot .fx-axis { stroke:rgba(255,255,255,.4) !important; }
   #test-page.lp-mode #lp-block-slot .fx-table td,
   #test-page.lp-mode #lp-block-slot .fx-table th { background:var(--paper-2); color:var(--board-ink); }
   #test-page.lp-mode #lp-block-slot .fx-table input { color:var(--ink); }
@@ -1708,6 +1728,34 @@
   /* ── Images ── */
   #test-page.lp-mode .lp-image { box-shadow:0 20px 48px -12px rgba(0,0,0,.55); max-height:52vh; object-fit:contain; margin-left:auto; margin-right:auto; border-radius:var(--radius-md); }
 
+  /* ── Interval/inequality notation results ── */
+  #test-page.lp-mode #lp-block-slot .iv-line { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.92) !important; }
+  #test-page.lp-mode #lp-block-slot .iv-line b { color:#c4b5fd !important; }
+  /* ── Any other block-content box using the paper-2/ink pairing — explicit
+     overrides instead of relying on custom-property inheritance, since that
+     was proving unreliable for dynamically-injected innerHTML content. ── */
+  #test-page.lp-mode #lp-block-slot .mr-notation,
+  #test-page.lp-mode #lp-block-slot .mt-steps,
+  #test-page.lp-mode #lp-block-slot .gb-eq,
+  #test-page.lp-mode #lp-block-slot .lb-palette,
+  #test-page.lp-mode #lp-block-slot .drb-slots,
+  #test-page.lp-mode #lp-block-slot .ff-example-chip,
+  #test-page.lp-mode #lp-block-slot .drb-preview,
+  #test-page.lp-mode #lp-block-slot .mach-example {
+    background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.92) !important; border-color:rgba(255,255,255,.16) !important;
+  }
+  #test-page.lp-mode #lp-block-slot .scratchpad-wrap { background:rgba(255,255,255,.05) !important; border-color:rgba(255,255,255,.16) !important; }
+  #test-page.lp-mode #lp-block-slot .scratchpad-canvas-label,
+  #test-page.lp-mode #lp-block-slot .scratchpad-canvas-wrap { color:rgba(246,244,239,.75); }
+  #test-page.lp-mode #lp-block-slot .scratchpad-canvas-wrap canvas { background:rgba(255,255,255,.92); border-radius:8px; }
+  #test-page.lp-mode #lp-block-slot .scratchpad-symbol-btn { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.3) !important; }
+  #test-page.lp-mode #lp-block-slot .fillblank-symbol-btn { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.3) !important; }
+  #test-page.lp-mode #lp-block-slot .fillblank-symbol-btn:hover { background:var(--blue) !important; color:#fff !important; }
+  #test-page.lp-mode #lp-block-slot .scratchpad-textarea { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.3) !important; }
+  #test-page.lp-mode #lp-block-slot .drb-tile,
+  #test-page.lp-mode #lp-block-slot .drb-slot { background:#fff !important; color:#1a1d29 !important; }
+  #test-page.lp-mode #lp-block-slot .drb-slot { border-bottom-color:rgba(255,255,255,.25) !important; box-shadow:none !important; }
+  #test-page.lp-mode #lp-block-slot .drb-tile { border-color:rgba(255,255,255,.2) !important; border-bottom-color:rgba(255,255,255,.3) !important; }
   /* ── Hint box in dark context ── */
   #test-page.lp-mode .hint-box { margin-top:1rem; }
   #test-page.lp-mode .hint-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:rgba(246,244,239,.7);
@@ -9505,6 +9553,7 @@ function renderLpBlockInner(){
   if(block.type==='text'){
     const isLead = lpIndex===0;
     slot.innerHTML = `<div class="lp-block"><div class="lp-text-card${isLead?' lp-text-card-lead':''}">
+      ${isLead ? `<div class="lp-text-card-badge"><svg class="icon"><use href="#i-book"/></svg> Lesson intro</div>` : ''}
       <div class="lp-text${isLead?' lp-text-lead':''}">${safeHtml(block.text).replace(/\n/g,'<br>')}</div>
     </div></div>`;
     lpSetContinueEnabled(true);
@@ -9830,13 +9879,23 @@ function renderLpBlockInner(){
   }
   if(block.type==='fillblank'){
     const parts = (block.text||'').split('___');
+    const fbSymbols = ['≤','≥','≠','±','√','π','∈','∉','∞','θ','°','Δ','×','÷'];
     slot.innerHTML = `<div class="lp-block">
       <div class="lp-check-q">${esc(parts[0]||'')}<input type="text" id="lp-fillblank-input" class="mono" style="border:1.5px solid var(--rule);border-radius:8px;padding:.3rem .6rem;width:160px;margin:0 .3rem;">${esc(parts[1]||'')}</div>
+      <div class="fillblank-symbol-row" id="lp-fillblank-symbols">${fbSymbols.map(s=>`<button type="button" class="fillblank-symbol-btn" data-sym="${esc(s)}">${esc(s)}</button>`).join('')}</div>
       <button class="btn-sm" id="lp-fillblank-check" style="margin-top:.8rem;">Check answer</button>
       <div id="lp-fillblank-feedback"></div>
     </div>`;
     lpSetContinueEnabled(alreadyAnswered);
-    if(alreadyAnswered) document.getElementById('lp-fillblank-input').disabled = true;
+    const fbInput = document.getElementById('lp-fillblank-input');
+    if(alreadyAnswered){ fbInput.disabled = true; document.getElementById('lp-fillblank-symbols').style.display = 'none'; }
+    document.querySelectorAll('#lp-fillblank-symbols .fillblank-symbol-btn').forEach(btn=>btn.addEventListener('click', ()=>{
+      const sym = btn.dataset.sym;
+      const start = fbInput.selectionStart ?? fbInput.value.length, end = fbInput.selectionEnd ?? fbInput.value.length;
+      fbInput.value = fbInput.value.slice(0,start) + sym + fbInput.value.slice(end);
+      fbInput.focus();
+      fbInput.selectionStart = fbInput.selectionEnd = start + sym.length;
+    }));
     document.getElementById('lp-fillblank-check').addEventListener('click', ()=>{
       if(lpAnswered[lpIndex]) return;
       const val = document.getElementById('lp-fillblank-input').value.trim();
@@ -9847,6 +9906,7 @@ function renderLpBlockInner(){
       fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — the answer was "${safeHtml(block.answer)}".`}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
       lpAnswered[lpIndex] = true;
       document.getElementById('lp-fillblank-input').disabled = true;
+      document.getElementById('lp-fillblank-symbols').style.display = 'none';
       lpSetContinueEnabled(true);
       lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.text, chosenOption: val, correctOption: block.answer, hint: block.explanation });
     });
