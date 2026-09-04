@@ -1789,6 +1789,15 @@
      the opacity was tuned; a light "paper" panel floating on the dark
      page is a normal, reliable pattern and matches how these same
      graphs already render correctly everywhere else in the app. ── */
+  /* ── Compact graph sizing for lp-mode: prevent scrolling ── */
+  #test-page.lp-mode #lp-block-slot .fx-wrap { padding:.65rem; }
+  #test-page.lp-mode #lp-block-slot .fx-svg { max-height:min(42vh, 280px); width:auto; margin:0 auto; }
+  #test-page.lp-mode #lp-block-slot .fx-controls { gap:.35rem; margin-top:.6rem; }
+  #test-page.lp-mode #lp-block-slot .fx-control-row { gap:.5rem; }
+  #test-page.lp-mode #lp-block-slot .fx-control-row input[type=range] { height:22px; }
+  #test-page.lp-mode #lp-block-slot .fx-eq { margin-bottom:.5rem; font-size:.78rem; padding:.25rem .6rem; }
+  #test-page.lp-mode #lp-block-slot .bd-desc-card { padding:.7rem 1rem; margin-bottom:.7rem; font-size:.88rem; }
+  #test-page.lp-mode #lp-block-slot .lp-check-q { font-size:1.15rem; margin-bottom:.6rem; }
   #test-page.lp-mode #lp-block-slot .fx-wrap { background:#fff !important; border-color:rgba(255,255,255,.16) !important;
     box-shadow:0 12px 32px -10px rgba(0,0,0,.5); }
   #test-page.lp-mode #lp-block-slot .fx-grid-line { stroke:#e4e9f4 !important; }
@@ -1888,6 +1897,29 @@
     border-radius:999px; padding:.5rem 1rem; font-size:.82rem; cursor:pointer; transition:all .15s; }
   #test-page.lp-mode .hint-btn:hover { background:rgba(255,255,255,.12); color:rgba(246,244,239,.95); }
   #test-page.lp-mode .hint-revealed { color:rgba(246,244,239,.75); font-size:.88rem; padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,.1); }
+
+  /* ── guidedpractice block dark overrides ── */
+  #test-page.lp-mode #lp-block-slot .gp-instruction { color:rgba(246,244,239,.92) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-input { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.25) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-opt { background:rgba(255,255,255,.07) !important; border-color:rgba(255,255,255,.18) !important; color:rgba(246,244,239,.92) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-opt:hover { background:rgba(255,255,255,.12) !important; border-color:rgba(255,255,255,.3) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-opt.gp-selected { background:rgba(37,99,235,.2) !important; border-color:var(--blue) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-opt.gp-opt-correct { background:rgba(34,197,94,.15) !important; border-color:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-opt.gp-opt-incorrect { background:rgba(239,68,68,.15) !important; border-color:var(--red) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-opt-radio { border-color:rgba(255,255,255,.3) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-hint-box { background:rgba(37,99,235,.12) !important; color:rgba(246,244,239,.75) !important; border-left-color:var(--blue) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-hint-btn { background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.15) !important; color:rgba(246,244,239,.7) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-explanation { background:rgba(34,197,94,.1) !important; color:rgba(246,244,239,.8) !important; border-left-color:rgba(34,197,94,.5) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-prefill { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.55) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-prefill b { color:rgba(246,244,239,.92) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-done-text { color:#4ade80 !important; }
+  #test-page.lp-mode #lp-block-slot .gp-done-sub { color:rgba(246,244,239,.55) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-progress-pip { background:rgba(255,255,255,.12) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-progress-pip.done { background:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-progress-pip.active { background:var(--blue) !important; }
+  #test-page.lp-mode #lp-block-slot .gp-step-badge.scaffolded { background:rgba(37,99,235,.18) !important; color:#93c5fd !important; }
+  #test-page.lp-mode #lp-block-slot .gp-step-badge.guided { background:rgba(234,179,8,.15) !important; color:#fcd34d !important; }
+  #test-page.lp-mode #lp-block-slot .gp-step-badge.independent { background:rgba(34,197,94,.15) !important; color:#4ade80 !important; }
 
   /* ── Diagram glow ── */
   #test-page.lp-mode .lp-glow-target { position:relative; }
@@ -2147,6 +2179,49 @@
 
   /* ── Build from description ── */
   .bd-desc-card { background:var(--blue-bg); border-radius:14px; padding:1.1rem 1.3rem; margin-bottom:1.1rem; font-family:'Inter',sans-serif; font-weight:700; font-size:.95rem; color:var(--blue-dark); line-height:1.55; }
+
+  /* ── Guided Practice block ── */
+  .gp-wrap { border-radius:16px; overflow:hidden; }
+  .gp-progress { display:flex; gap:4px; margin-bottom:1.1rem; }
+  .gp-progress-pip { flex:1; height:5px; border-radius:99px; background:var(--rule); transition:background .4s, box-shadow .4s; }
+  .gp-progress-pip.done { background:var(--green); box-shadow:0 0 8px rgba(34,197,94,.4); }
+  .gp-progress-pip.active { background:var(--blue); box-shadow:0 0 8px rgba(37,99,235,.4); }
+  .gp-step { animation:gpStepIn .35s var(--ease-premium) both; }
+  @keyframes gpStepIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  .gp-step-badge { display:inline-flex; align-items:center; gap:.4rem; font-family:'IBM Plex Mono',monospace; font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:.3rem .7rem; border-radius:99px; margin-bottom:.7rem; }
+  .gp-step-badge.scaffolded { background:var(--blue-bg); color:var(--blue); }
+  .gp-step-badge.guided { background:var(--gold-bg); color:var(--gold-ink); }
+  .gp-step-badge.independent { background:var(--green-bg); color:var(--green-dark); }
+  .gp-instruction { font-family:'Inter',sans-serif; font-size:1.05rem; font-weight:600; line-height:1.6; color:var(--ink); margin-bottom:.8rem; }
+  .gp-hint-btn { font-family:'Inter',sans-serif; font-size:.78rem; font-weight:600; color:var(--blue); background:var(--blue-bg); border:1px solid transparent; border-radius:8px; padding:.35rem .75rem; cursor:pointer; transition:all .15s; margin-bottom:.6rem; }
+  .gp-hint-btn:hover { border-color:var(--blue); }
+  .gp-hint-box { font-family:'Inter',sans-serif; font-size:.88rem; color:var(--ink-soft); background:var(--blue-bg); border-left:3px solid var(--blue); border-radius:0 10px 10px 0; padding:.7rem 1rem; margin-bottom:.8rem; line-height:1.55; animation:gpStepIn .25s ease both; }
+  .gp-input-row { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+  .gp-input { font-family:'IBM Plex Mono',monospace; font-size:1rem; font-weight:600; padding:.55rem .85rem; border:2px solid var(--rule); border-radius:10px; background:var(--white); color:var(--ink); width:7rem; text-align:center; transition:border-color .18s, box-shadow .18s; }
+  .gp-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.15); outline:none; }
+  .gp-input.gp-correct { border-color:var(--green) !important; background:var(--green-bg) !important; }
+  .gp-input.gp-incorrect { border-color:var(--red) !important; background:var(--red-bg) !important; animation:drb-shake .32s var(--ease-premium); }
+  .gp-options { display:flex; flex-direction:column; gap:.45rem; }
+  .gp-opt { display:flex; align-items:center; gap:.7rem; padding:.65rem 1rem; border-radius:12px; border:1.5px solid var(--rule); background:var(--white); cursor:pointer; font-family:'Inter',sans-serif; font-size:.92rem; font-weight:500; color:var(--ink); transition:all .15s; }
+  .gp-opt:hover { border-color:var(--blue); background:var(--blue-bg); }
+  .gp-opt.gp-selected { border-color:var(--blue); background:var(--blue-bg); }
+  .gp-opt.gp-opt-correct { border-color:var(--green); background:var(--green-bg); }
+  .gp-opt.gp-opt-incorrect { border-color:var(--red); background:var(--red-bg); }
+  .gp-opt-radio { width:18px; height:18px; border-radius:50%; border:2px solid var(--rule); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+  .gp-opt.gp-selected .gp-opt-radio { border-color:var(--blue); }
+  .gp-opt.gp-selected .gp-opt-radio::after { content:''; width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .gp-opt.gp-opt-correct .gp-opt-radio { border-color:var(--green); background:var(--green); }
+  .gp-opt.gp-opt-correct .gp-opt-radio::after { content:'✓'; color:#fff; font-size:.65rem; font-weight:700; width:auto; height:auto; background:none; border-radius:0; }
+  .gp-check-step { font-family:'Inter',sans-serif; font-size:.82rem; font-weight:700; color:#fff; background:var(--blue); border:none; border-radius:10px; padding:.5rem 1.2rem; cursor:pointer; transition:all .15s; }
+  .gp-check-step:hover { filter:brightness(1.1); transform:translateY(-1px); }
+  .gp-check-step:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+  .gp-explanation { font-family:'Inter',sans-serif; font-size:.88rem; color:var(--ink-soft); background:var(--green-bg); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:.65rem 1rem; margin-top:.7rem; line-height:1.55; animation:gpStepIn .3s ease both; }
+  .gp-prefill { font-family:'IBM Plex Mono',monospace; font-size:.88rem; color:var(--ink-faint); background:var(--paper-2); border-radius:8px; padding:.5rem .8rem; margin-bottom:.6rem; line-height:1.6; }
+  .gp-prefill b { color:var(--ink); }
+  .gp-done-card { text-align:center; padding:1.5rem; }
+  .gp-done-icon { font-size:2.5rem; margin-bottom:.6rem; }
+  .gp-done-text { font-family:'Inter',sans-serif; font-size:1.1rem; font-weight:700; color:var(--green-dark); }
+  .gp-done-sub { font-family:'Inter',sans-serif; font-size:.85rem; color:var(--ink-faint); margin-top:.3rem; }
 
   .file-version-list { display:flex; flex-direction:column; gap:.55rem; margin-bottom:.65rem; }
   .file-version-row { display:flex; align-items:center; gap:.6rem; border:1px solid var(--rule); border-radius:10px; padding:.6rem .75rem; background:var(--paper); flex-wrap:wrap; }
@@ -5195,6 +5270,7 @@
             <button class="btn-sm" id="lb-add-matching" data-search="matching pairs">+ Matching pairs</button>
             <button class="btn-sm" id="lb-add-dragorder" data-search="drag to order sequence">+ Drag to order</button>
             <button class="btn-sm" id="lb-add-signchart" data-search="sign chart inequality factor table">+ Sign chart (inequalities)</button>
+            <button class="btn-sm" id="lb-add-guidedpractice" data-search="guided practice step by step scaffolded worked example">+ Guided practice</button>
             <button class="btn-sm" id="lb-add-checklist" data-search="self check checklist">+ Self-check checklist</button>
           </div>
         </div>
@@ -12016,9 +12092,10 @@ function renderLpBlockInner(){
       const eqEl = document.getElementById('bd-eq');
       if(eqEl) eqEl.textContent = fxEquationStr(block.parent, cur.a, cur.k, cur.d, cur.c);
     };
+    const isExploreOnly = !target;
     slot.innerHTML = `<div class="lp-block">
       <div class="lp-check-q">${safeHtml(block.prompt)}</div>
-      <div class="bd-desc-card">${safeHtml(block.description)}</div>
+      ${block.description ? `<div class="bd-desc-card">${safeHtml(block.description)}</div>` : ''}
       <div class="fx-wrap">
         <div class="fx-eq" id="bd-eq"></div>
         <div id="bd-svg-slot"></div>
@@ -12029,7 +12106,7 @@ function renderLpBlockInner(){
           <div class="fx-control-row"><span class="fx-control-label">c</span><input type="range" id="bd-c" min="${-range/2}" max="${range/2}" step="0.25" value="${cur.c}" ${alreadyAnswered?'disabled':''}><input type="number" class="fx-control-numinput" id="bd-c-val" step="0.01" value="${cur.c}" ${alreadyAnswered?'disabled':''}></div>
         </div>
       </div>
-      <button class="btn-sm" id="bd-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>
+      ${isExploreOnly ? '' : `<button class="btn-sm" id="bd-check" style="margin-top:.85rem;${alreadyAnswered?'display:none;':''}">Check</button>`}
       <div id="bd-feedback"></div>
     </div>`;
     renderGraph();
@@ -12048,16 +12125,179 @@ function renderLpBlockInner(){
         renderGraph();
       });
     });
+    if(isExploreOnly){
+      lpSetContinueEnabled(true);
+    } else {
+      lpSetContinueEnabled(alreadyAnswered);
+      const checkBtn = document.getElementById('bd-check');
+      if(checkBtn) checkBtn.addEventListener('click', ()=>{
+        const tol = block.tolerance || 0.25;
+        const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
+        const fb = document.getElementById('bd-feedback');
+        sfx[correct?'correct':'incorrect']();
+        fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Matches the description!':'✗ Not quite — re-read the description and adjust.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
+        if(correct){ lpAnswered[lpIndex]=true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>{ document.getElementById('bd-'+p).disabled=true; document.getElementById(`bd-${p}-val`).disabled=true; }); }
+      });
+    }
+    return;
+  }
+
+  /* ── Guided Practice: step-by-step with fading scaffolding ── */
+  if(block.type==='guidedpractice'){
+    const steps = block.steps || [];
+    const totalSteps = steps.length;
+    // Determine scaffolding level per step: first third = scaffolded, middle = guided, last third = independent
+    const getLevel = (i)=>{
+      if(totalSteps<=1) return 'independent';
+      if(totalSteps===2) return i===0?'scaffolded':'independent';
+      const frac = i/(totalSteps-1);
+      if(frac<=0.34) return 'scaffolded';
+      if(frac<=0.67) return 'guided';
+      return 'independent';
+    };
+    const levelLabel = {scaffolded:'Worked', guided:'Guided', independent:'Your turn'};
+    let gpStep = alreadyAnswered ? totalSteps : 0;
+    const gpAnswered = new Array(totalSteps).fill(alreadyAnswered?true:false);
+
+    const renderGpStep = ()=>{
+      const wrap = document.getElementById('gp-slot');
+      if(!wrap) return;
+      // Progress pips
+      let pips = '';
+      for(let i=0;i<totalSteps;i++){
+        const cls = gpAnswered[i] ? 'done' : (i===gpStep?'active':'');
+        pips += `<div class="gp-progress-pip ${cls}"></div>`;
+      }
+      document.getElementById('gp-pips').innerHTML = pips;
+
+      // All done
+      if(gpStep>=totalSteps){
+        wrap.innerHTML = `<div class="gp-done-card gp-step">
+          <div class="gp-done-icon">🎯</div>
+          <div class="gp-done-text">All steps complete!</div>
+          <div class="gp-done-sub">${totalSteps} step${totalSteps!==1?'s':''} — nice work</div>
+        </div>`;
+        lpAnswered[lpIndex] = true;
+        lpSetContinueEnabled(true);
+        sfx.correct();
+        return;
+      }
+
+      const s = steps[gpStep];
+      const level = s.level || getLevel(gpStep);
+      const showHint = level!=='independent' && s.hint;
+      let html = `<div class="gp-step">`;
+      html += `<div class="gp-step-badge ${level}">${levelLabel[level]} · Step ${gpStep+1} of ${totalSteps}</div>`;
+      // Prefill / worked-example context
+      if(s.prefill) html += `<div class="gp-prefill">${safeHtml(s.prefill)}</div>`;
+      html += `<div class="gp-instruction">${escKeepNotation(s.text||s.instruction||'')}</div>`;
+      // Hint button (only for scaffolded/guided)
+      if(showHint) html += `<button class="gp-hint-btn" id="gp-hint-btn">💡 Show hint</button><div id="gp-hint-slot"></div>`;
+
+      const sType = s.type || (s.options ? 'mc' : 'input');
+      if(sType==='mc'){
+        html += `<div class="gp-options" id="gp-opts">`;
+        (s.options||[]).forEach((opt,oi) => {
+          html += `<div class="gp-opt" data-oi="${oi}"><div class="gp-opt-radio"></div><span>${escKeepNotation(opt)}</span></div>`;
+        });
+        html += `</div>`;
+      } else if(sType==='info'){
+        // Pure info step — no input needed
+      } else {
+        html += `<div class="gp-input-row"><input type="text" class="gp-input" id="gp-answer" placeholder="${esc(s.placeholder||'?')}" autocomplete="off">`;
+        html += `<button class="gp-check-step" id="gp-check">Check</button></div>`;
+      }
+      html += `<div id="gp-fb"></div></div>`;
+      wrap.innerHTML = html;
+
+      // Wire hint
+      if(showHint){
+        document.getElementById('gp-hint-btn').addEventListener('click', function(){
+          this.style.display='none';
+          document.getElementById('gp-hint-slot').innerHTML = `<div class="gp-hint-box">${escKeepNotation(s.hint)}</div>`;
+        });
+      }
+
+      // Wire answer checking
+      const advanceStep = ()=>{
+        gpAnswered[gpStep] = true;
+        gpStep++;
+        setTimeout(()=>renderGpStep(), 650);
+      };
+
+      if(sType==='info'){
+        // Info steps auto-advance after a short pause
+        setTimeout(advanceStep, 100);
+        return;
+      }
+
+      if(sType==='mc'){
+        let selected = -1, locked = false;
+        document.querySelectorAll('#gp-opts .gp-opt').forEach(el=>{
+          el.addEventListener('click', ()=>{
+            if(locked) return;
+            selected = Number(el.dataset.oi);
+            document.querySelectorAll('#gp-opts .gp-opt').forEach(o=>o.classList.remove('gp-selected'));
+            el.classList.add('gp-selected');
+            // Auto-check on select
+            locked = true;
+            const correctIdx = typeof s.correct==='number' ? s.correct : Number(s.correct);
+            const isCorrect = selected===correctIdx;
+            if(isCorrect){
+              el.classList.add('gp-opt-correct');
+              sfx.correct();
+            } else {
+              el.classList.add('gp-opt-incorrect');
+              document.querySelectorAll('#gp-opts .gp-opt')[correctIdx]?.classList.add('gp-opt-correct');
+              sfx.incorrect();
+            }
+            if(s.explanation){
+              document.getElementById('gp-fb').innerHTML = `<div class="gp-explanation">${isCorrect?'✓ ':'✗ '}${escKeepNotation(s.explanation)}</div>`;
+            }
+            setTimeout(advanceStep, isCorrect?900:1800);
+          });
+        });
+      } else {
+        const checkBtn = document.getElementById('gp-check');
+        const inp = document.getElementById('gp-answer');
+        if(inp) inp.addEventListener('keydown', e=>{ if(e.key==='Enter') checkBtn.click(); });
+        checkBtn.addEventListener('click', ()=>{
+          const val = (inp.value||'').trim();
+          if(!val) return;
+          const tgt = String(s.correct||s.answer||'').trim();
+          const tol = s.tolerance || 0.01;
+          let isCorrect = false;
+          if(!isNaN(Number(val)) && !isNaN(Number(tgt))){
+            isCorrect = Math.abs(Number(val)-Number(tgt))<=tol;
+          } else {
+            isCorrect = val.toLowerCase()===tgt.toLowerCase();
+          }
+          if(isCorrect){
+            inp.classList.add('gp-correct');
+            sfx.correct();
+            checkBtn.disabled = true;
+          } else {
+            inp.classList.add('gp-incorrect');
+            sfx.incorrect();
+            setTimeout(()=>{ inp.classList.remove('gp-incorrect'); inp.value=''; inp.focus(); }, 700);
+          }
+          if(s.explanation && isCorrect){
+            document.getElementById('gp-fb').innerHTML = `<div class="gp-explanation">✓ ${escKeepNotation(s.explanation)}</div>`;
+          }
+          if(isCorrect) setTimeout(advanceStep, 900);
+        });
+      }
+    };
+
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${escKeepNotation(block.prompt||'')}</div>
+      <div class="gp-wrap">
+        <div class="gp-progress" id="gp-pips"></div>
+        <div id="gp-slot"></div>
+      </div>
+    </div>`;
     lpSetContinueEnabled(alreadyAnswered);
-    const checkBtn = document.getElementById('bd-check');
-    if(checkBtn) checkBtn.addEventListener('click', ()=>{
-      const tol = block.tolerance || 0.25;
-      const correct = Math.abs(cur.a-target.a)<=tol && Math.abs(cur.k-target.k)<=tol && Math.abs(cur.d-target.d)<=tol && Math.abs(cur.c-target.c)<=tol;
-      const fb = document.getElementById('bd-feedback');
-      sfx[correct?'correct':'incorrect']();
-      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Matches the description!':'✗ Not quite — re-read the description and adjust.'}${block.explanation ? ' '+safeHtml(block.explanation) : ''}</div>`;
-      if(correct){ lpAnswered[lpIndex]=true; lpSetContinueEnabled(true); checkBtn.style.display='none'; ['a','k','d','c'].forEach(p=>{ document.getElementById('bd-'+p).disabled=true; document.getElementById(`bd-${p}-val`).disabled=true; }); }
-    });
+    renderGpStep();
     return;
   }
 
@@ -13418,7 +13658,8 @@ const BLOCK_TYPE_META = {
   customhtml:{icon:'🧬',label:'Custom HTML/JS',cat:'content'}, scratchpad:{icon:'📓',label:'Work area',cat:'student'},
   dragorder:{icon:'🧲',label:'Drag to order',cat:'checks'}, trigratio:{icon:'🧭',label:'Unit circle (trig ratios)',cat:'math'},
   polyfeatures:{icon:'📉',label:'Polynomial features',cat:'functions'}, finitediff:{icon:'➗',label:'Finite differences',cat:'functions'},
-  polydivision:{icon:'➕',label:'Synthetic division',cat:'functions'}, signchart:{icon:'📶',label:'Sign chart (inequalities)',cat:'checks'}, familyexplorer:{icon:'👪',label:'Family of functions',cat:'functions'}
+  polydivision:{icon:'➕',label:'Synthetic division',cat:'functions'}, signchart:{icon:'📶',label:'Sign chart (inequalities)',cat:'checks'}, familyexplorer:{icon:'👪',label:'Family of functions',cat:'functions'},
+  guidedpractice:{icon:'🪜',label:'Guided practice',cat:'checks'}
 };
 const BLOCK_CAT_COLOR = { content:'var(--blue)', checks:'var(--green)', student:'var(--gold)', math:'var(--purple)', functions:'var(--teal)' };
 const BLOCK_CAT_BG = { content:'var(--blue-bg)', checks:'var(--green-bg)', student:'var(--gold-bg)', math:'var(--purple-bg)', functions:'var(--teal-bg)' };
@@ -13471,6 +13712,11 @@ function lbPreviewOptSummary(block){
   }
   if(['graph','points','domainrange'].includes(block.type)){
     return `<div class="lb-preview-opt">Parent function: ${esc(block.parent||'—')}${block.mode?' · mode: '+esc(block.mode):''}</div>`;
+  }
+  if(block.type==='guidedpractice'){
+    const st = block.steps||[];
+    return st.slice(0,4).map((s,i)=>`<div class="lb-preview-opt">${i+1}. ${esc((s.text||s.instruction||'').slice(0,60))}</div>`).join('') +
+      (st.length>4 ? `<div class="lb-preview-opt" style="opacity:.5;">+${st.length-4} more…</div>` : '');
   }
   return '';
 }
@@ -13829,6 +14075,21 @@ function renderLessonBlockList(){
         </div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
         <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">Students drag a k-slider to explore the family live, then solve algebraically for the exact k through your target point.</div>
+      </div>`;
+    }
+    if(b.type==='guidedpractice'){
+      const stepsJson = JSON.stringify(b.steps||[{text:'',type:'input',correct:'',hint:'',explanation:''}], null, 2);
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Guided practice</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}"><svg class="icon"><use href="#i-close"/></svg></button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Overall prompt, e.g. Let's solve step by step:" value="${esc(b.prompt||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Steps JSON — each step: {text, type:'input'|'mc', correct (index for mc / string for input), hint?, explanation?, options?[], prefill?, placeholder?}</label>
+          <textarea data-lb-json="${bi}:steps" rows="10" style="font-family:'IBM Plex Mono',monospace;font-size:.72rem;width:100%;resize:vertical;border-radius:8px;padding:.6rem;border:1.5px solid var(--rule);background:var(--paper-2);color:var(--ink);">${esc(stepsJson)}</textarea></div>
+        <div style="font-size:.62rem;color:var(--ink-faint);line-height:1.5;">
+          Steps go from "scaffolded" (first third, hint shown) → "guided" (middle, hint available) → "independent" (last third, no hint).<br>
+          MC example: {"text":"What is 2+2?","type":"mc","options":["3","4","5"],"correct":1,"explanation":"2+2=4"}<br>
+          Input example: {"text":"Evaluate f(3)","type":"input","correct":"9","hint":"Substitute x=3","explanation":"f(3)=3²=9"}
+        </div>
+        ${saveTemplateBtn(bi)}
       </div>`;
     }
     if(b.type==='simulate'){
@@ -14505,6 +14766,11 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-lb-xvals]').forEach(inp=>inp.addEventListener('input',()=>{
     const bi = inp.dataset.lbXvals;
     lessonBlocks[+bi].xValues = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
+  }));
+  list.querySelectorAll('[data-lb-json]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.lbJson.split(':');
+    try { lessonBlocks[+bi][field] = JSON.parse(inp.value); inp.style.borderColor=''; } catch(e){ inp.style.borderColor='var(--red)'; }
+    if(+bi === lbPreviewIndex) renderLessonPreview();
   }));
   list.querySelectorAll('[data-lb-numarray]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbNumarray.split(':');
@@ -15218,6 +15484,15 @@ document.getElementById('lb-add-finitediff').onclick = ()=>{ lessonBlocks.push({
 document.getElementById('lb-add-polydivision').onclick = ()=>{ lessonBlocks.push({
   type:'polydivision', prompt:'', dividend:[3,-5,-7,-1], root:3, divisorLeadCoef:1,
   explanation:'Check by expanding (x − 3)(3x² + 4x + 5) + 14 and confirming it matches the original.'
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-guidedpractice').onclick = ()=>{ lessonBlocks.push({
+  type:'guidedpractice',
+  prompt:'Let\'s solve this step by step.',
+  steps:[
+    {text:'What is the first step?', type:'mc', options:['Option A','Option B','Option C'], correct:0, hint:'Think about what we need to do first.', explanation:'Option A is correct because...', prefill:'Given: ...'},
+    {text:'Now calculate the result.', type:'input', correct:'42', hint:'Use the formula from Step 1.', explanation:'Substituting gives us 42.'},
+    {text:'Final step — do this one on your own!', type:'input', correct:'7', explanation:'The answer simplifies to 7.'}
+  ]
 }); renderLessonBlockList(); };
 document.getElementById('lb-add-signchart').onclick = ()=>{ lessonBlocks.push({
   type:'signchart', prompt:'Solve (x + 6)(x − 2) > 0 using a sign chart.',
