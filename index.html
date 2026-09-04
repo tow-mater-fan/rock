@@ -1484,6 +1484,35 @@
   .fd-cell-input.fd-incorrect { border-color:var(--red); background:var(--red-bg); color:var(--red); }
   #fd-degree.fd-correct, #fd-coef.fd-correct { border-color:var(--green); background:var(--green-bg); color:var(--green-dark); }
   #fd-degree.fd-incorrect, #fd-coef.fd-incorrect { border-color:var(--red); background:var(--red-bg); color:var(--red); }
+
+  /* ── polydivision block (synthetic division) ── */
+  .sd-wrap { margin-top:1rem; overflow-x:auto; display:flex; align-items:center; gap:.5rem; }
+  .sd-b-label { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1rem; color:var(--purple); background:var(--purple-bg);
+    width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:8px; flex-shrink:0; }
+  .sd-table { border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:.9rem; }
+  .sd-table td { padding:.3rem; text-align:center; min-width:52px; }
+  .sd-row-coef td { font-weight:700; color:var(--ink); border-bottom:2px solid var(--rule); padding-bottom:.5rem; }
+  .sd-row-prod td { color:var(--ink-faint); font-size:.82rem; }
+  .sd-row-sum td.sd-fixed { font-weight:700; color:var(--green-dark); }
+  .sd-cell { width:100%; min-width:48px; text-align:center; padding:.35rem .25rem; border:1.5px solid var(--rule); border-radius:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:.85rem; background:var(--white); color:var(--ink); }
+  .sd-cell:focus { outline:none; border-color:var(--blue); }
+
+  /* ── signchart block (polynomial inequalities) ── */
+  .sc-table-wrap { overflow-x:auto; margin-top:1rem; border-radius:12px; border:1px solid var(--rule); }
+  .sc-table { border-collapse:collapse; width:100%; font-family:'IBM Plex Mono',monospace; font-size:.82rem; }
+  .sc-table th { background:var(--paper-2); font-family:'Inter',sans-serif; font-weight:700; font-size:.7rem;
+    color:var(--ink-faint); padding:.5rem .4rem; text-align:center; white-space:nowrap; }
+  .sc-table td { padding:.35rem; text-align:center; border-top:1px solid var(--rule); }
+  .sc-table td.sc-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.8rem; color:var(--ink); text-align:left; padding-left:.6rem; white-space:nowrap; }
+  .sc-table tr.sc-product-row td.sc-label { color:var(--purple); }
+  .sc-table tr.sc-product-row { border-top:2px solid var(--rule); }
+  .sc-cell { width:100%; min-width:44px; text-align:center; padding:.3rem; border:1.5px solid var(--rule); border-radius:6px;
+    font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:.88rem; background:var(--white); color:var(--ink); cursor:pointer; }
+  .sc-cell:focus { outline:none; border-color:var(--blue); }
+
+  /* ── familyexplorer block ── */
+  .fe-k-row { display:flex; align-items:center; gap:.6rem; margin-top:.6rem; }
   .iv-line { font-family:'IBM Plex Mono',monospace; font-size:.92rem; background:var(--paper-2); border-radius:10px; padding:.55rem .8rem; display:flex; gap:.5rem; }
   .iv-line b { color:var(--purple); font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; flex-shrink:0; align-self:center; }
   .pg-chips { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; justify-content:center; }
@@ -1832,6 +1861,27 @@
   #test-page.lp-mode #lp-block-slot .fd-table td { border-top-color:rgba(255,255,255,.12) !important; }
   #test-page.lp-mode #lp-block-slot .fd-table td.fd-x, #test-page.lp-mode #lp-block-slot .fd-table td.fd-y { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.92) !important; }
   #test-page.lp-mode #lp-block-slot .fd-table td.fd-empty { background:repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 4px, transparent 4px 8px) !important; }
+  /* ── polydivision block ── */
+  #test-page.lp-mode #lp-block-slot .sd-row-coef td { color:rgba(246,244,239,.92) !important; border-bottom-color:rgba(255,255,255,.22) !important; }
+  #test-page.lp-mode #lp-block-slot .sd-row-prod td { color:rgba(246,244,239,.45) !important; }
+  #test-page.lp-mode #lp-block-slot .sd-row-sum td.sd-fixed { color:#4ade80 !important; }
+  #test-page.lp-mode #lp-block-slot .sd-cell { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.25) !important; }
+  #test-page.lp-mode #lp-block-slot .sd-cell.fd-correct { background:rgba(34,197,94,.85) !important; color:#fff !important; border-color:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot .sd-cell.fd-incorrect { background:rgba(239,68,68,.85) !important; color:#fff !important; border-color:var(--red) !important; }
+  /* ── signchart block ── */
+  #test-page.lp-mode #lp-block-slot .sc-table-wrap { border-color:rgba(255,255,255,.18) !important; }
+  #test-page.lp-mode #lp-block-slot .sc-table th { background:rgba(255,255,255,.06) !important; color:rgba(246,244,239,.55) !important; }
+  #test-page.lp-mode #lp-block-slot .sc-table td { border-top-color:rgba(255,255,255,.12) !important; }
+  #test-page.lp-mode #lp-block-slot .sc-table td.sc-label { color:rgba(246,244,239,.92) !important; }
+  #test-page.lp-mode #lp-block-slot .sc-table tr.sc-product-row td.sc-label { color:#c4b5fd !important; }
+  #test-page.lp-mode #lp-block-slot .sc-cell { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.25) !important; }
+  #test-page.lp-mode #lp-block-slot .sc-cell.fd-correct { background:rgba(34,197,94,.85) !important; color:#fff !important; border-color:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot .sc-cell.fd-incorrect { background:rgba(239,68,68,.85) !important; color:#fff !important; border-color:var(--red) !important; }
+  /* ── familyexplorer block ── */
+  #test-page.lp-mode #lp-block-slot #fe-answer { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.25) !important; }
+  #test-page.lp-mode #lp-block-slot #fe-answer.fd-correct { background:rgba(34,197,94,.85) !important; color:#fff !important; border-color:var(--green) !important; }
+  #test-page.lp-mode #lp-block-slot #fe-answer.fd-incorrect { background:rgba(239,68,68,.85) !important; color:#fff !important; border-color:var(--red) !important; }
+  #test-page.lp-mode #lp-block-slot #fe-k-val { color:rgba(246,244,239,.85) !important; }
   /* ── Hint box in dark context ── */
   #test-page.lp-mode .hint-box { margin-top:1rem; }
   #test-page.lp-mode .hint-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:rgba(246,244,239,.7);
@@ -5131,7 +5181,7 @@
           </div>
         </div>
         <div class="lb-palette-cat" data-cat-name="checks" style="border-left:3px solid var(--green);">
-          <div class="lb-palette-cat-label" data-cat-toggle><span>✅ Checks &amp; questions</span><span class="lb-cat-count">12</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-cat-label" data-cat-toggle><span>✅ Checks &amp; questions</span><span class="lb-cat-count">13</span><span class="lb-cat-chevron">▸</span></div>
           <div class="lb-palette-btns">
             <button class="btn-sm" id="lb-add-check" data-search="multiple choice question quiz check">+ Multiple choice</button>
             <button class="btn-sm" id="lb-add-fillblank" data-search="fill in the blank">+ Fill in the blank</button>
@@ -5144,6 +5194,7 @@
             <button class="btn-sm" id="lb-add-describe" data-search="build from description">+ Build from description</button>
             <button class="btn-sm" id="lb-add-matching" data-search="matching pairs">+ Matching pairs</button>
             <button class="btn-sm" id="lb-add-dragorder" data-search="drag to order sequence">+ Drag to order</button>
+            <button class="btn-sm" id="lb-add-signchart" data-search="sign chart inequality factor table">+ Sign chart (inequalities)</button>
             <button class="btn-sm" id="lb-add-checklist" data-search="self check checklist">+ Self-check checklist</button>
           </div>
         </div>
@@ -5166,7 +5217,7 @@
           </div>
         </div>
         <div class="lb-palette-cat" data-cat-name="functions" style="border-left:3px solid var(--teal);">
-          <div class="lb-palette-cat-label" data-cat-toggle><span>∫ Functions &amp; analysis</span><span class="lb-cat-count">9</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-cat-label" data-cat-toggle><span>∫ Functions &amp; analysis</span><span class="lb-cat-count">11</span><span class="lb-cat-chevron">▸</span></div>
           <div class="lb-palette-btns">
             <button class="btn-sm" id="lb-add-domainrange" data-search="domain range">+ Domain &amp; range</button>
             <button class="btn-sm" id="lb-add-drbuilder" data-search="notation builder">+ Notation builder</button>
@@ -5177,6 +5228,8 @@
             <button class="btn-sm" id="lb-add-vlt" data-search="vertical line test">+ Vertical line test</button>
             <button class="btn-sm" id="lb-add-polyfeatures" data-search="polynomial degree turning points intercepts">+ Polynomial features</button>
             <button class="btn-sm" id="lb-add-finitediff" data-search="finite differences table">+ Finite differences</button>
+            <button class="btn-sm" id="lb-add-polydivision" data-search="synthetic long division remainder">+ Synthetic division</button>
+            <button class="btn-sm" id="lb-add-familyexplorer" data-search="family of functions zeros k slider">+ Family of functions</button>
             <button type="button" class="math-help-inline-btn" data-help-cat="functions"><svg class="icon"><use href="#i-help-circle"/></svg> Module guide</button>
           </div>
         </div>
@@ -6629,6 +6682,42 @@ function fxPolyEqStrSup(coeffs){
   const supMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
   return fxPolyEqStr(coeffs).replace(/\^(\d+)/g, (_,d)=> d.split('').map(ch=>supMap[ch]).join(''));
 }
+// ── Synthetic division of coeffs (highest-degree-first) by (x - b) ──
+// Returns { products, sums } where sums[0..n-2] are the quotient
+// coefficients and sums[n-1] is the remainder. products[i] is the
+// "multiply row" value written below coeffs[i] for i>=1.
+function fxSyntheticDivide(coeffs, b){
+  const sums = [coeffs[0]];
+  const products = [null];
+  for(let i=1;i<coeffs.length;i++){
+    const prod = b * sums[i-1];
+    products.push(prod);
+    sums.push(coeffs[i] + prod);
+  }
+  return { products, sums };
+}
+// ── Family-of-functions evaluator: y = k * (x-r1)(x-r2)...(x-rn) ──
+function fxEvalFamily(zeros, k, x){
+  return zeros.reduce((acc,r)=> acc*(x-r), k);
+}
+// ── Sign-chart helpers for polynomial inequalities ──
+// factors: [{label, zero}]. Builds n+1 intervals from n sorted zeros,
+// with a representative test point in each (midpoint between
+// consecutive zeros, or zero±1 for the two unbounded ends).
+function fxSignChartIntervals(zeros){
+  const sorted = zeros.slice().sort((a,b)=>a-b);
+  const pts = [];
+  for(let i=0;i<=sorted.length;i++){
+    let test, label;
+    if(i===0){ test = sorted[0] - 1; label = `x < ${fxNum(sorted[0])}`; }
+    else if(i===sorted.length){ test = sorted[sorted.length-1] + 1; label = `x > ${fxNum(sorted[sorted.length-1])}`; }
+    else { test = (sorted[i-1]+sorted[i])/2; label = `${fxNum(sorted[i-1])} < x < ${fxNum(sorted[i])}`; }
+    pts.push({ test, label });
+  }
+  return pts;
+}
+function fxNum(v){ return Number.isInteger(v) ? v : (Math.round(v*100)/100); }
+function fxFactorSign(x, zero){ return (x - zero) > 0 ? '+' : '-'; }
 function fxMappingRuleStr(k, d, a, c){
   const xPart = (k===1) ? 'x' : `x/${k}`;
   const xFull = d===0 ? xPart : `${xPart} ${d>0?'+':'−'} ${Math.abs(d)}`;
@@ -10576,6 +10665,251 @@ function renderLpBlockInner(){
     return;
   }
 
+  if(block.type==='polydivision'){
+    // Interactive synthetic division: the student fills in the multiply
+    // row and sum row cell-by-cell (checked together), then states the
+    // quotient and remainder — replacing the paper worksheet's blank
+    // division box with something that catches arithmetic mistakes
+    // exactly where they happen instead of only at the final answer.
+    const coeffs = block.dividend || [1,0,0];
+    const b = block.root !== undefined ? block.root : 1;
+    const leadDiv = block.divisorLeadCoef || 1;
+    const { products, sums } = fxSyntheticDivide(coeffs, b);
+    const n = coeffs.length;
+    const answered = alreadyAnswered;
+    const divisorLabel = leadDiv===1 ? `x ${b>=0?'−':'+'} ${Math.abs(b)}` : `${leadDiv}x ${(leadDiv*b)>=0?'−':'+'} ${Math.abs(leadDiv*b)}`;
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${safeHtml(block.prompt || `Divide ${fxPolyEqStrSup(coeffs).replace('f(x) = ','')} by (${divisorLabel}) using synthetic division.`)}</div>
+      <div class="sd-wrap">
+        <div class="sd-b-label">${fxNum(b)}</div>
+        <table class="sd-table">
+          <tr class="sd-row-coef">${coeffs.map(c=>`<td>${c}</td>`).join('')}</tr>
+          <tr class="sd-row-prod">${products.map((p,i)=> i===0 ? `<td></td>` : `<td><input type="number" class="sd-cell" data-idx="${i}" data-kind="prod"></td>`).join('')}</tr>
+          <tr class="sd-row-sum">${sums.map((s,i)=> i===0 ? `<td class="sd-fixed">${s}</td>` : `<td><input type="number" class="sd-cell" data-idx="${i}" data-kind="sum"></td>`).join('')}</tr>
+        </table>
+      </div>
+      <button class="btn-sm" id="sd-check-cells" style="margin-top:.75rem;${answered?'display:none;':''}">Check division</button>
+      <div id="sd-cells-feedback"></div>
+      <div class="pf-grid" style="margin-top:1rem;">
+        <label class="pf-field" style="grid-column:span 2;"><span>Quotient coefficients (comma-separated, highest degree first)</span><input type="text" id="sd-quotient" placeholder="e.g. 3, 4, 5" ${answered?'disabled':''}></label>
+        <label class="pf-field"><span>Remainder</span><input type="number" id="sd-remainder" ${answered?'disabled':''}></label>
+      </div>
+      <button class="btn-sm" id="sd-check-final" style="margin-top:.7rem;${answered?'display:none;':''}">Check answer</button>
+      <div id="sd-final-feedback"></div>
+    </div>`;
+    if(answered){
+      document.querySelectorAll('.sd-cell').forEach(inp=>{
+        const idx = +inp.dataset.idx, kind = inp.dataset.kind;
+        inp.value = kind==='prod' ? products[idx] : sums[idx];
+        inp.disabled = true;
+      });
+      document.getElementById('sd-quotient').value = sums.slice(0,n-1).join(', ');
+      document.getElementById('sd-remainder').value = sums[n-1];
+    }
+    lpSetContinueEnabled(answered);
+    const cellsBtn = document.getElementById('sd-check-cells');
+    if(cellsBtn) cellsBtn.addEventListener('click', ()=>{
+      let allOk = true;
+      document.querySelectorAll('.sd-cell').forEach(inp=>{
+        const idx = +inp.dataset.idx, kind = inp.dataset.kind;
+        const target = kind==='prod' ? products[idx] : sums[idx];
+        const correct = inp.value.trim()!=='' && Math.abs(Number(inp.value)-target) < 0.001;
+        inp.classList.remove('fd-correct','fd-incorrect');
+        inp.classList.add(correct?'fd-correct':'fd-incorrect');
+        if(!correct) allOk = false;
+      });
+      const fb = document.getElementById('sd-cells-feedback');
+      sfx[allOk?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}" style="margin-top:.6rem;">${allOk?'✓ All cells correct!':'✗ Check the highlighted cells — remember: multiply the sum above by the root, then add.'}</div>`;
+    });
+    const finalBtn = document.getElementById('sd-check-final');
+    if(finalBtn) finalBtn.addEventListener('click', ()=>{
+      if(lpAnswered[lpIndex]) return;
+      const gq = document.getElementById('sd-quotient').value.split(',').map(s=>Number(s.trim()));
+      const gr = document.getElementById('sd-remainder').value;
+      const trueQ = sums.slice(0,n-1);
+      const qOk = gq.length===trueQ.length && gq.every((v,i)=>Math.abs(v-trueQ[i])<0.001);
+      const rOk = gr.trim()!=='' && Math.abs(Number(gr)-sums[n-1])<0.001;
+      const correct = qOk && rOk;
+      document.getElementById('sd-quotient').classList.add(qOk?'fd-correct':'fd-incorrect');
+      document.getElementById('sd-remainder').classList.add(rOk?'fd-correct':'fd-incorrect');
+      const fb = document.getElementById('sd-final-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ The quotient is ${trueQ.join(', ')} with remainder ${sums[n-1]}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
+      document.getElementById('sd-quotient').disabled = true;
+      document.getElementById('sd-remainder').disabled = true;
+      finalBtn.style.display = 'none';
+      if(cellsBtn) cellsBtn.style.display = 'none';
+      document.querySelectorAll('.sd-cell').forEach(inp=>inp.disabled=true);
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'synthetic division', hint: block.explanation });
+    });
+    return;
+  }
+
+  if(block.type==='signchart'){
+    // Interactive sign-chart / factor-table builder for polynomial
+    // inequalities: the student fills in the sign of each factor across
+    // every interval, then the overall product sign, then picks the
+    // solution set — mirroring "Method 2" from the unit exactly, but
+    // with instant per-cell feedback instead of a blank table.
+    const factors = block.factors || [];
+    const leadingSign = block.leadingSign || 1;
+    const intervals = fxSignChartIntervals(factors.map(f=>f.zero));
+    const answered = alreadyAnswered;
+    const signRows = factors.map((f,fi)=>{
+      const cells = intervals.map((iv,ii)=>{
+        const trueSign = fxFactorSign(iv.test, f.zero);
+        return `<td><select class="sc-cell" data-fi="${fi}" data-ii="${ii}" ${answered?'disabled':''}>
+          <option value="">?</option><option value="+">+</option><option value="-">−</option>
+        </select></td>`;
+      }).join('');
+      return `<tr><td class="sc-label">${esc(f.label)}</td>${cells}</tr>`;
+    }).join('');
+    const productCells = intervals.map((iv,ii)=>`<td><select class="sc-cell" data-fi="product" data-ii="${ii}" ${answered?'disabled':''}>
+      <option value="">?</option><option value="+">+</option><option value="-">−</option>
+    </select></td>`).join('');
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${safeHtml(block.prompt || 'Use a sign chart to solve the inequality.')}</div>
+      <div class="sc-table-wrap"><table class="sc-table">
+        <tr><td class="sc-label"></td>${intervals.map(iv=>`<th>${esc(iv.label)}</th>`).join('')}</tr>
+        ${signRows}
+        <tr class="sc-product-row"><td class="sc-label">Product</td>${productCells}</tr>
+      </table></div>
+      <button class="btn-sm" id="sc-check-cells" style="margin-top:.75rem;${answered?'display:none;':''}">Check sign chart</button>
+      <div id="sc-cells-feedback"></div>
+      <div class="lp-check-q" style="margin-top:1.1rem;font-size:.95rem;">What's the solution set?</div>
+      <div class="tp-options" id="sc-options">${(block.options||[]).map((o,oi)=>`<label class="tp-option" data-oi="${oi}"><input type="radio" name="sc-answer" value="${oi}" ${answered?'disabled':''}><span>${esc(o)}</span></label>`).join('')}</div>
+      <button class="btn-sm" id="sc-check-final" style="margin-top:.85rem;${answered?'display:none;':''}">Check answer</button>
+      <div id="sc-final-feedback"></div>
+    </div>`;
+    if(answered){
+      document.querySelectorAll('.sc-cell').forEach(sel=>{
+        const fi = sel.dataset.fi, ii = +sel.dataset.ii;
+        const trueSign = fi==='product'
+          ? (leadingSign * factors.reduce((acc,f)=>acc * (fxFactorSign(intervals[ii].test,f.zero)==='+'?1:-1), 1) > 0 ? '+' : '-')
+          : fxFactorSign(intervals[ii].test, factors[+fi].zero);
+        sel.value = trueSign;
+      });
+      const correctOpt = document.querySelector(`#sc-options input[value="${block.correct}"]`);
+      if(correctOpt) correctOpt.checked = true;
+    }
+    lpSetContinueEnabled(answered);
+    const scCellsBtn = document.getElementById('sc-check-cells');
+    if(scCellsBtn) scCellsBtn.addEventListener('click', ()=>{
+      let allOk = true;
+      document.querySelectorAll('.sc-cell').forEach(sel=>{
+        const fi = sel.dataset.fi, ii = +sel.dataset.ii;
+        const trueSign = fi==='product'
+          ? (leadingSign * factors.reduce((acc,f)=>acc * (fxFactorSign(intervals[ii].test,f.zero)==='+'?1:-1), 1) > 0 ? '+' : '-')
+          : fxFactorSign(intervals[ii].test, factors[+fi].zero);
+        const correct = sel.value === trueSign;
+        sel.classList.remove('fd-correct','fd-incorrect');
+        sel.classList.add(correct?'fd-correct':'fd-incorrect');
+        if(!correct) allOk = false;
+      });
+      const fb = document.getElementById('sc-cells-feedback');
+      sfx[allOk?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${allOk?'correct':'incorrect'}" style="margin-top:.6rem;">${allOk?'✓ All signs correct!':'✗ Check the highlighted cells — pick a test point in that interval and check each factor’s sign there.'}</div>`;
+    });
+    document.querySelectorAll('#sc-options').forEach(row=>{
+      row.querySelectorAll('.tp-option').forEach(opt=>opt.addEventListener('click', ()=>{
+        if(lpAnswered[lpIndex]) return;
+        row.querySelectorAll('.tp-option').forEach(o=>o.classList.remove('picked'));
+        opt.classList.add('picked');
+        opt.querySelector('input').checked = true;
+      }));
+    });
+    const scFinalBtn = document.getElementById('sc-check-final');
+    if(scFinalBtn) scFinalBtn.addEventListener('click', ()=>{
+      if(lpAnswered[lpIndex]) return;
+      const picked = document.querySelector('#sc-options input:checked');
+      if(!picked) return;
+      const chosen = +picked.value;
+      const correct = chosen === block.correct;
+      document.querySelectorAll('#sc-options .tp-option').forEach((opt,oi)=>{
+        if(oi===block.correct) opt.classList.add('correct');
+        else if(oi===chosen) opt.classList.add('incorrect');
+      });
+      const fb = document.getElementById('sc-final-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':'✗ Not quite — see the highlighted correct answer above.'}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
+      scFinalBtn.style.display = 'none';
+      if(scCellsBtn) scCellsBtn.style.display = 'none';
+      document.querySelectorAll('.sc-cell').forEach(s=>s.disabled=true);
+      document.querySelectorAll('#sc-options input').forEach(i=>i.disabled=true);
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'sign chart', chosenOption: (block.options||[])[chosen], correctOption: (block.options||[])[block.correct], hint: block.explanation });
+    });
+    return;
+  }
+
+  if(block.type==='familyexplorer'){
+    // Given a fixed set of zeros, lets the student drag k and watch the
+    // whole family of functions scale/flip live, then solve for the
+    // exact k that passes through a given point.
+    const zeros = block.zeros || [-2,1,3];
+    const target = block.targetPoint || { x:0, y:-15 };
+    const range = block.range || Math.max(...zeros.map(Math.abs)) + 3;
+    const trueK = target.y / zeros.reduce((acc,r)=>acc*(target.x-r), 1);
+    // Fixed y-window sized to fit both the target point and the curve
+    // across the whole k-slider range (-4..4) — computed once so the
+    // axis doesn't rescale confusingly every time the slider moves.
+    let feMaxAbs = Math.abs(target.y) || 2;
+    for(let i=0;i<=40;i++){
+      const x = -range + (2*range*i/40);
+      const base = zeros.reduce((acc,r)=>acc*(x-r), 1);
+      feMaxAbs = Math.max(feMaxAbs, Math.abs(base*4));
+    }
+    const feYRange = Math.max(2, feMaxAbs * 1.15);
+    const answered = alreadyAnswered;
+    const eqTemplate = `y = k${zeros.map(r=>`(x ${r>=0?'−':'+'} ${Math.abs(r)})`).join('')}`;
+    slot.innerHTML = `<div class="lp-block">
+      <div class="lp-check-q">${safeHtml(block.prompt || `The zeros of a family of functions are ${zeros.join(', ')}. Find k so the graph passes through (${target.x}, ${target.y}).`)}</div>
+      <div class="fx-wrap">
+        <div class="fx-eq">${esc(eqTemplate)}</div>
+        <div id="fe-svg-slot"></div>
+        <div style="margin-top:.6rem;display:flex;align-items:center;gap:.6rem;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--ink-faint);">k =</span>
+          <input type="range" id="fe-k-slider" min="-4" max="4" step="0.25" value="1" style="flex:1;">
+          <span id="fe-k-val" style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.85rem;width:2.5rem;text-align:right;">1</span>
+        </div>
+      </div>
+      <div class="pf-grid" style="margin-top:1rem;">
+        <label class="pf-field"><span>Exact value of k (as a fraction or decimal)</span><input type="number" step="0.01" id="fe-answer" ${answered?'disabled':''}></label>
+      </div>
+      <button class="btn-sm" id="fe-check" style="margin-top:.7rem;${answered?'display:none;':''}">Check answer</button>
+      <div id="fe-feedback"></div>
+    </div>`;
+    const svgEl = document.getElementById('fe-svg-slot');
+    function fePaint(kVal){
+      if(svgEl) svgEl.innerHTML = fxBuildSVG('fe-svg', range, [{ fn:x=>fxEvalFamily(zeros,kVal,x) }], [{x:target.x,y:target.y,target:true}], feYRange);
+    }
+    fePaint(1);
+    const slider = document.getElementById('fe-k-slider');
+    const kValEl = document.getElementById('fe-k-val');
+    slider.addEventListener('input', ()=>{ kValEl.textContent = slider.value; fePaint(Number(slider.value)); });
+    if(answered){ document.getElementById('fe-answer').value = trueK; slider.value = Math.max(-4,Math.min(4,trueK)); kValEl.textContent = slider.value; fePaint(Number(slider.value)); }
+    lpSetContinueEnabled(answered);
+    const feBtn = document.getElementById('fe-check');
+    if(feBtn) feBtn.addEventListener('click', ()=>{
+      if(lpAnswered[lpIndex]) return;
+      const val = document.getElementById('fe-answer').value;
+      const correct = val.trim()!=='' && Math.abs(Number(val)-trueK) < 0.01;
+      const fb = document.getElementById('fe-feedback');
+      sfx[correct?'correct':'incorrect']();
+      fb.innerHTML = `<div class="lp-feedback ${correct?'correct':'incorrect'}">${correct?'✓ Correct!':`✗ Not quite — k = ${Math.round(trueK*1000)/1000}.`}${block.explanation?' '+safeHtml(block.explanation):''}</div>`;
+      document.getElementById('fe-answer').disabled = true;
+      feBtn.style.display = 'none';
+      lpAnswered[lpIndex] = true;
+      lpSetContinueEnabled(true);
+      lpRecordResult(correct, { key: `${lpItem.id}:${lpIndex}`, itemId: lpItem.id, blockIndex: lpIndex, text: block.prompt||'family of functions', hint: block.explanation });
+    });
+    return;
+  }
+
   if(block.type==='compose'){
     const fLabel = fxEquationStr(block.fParent, block.fA, 1, 0, block.fC).replace('y = ', 'f(x) = ');
     const gLabel = fxEquationStr(block.gParent, block.gA, 1, 0, block.gC).replace('y = ', 'g(x) = ');
@@ -13083,7 +13417,8 @@ const BLOCK_TYPE_META = {
   tabs:{icon:'🗃️',label:'Tabs',cat:'content'}, checklist:{icon:'☑️',label:'Self-check',cat:'checks'}, matching:{icon:'🔗',label:'Matching pairs',cat:'checks'},
   customhtml:{icon:'🧬',label:'Custom HTML/JS',cat:'content'}, scratchpad:{icon:'📓',label:'Work area',cat:'student'},
   dragorder:{icon:'🧲',label:'Drag to order',cat:'checks'}, trigratio:{icon:'🧭',label:'Unit circle (trig ratios)',cat:'math'},
-  polyfeatures:{icon:'📉',label:'Polynomial features',cat:'functions'}, finitediff:{icon:'➗',label:'Finite differences',cat:'functions'}
+  polyfeatures:{icon:'📉',label:'Polynomial features',cat:'functions'}, finitediff:{icon:'➗',label:'Finite differences',cat:'functions'},
+  polydivision:{icon:'➕',label:'Synthetic division',cat:'functions'}, signchart:{icon:'📶',label:'Sign chart (inequalities)',cat:'checks'}, familyexplorer:{icon:'👪',label:'Family of functions',cat:'functions'}
 };
 const BLOCK_CAT_COLOR = { content:'var(--blue)', checks:'var(--green)', student:'var(--gold)', math:'var(--purple)', functions:'var(--teal)' };
 const BLOCK_CAT_BG = { content:'var(--blue-bg)', checks:'var(--green-bg)', student:'var(--gold-bg)', math:'var(--purple-bg)', functions:'var(--teal-bg)' };
@@ -13443,6 +13778,57 @@ function renderLessonBlockList(){
         </div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
         <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">The table shows exactly as many difference columns as the degree you set, ending at the constant row — matching where the student should land.</div>
+      </div>`;
+    }
+    if(b.type==='polydivision'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Synthetic division</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}"><svg class="icon"><use href="#i-close"/></svg></button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Dividend coefficients — highest degree first, comma-separated</label>
+          <input type="text" data-lb-numarray="${bi}:dividend" placeholder="e.g. 3, -5, -7, -1" value="${(b.dividend||[]).join(', ')}"></div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">Root b (divisor is x − b)</label><input type="number" step="0.01" data-lb-field="${bi}:root" value="${b.root!==undefined?b.root:1}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Divisor leading coefficient</label><input type="number" data-lb-field="${bi}:divisorLeadCoef" value="${b.divisorLeadCoef!==undefined?b.divisorLeadCoef:1}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">For a divisor like 2x + 3, enter root b = −1.5 and leading coefficient 2 — the label shown to students is generated automatically.</div>
+      </div>`;
+    }
+    if(b.type==='signchart'){
+      const factors = b.factors || [];
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Sign chart · Inequality</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}"><svg class="icon"><use href="#i-close"/></svg></button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt, e.g. Solve (x+6)(x-2) > 0 using a sign chart" value="${esc(b.prompt||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Factor labels, comma-separated</label>
+          <input type="text" data-lb-factorlabels="${bi}" placeholder="e.g. (x + 6), (x - 2)" value="${factors.map(f=>f.label).join(', ')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Matching zeros, comma-separated (same order/count)</label>
+          <input type="text" data-lb-factorzeros="${bi}" placeholder="e.g. -6, 2" value="${factors.map(f=>f.zero).join(', ')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Leading sign (extra constant multiplier out front)</label>
+          <select data-lb-select="${bi}:leadingSign">
+            <option value="1" ${(b.leadingSign||1)===1?'selected':''}>Positive</option>
+            <option value="-1" ${b.leadingSign===-1?'selected':''}>Negative</option>
+          </select></div>
+        <label style="font-size:.65rem;font-weight:700;display:block;margin:.6rem 0 .3rem;">Solution set options — mark the correct one</label>
+        ${(b.options||[]).map((o,oi)=>`<div class="qb-opt-row">
+          <input type="radio" name="lb-correct-${bi}" ${b.correct===oi?'checked':''} data-lb-correct="${bi}:${oi}">
+          <input type="text" data-lb-opt="${bi}:${oi}" placeholder="Option ${oi+1}" value="${esc(o)}"></div>`).join('')}
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">Intervals and correct signs are computed automatically from the zeros you enter.</div>
+      </div>`;
+    }
+    if(b.type==='familyexplorer'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Family of functions</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}"><svg class="icon"><use href="#i-close"/></svg></button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt (optional — a default is generated)" value="${esc(b.prompt||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Zeros, comma-separated</label>
+          <input type="text" data-lb-numarray="${bi}:zeros" placeholder="e.g. -2, 1, 3" value="${(b.zeros||[]).join(', ')}"></div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">Target point x</label><input type="number" step="0.01" data-lb-familytarget="${bi}:x" value="${b.targetPoint?b.targetPoint.x:0}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Target point y</label><input type="number" step="0.01" data-lb-familytarget="${bi}:y" value="${b.targetPoint?b.targetPoint.y:0}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Graph x-range (±)</label><input type="number" data-lb-field="${bi}:range" value="${b.range!==undefined?b.range:6}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">Students drag a k-slider to explore the family live, then solve algebraically for the exact k through your target point.</div>
       </div>`;
     }
     if(b.type==='simulate'){
@@ -14125,6 +14511,33 @@ function renderLessonBlockList(){
     lessonBlocks[+bi][field] = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
     if(+bi === lbPreviewIndex) renderLessonPreview();
   }));
+  // signchart: factor labels and their matching zeros are edited as two
+  // separate comma-separated fields, then zipped back into the
+  // {label, zero} objects the block actually expects.
+  list.querySelectorAll('[data-lb-factorlabels]').forEach(inp=>inp.addEventListener('input',()=>{
+    const bi = +inp.dataset.lbFactorlabels;
+    const labels = inp.value.split(',').map(s=>s.trim()).filter(Boolean);
+    const b = lessonBlocks[bi];
+    b.factors = labels.map((label,i)=>({ label, zero: (b.factors&&b.factors[i]) ? b.factors[i].zero : 0 }));
+    if(bi === lbPreviewIndex) renderLessonPreview();
+  }));
+  list.querySelectorAll('[data-lb-factorzeros]').forEach(inp=>inp.addEventListener('input',()=>{
+    const bi = +inp.dataset.lbFactorzeros;
+    const zeros = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
+    const b = lessonBlocks[bi];
+    if(!b.factors) b.factors = [];
+    zeros.forEach((z,i)=>{ if(!b.factors[i]) b.factors[i] = { label:`(x - ${z})`, zero:z }; else b.factors[i].zero = z; });
+    if(bi === lbPreviewIndex) renderLessonPreview();
+  }));
+  // familyexplorer: target point x/y edited as two fields, written into
+  // the nested targetPoint object the block expects.
+  list.querySelectorAll('[data-lb-familytarget]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.lbFamilytarget.split(':');
+    const b = lessonBlocks[+bi];
+    if(!b.targetPoint) b.targetPoint = { x:0, y:0 };
+    b.targetPoint[field] = Number(inp.value);
+    if(+bi === lbPreviewIndex) renderLessonPreview();
+  }));
   list.querySelectorAll('[data-lb-discrete-points]').forEach(inp=>inp.addEventListener('input',()=>{
     const bi = inp.dataset.lbDiscretePoints;
     lessonBlocks[+bi].discretePoints = inp.value.split(';').map(pair=>pair.split(',').map(s=>Number(s.trim()))).filter(p=>p.length===2 && p.every(Number.isFinite));
@@ -14801,6 +15214,21 @@ document.getElementById('lb-add-finitediff').onclick = ()=>{ lessonBlocks.push({
   type:'finitediff', prompt:'Complete the table using finite differences, then determine the degree and leading coefficient of the polynomial function.',
   xs:[-3,-2,-1,0,1,2,3,4], ys:[-36,-12,-2,0,0,4,18,48], degree:3, leadingCoefficient:1,
   explanation:'The third differences are constant, confirming a cubic (degree 3).'
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-polydivision').onclick = ()=>{ lessonBlocks.push({
+  type:'polydivision', prompt:'', dividend:[3,-5,-7,-1], root:3, divisorLeadCoef:1,
+  explanation:'Check by expanding (x − 3)(3x² + 4x + 5) + 14 and confirming it matches the original.'
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-signchart').onclick = ()=>{ lessonBlocks.push({
+  type:'signchart', prompt:'Solve (x + 6)(x − 2) > 0 using a sign chart.',
+  factors:[{label:'(x + 6)', zero:-6},{label:'(x − 2)', zero:2}], leadingSign:1, comparison:'>',
+  options:['x < −6 or x > 2', '−6 < x < 2', 'x < −6', 'x > 2'], correct:0,
+  explanation:'The product is positive when both factors agree in sign — either both positive (x > 2) or both negative (x < −6).'
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-familyexplorer').onclick = ()=>{ lessonBlocks.push({
+  type:'familyexplorer', prompt:'The zeros of a family of cubic functions are −2, 1, and 3. Find k so the graph passes through (0, −15).',
+  zeros:[-2,1,3], targetPoint:{x:0,y:-15}, range:6,
+  explanation:'Substitute the point into y = k(x+2)(x−1)(x−3) and solve for k.'
 }); renderLessonBlockList(); };
 document.getElementById('lb-add-spoterror').onclick = ()=>{ lessonBlocks.push({
   type:'spoterror',
