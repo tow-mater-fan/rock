@@ -1236,9 +1236,14 @@
   .modal-error { font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; color:var(--red); text-align:center; margin-top:.6rem; min-height:1rem; }
 
   .qb-list { display:flex; flex-direction:column; gap:.65rem; margin-bottom:.9rem; }
-  .qb-item { border:1px solid var(--rule); border-radius:12px; padding:.85rem .95rem; background:var(--paper); }
+  .qb-item { border:1px solid var(--rule); border-left:3px solid var(--lb-cat-color, var(--rule)); border-radius:12px; padding:.85rem .95rem;
+    background:var(--white); box-shadow:var(--depth-1); }
+  .qb-item.lb-collapsed { padding-bottom:.85rem; }
+  .qb-item.lb-collapsed > *:not(.qb-item-head) { display:none; }
+  .qb-item.lb-collapsed .lb-collapse-btn svg { transform:rotate(-90deg); }
+  .lb-collapse-btn svg { transition:transform .18s var(--ease-premium); width:13px; height:13px; }
   .qb-item-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.55rem; }
-  .qb-type-tag { font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); }
+  .qb-type-tag { font-family:'IBM Plex Mono',monospace; font-size:.63rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--ink-faint); }
   .qb-remove { background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:.85rem; }
   .qb-remove:hover { color:var(--red); }
   .qb-opt-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.35rem; }
@@ -1248,24 +1253,26 @@
   .lb-drag-handle { cursor:grab; font-size:1rem; color:var(--ink-faint); padding:0 .3rem; user-select:none; }
   .lb-drag-handle:active { cursor:grabbing; }
   .qb-item { transition:box-shadow .18s var(--ease-premium), transform .18s var(--ease-premium), border-color .18s; }
+  .qb-item:hover { box-shadow:var(--depth-2); }
   .qb-item.lb-dragging { opacity:.4; }
   .qb-item.lb-drag-over { border-color:var(--blue) !important; box-shadow:0 0 0 3px var(--blue-bg); transform:translateY(2px); }
   /* ── Lesson builder block palette — clean categorized accordion, replaces the old
      flat wall of 40+ rainbow-bordered buttons. One neutral button style, a search
      filter, and collapsed-by-default categories so the panel doesn't dominate the page. ── */
-  .lb-palette { background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius-md); padding:.7rem; margin-bottom:.9rem; }
-  .lb-palette-search { display:flex; align-items:center; gap:.5rem; background:var(--white); border:1.5px solid var(--rule); border-radius:10px; padding:.5rem .7rem; margin-bottom:.65rem; }
+  .lb-palette { background:transparent; border:none; padding:0; margin-bottom:0; }
+  .lb-palette-search { display:flex; align-items:center; gap:.5rem; background:var(--white); border:1.5px solid var(--rule); border-radius:10px; padding:.6rem .75rem; margin-bottom:.8rem; box-shadow:var(--depth-1); }
   .lb-palette-search svg { width:15px; height:15px; color:var(--ink-faint); flex-shrink:0; }
-  .lb-palette-search input { border:none; outline:none; background:none; flex:1; font-size:.82rem; color:var(--ink); font-family:'Inter',sans-serif; }
-  .lb-palette-cat { border:1px solid var(--rule); border-radius:10px; background:var(--white); margin-bottom:.45rem; overflow:hidden; }
+  .lb-palette-search input { border:none; outline:none; background:none; flex:1; font-size:.84rem; color:var(--ink); font-family:'Inter',sans-serif; }
+  .lb-palette-cat { border:1px solid var(--rule); border-radius:12px; background:var(--white); margin-bottom:.5rem; overflow:hidden; box-shadow:var(--depth-1); }
   .lb-palette-cat:last-child { margin-bottom:0; }
-  .lb-palette-cat-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.76rem; color:var(--ink); display:flex; align-items:center; gap:.5rem; padding:.6rem .75rem; cursor:pointer; user-select:none; }
-  .lb-palette-cat-label .lb-cat-count { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:.65rem; color:var(--ink-faint); }
+  .lb-palette-cat-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem; color:var(--ink); display:flex; align-items:center; gap:.5rem; padding:.65rem .8rem; cursor:pointer; user-select:none; }
+  .lb-palette-cat-label:hover { background:var(--paper-2); }
+  .lb-palette-cat-label .lb-cat-count { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.65rem; color:var(--ink-faint); background:var(--paper-2); padding:.1rem .4rem; border-radius:100px; }
   .lb-palette-cat-label .lb-cat-chevron { font-size:.65rem; color:var(--ink-faint); transition:transform .18s var(--ease-premium); }
   .lb-palette-cat.open .lb-cat-chevron { transform:rotate(90deg); }
-  .lb-palette-btns { display:none; flex-wrap:wrap; gap:.4rem; padding:0 .75rem .7rem; }
+  .lb-palette-btns { display:none; flex-wrap:wrap; gap:.4rem; padding:0 .8rem .75rem; }
   .lb-palette-cat.open .lb-palette-btns { display:flex; }
-  .lb-palette-btns .btn-sm { border-color:var(--rule); color:var(--ink-soft); background:var(--paper); font-weight:600; }
+  .lb-palette-btns .btn-sm { border-color:var(--rule); color:var(--ink-soft); background:var(--paper); font-weight:600; font-size:.76rem; }
   .lb-palette-btns .btn-sm:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-bg); }
   .lb-palette-cat.lb-cat-hidden, .lb-palette-btns .btn-sm.lb-btn-hidden { display:none !important; }
   .math-help-inline-btn { font-family:'Inter',sans-serif; font-weight:700; font-size:.6rem; text-transform:none; letter-spacing:0; background:none; border:none; color:var(--purple); cursor:pointer; text-decoration:underline; }
@@ -1316,16 +1323,18 @@
   .scratchpad-canvas-wrap { border:1px solid var(--rule); border-radius:10px; background:var(--white); overflow:hidden; touch-action:none; }
   .scratchpad-color-dot { width:22px; height:22px; border-radius:50%; border:2px solid var(--rule); cursor:pointer; padding:0; }
   .scratchpad-color-dot.active { box-shadow:0 0 0 2px var(--white),0 0 0 4px var(--ink); }
-  .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.9rem; padding-bottom:.8rem; border-bottom:1px solid var(--rule); }
-  .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-faint); background:var(--paper-2); padding:.3rem .6rem; border-radius:100px; }
+  .lb-toolbar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem; padding-bottom:.9rem;
+    border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--white); z-index:5; padding-top:.1rem; }
+  .lb-toolbar-stats { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:.72rem; color:var(--blue); background:var(--blue-bg); padding:.35rem .7rem; border-radius:100px; }
   .lb-toolbar-actions { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
   .lb-toolbar-actions .btn-sm { border-color:var(--rule); color:var(--ink-soft); }
-  .lb-section-label { font-family:'Inter',sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); margin:1rem 0 .5rem; display:block; }
+  .lb-section-label { font-family:'Inter',sans-serif; font-weight:800; font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; color:var(--ink); margin:0 0 .7rem; display:block; }
 
   /* ── Lesson builder split-pane layout: editor (left) + sticky live preview (right) ── */
-  .lb-builder-layout { display:flex; align-items:flex-start; gap:1.2rem; }
-  .lb-builder-main { flex:1; min-width:0; }
-  .lb-preview-col { position:sticky; top:1rem; flex:0 0 300px; display:none; }
+  .lb-builder-layout { display:grid; grid-template-columns:300px minmax(0,1fr) 300px; align-items:start; gap:1.5rem; height:calc(100vh - 3rem); }
+  .lb-builder-sidebar { position:sticky; top:0; height:calc(100vh - 3rem); overflow-y:auto; padding-right:.3rem; }
+  .lb-builder-main { min-width:0; height:calc(100vh - 3rem); overflow-y:auto; padding-right:.3rem; padding-bottom:2rem; }
+  .lb-preview-col { position:sticky; top:0; flex:0 0 300px; display:none; height:calc(100vh - 3rem); overflow-y:auto; }
   .lb-block-previewing { outline:2px solid var(--blue); outline-offset:-2px; }
   .lb-preview-col.active { display:block; }
   .lb-preview-frame { background:linear-gradient(180deg, var(--board-2), var(--board)); border-radius:32px; padding:10px; box-shadow:var(--shadow-glow-board); }
@@ -1345,9 +1354,12 @@
   .lb-preview-opt.is-correct { border-color:var(--green); background:rgba(21,154,99,.15); }
   .lb-preview-nav { display:flex; gap:.4rem; margin-top:.7rem; }
   .lb-preview-nav button { flex:1; }
-  @media (max-width:900px){ .lb-builder-layout { flex-direction:column; } .lb-preview-col { position:static; flex:none; width:100%; max-width:300px; margin:0 auto; } }
-  .lb-move-btns { display:flex; gap:.25rem; }
-  .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1; }
+  @media (max-width:1100px){ .lb-builder-layout { grid-template-columns:260px minmax(0,1fr); } .lb-preview-col { display:none !important; } }
+  @media (max-width:900px){ .lb-builder-layout { display:flex; flex-direction:column; height:auto; } .lb-builder-sidebar, .lb-builder-main { height:auto; position:static; overflow-y:visible; } .lb-preview-col { position:static; flex:none; width:100%; max-width:300px; margin:0 auto; } }
+  .lb-move-btns { display:flex; gap:.25rem; align-items:center; }
+  .lb-move-btns button { background:none; border:1px solid var(--rule); border-radius:6px; width:22px; height:22px; cursor:pointer; color:var(--ink-soft); font-size:.7rem; line-height:1;
+    display:flex; align-items:center; justify-content:center; }
+  .lb-move-btns button svg { width:12px; height:12px; }
   .lb-move-btns button:hover { border-color:var(--blue); color:var(--blue); }
   .lb-ai-edit-btn { border-color:rgba(124,92,255,.4) !important; }
   .lb-ai-edit-btn:hover { border-color:transparent !important; background:var(--brand-gradient-subtle) !important; }
@@ -5091,6 +5103,126 @@
     </div>
     <div class="form-group" style="margin-top:.4rem; display:none;" id="lesson-builder-group">
       <div class="lb-builder-layout">
+      <div class="lb-builder-sidebar">
+      <span class="lb-section-label">Add a block</span>
+      <div class="lb-palette">
+        <div class="lb-palette-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="lb-palette-search-input" placeholder="Search block types…">
+        </div>
+        <div class="lb-palette-cat open" data-cat-name="content" style="border-left:3px solid var(--blue);">
+          <div class="lb-palette-cat-label" data-cat-toggle><span><svg class="icon"><use href="#i-book"/></svg> Content</span><span class="lb-cat-count">15</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-text" data-search="text paragraph writing">+ Text</button>
+            <button class="btn-sm" id="lb-add-image" data-search="image picture photo">+ Image</button>
+            <button class="btn-sm" id="lb-add-video" data-search="video embed youtube">+ Video embed</button>
+            <button class="btn-sm" id="lb-add-callout" data-search="callout tip warning box">+ Callout box</button>
+            <button class="btn-sm" id="lb-add-embed" data-search="embed pdf iframe">+ Embed / PDF</button>
+            <button class="btn-sm" id="lb-add-divider" data-search="divider separator line">+ Divider</button>
+            <button class="btn-sm" id="lb-add-quote" data-search="quote citation">+ Quote</button>
+            <button class="btn-sm" id="lb-add-accordion" data-search="accordion faq collapsible">+ Accordion / FAQ</button>
+            <button class="btn-sm" id="lb-add-audio" data-search="audio sound embed">+ Audio embed</button>
+            <button class="btn-sm" id="lb-add-filedownload" data-search="file download attachment">+ File download</button>
+            <button class="btn-sm" id="lb-add-code" data-search="code snippet programming">+ Code block</button>
+            <button class="btn-sm" id="lb-add-reftable" data-search="reference table data">+ Reference table</button>
+            <button class="btn-sm" id="lb-add-timeline" data-search="timeline history events">+ Timeline</button>
+            <button class="btn-sm" id="lb-add-tabs" data-search="tabs sections">+ Tabs</button>
+            <button class="btn-sm" id="lb-add-customhtml" data-search="custom html javascript code">+ Custom HTML/JS block</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="checks" style="border-left:3px solid var(--green);">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>✅ Checks &amp; questions</span><span class="lb-cat-count">12</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-check" data-search="multiple choice question quiz check">+ Multiple choice</button>
+            <button class="btn-sm" id="lb-add-fillblank" data-search="fill in the blank">+ Fill in the blank</button>
+            <button class="btn-sm" id="lb-add-flashcards" data-search="flashcards memorize">+ Flashcards</button>
+            <button class="btn-sm" id="lb-add-slider" data-search="slider check">+ Slider check</button>
+            <button class="btn-sm" id="lb-add-simulate" data-search="probability simulator random">+ Probability simulator</button>
+            <button class="btn-sm" id="lb-add-trigratio" data-search="unit circle trig trigonometry">+ Unit circle (trig)</button>
+            <button class="btn-sm" id="lb-add-sequence" data-search="sequence explorer">+ Sequence explorer</button>
+            <button class="btn-sm" id="lb-add-spoterror" data-search="spot the error mistake">+ Spot the error</button>
+            <button class="btn-sm" id="lb-add-describe" data-search="build from description">+ Build from description</button>
+            <button class="btn-sm" id="lb-add-matching" data-search="matching pairs">+ Matching pairs</button>
+            <button class="btn-sm" id="lb-add-dragorder" data-search="drag to order sequence">+ Drag to order</button>
+            <button class="btn-sm" id="lb-add-checklist" data-search="self check checklist">+ Self-check checklist</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="student" style="border-left:3px solid var(--gold);">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>✍️ Student work</span><span class="lb-cat-count">1</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-scratchpad" data-search="work area scratchpad show your work">+ Work area (show your work)</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="math" style="border-left:3px solid var(--purple);">
+          <div class="lb-palette-cat-label" data-cat-toggle><span><svg class="icon"><use href="#i-sigma"/></svg> Interactive math</span><span class="lb-cat-count">6</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-graph" data-search="function grapher graph">+ Function grapher</button>
+            <button class="btn-sm" id="lb-add-points" data-search="point plotter">+ Point plotter</button>
+            <button class="btn-sm" id="lb-add-table" data-search="table of values">+ Table of values</button>
+            <button class="btn-sm" id="lb-add-compose" data-search="composition function">+ Composition f(g(x))</button>
+            <button class="btn-sm" id="lb-add-inverse" data-search="inverse function">+ Inverse function</button>
+            <button class="btn-sm" id="lb-add-mapping" data-search="mapping diagram">+ Mapping diagram</button>
+            <button type="button" class="math-help-inline-btn" data-help-cat="math"><svg class="icon"><use href="#i-help-circle"/></svg> Module guide</button>
+          </div>
+        </div>
+        <div class="lb-palette-cat" data-cat-name="functions" style="border-left:3px solid var(--teal);">
+          <div class="lb-palette-cat-label" data-cat-toggle><span>∫ Functions &amp; analysis</span><span class="lb-cat-count">9</span><span class="lb-cat-chevron">▸</span></div>
+          <div class="lb-palette-btns">
+            <button class="btn-sm" id="lb-add-domainrange" data-search="domain range">+ Domain &amp; range</button>
+            <button class="btn-sm" id="lb-add-drbuilder" data-search="notation builder">+ Notation builder</button>
+            <button class="btn-sm" id="lb-add-machine" data-search="function machine">+ Function machine</button>
+            <button class="btn-sm" id="lb-add-piecewise" data-search="piecewise builder">+ Piecewise builder</button>
+            <button class="btn-sm" id="lb-add-rate" data-search="rate of change slope">+ Rate of change</button>
+            <button class="btn-sm" id="lb-add-factory" data-search="function factory">+ Function factory</button>
+            <button class="btn-sm" id="lb-add-vlt" data-search="vertical line test">+ Vertical line test</button>
+            <button class="btn-sm" id="lb-add-polyfeatures" data-search="polynomial degree turning points intercepts">+ Polynomial features</button>
+            <button class="btn-sm" id="lb-add-finitediff" data-search="finite differences table">+ Finite differences</button>
+            <button type="button" class="math-help-inline-btn" data-help-cat="functions"><svg class="icon"><use href="#i-help-circle"/></svg> Module guide</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:1rem 0 .3rem;">
+        <span class="lb-section-label" style="margin:0;">Custom block library</span>
+        <div style="display:flex;gap:.4rem;">
+          <button class="btn-sm" id="lb-open-custom-create" type="button">+ Create custom block</button>
+          <button class="btn-sm" id="lb-open-templates" type="button">📦 Browse library</button>
+        </div>
+      </div>
+      <div id="lb-custom-create-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.8rem;margin-bottom:.7rem;">
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:.5rem;"><label>Name</label><input type="text" id="lb-custom-name" placeholder="e.g. Balloon pressure simulator"></div>
+          <div class="form-group" style="margin-bottom:.5rem;"><label>Icon (emoji)</label><input type="text" id="lb-custom-icon" placeholder="🧩" maxlength="4"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:.5rem;"><label>Description</label><input type="text" id="lb-custom-desc" placeholder="One line — shown to other educators browsing the library"></div>
+        <div class="form-group" style="margin-bottom:.5rem;"><label>HTML / CSS / JS code</label><textarea class="tp-textarea" id="lb-custom-code" style="min-height:120px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;" placeholder="Paste your self-contained module code here…"></textarea></div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:.5rem;"><label>Height (px)</label><input type="text" id="lb-custom-height" value="400"></div>
+          <div class="form-group" style="margin-bottom:.5rem;">
+            <label>Publish to</label>
+            <select id="lb-custom-scope">
+              <option value="private">Just me</option>
+              <option value="school">My school</option>
+              <option value="platform">Everyone on the platform (needs verified access)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:.5rem;">
+          <button class="btn btn-primary" id="lb-custom-save-btn" type="button" style="flex:1;">Save to library</button>
+          <button class="btn-sm" id="lb-custom-cancel-btn" type="button">Cancel</button>
+        </div>
+        <div class="modal-error" id="lb-custom-error" style="text-align:left;"></div>
+      </div>
+      <div id="lb-templates-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.7rem;margin-bottom:.7rem;">
+        <div style="display:flex;gap:.4rem;margin-bottom:.6rem;" id="lb-templates-scope-tabs">
+          <button class="btn-sm active" type="button" data-scope-tab="private">Just me</button>
+          <button class="btn-sm" type="button" data-scope-tab="school">My school</button>
+          <button class="btn-sm" type="button" data-scope-tab="platform">Platform</button>
+        </div>
+        <div id="lb-templates-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.4rem;">Blocks saved here (by you, from AI suggestions, or by other educators) can be reused across lessons. Visibility depends on how each one was published.</div>
+      </div>
+      </div>
       <div class="lb-builder-main">
       <div class="lb-toolbar">
         <div>
@@ -5176,122 +5308,6 @@
 
       <div class="qb-list" id="lesson-block-list"></div>
 
-      <span class="lb-section-label">Add a block</span>
-      <div class="lb-palette">
-        <div class="lb-palette-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="lb-palette-search-input" placeholder="Search block types…">
-        </div>
-        <div class="lb-palette-cat open" data-cat-name="content">
-          <div class="lb-palette-cat-label" data-cat-toggle><span><svg class="icon"><use href="#i-book"/></svg> Content</span><span class="lb-cat-count">15</span><span class="lb-cat-chevron">▸</span></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-text" data-search="text paragraph writing">+ Text</button>
-            <button class="btn-sm" id="lb-add-image" data-search="image picture photo">+ Image</button>
-            <button class="btn-sm" id="lb-add-video" data-search="video embed youtube">+ Video embed</button>
-            <button class="btn-sm" id="lb-add-callout" data-search="callout tip warning box">+ Callout box</button>
-            <button class="btn-sm" id="lb-add-embed" data-search="embed pdf iframe">+ Embed / PDF</button>
-            <button class="btn-sm" id="lb-add-divider" data-search="divider separator line">+ Divider</button>
-            <button class="btn-sm" id="lb-add-quote" data-search="quote citation">+ Quote</button>
-            <button class="btn-sm" id="lb-add-accordion" data-search="accordion faq collapsible">+ Accordion / FAQ</button>
-            <button class="btn-sm" id="lb-add-audio" data-search="audio sound embed">+ Audio embed</button>
-            <button class="btn-sm" id="lb-add-filedownload" data-search="file download attachment">+ File download</button>
-            <button class="btn-sm" id="lb-add-code" data-search="code snippet programming">+ Code block</button>
-            <button class="btn-sm" id="lb-add-reftable" data-search="reference table data">+ Reference table</button>
-            <button class="btn-sm" id="lb-add-timeline" data-search="timeline history events">+ Timeline</button>
-            <button class="btn-sm" id="lb-add-tabs" data-search="tabs sections">+ Tabs</button>
-            <button class="btn-sm" id="lb-add-customhtml" data-search="custom html javascript code">+ Custom HTML/JS block</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat" data-cat-name="checks">
-          <div class="lb-palette-cat-label" data-cat-toggle><span>✅ Checks &amp; questions</span><span class="lb-cat-count">12</span><span class="lb-cat-chevron">▸</span></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-check" data-search="multiple choice question quiz check">+ Multiple choice</button>
-            <button class="btn-sm" id="lb-add-fillblank" data-search="fill in the blank">+ Fill in the blank</button>
-            <button class="btn-sm" id="lb-add-flashcards" data-search="flashcards memorize">+ Flashcards</button>
-            <button class="btn-sm" id="lb-add-slider" data-search="slider check">+ Slider check</button>
-            <button class="btn-sm" id="lb-add-simulate" data-search="probability simulator random">+ Probability simulator</button>
-            <button class="btn-sm" id="lb-add-trigratio" data-search="unit circle trig trigonometry">+ Unit circle (trig)</button>
-            <button class="btn-sm" id="lb-add-sequence" data-search="sequence explorer">+ Sequence explorer</button>
-            <button class="btn-sm" id="lb-add-spoterror" data-search="spot the error mistake">+ Spot the error</button>
-            <button class="btn-sm" id="lb-add-describe" data-search="build from description">+ Build from description</button>
-            <button class="btn-sm" id="lb-add-matching" data-search="matching pairs">+ Matching pairs</button>
-            <button class="btn-sm" id="lb-add-dragorder" data-search="drag to order sequence">+ Drag to order</button>
-            <button class="btn-sm" id="lb-add-checklist" data-search="self check checklist">+ Self-check checklist</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat" data-cat-name="student">
-          <div class="lb-palette-cat-label" data-cat-toggle><span>✍️ Student work</span><span class="lb-cat-count">1</span><span class="lb-cat-chevron">▸</span></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-scratchpad" data-search="work area scratchpad show your work">+ Work area (show your work)</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat" data-cat-name="math">
-          <div class="lb-palette-cat-label" data-cat-toggle><span><svg class="icon"><use href="#i-sigma"/></svg> Interactive math</span><span class="lb-cat-count">6</span><span class="lb-cat-chevron">▸</span></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-graph" data-search="function grapher graph">+ Function grapher</button>
-            <button class="btn-sm" id="lb-add-points" data-search="point plotter">+ Point plotter</button>
-            <button class="btn-sm" id="lb-add-table" data-search="table of values">+ Table of values</button>
-            <button class="btn-sm" id="lb-add-compose" data-search="composition function">+ Composition f(g(x))</button>
-            <button class="btn-sm" id="lb-add-inverse" data-search="inverse function">+ Inverse function</button>
-            <button class="btn-sm" id="lb-add-mapping" data-search="mapping diagram">+ Mapping diagram</button>
-            <button type="button" class="math-help-inline-btn" data-help-cat="math"><svg class="icon"><use href="#i-help-circle"/></svg> Module guide</button>
-          </div>
-        </div>
-        <div class="lb-palette-cat" data-cat-name="functions">
-          <div class="lb-palette-cat-label" data-cat-toggle><span>∫ Functions &amp; analysis</span><span class="lb-cat-count">7</span><span class="lb-cat-chevron">▸</span></div>
-          <div class="lb-palette-btns">
-            <button class="btn-sm" id="lb-add-domainrange" data-search="domain range">+ Domain &amp; range</button>
-            <button class="btn-sm" id="lb-add-drbuilder" data-search="notation builder">+ Notation builder</button>
-            <button class="btn-sm" id="lb-add-machine" data-search="function machine">+ Function machine</button>
-            <button class="btn-sm" id="lb-add-piecewise" data-search="piecewise builder">+ Piecewise builder</button>
-            <button class="btn-sm" id="lb-add-rate" data-search="rate of change slope">+ Rate of change</button>
-            <button class="btn-sm" id="lb-add-factory" data-search="function factory">+ Function factory</button>
-            <button class="btn-sm" id="lb-add-vlt" data-search="vertical line test">+ Vertical line test</button>
-            <button type="button" class="math-help-inline-btn" data-help-cat="functions"><svg class="icon"><use href="#i-help-circle"/></svg> Module guide</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:1rem 0 .3rem;">
-        <span class="lb-section-label" style="margin:0;">Custom block library</span>
-        <div style="display:flex;gap:.4rem;">
-          <button class="btn-sm" id="lb-open-custom-create" type="button">+ Create custom block</button>
-          <button class="btn-sm" id="lb-open-templates" type="button">📦 Browse library</button>
-        </div>
-      </div>
-      <div id="lb-custom-create-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.8rem;margin-bottom:.7rem;">
-        <div class="form-row">
-          <div class="form-group" style="margin-bottom:.5rem;"><label>Name</label><input type="text" id="lb-custom-name" placeholder="e.g. Balloon pressure simulator"></div>
-          <div class="form-group" style="margin-bottom:.5rem;"><label>Icon (emoji)</label><input type="text" id="lb-custom-icon" placeholder="🧩" maxlength="4"></div>
-        </div>
-        <div class="form-group" style="margin-bottom:.5rem;"><label>Description</label><input type="text" id="lb-custom-desc" placeholder="One line — shown to other educators browsing the library"></div>
-        <div class="form-group" style="margin-bottom:.5rem;"><label>HTML / CSS / JS code</label><textarea class="tp-textarea" id="lb-custom-code" style="min-height:120px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;" placeholder="Paste your self-contained module code here…"></textarea></div>
-        <div class="form-row">
-          <div class="form-group" style="margin-bottom:.5rem;"><label>Height (px)</label><input type="text" id="lb-custom-height" value="400"></div>
-          <div class="form-group" style="margin-bottom:.5rem;">
-            <label>Publish to</label>
-            <select id="lb-custom-scope">
-              <option value="private">Just me</option>
-              <option value="school">My school</option>
-              <option value="platform">Everyone on the platform (needs verified access)</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex;gap:.5rem;">
-          <button class="btn btn-primary" id="lb-custom-save-btn" type="button" style="flex:1;">Save to library</button>
-          <button class="btn-sm" id="lb-custom-cancel-btn" type="button">Cancel</button>
-        </div>
-        <div class="modal-error" id="lb-custom-error" style="text-align:left;"></div>
-      </div>
-      <div id="lb-templates-panel" style="display:none;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm);padding:.7rem;margin-bottom:.7rem;">
-        <div style="display:flex;gap:.4rem;margin-bottom:.6rem;" id="lb-templates-scope-tabs">
-          <button class="btn-sm active" type="button" data-scope-tab="private">Just me</button>
-          <button class="btn-sm" type="button" data-scope-tab="school">My school</button>
-          <button class="btn-sm" type="button" data-scope-tab="platform">Platform</button>
-        </div>
-        <div id="lb-templates-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--ink-faint);margin-top:.4rem;">Blocks saved here (by you, from AI suggestions, or by other educators) can be reused across lessons. Visibility depends on how each one was published.</div>
-      </div>
       </div>
       <div class="lb-preview-col" id="lb-preview-col">
         <div class="lb-preview-frame">
@@ -13053,21 +13069,24 @@ async function loadBlockTemplates(){
   if(!error) blockTemplates = data || [];
 }
 const BLOCK_TYPE_META = {
-  text:{icon:'📝',label:'Text'}, image:{icon:'🖼️',label:'Image'}, video:{icon:'🎬',label:'Video'},
-  callout:{icon:'💬',label:'Callout'}, embed:{icon:'📄',label:'Embed'}, divider:{icon:'➖',label:'Divider'},
-  quote:{icon:'❝',label:'Quote'}, accordion:{icon:'📂',label:'Accordion'}, audio:{icon:'🔊',label:'Audio'},
-  filedownload:{icon:'⬇️',label:'File download'}, fillblank:{icon:'✍️',label:'Fill in the blank'}, flashcards:{icon:'🗂️',label:'Flashcards'},
-  check:{icon:'✅',label:'Multiple choice'}, slider:{icon:'🎚️',label:'Slider check'}, simulate:{icon:'🎲',label:'Simulator'},
-  sequence:{icon:'🔢',label:'Sequence'}, compose:{icon:'🧩',label:'Composition'}, inverse:{icon:'🔁',label:'Inverse'},
-  graph:{icon:'📈',label:'Grapher'}, points:{icon:'📍',label:'Point plotter'}, table:{icon:'🧮',label:'Table'},
-  domainrange:{icon:'📏',label:'Domain/range'}, drbuilder:{icon:'🧩',label:'Notation builder'}, machine:{icon:'⚙️',label:'Function machine'}, piecewise:{icon:'🪜',label:'Piecewise'},
-  rate:{icon:'📐',label:'Rate of change'}, factory:{icon:'🏭',label:'Function factory'}, vlt:{icon:'📊',label:'Vertical line test'},
-  spoterror:{icon:'🔍',label:'Spot the error'}, describe:{icon:'✏️',label:'Build from description'}, mapping:{icon:'🗺️',label:'Mapping diagram'},
-  code:{icon:'💻',label:'Code block'}, reftable:{icon:'📋',label:'Reference table'}, timeline:{icon:'🕒',label:'Timeline'},
-  tabs:{icon:'🗃️',label:'Tabs'}, checklist:{icon:'☑️',label:'Self-check'}, matching:{icon:'🔗',label:'Matching pairs'},
-  customhtml:{icon:'🧬',label:'Custom HTML/JS'}, scratchpad:{icon:'📓',label:'Work area'},
-  dragorder:{icon:'🧲',label:'Drag to order'}, trigratio:{icon:'🧭',label:'Unit circle (trig ratios)'}
+  text:{icon:'📝',label:'Text',cat:'content'}, image:{icon:'🖼️',label:'Image',cat:'content'}, video:{icon:'🎬',label:'Video',cat:'content'},
+  callout:{icon:'💬',label:'Callout',cat:'content'}, embed:{icon:'📄',label:'Embed',cat:'content'}, divider:{icon:'➖',label:'Divider',cat:'content'},
+  quote:{icon:'❝',label:'Quote',cat:'content'}, accordion:{icon:'📂',label:'Accordion',cat:'content'}, audio:{icon:'🔊',label:'Audio',cat:'content'},
+  filedownload:{icon:'⬇️',label:'File download',cat:'content'}, fillblank:{icon:'✍️',label:'Fill in the blank',cat:'checks'}, flashcards:{icon:'🗂️',label:'Flashcards',cat:'checks'},
+  check:{icon:'✅',label:'Multiple choice',cat:'checks'}, slider:{icon:'🎚️',label:'Slider check',cat:'checks'}, simulate:{icon:'🎲',label:'Simulator',cat:'checks'},
+  sequence:{icon:'🔢',label:'Sequence',cat:'checks'}, compose:{icon:'🧩',label:'Composition',cat:'math'}, inverse:{icon:'🔁',label:'Inverse',cat:'math'},
+  graph:{icon:'📈',label:'Grapher',cat:'math'}, points:{icon:'📍',label:'Point plotter',cat:'math'}, table:{icon:'🧮',label:'Table',cat:'math'},
+  domainrange:{icon:'📏',label:'Domain/range',cat:'functions'}, drbuilder:{icon:'🧩',label:'Notation builder',cat:'functions'}, machine:{icon:'⚙️',label:'Function machine',cat:'functions'}, piecewise:{icon:'🪜',label:'Piecewise',cat:'functions'},
+  rate:{icon:'📐',label:'Rate of change',cat:'functions'}, factory:{icon:'🏭',label:'Function factory',cat:'functions'}, vlt:{icon:'📊',label:'Vertical line test',cat:'functions'},
+  spoterror:{icon:'🔍',label:'Spot the error',cat:'checks'}, describe:{icon:'✏️',label:'Build from description',cat:'checks'}, mapping:{icon:'🗺️',label:'Mapping diagram',cat:'functions'},
+  code:{icon:'💻',label:'Code block',cat:'content'}, reftable:{icon:'📋',label:'Reference table',cat:'content'}, timeline:{icon:'🕒',label:'Timeline',cat:'content'},
+  tabs:{icon:'🗃️',label:'Tabs',cat:'content'}, checklist:{icon:'☑️',label:'Self-check',cat:'checks'}, matching:{icon:'🔗',label:'Matching pairs',cat:'checks'},
+  customhtml:{icon:'🧬',label:'Custom HTML/JS',cat:'content'}, scratchpad:{icon:'📓',label:'Work area',cat:'student'},
+  dragorder:{icon:'🧲',label:'Drag to order',cat:'checks'}, trigratio:{icon:'🧭',label:'Unit circle (trig ratios)',cat:'math'},
+  polyfeatures:{icon:'📉',label:'Polynomial features',cat:'functions'}, finitediff:{icon:'➗',label:'Finite differences',cat:'functions'}
 };
+const BLOCK_CAT_COLOR = { content:'var(--blue)', checks:'var(--green)', student:'var(--gold)', math:'var(--purple)', functions:'var(--teal)' };
+const BLOCK_CAT_BG = { content:'var(--blue-bg)', checks:'var(--green-bg)', student:'var(--gold-bg)', math:'var(--purple-bg)', functions:'var(--teal-bg)' };
 function saveTemplateBtn(bi){
   return `<button class="btn-sm" type="button" data-lb-savetpl="${bi}" style="margin-top:.5rem;">💾 Save as template</button>`;
 }
@@ -13195,6 +13214,7 @@ let lbHistoryIndex = -1;
 let lbSuppressSnapshot = false;
 let lbPreviewIndex = 0;
 let lbPreviewOpen = false;
+let lbCollapsedBlocks = new Set();
 function lbUndo(){
   if(lbHistoryIndex<=0) return;
   lbHistoryIndex--;
@@ -13231,6 +13251,7 @@ function renderLessonBlockList(){
     const meta = BLOCK_TYPE_META[b.type] || {icon:'▫️',label:b.type};
     const moveBtns = `<div class="lb-move-btns">
       <span class="lb-drag-handle" draggable="true" data-lb-drag="${bi}" title="Drag to reorder">⠿</span>
+      <button data-lb-collapse="${bi}" type="button" class="lb-collapse-btn" title="Collapse / expand"><svg class="icon"><use href="#i-chevron-down"/></svg></button>
       <button data-lb-ai-edit="${bi}" type="button" class="lb-ai-edit-btn" title="Ask AI to update this block"><svg class="icon"><use href="#i-sparkle"/></svg></button>
       <button data-lb-up="${bi}" type="button" title="Move up"><svg class="icon"><use href="#i-chevron-up"/></svg></button>
       <button data-lb-down="${bi}" type="button" title="Move down"><svg class="icon"><use href="#i-chevron-down"/></svg></button>
@@ -13391,6 +13412,37 @@ function renderLessonBlockList(){
           <div class="form-group"><label style="font-size:.65rem;">Tolerance ± (°)</label><input type="number" data-lb-field="${bi}:tolerance" value="${b.tolerance!==undefined?b.tolerance:8}"></div>
         </div>
         <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+      </div>`;
+    }
+    if(b.type==='polyfeatures'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Polynomial features</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}"><svg class="icon"><use href="#i-close"/></svg></button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt, e.g. f(x) = x² + 4x − 5" value="${esc(b.prompt||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">Coefficients — highest degree first, comma-separated</label>
+          <input type="text" data-lb-numarray="${bi}:coeffs" placeholder="e.g. 1, 4, -5  (for x² + 4x − 5)" value="${(b.coeffs||[]).join(', ')}"></div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <div class="form-group"><label style="font-size:.65rem;">Graph x-range (±)</label><input type="number" data-lb-field="${bi}:range" value="${b.range!==undefined?b.range:6}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Turning points (optional)</label><input type="number" data-lb-field="${bi}:turningPoints" value="${b.turningPoints!==undefined?b.turningPoints:''}" placeholder="leave blank to skip"></div>
+          <div class="form-group"><label style="font-size:.65rem;">x-intercepts (optional)</label><input type="number" data-lb-field="${bi}:xIntercepts" value="${b.xIntercepts!==undefined?b.xIntercepts:''}" placeholder="leave blank to skip"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">Student is asked for degree, parity, leading-coefficient sign, and end-behaviour quadrant automatically — plus turning points / x-intercepts if you fill those in above. The graph's vertical scale auto-fits the curve.</div>
+      </div>`;
+    }
+    if(b.type==='finitediff'){
+      return `<div class="qb-item" data-bi="${bi}">
+        <div class="qb-item-head"><span class="qb-type-tag mono">Finite differences</span><div style="display:flex;gap:.5rem;align-items:center;">${moveBtns}<button class="qb-remove" data-lb-remove="${bi}"><svg class="icon"><use href="#i-close"/></svg></button></div></div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:prompt" placeholder="Prompt" value="${esc(b.prompt||'')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">x-values, comma-separated</label>
+          <input type="text" data-lb-numarray="${bi}:xs" placeholder="e.g. -3, -2, -1, 0, 1, 2, 3, 4" value="${(b.xs||[]).join(', ')}"></div>
+        <div class="form-group"><label style="font-size:.65rem;">y-values, comma-separated (same order/count as x-values)</label>
+          <input type="text" data-lb-numarray="${bi}:ys" placeholder="e.g. -36, -12, -2, 0, 0, 4, 18, 48" value="${(b.ys||[]).join(', ')}"></div>
+        <div style="display:flex;gap:.6rem;">
+          <div class="form-group"><label style="font-size:.65rem;">Degree (where differences go constant)</label><input type="number" data-lb-field="${bi}:degree" value="${b.degree!==undefined?b.degree:3}"></div>
+          <div class="form-group"><label style="font-size:.65rem;">Leading coefficient</label><input type="number" step="0.01" data-lb-field="${bi}:leadingCoefficient" value="${b.leadingCoefficient!==undefined?b.leadingCoefficient:1}"></div>
+        </div>
+        <div class="form-group"><input type="text" data-lb-field="${bi}:explanation" placeholder="Explanation shown after answering (optional)" value="${esc(b.explanation||'')}"></div>
+        <div style="font-size:.65rem;color:var(--ink-faint);margin-top:.3rem;">The table shows exactly as many difference columns as the degree you set, ending at the constant row — matching where the student should land.</div>
       </div>`;
     }
     if(b.type==='simulate'){
@@ -13969,6 +14021,19 @@ function renderLessonBlockList(){
       </div>`;
     }
   }).join('');
+  // Color-code each block card's left edge by category, and wire up the
+  // collapse/expand toggle — long lessons with 15+ blocks were an
+  // undifferentiated wall of identical white cards with no way to
+  // shrink ones you're done editing.
+  list.querySelectorAll('.qb-item').forEach(item=>{
+    const bi = +item.dataset.bi;
+    const meta = BLOCK_TYPE_META[lessonBlocks[bi]?.type] || {};
+    const color = BLOCK_CAT_COLOR[meta.cat] || 'var(--ink-faint)';
+    item.style.setProperty('--lb-cat-color', color);
+    if(lbCollapsedBlocks.has(bi)) item.classList.add('lb-collapsed');
+    const tag = item.querySelector('.qb-type-tag');
+    if(tag && meta.icon){ tag.style.color = color; tag.textContent = `${meta.icon} ${tag.textContent}`; }
+  });
   list.querySelectorAll('.qb-item').forEach(item=>{
     item.addEventListener('click', ()=>{ lbPreviewIndex = +item.dataset.bi; renderLessonPreview(); });
     item.addEventListener('focusin', ()=>{ lbPreviewIndex = +item.dataset.bi; renderLessonPreview(); });
@@ -13976,6 +14041,12 @@ function renderLessonBlockList(){
   if(lbPreviewIndex >= lessonBlocks.length) lbPreviewIndex = Math.max(0, lessonBlocks.length-1);
   renderLessonPreview();
   list.querySelectorAll('[data-lb-remove]').forEach(b=>b.onclick=()=>{ lessonBlocks.splice(+b.dataset.lbRemove,1); renderLessonBlockList(); });
+  list.querySelectorAll('[data-lb-collapse]').forEach(b=>b.onclick=(e)=>{
+    e.stopPropagation();
+    const bi = +b.dataset.lbCollapse;
+    if(lbCollapsedBlocks.has(bi)) lbCollapsedBlocks.delete(bi); else lbCollapsedBlocks.add(bi);
+    renderLessonBlockList();
+  });
   list.querySelectorAll('[data-lb-savetpl]').forEach(b=>b.onclick=async ()=>{
     const bi = +b.dataset.lbSavetpl;
     const block = lessonBlocks[bi];
@@ -14023,8 +14094,10 @@ function renderLessonBlockList(){
   });
   list.querySelectorAll('[data-lb-field]').forEach(inp=>inp.addEventListener('input',()=>{
     const [bi, field] = inp.dataset.lbField.split(':');
-    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2','sides','targetFace','trials','targetAngleDeg'].includes(field);
-    lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value;
+    const numeric = ['min','max','target','tolerance','range','a','k','d','c','lo','hi','x1','x2','sides','targetFace','trials','targetAngleDeg','turningPoints','xIntercepts','degree','leadingCoefficient','yRange'].includes(field);
+    const optionalNumeric = ['turningPoints','xIntercepts','yRange'].includes(field);
+    if(optionalNumeric && inp.value.trim()===''){ delete lessonBlocks[+bi][field]; }
+    else { lessonBlocks[+bi][field] = numeric ? Number(inp.value) : inp.value; }
     if(+bi === lbPreviewIndex) renderLessonPreview();
   }));
   list.querySelectorAll('[data-lb-opt]').forEach(inp=>inp.addEventListener('input',()=>{ const [bi,oi]=inp.dataset.lbOpt.split(':').map(Number); lessonBlocks[bi].options[oi]=inp.value; }));
@@ -14046,6 +14119,11 @@ function renderLessonBlockList(){
   list.querySelectorAll('[data-lb-xvals]').forEach(inp=>inp.addEventListener('input',()=>{
     const bi = inp.dataset.lbXvals;
     lessonBlocks[+bi].xValues = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
+  }));
+  list.querySelectorAll('[data-lb-numarray]').forEach(inp=>inp.addEventListener('input',()=>{
+    const [bi, field] = inp.dataset.lbNumarray.split(':');
+    lessonBlocks[+bi][field] = inp.value.split(',').map(s=>Number(s.trim())).filter(n=>Number.isFinite(n));
+    if(+bi === lbPreviewIndex) renderLessonPreview();
   }));
   list.querySelectorAll('[data-lb-discrete-points]').forEach(inp=>inp.addEventListener('input',()=>{
     const bi = inp.dataset.lbDiscretePoints;
@@ -14713,6 +14791,16 @@ document.getElementById('lb-add-vlt').onclick = ()=>{ lessonBlocks.push({
     {kind:'points', pts:[[1,2],[1,-2],[4,3]], isFunction:false, note:'x = 1 maps to two different y-values.'}
   ],
   hints:['A relation is a function only if every input has exactly one output.','If a vertical line crosses the graph more than once, it fails the test.']
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-polyfeatures').onclick = ()=>{ lessonBlocks.push({
+  type:'polyfeatures', prompt:'Identify the characteristics of this polynomial function.',
+  coeffs:[1,4,-5], range:8, turningPoints:1, xIntercepts:2,
+  explanation:'A degree-2 (quadratic) function always has exactly 1 turning point — its vertex.'
+}); renderLessonBlockList(); };
+document.getElementById('lb-add-finitediff').onclick = ()=>{ lessonBlocks.push({
+  type:'finitediff', prompt:'Complete the table using finite differences, then determine the degree and leading coefficient of the polynomial function.',
+  xs:[-3,-2,-1,0,1,2,3,4], ys:[-36,-12,-2,0,0,4,18,48], degree:3, leadingCoefficient:1,
+  explanation:'The third differences are constant, confirming a cubic (degree 3).'
 }); renderLessonBlockList(); };
 document.getElementById('lb-add-spoterror').onclick = ()=>{ lessonBlocks.push({
   type:'spoterror',
