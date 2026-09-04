@@ -2048,6 +2048,33 @@
   #tutor-send-btn:disabled { opacity:.5; cursor:not-allowed; }
   @media (max-width:480px){ #tutor-panel { left:.9rem; bottom:7.4rem; } #ember-dock { left:-1rem; bottom:-1rem; } #tutor-launcher { width:92px; height:92px; } }
 
+  /* ── Tutor panel: consistent dark theme inside lp-mode ── */
+  #test-page.lp-mode #ember-dock #tutor-panel,
+  #test-page.lp-mode #tutor-panel {
+    background:rgba(18,23,42,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-color:rgba(255,255,255,.12); }
+  #test-page.lp-mode #ember-dock #tutor-panel-head,
+  #test-page.lp-mode #tutor-panel-head {
+    background:rgba(255,255,255,.06); border-bottom-color:rgba(255,255,255,.1); }
+  #test-page.lp-mode #ember-dock .tutor-head-id,
+  #test-page.lp-mode .tutor-head-id { color:rgba(246,244,239,.92); }
+  #test-page.lp-mode #ember-dock #tutor-counter,
+  #test-page.lp-mode #tutor-counter { background:rgba(255,255,255,.1); color:rgba(246,244,239,.6); }
+  #test-page.lp-mode #ember-dock #tutor-close-btn,
+  #test-page.lp-mode #tutor-close-btn { background:rgba(255,255,255,.08); color:rgba(246,244,239,.5); }
+  #test-page.lp-mode #ember-dock #tutor-close-btn:hover,
+  #test-page.lp-mode #tutor-close-btn:hover { background:rgba(229,72,77,.2); color:#f87171; }
+  #test-page.lp-mode #ember-dock #tutor-messages,
+  #test-page.lp-mode #tutor-messages { background:rgba(12,15,28,.6); }
+  #test-page.lp-mode #ember-dock .tutor-msg.bot,
+  #test-page.lp-mode .tutor-msg.bot { background:rgba(255,255,255,.1); color:rgba(246,244,239,.92); }
+  #test-page.lp-mode #ember-dock #tutor-input-row,
+  #test-page.lp-mode #tutor-input-row { background:rgba(255,255,255,.06); border-top-color:rgba(255,255,255,.1); }
+  #test-page.lp-mode #ember-dock #tutor-input,
+  #test-page.lp-mode #tutor-input { background:rgba(255,255,255,.08); color:rgba(246,244,239,.92); border-color:rgba(255,255,255,.12); }
+  #test-page.lp-mode #ember-dock #tutor-input:focus,
+  #test-page.lp-mode #tutor-input:focus { border-color:var(--blue); }
+
 
 
 
@@ -2506,8 +2533,13 @@
     animation: auroraSpin 6s linear infinite;
   }
   @keyframes auroraSpin { to { filter: hue-rotate(360deg); } }
-  html[data-ember-skin="ember_skin_ice"] #ember-svg,
-  html[data-ember-skin="ember_skin_ice"] .tutor-avatar { filter: hue-rotate(150deg) saturate(1.25); }
+  /* ── Ember skin: Ice ── crystalline blue-white palette, not a generic hue-rotate */
+  html[data-ember-skin="ember_skin_ice"] .ember-body-shape,
+  html[data-ember-skin="ember_skin_ice"] .ember-flicker { fill:url(#ember-grad-ice) !important; }
+  html[data-ember-skin="ember_skin_ice"] .ember-cheek { fill:#93c5fd !important; opacity:.45 !important; }
+  html[data-ember-skin="ember_skin_ice"] .tutor-avatar {
+    background:radial-gradient(circle at 30% 25%, #e0f2fe 0%, #7dd3fc 35%, #38bdf8 65%, #0284c7 100%) !important; }
+  /* ── Ember skin: Royal ── */
   html[data-ember-skin="ember_skin_royal"] #ember-svg,
   html[data-ember-skin="ember_skin_royal"] .tutor-avatar { filter: hue-rotate(210deg) saturate(1.2) brightness(1.05); }
 
@@ -4928,6 +4960,13 @@
                 <stop offset=".42" stop-color="#ff5a36"/>
                 <stop offset=".76" stop-color="#b46bff"/>
                 <stop offset="1" stop-color="#4a2fbe"/>
+              </radialGradient>
+              <radialGradient id="ember-grad-ice" cx="30%" cy="24%" r="90%">
+                <stop offset="0" stop-color="#e0f2fe"/>
+                <stop offset=".3" stop-color="#7dd3fc"/>
+                <stop offset=".6" stop-color="#38bdf8"/>
+                <stop offset=".85" stop-color="#0284c7"/>
+                <stop offset="1" stop-color="#0c4a6e"/>
               </radialGradient>
             </defs>
             <g class="ember-float">
