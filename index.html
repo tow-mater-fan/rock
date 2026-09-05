@@ -1901,6 +1901,14 @@
   #test-page.lp-mode .hint-btn:hover { background:rgba(255,255,255,.12); color:rgba(246,244,239,.95); }
   #test-page.lp-mode .hint-revealed { color:rgba(246,244,239,.75); font-size:.88rem; padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,.1); }
 
+  /* ── callout block dark overrides ── */
+  #test-page.lp-mode #lp-block-slot .lp-callout { background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.12) !important;
+    box-shadow:0 8px 24px -8px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.06) inset !important; backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important; }
+  #test-page.lp-mode #lp-block-slot .lp-callout-text { color:rgba(246,244,239,.72) !important; }
+  #test-page.lp-mode #lp-block-slot .lp-callout-info .lp-callout-title { color:#93c5fd !important; }
+  #test-page.lp-mode #lp-block-slot .lp-callout-warn .lp-callout-title { color:#fcd34d !important; }
+  #test-page.lp-mode #lp-block-slot .lp-callout-tip .lp-callout-title { color:#6ee7b7 !important; }
+
   /* ── guidedpractice block dark overrides ── */
   #test-page.lp-mode #lp-block-slot .gp-instruction { color:rgba(246,244,239,.92) !important; }
   #test-page.lp-mode #lp-block-slot .gp-input { background:#fff !important; color:#1a1d29 !important; border-color:rgba(255,255,255,.25) !important; }
@@ -2209,6 +2217,21 @@
 
   /* ── Build from description ── */
   .bd-desc-card { background:var(--blue-bg); border-radius:14px; padding:1.1rem 1.3rem; margin-bottom:1.1rem; font-family:'Inter',sans-serif; font-weight:700; font-size:.95rem; color:var(--blue-dark); line-height:1.55; }
+
+  /* ── Callout block — Liquid Depth ── */
+  .lp-callout { position:relative; border-radius:16px; overflow:hidden; background:var(--glass);
+    backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur));
+    border:1px solid var(--glass-border); box-shadow:var(--depth-2); display:flex; }
+  .lp-callout-accent { width:4px; flex-shrink:0; border-radius:4px 0 0 4px; }
+  .lp-callout-body { flex:1; padding:1.1rem 1.3rem; }
+  .lp-callout-title { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.05rem; letter-spacing:-.02em; margin-bottom:.45rem; line-height:1.3; }
+  .lp-callout-text { font-family:'Inter',sans-serif; font-size:.92rem; line-height:1.7; color:var(--ink-soft); font-weight:500; }
+  .lp-callout-info .lp-callout-accent { background:linear-gradient(180deg,var(--blue),var(--purple)); }
+  .lp-callout-info .lp-callout-title { color:var(--blue); }
+  .lp-callout-warn .lp-callout-accent { background:linear-gradient(180deg,var(--gold),#f59e0b); }
+  .lp-callout-warn .lp-callout-title { color:var(--gold-ink); }
+  .lp-callout-tip .lp-callout-accent { background:linear-gradient(180deg,var(--green),#10b981); }
+  .lp-callout-tip .lp-callout-title { color:var(--green-dark); }
 
   /* ── Guided Practice block ── */
   .gp-wrap { border-radius:16px; overflow:hidden; }
@@ -9900,14 +9923,18 @@ function renderLpBlockInner(){
     return;
   }
   if(block.type==='callout'){
-    const styles = { info:{bg:'var(--blue-bg)',border:'var(--blue)',ink:'var(--blue-dark)',icon:'<svg class="icon"><use href="#i-shield"/></svg>'}, warning:{bg:'var(--gold-bg)',border:'var(--gold)',ink:'var(--gold-ink)',icon:'<svg class="icon"><use href="#i-star"/></svg>'}, tip:{bg:'var(--green-bg)',border:'var(--green)',ink:'var(--green-dark)',icon:'<svg class="icon"><use href="#i-idea"/></svg>'} };
+    const styles = {
+      info:{cls:'lp-callout-info',icon:'📐'},
+      warning:{cls:'lp-callout-warn',icon:'⚡'},
+      tip:{cls:'lp-callout-tip',icon:'💡'}
+    };
     const st = styles[block.style] || styles.info;
     slot.innerHTML = `<div class="lp-block">
-      <div style="background:${st.bg};border-left:4px solid ${st.border};border-radius:var(--radius-md);padding:1rem 1.2rem;box-shadow:var(--shadow-xs);display:flex;gap:.75rem;align-items:flex-start;">
-        <div style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:.95rem;box-shadow:var(--shadow-xs);">${st.icon}</div>
-        <div style="flex:1;min-width:0;">
-          ${block.title ? `<div style="font-weight:700;font-family:'Inter',sans-serif;margin-bottom:.3rem;color:${st.ink};letter-spacing:-.005em;">${safeHtml(block.title)}</div>` : ''}
-          <div style="line-height:1.6;">${safeHtml(block.text||'').replace(/\n/g,'<br>')}</div>
+      <div class="lp-callout ${st.cls}">
+        <div class="lp-callout-accent"></div>
+        <div class="lp-callout-body">
+          ${block.title ? `<div class="lp-callout-title">${st.icon} ${safeHtml(block.title)}</div>` : ''}
+          <div class="lp-callout-text">${safeHtml(block.text||'').replace(/\n/g,'<br>')}</div>
         </div>
       </div>
     </div>`;
@@ -16838,7 +16865,4 @@ showPage = function(page){
   })();
 </script>
 </body>
-
-
-  
 </html>
