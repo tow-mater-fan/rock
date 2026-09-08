@@ -7285,12 +7285,12 @@ function showPage(page){
     const el = document.getElementById('progress-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
     renderProgressPage();
+  }
   if(page==='notes-library'){
     if(!currentUser){ showPage('home'); return; }
     const el = document.getElementById('notes-library-page');
     el.style.display='block'; el.classList.remove('page-fade'); void el.offsetWidth; el.classList.add('page-fade');
     renderNotesLibrary();
-  }
   }
   if(page==='analytics'){
     const el = document.getElementById('analytics-page');
@@ -12359,477 +12359,690 @@ function renderLpBlockInner(){
       const bioType = block.params.type;
       const bioPrompt = block.prompt || '';
 
-      // ── bio_macro: four macromolecule slider explorer ────────────────────
+      // ── bio_macro: four macromolecule tab explorer ───────────────────────
       if(bioType==='bio_macro'){
         const macros = [
           { name:'Carbohydrates', color:'#2563eb', bg:'#dbe8fe', icon:'🍞',
-            monomer:'Monosaccharide (e.g., glucose)',
-            polymer:'Polysaccharides (starch, glycogen, cellulose)',
-            function:'Energy source; structural support (cellulose, chitin)',
-            test:'Benedict\'s → reducing sugars; Iodine → starch',
-            example:'Glucose (C₆H₁₂O₆) — your cells\' primary fuel' },
+            rows:[['Monomer','Monosaccharide (e.g., glucose, fructose)'],['Polymer','Starch, glycogen, cellulose, chitin'],['Function','Energy source; structural support'],['Lab test','Benedict\'s → brick-red (sugars); Iodine → blue-black (starch)'],['Key example','Glucose C₆H₁₂O₆ — universal cellular fuel']]},
           { name:'Lipids', color:'#dc9c34', bg:'#faf0da', icon:'🥑',
-            monomer:'Fatty acids + Glycerol',
-            polymer:'Triglycerides (fats & oils), phospholipids, steroids',
-            function:'Energy storage (9 kcal/g); membrane structure; insulation; hormones',
-            test:'Sudan IV → red/pink staining of lipid droplets',
-            example:'Phospholipid — the bilayer of your cell membrane' },
+            rows:[['Monomer','Fatty acids + glycerol'],['Polymer','Triglycerides, phospholipids, steroids'],['Function','Energy storage (9 kcal/g); cell membrane; hormones'],['Lab test','Sudan IV → red/pink staining'],['Key example','Phospholipid — the bilayer of every cell membrane']]},
           { name:'Proteins', color:'#148a5c', bg:'#e3f5ee', icon:'🥩',
-            monomer:'Amino acids (20 types)',
-            polymer:'Polypeptide chain (folds into protein)',
-            function:'Enzymes; structural proteins (collagen, keratin); transport (hemoglobin); immune defense (antibodies); hormones (insulin)',
-            test:'Biuret reagent → purple/violet',
-            example:'Hemoglobin — carries O₂ in red blood cells' },
+            rows:[['Monomer','Amino acids (20 types)'],['Polymer','Polypeptide chain → folded protein'],['Function','Enzymes, structural (collagen), transport (hemoglobin), immune (antibodies), hormones (insulin)'],['Lab test','Biuret → purple/violet'],['Key example','Hemoglobin — carries O₂ in red blood cells']]},
           { name:'Nucleic Acids', color:'#6e5ad8', bg:'#eeebfb', icon:'🧬',
-            monomer:'Nucleotide (sugar + phosphate + base)',
-            polymer:'DNA (double-stranded helix) or RNA (single-stranded)',
-            function:'DNA: stores genetic info. RNA: copies and carries genetic instructions for protein synthesis',
-            test:'No simple colorimetric test (UV absorbance used in labs)',
-            example:'DNA — your genome, ~3 billion base pairs encoding ~20,000 genes' }
+            rows:[['Monomer','Nucleotide (sugar + phosphate + base)'],['Polymer','DNA (double helix) or RNA (single strand)'],['Function','Store and transfer genetic information; direct protein synthesis'],['Lab test','UV absorbance (no simple color test)'],['Key example','DNA — ~3 billion base pairs encode ~20,000 human genes']]}
         ];
+        const uid = 'bm'+Date.now();
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;" id="bio-macro-tabs">
-            ${macros.map((m,i)=>`<button onclick="bioMacroTab(${i})" id="bmt-${i}" style="padding:.4rem 1rem;border-radius:100px;border:1.5px solid ${m.color};background:${i===0?m.color:'transparent'};color:${i===0?'#fff':m.color};font-family:'Inter',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;">${m.icon} ${m.name}</button>`).join('')}
-          </div>
-          ${macros.map((m,i)=>`<div id="bio-macro-panel-${i}" style="display:${i===0?'block':'none'};background:${m.bg};border:1.5px solid ${m.color};border-radius:16px;padding:1.25rem;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.3rem;color:${m.color};margin-bottom:.8rem;">${m.icon} ${m.name}</div>
-            <div style="display:grid;gap:.6rem;font-size:.88rem;">
-              <div><span style="font-weight:700;color:${m.color};">Monomer:</span> ${m.monomer}</div>
-              <div><span style="font-weight:700;color:${m.color};">Polymer:</span> ${m.polymer}</div>
-              <div><span style="font-weight:700;color:${m.color};">Function:</span> ${m.function}</div>
-              <div><span style="font-weight:700;color:${m.color};">Lab test:</span> ${m.test}</div>
-              <div style="background:rgba(255,255,255,.65);border-radius:10px;padding:.6rem .8rem;margin-top:.2rem;font-style:italic;">${m.example}</div>
-            </div>
-          </div>`).join('')}
-          <script>
-          window.bioMacroTab=function(i){
-            [0,1,2,3].forEach(j=>{
-              var panels=['${macros.map((_,i)=>i).join("','")}'];
-              var colors=['${macros.map(m=>m.color).join("','")}'];
-              var bgs=['${macros.map(m=>m.bg).join("','")}'];
-              var el=document.getElementById('bio-macro-panel-'+j);
-              if(el) el.style.display=j===i?'block':'none';
-              var btn=document.getElementById('bmt-'+j);
-              if(btn){btn.style.background=j===i?colors[j]:'transparent';btn.style.color=j===i?'#fff':colors[j];}
-            });
-          };
-          <\/script>
+          <div class="lp-check-q" style="margin-bottom:.9rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;" id="${uid}-tabs"></div>
+          <div id="${uid}-panel" style="border-radius:14px;padding:1rem;min-height:120px;"></div>
         </div>`;
+        const tabsEl = slot.querySelector(`#${uid}-tabs`);
+        const panelEl = slot.querySelector(`#${uid}-panel`);
+        const showMacro = i => {
+          const m = macros[i];
+          panelEl.style.background = m.bg;
+          panelEl.style.border = `2px solid ${m.color}`;
+          panelEl.innerHTML = `<div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:${m.color};margin-bottom:.75rem;">${m.icon} ${m.name}</div>
+            <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+              ${m.rows.map(([k,v])=>`<tr>
+                <td style="font-weight:700;color:${m.color};padding:.3rem .6rem .3rem 0;vertical-align:top;white-space:nowrap;width:90px;">${k}</td>
+                <td style="padding:.3rem 0;color:var(--ink);line-height:1.5;">${v}</td>
+              </tr>`).join('')}
+            </table>`;
+          tabsEl.querySelectorAll('button').forEach((b,j)=>{
+            b.style.background = j===i ? m.color : 'transparent';
+            b.style.color = j===i ? '#fff' : m.color;
+            b.style.border = `2px solid ${m.color}`;
+          });
+        };
+        macros.forEach((m,i)=>{
+          const btn = document.createElement('button');
+          btn.textContent = m.icon+' '+m.name;
+          btn.style.cssText = `padding:.4rem 1rem;border-radius:100px;border:2px solid ${m.color};color:${m.color};background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;`;
+          btn.onclick = ()=>showMacro(i);
+          tabsEl.appendChild(btn);
+        });
+        showMacro(0);
         lpSetContinueEnabled(true); return;
       }
 
-      // ── bio_labtest: macromolecule indicator tests ────────────────────────
+      // ── bio_labtest: indicator test simulator ────────────────────────────
       if(bioType==='bio_labtest'){
         const foods = ['Bread','Cheese','Olive Oil','Apple Juice','Egg White'];
-        const reagents = ['Benedict\'s','Iodine','Biuret','Sudan IV'];
+        const reagents = ["Benedict's","Iodine","Biuret","Sudan IV"];
         const results = {
-          'Bread':       ['Negative (blue)','Positive (blue-black)','Negative (blue)','Negative'],
-          'Cheese':      ['Negative','Negative (yellow)','Positive (purple)','Positive (red)'],
-          'Olive Oil':   ['Negative','Negative','Negative','Positive (red)'],
-          'Apple Juice': ['Positive (orange-red)','Negative','Negative','Negative'],
-          'Egg White':   ['Negative','Negative','Positive (purple)','Negative']
+          'Bread':       ['Neg — stays blue','POS — blue-black (starch!)','Neg — stays blue','Neg'],
+          'Cheese':      ['Neg','Neg — yellow-brown','POS — purple (protein!)','POS — red (lipid!)'],
+          'Olive Oil':   ['Neg','Neg','Neg','POS — red (lipid!)'],
+          'Apple Juice': ['POS — brick-red (sugar!)','Neg','Neg','Neg'],
+          'Egg White':   ['Neg','Neg','POS — purple (protein!)','Neg']
         };
-        const isPos = r => r.startsWith('Positive');
+        const uid = 'bl'+Date.now();
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <p style="font-size:.84rem;color:var(--ink-soft);margin-bottom:.9rem;">Select a food and a reagent to see the test result. Green = positive (macromolecule present). Red = negative (absent).</p>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;">
-            ${foods.map((f,i)=>`<button onclick="blFoodSel(${i})" id="blf-${i}" style="padding:.35rem .85rem;border-radius:100px;border:1.5px solid var(--rule);background:${i===0?'var(--ink)':'var(--white)'};color:${i===0?'#fff':'var(--ink)'};font-family:'Inter',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;">${f}</button>`).join('')}
-          </div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
-            ${reagents.map((r,i)=>`<button onclick="blReagSel(${i})" id="blr-${i}" style="padding:.35rem .85rem;border-radius:100px;border:1.5px solid var(--blue);color:var(--blue);background:transparent;font-family:'Inter',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;">${r}</button>`).join('')}
-          </div>
-          <div id="bl-result" style="min-height:60px;border-radius:14px;background:var(--paper-2);padding:1rem;font-family:'Inter',sans-serif;font-size:.9rem;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);">Select a food and a reagent above.</div>
-          <script>
-          var _blF=0,_blR=-1;
-          var _blFoods=${JSON.stringify(foods)};
-          var _blReag=${JSON.stringify(reagents)};
-          var _blRes=${JSON.stringify(results)};
-          window.blFoodSel=function(i){
-            _blF=i;
-            _blFoods.forEach((_,j)=>{var b=document.getElementById('blf-'+j);if(b){b.style.background=j===i?'var(--ink)':'var(--white)';b.style.color=j===i?'#fff':'var(--ink)';}});
-            blShow();
-          };
-          window.blReagSel=function(i){
-            _blR=i;
-            _blReag.forEach((_,j)=>{var b=document.getElementById('blr-'+j);if(b){b.style.background=j===i?'var(--blue)':'transparent';b.style.color=j===i?'#fff':'var(--blue)';}});
-            blShow();
-          };
-          function blShow(){
-            if(_blR<0){return;}
-            var food=_blFoods[_blF];var res=_blRes[food][_blR];
-            var pos=res.startsWith('Positive');
-            var el=document.getElementById('bl-result');
-            if(el){el.style.background=pos?'#e3f5ee':'#fdecec';el.style.color=pos?'#148a5c':'#d1484d';
-              el.innerHTML='<b>'+food+' + '+_blReag[_blR]+':</b> '+res+'<br><span style="font-size:.78rem;opacity:.8;">'+(pos?'✓ Macromolecule detected':'✗ Not detected')+'</span>';}
-          }
-          <\/script>
+          <div class="lp-check-q" style="margin-bottom:.65rem;">${safeHtml(bioPrompt)}</div>
+          <p style="font-size:.82rem;color:var(--ink-soft);margin-bottom:.75rem;">Select a <b>food</b> then a <b>reagent</b> to see the test result.</p>
+          <div style="margin-bottom:.55rem;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin-bottom:.4rem;">Food sample</div>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;" id="${uid}-foods"></div></div>
+          <div style="margin-bottom:.8rem;"><div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);margin-bottom:.4rem;">Reagent</div>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;" id="${uid}-reagents"></div></div>
+          <div id="${uid}-result" style="padding:.85rem 1rem;border-radius:12px;background:var(--paper-2);font-size:.88rem;font-weight:600;min-height:52px;display:flex;align-items:center;color:var(--ink-faint);">Choose a food and a reagent above.</div>
         </div>`;
+        let selFood = null, selReag = null;
+        const foodsEl = slot.querySelector(`#${uid}-foods`);
+        const reagsEl = slot.querySelector(`#${uid}-reagents`);
+        const resEl   = slot.querySelector(`#${uid}-result`);
+        const showResult = ()=>{
+          if(selFood===null || selReag===null) return;
+          const r = results[foods[selFood]][selReag];
+          const pos = r.startsWith('POS');
+          resEl.style.background = pos ? '#e3f5ee' : '#fdecec';
+          resEl.style.color = pos ? '#148a5c' : '#d1484d';
+          resEl.innerHTML = `<span style="font-size:1.1rem;margin-right:.5rem;">${pos?'✅':'❌'}</span><span><b>${foods[selFood]}</b> + <b>${reagents[selReag]}</b>: ${r}</span>`;
+        };
+        foods.forEach((f,i)=>{
+          const btn=document.createElement('button');
+          btn.textContent=f;
+          btn.style.cssText='padding:.35rem .8rem;border-radius:100px;border:1.5px solid var(--rule);background:var(--white);color:var(--ink);font-family:Inter,sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:all .15s;';
+          btn.onclick=()=>{ selFood=i; foodsEl.querySelectorAll('button').forEach((b,j)=>{b.style.background=j===i?'var(--ink)':'var(--white)';b.style.color=j===i?'#fff':'var(--ink)';}); showResult(); };
+          foodsEl.appendChild(btn);
+        });
+        reagents.forEach((r,i)=>{
+          const btn=document.createElement('button');
+          btn.textContent=r;
+          btn.style.cssText='padding:.35rem .8rem;border-radius:100px;border:1.5px solid var(--blue);color:var(--blue);background:transparent;font-family:Inter,sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:all .15s;';
+          btn.onclick=()=>{ selReag=i; reagsEl.querySelectorAll('button').forEach((b,j)=>{b.style.background=j===i?'var(--blue)':'transparent';b.style.color=j===i?'#fff':'var(--blue)';}); showResult(); };
+          reagsEl.appendChild(btn);
+        });
         lpSetContinueEnabled(true); return;
       }
 
-      // ── cell_membrane: fluid mosaic model interactive diagram ─────────────
+      // ── cell_membrane: labelled SVG diagram with tap-to-learn ────────────
       if(bioType==='cell_membrane'){
-        slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="position:relative;width:100%;max-width:620px;margin:0 auto;">
-            <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;background:linear-gradient(180deg,#e8f4fd 0%,#dbeafe 45%,#e8f4fd 100%);">
-              <!-- Extracellular fluid label -->
-              <text x="310" y="22" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#4b4f5c">Extracellular Fluid</text>
-              <!-- Intracellular fluid label -->
-              <text x="310" y="268" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#4b4f5c">Intracellular Fluid (Cytoplasm)</text>
-              <!-- Outer phospholipid layer -->
-              <g id="cm-outer">
-                ${Array.from({length:11},(_,i)=>{
-                  const x = 30 + i*55;
-                  return `<ellipse cx="${x}" cy="80" rx="14" ry="10" fill="#3b82f6" opacity=".85"/>
-                          <line x1="${x}" y1="89" x2="${x-6}" y2="120" stroke="#93c5fd" stroke-width="4" stroke-linecap="round"/>
-                          <line x1="${x}" y1="89" x2="${x+6}" y2="120" stroke="#93c5fd" stroke-width="4" stroke-linecap="round"/>`;
-                }).join('')}
-              </g>
-              <!-- Inner phospholipid layer -->
-              <g id="cm-inner">
-                ${Array.from({length:11},(_,i)=>{
-                  const x = 30 + i*55;
-                  return `<line x1="${x-6}" y1="160" x2="${x}" y2="191" stroke="#93c5fd" stroke-width="4" stroke-linecap="round"/>
-                          <line x1="${x+6}" y1="160" x2="${x}" y2="191" stroke="#93c5fd" stroke-width="4" stroke-linecap="round"/>
-                          <ellipse cx="${x}" cy="200" rx="14" ry="10" fill="#3b82f6" opacity=".85"/>`;
-                }).join('')}
-              </g>
-              <!-- Integral protein -->
-              <rect x="88" y="65" width="28" height="150" rx="8" fill="#6e5ad8" opacity=".88"/>
-              <text x="102" y="148" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">Channel</text>
-              <!-- Cholesterol molecules -->
-              <rect x="200" y="100" width="10" height="60" rx="3" fill="#dc9c34" opacity=".8"/>
-              <rect x="350" y="100" width="10" height="60" rx="3" fill="#dc9c34" opacity=".8"/>
-              <rect x="500" y="100" width="10" height="60" rx="3" fill="#dc9c34" opacity=".8"/>
-              <!-- Glycoprotein -->
-              <rect x="440" y="72" width="20" height="88" rx="6" fill="#148a5c" opacity=".85"/>
-              <path d="M445 72 Q448 50 460 40 Q470 32 480 38 Q490 44 485 55 Q478 65 460 68" stroke="#148a5c" stroke-width="3" fill="none" opacity=".8"/>
-              <circle cx="460" cy="38" r="5" fill="#e3f5ee" stroke="#148a5c" stroke-width="2"/>
-              <circle cx="480" cy="46" r="4" fill="#e3f5ee" stroke="#148a5c" stroke-width="2"/>
-              <!-- Peripheral protein -->
-              <rect x="290" y="205" width="40" height="18" rx="6" fill="#d1484d" opacity=".8"/>
-              <!-- Labels -->
-              <text x="102" y="240" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#6e5ad8" font-weight="700">Integral protein</text>
-              <text x="205" y="135" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#b47000">Cholesterol</text>
-              <text x="450" y="240" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#148a5c" font-weight="700">Glycoprotein</text>
-              <text x="310" y="235" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#d1484d" font-weight="700">Peripheral protein</text>
-              <text x="310" y="76" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#2563eb" font-weight="700">Phospholipid bilayer</text>
-              <!-- Arrows -->
-              <line x1="310" y1="79" x2="280" y2="88" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr)"/>
-            </svg>
-            <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem;justify-content:center;">
-              ${[
-                ['Phospholipid bilayer','#2563eb','Amphipathic molecules: hydrophilic heads (blue) face outward toward water; hydrophobic tails (light blue lines) face inward. Forms the basic barrier.'],
-                ['Cholesterol','#dc9c34','Steroid molecule interspersed between phospholipids (gold). Regulates membrane fluidity — prevents freezing at low temps and excess fluidity at high temps.'],
-                ['Integral protein','#6e5ad8','Spans the full membrane (purple). Acts as ion channels or carrier proteins — allows specific molecules to cross. Critical for facilitated diffusion and active transport.'],
-                ['Glycoprotein','#148a5c','Protein with carbohydrate chains on the outer surface (green). Serves as cell identity markers — enables cell-to-cell recognition and immune response.'],
-                ['Peripheral protein','#d1484d','Attached to inner membrane surface only (red). Involved in cell signaling, structural support, and anchoring the cytoskeleton.'],
-              ].map(([label,color,info])=>`<button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="padding:.3rem .75rem;border-radius:100px;background:${color};color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:.74rem;cursor:pointer;">${label}</button><div style="display:none;background:#f8fafc;border-radius:10px;padding:.55rem .8rem;font-size:.8rem;color:var(--ink);margin-bottom:.25rem;width:100%;">${info}</div>`).join('')}
-            </div>
-          </div>
-        </div>`;
-        lpSetContinueEnabled(true); return;
-      }
-
-      // ── osmosis_sim: osmosis concentration simulator ───────────────────────
-      if(bioType==='osmosis_sim'){
-        slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="max-width:560px;margin:0 auto;">
-            <div style="display:flex;gap:1rem;margin-bottom:.8rem;align-items:center;flex-wrap:wrap;">
-              <label style="font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;">Outside solute: <span id="osm-out-val">3</span>%</label>
-              <input type="range" id="osm-out" min="0" max="10" value="3" style="flex:1;" oninput="document.getElementById('osm-out-val').textContent=this.value;osmUpdate()">
-            </div>
-            <div style="display:flex;gap:1rem;margin-bottom:1rem;align-items:center;flex-wrap:wrap;">
-              <label style="font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;">Inside solute: <span id="osm-in-val">3</span>%</label>
-              <input type="range" id="osm-in" min="0" max="10" value="3" style="flex:1;" oninput="document.getElementById('osm-in-val').textContent=this.value;osmUpdate()">
-            </div>
-            <div style="position:relative;width:100%;height:200px;background:linear-gradient(90deg,#dbeafe,#e0f2fe);border-radius:16px;overflow:hidden;border:2px solid #93c5fd;">
-              <!-- Membrane -->
-              <div style="position:absolute;left:50%;top:0;bottom:0;width:6px;background:repeating-linear-gradient(180deg,#6e5ad8 0,#6e5ad8 8px,transparent 8px,transparent 16px);transform:translateX(-50%);"></div>
-              <!-- Left side -->
-              <div id="osm-left-label" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;color:#1d4ed8;text-align:center;width:40%;">Outside</div>
-              <!-- Right side -->
-              <div id="osm-right-label" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;color:#1d4ed8;text-align:center;width:40%;">Inside (cell)</div>
-              <!-- Arrow -->
-              <div id="osm-arrow" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2rem;transition:all .3s;">→</div>
-            </div>
-            <div id="osm-state" style="margin-top:.9rem;padding:.7rem 1rem;border-radius:12px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:700;text-align:center;background:var(--paper-2);"></div>
-          </div>
-          <script>
-          window.osmUpdate=function(){
-            var out=+document.getElementById('osm-out').value;
-            var inn=+document.getElementById('osm-in').value;
-            var arrow=document.getElementById('osm-arrow');
-            var state=document.getElementById('osm-state');
-            if(!arrow||!state)return;
-            var diff=out-inn;
-            if(Math.abs(diff)<0.5){
-              arrow.textContent='↔';arrow.style.color='#148a5c';
-              state.textContent='Isotonic — equal solute concentrations. No net water movement. Cell maintains normal shape.';
-              state.style.background='#e3f5ee';state.style.color='#148a5c';
-            } else if(diff>0){
-              arrow.textContent='←'; arrow.style.color='#d1484d';
-              state.textContent='Hypertonic outside — water moves OUT of the cell. Animal cell: crenation (shrinks). Plant cell: plasmolysis.';
-              state.style.background='#fdecec';state.style.color='#d1484d';
-            } else {
-              arrow.textContent='→'; arrow.style.color='#2563eb';
-              state.textContent='Hypotonic outside — water moves INTO the cell. Animal cell: swells, may burst. Plant cell: becomes turgid (firm).';
-              state.style.background='#dbe8fe';state.style.color='#1d4ed8';
-            }
-          };
-          osmUpdate();
-          <\/script>
-        </div>`;
-        lpSetContinueEnabled(true); return;
-      }
-
-      // ── animal_cell: clickable organelle diagram ───────────────────────────
-      if(bioType==='animal_cell'){
-        const organelles = [
-          {id:'ac-nuc', label:'Nucleus', color:'#2563eb', desc:'Control center of the cell. Houses DNA (genetic instructions). Surrounded by nuclear envelope with nuclear pores. Contains nucleolus (ribosome assembly site).'},
-          {id:'ac-mit', label:'Mitochondria', color:'#dc9c34', desc:'Powerhouse of the cell. Produces ATP through cellular respiration. Has double membrane; inner membrane folded into cristae to increase surface area. Contains its own DNA (endosymbiotic origin).'},
-          {id:'ac-rer', label:'Rough ER', color:'#6e5ad8', desc:'Endoplasmic reticulum studded with ribosomes. Synthesizes, folds, and modifies proteins destined for secretion or membrane insertion. Connects to nuclear envelope.'},
-          {id:'ac-ser', label:'Smooth ER', color:'#8b5cf6', desc:'Endoplasmic reticulum without ribosomes. Synthesizes lipids, metabolizes carbohydrates, and detoxifies drugs and toxins. Abundant in liver cells.'},
-          {id:'ac-gol', label:'Golgi Apparatus', color:'#148a5c', desc:'The "post office" of the cell. Receives vesicles from the rough ER, modifies, sorts, and packages proteins and lipids for secretion or delivery to other organelles. Produces lysosomes.'},
-          {id:'ac-lys', label:'Lysosome', color:'#d1484d', desc:'Membrane-bound organelle containing digestive enzymes (at pH 5). Degrades waste materials, damaged organelles (autophagy), and ingested bacteria. Called the "suicide sac" because it can destroy the cell if it ruptures.'},
-          {id:'ac-rib', label:'Ribosome', color:'#8b8fa3', desc:'Site of protein synthesis (translation). Reads mRNA and assembles amino acids into polypeptides. Found free in cytoplasm (makes cytoplasmic proteins) or on rough ER (makes secretory/membrane proteins). NOT membrane-bound.'},
-          {id:'ac-mem', label:'Cell Membrane', color:'#3b82f6', desc:'Phospholipid bilayer that encloses the cell and regulates what enters and exits. Selectively permeable. Contains proteins for transport, recognition, and signaling.'},
+        const uid = 'cm'+Date.now();
+        const parts = [
+          {id:'pl', label:'Phospholipid bilayer', color:'#2563eb', desc:'Two layers of phospholipids arranged tail-to-tail. Hydrophilic (water-loving) heads face outward; hydrophobic (water-fearing) tails face inward. This self-assembles in water — no energy needed.'},
+          {id:'ch', label:'Cholesterol', color:'#dc9c34', desc:'Steroid molecule nestled between phospholipids. Acts as a fluidity buffer — prevents the membrane freezing solid at low temperatures and becoming too fluid at high temperatures.'},
+          {id:'ip', label:'Integral protein', color:'#6e5ad8', desc:'Spans the entire membrane (transmembrane). Functions as ion channels or carrier proteins — allows specific molecules to cross the barrier that the lipid bilayer blocks.'},
+          {id:'gp', label:'Glycoprotein', color:'#148a5c', desc:'Protein with carbohydrate (sugar) chains on the outer surface. Acts as the cell\'s identity card — enables cell recognition (immune system uses these to tell self from non-self).'},
+          {id:'pp', label:'Peripheral protein', color:'#d1484d', desc:'Loosely attached to the inner membrane surface only. Involved in cell signaling, anchoring the cytoskeleton, and enzymatic activity.'},
         ];
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.85rem;">
-            ${organelles.map(o=>`<button onclick="acSelect('${o.id}')" id="btn-${o.id}" style="padding:.3rem .75rem;border-radius:100px;border:2px solid ${o.color};color:${o.color};background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:.74rem;cursor:pointer;transition:all .15s;">${o.label}</button>`).join('')}
-          </div>
-          <div id="ac-info" style="padding:.85rem 1rem;background:var(--paper-2);border-radius:12px;font-family:'Inter',sans-serif;font-size:.86rem;min-height:60px;color:var(--ink-soft);">Select an organelle above to learn about it.</div>
-          <script>
-          var _acOrgs=${JSON.stringify(organelles)};
-          window.acSelect=function(id){
-            var o=_acOrgs.find(function(x){return x.id===id;});
-            if(!o)return;
-            var info=document.getElementById('ac-info');
-            if(info){info.style.borderLeft='4px solid '+o.color;info.style.background=o.color+'18';info.innerHTML='<strong style="color:'+o.color+';">'+o.label+'</strong><br>'+o.desc;}
-            _acOrgs.forEach(function(x){var b=document.getElementById('btn-'+x.id);if(b){b.style.background=x.id===id?x.color:'transparent';b.style.color=x.id===id?'#fff':x.color;}});
-          };
-          <\/script>
+          <div class="lp-check-q" style="margin-bottom:.75rem;">${safeHtml(bioPrompt)}</div>
+          <svg viewBox="0 0 580 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;display:block;border-radius:12px;background:linear-gradient(180deg,#e8f4fd 40%,#f0fdf4 100%);cursor:pointer;">
+            <text x="290" y="18" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#4b4f5c">Extracellular</text>
+            <text x="290" y="228" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="#4b4f5c">Cytoplasm</text>
+            <!-- outer phospholipid heads -->
+            ${Array.from({length:10},(_,i)=>`<ellipse cx="${30+i*55}" cy="68" rx="13" ry="9" fill="#3b82f6" opacity=".85" class="${uid}-pl" style="cursor:pointer;"/>
+            <line x1="${30+i*55-5}" y1="76" x2="${30+i*55}" y2="102" stroke="#93c5fd" stroke-width="4" stroke-linecap="round" class="${uid}-pl" style="cursor:pointer;"/>
+            <line x1="${30+i*55+5}" y1="76" x2="${30+i*55}" y2="102" stroke="#93c5fd" stroke-width="4" stroke-linecap="round" class="${uid}-pl" style="cursor:pointer;"/>`).join('')}
+            <!-- inner phospholipid heads -->
+            ${Array.from({length:10},(_,i)=>`<line x1="${30+i*55-5}" y1="138" x2="${30+i*55}" y2="112" stroke="#93c5fd" stroke-width="4" stroke-linecap="round" class="${uid}-pl" style="cursor:pointer;"/>
+            <line x1="${30+i*55+5}" y1="138" x2="${30+i*55}" y2="112" stroke="#93c5fd" stroke-width="4" stroke-linecap="round" class="${uid}-pl" style="cursor:pointer;"/>
+            <ellipse cx="${30+i*55}" cy="147" rx="13" ry="9" fill="#3b82f6" opacity=".85" class="${uid}-pl" style="cursor:pointer;"/>`).join('')}
+            <!-- cholesterol -->
+            <rect x="172" y="82" width="10" height="52" rx="3" fill="#dc9c34" class="${uid}-ch" style="cursor:pointer;" opacity=".9"/>
+            <rect x="337" y="82" width="10" height="52" rx="3" fill="#dc9c34" class="${uid}-ch" style="cursor:pointer;" opacity=".9"/>
+            <rect x="502" y="82" width="10" height="52" rx="3" fill="#dc9c34" class="${uid}-ch" style="cursor:pointer;" opacity=".9"/>
+            <!-- integral protein -->
+            <rect x="78" y="55" width="28" height="130" rx="8" fill="#6e5ad8" class="${uid}-ip" style="cursor:pointer;" opacity=".9"/>
+            <text x="92" y="125" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="white" class="${uid}-ip" style="cursor:pointer;">Channel</text>
+            <!-- glycoprotein -->
+            <rect x="408" y="60" width="22" height="80" rx="7" fill="#148a5c" class="${uid}-gp" style="cursor:pointer;" opacity=".9"/>
+            <path d="M415 60 Q418 38 430 28 Q442 20 450 28 Q458 36 450 48" stroke="#148a5c" stroke-width="3" fill="none" class="${uid}-gp" style="cursor:pointer;"/>
+            <circle cx="430" cy="27" r="5" fill="#dcfce7" stroke="#148a5c" stroke-width="2" class="${uid}-gp" style="cursor:pointer;"/>
+            <circle cx="450" cy="35" r="4" fill="#dcfce7" stroke="#148a5c" stroke-width="2" class="${uid}-gp" style="cursor:pointer;"/>
+            <!-- peripheral protein -->
+            <rect x="255" y="154" width="44" height="16" rx="7" fill="#d1484d" class="${uid}-pp" style="cursor:pointer;" opacity=".9"/>
+            <!-- click labels -->
+            <text x="92" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#6e5ad8" font-weight="700">Integral</text>
+            <text x="177" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#dc9c34" font-weight="700">Cholesterol</text>
+            <text x="290" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#d1484d" font-weight="700">Peripheral</text>
+            <text x="419" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#148a5c" font-weight="700">Glycoprotein</text>
+            <text x="290" y="60" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="#2563eb" font-weight="700">Phospholipid bilayer ↓</text>
+          </svg>
+          <div id="${uid}-info" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:12px;background:var(--paper-2);font-size:.85rem;min-height:52px;color:var(--ink-soft);">Tap any part of the diagram to learn about it.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.65rem;" id="${uid}-btns"></div>
         </div>`;
+        const infoEl = slot.querySelector(`#${uid}-info`);
+        const btnsEl = slot.querySelector(`#${uid}-btns`);
+        const showPart = p => {
+          infoEl.style.borderLeft = `4px solid ${p.color}`;
+          infoEl.style.background = p.color+'15';
+          infoEl.innerHTML = `<b style="color:${p.color};">${p.label}</b><br>${p.desc}`;
+          btnsEl.querySelectorAll('button').forEach(b=>{ b.style.fontWeight = b.dataset.pid===p.id?'800':'600'; b.style.opacity=b.dataset.pid===p.id?'1':'.65'; });
+          slot.querySelectorAll(`[class*="${uid}-"]`).forEach(el=>{ el.style.filter='brightness(.7)'; });
+          slot.querySelectorAll(`.${uid}-${p.id}`).forEach(el=>{ el.style.filter='brightness(1.15) drop-shadow(0 0 4px '+p.color+')'; });
+        };
+        parts.forEach(p=>{
+          const btn=document.createElement('button');
+          btn.textContent=p.label; btn.dataset.pid=p.id;
+          btn.style.cssText=`padding:.28rem .7rem;border-radius:100px;border:1.5px solid ${p.color};color:${p.color};background:transparent;font-size:.73rem;font-family:Inter,sans-serif;font-weight:600;cursor:pointer;`;
+          btn.onclick=()=>showPart(p);
+          btnsEl.appendChild(btn);
+          slot.querySelectorAll(`.${uid}-${p.id}`).forEach(el=>el.addEventListener('click',()=>showPart(p)));
+        });
         lpSetContinueEnabled(true); return;
       }
 
-      // ── prok_vs_euk: comparison visual ────────────────────────────────────
+      // ── osmosis_sim: live concentration simulator ─────────────────────────
+      if(bioType==='osmosis_sim'){
+        const uid = 'os'+Date.now();
+        slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.9rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.8rem;">
+            <div>
+              <label style="font-size:.82rem;font-weight:700;font-family:Inter,sans-serif;display:block;margin-bottom:.25rem;">Outside solute: <span id="${uid}-ov" style="color:var(--blue);">3</span>%</label>
+              <input type="range" id="${uid}-out" min="0" max="10" value="3" style="width:100%;">
+            </div>
+            <div>
+              <label style="font-size:.82rem;font-weight:700;font-family:Inter,sans-serif;display:block;margin-bottom:.25rem;">Inside (cell): <span id="${uid}-iv" style="color:var(--purple);">3</span>%</label>
+              <input type="range" id="${uid}-in" min="0" max="10" value="3" style="width:100%;">
+            </div>
+          </div>
+          <div style="position:relative;height:150px;border-radius:14px;overflow:hidden;background:#e0f2fe;border:2px solid #7dd3fc;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;">
+            <div style="text-align:center;flex:1;">
+              <div id="${uid}-odots" style="font-size:1.1rem;letter-spacing:2px;"></div>
+              <div style="font-size:.72rem;font-weight:700;color:#1d4ed8;margin-top:.25rem;">Outside</div>
+            </div>
+            <!-- membrane -->
+            <div style="width:6px;height:100%;background:repeating-linear-gradient(180deg,#6e5ad8 0,#6e5ad8 10px,transparent 10px,transparent 20px);flex-shrink:0;"></div>
+            <div style="text-align:center;flex:1;">
+              <div id="${uid}-idots" style="font-size:1.1rem;letter-spacing:2px;"></div>
+              <div style="font-size:.72rem;font-weight:700;color:#1d4ed8;margin-top:.25rem;">Inside (cell)</div>
+            </div>
+            <div id="${uid}-arrow" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2rem;pointer-events:none;"></div>
+          </div>
+          <div id="${uid}-state" style="margin-top:.7rem;padding:.65rem 1rem;border-radius:12px;font-family:Inter,sans-serif;font-size:.87rem;font-weight:700;text-align:center;"></div>
+        </div>`;
+        const update = ()=>{
+          const out = +slot.querySelector(`#${uid}-out`).value;
+          const inn = +slot.querySelector(`#${uid}-in`).value;
+          slot.querySelector(`#${uid}-ov`).textContent = out;
+          slot.querySelector(`#${uid}-iv`).textContent = inn;
+          slot.querySelector(`#${uid}-odots`).textContent = '●'.repeat(out)+'○'.repeat(10-out);
+          slot.querySelector(`#${uid}-idots`).textContent = '●'.repeat(inn)+'○'.repeat(10-inn);
+          const arrow = slot.querySelector(`#${uid}-arrow`);
+          const state = slot.querySelector(`#${uid}-state`);
+          const diff = out - inn;
+          if(Math.abs(diff) < 0.5){
+            arrow.textContent=''; state.style.background='#e3f5ee'; state.style.color='#148a5c';
+            state.textContent='Isotonic — equal solute. No net water movement. Cell keeps its shape.';
+          } else if(diff > 0){
+            arrow.textContent='←'; state.style.background='#fdecec'; state.style.color='#d1484d';
+            state.textContent='Hypertonic outside → water flows OUT of cell → animal cell shrinks (crenation); plant cell undergoes plasmolysis.';
+          } else {
+            arrow.textContent='→'; state.style.background='#dbe8fe'; state.style.color='#1d4ed8';
+            state.textContent='Hypotonic outside → water flows INTO cell → animal cell swells (may burst); plant cell becomes turgid (firm).';
+          }
+        };
+        slot.querySelector(`#${uid}-out`).addEventListener('input', update);
+        slot.querySelector(`#${uid}-in`).addEventListener('input', update);
+        update();
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── animal_cell: clickable organelle explorer ─────────────────────────
+      if(bioType==='animal_cell'){
+        const uid = 'ac'+Date.now();
+        const organelles = [
+          {id:'nu', label:'Nucleus', color:'#2563eb', desc:'Control centre. Houses all the cell\'s DNA (the instructions for every protein). Surrounded by the nuclear envelope with pores for mRNA export. Contains the nucleolus — where ribosomes are assembled.'},
+          {id:'mt', label:'Mitochondria', color:'#dc9c34', desc:'Powerhouse — makes ATP via cellular respiration. Double membrane; the inner membrane folds into cristae to massively increase surface area for the electron transport chain. Has its own circular DNA (endosymbiotic origin).'},
+          {id:'re', label:'Rough ER', color:'#6e5ad8', desc:'Endoplasmic reticulum studded with ribosomes. Ribosomes on its surface synthesise proteins, which thread into the ER lumen for folding and initial modification before shipping to the Golgi.'},
+          {id:'se', label:'Smooth ER', color:'#8b5cf6', desc:'ER without ribosomes. Synthesises lipids, detoxifies drugs/alcohol (abundant in liver cells), and regulates calcium levels in muscle cells. No protein synthesis here.'},
+          {id:'go', label:'Golgi', color:'#148a5c', desc:'The "post office." Receives vesicles from rough ER, modifies and sorts proteins (adds final sugar tags), then packages them in vesicles for secretion (exocytosis) or delivery to lysosomes.'},
+          {id:'ly', label:'Lysosome', color:'#d1484d', desc:'Membrane bag of digestive enzymes (pH ~5). Destroys worn-out organelles, ingested bacteria, and cellular debris. If it ruptures it can digest the whole cell — hence "suicide sac."'},
+          {id:'ri', label:'Ribosome', color:'#64748b', desc:'Site of translation — reads mRNA and assembles amino acids into proteins. NOT membrane-bound. Free ribosomes make proteins for the cytoplasm; ribosomes on rough ER make proteins for secretion or membranes.'},
+          {id:'me', label:'Cell membrane', color:'#3b82f6', desc:'Phospholipid bilayer surrounding the entire cell. Selectively permeable — controls what enters and exits. Contains proteins for transport, signalling, and cell recognition (glycoproteins).'},
+        ];
+        slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.85rem;" id="${uid}-tabs"></div>
+          <div id="${uid}-info" style="padding:.85rem 1rem;border-radius:12px;background:var(--paper-2);font-size:.86rem;line-height:1.6;min-height:70px;color:var(--ink-soft);">Select an organelle above to learn about it.</div>
+        </div>`;
+        const tabsEl = slot.querySelector(`#${uid}-tabs`);
+        const infoEl = slot.querySelector(`#${uid}-info`);
+        organelles.forEach(o=>{
+          const btn=document.createElement('button');
+          btn.textContent=o.label;
+          btn.style.cssText=`padding:.32rem .78rem;border-radius:100px;border:2px solid ${o.color};color:${o.color};background:transparent;font-family:Inter,sans-serif;font-weight:700;font-size:.76rem;cursor:pointer;transition:all .15s;`;
+          btn.onclick=()=>{
+            infoEl.style.borderLeft=`4px solid ${o.color}`;
+            infoEl.style.background=o.color+'12';
+            infoEl.innerHTML=`<b style="color:${o.color};">${o.label}</b><br>${o.desc}`;
+            tabsEl.querySelectorAll('button').forEach(b=>{ b.style.background=b.textContent===o.label?o.color:'transparent'; b.style.color=b.textContent===o.label?'#fff':o.color; });
+          };
+          tabsEl.appendChild(btn);
+        });
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── prok_vs_euk: side-by-side comparison ─────────────────────────────
       if(bioType==='prok_vs_euk'){
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem;">
-            <div style="background:#faf0da;border:2px solid #dc9c34;border-radius:16px;padding:1.1rem;">
-              <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:#b47000;margin-bottom:.65rem;">🦠 Prokaryotic Cell</div>
-              <div style="font-size:.8rem;line-height:1.7;color:var(--ink);">
-                • No membrane-bound nucleus<br>• DNA in nucleoid region (circular)<br>• No membrane-bound organelles<br>• Ribosomes: 70S (smaller)<br>• Cell wall: peptidoglycan (bacteria)<br>• Size: 1–10 µm<br>• Examples: <em>E. coli</em>, Streptococcus<br>• Reproduction: binary fission<br>• No cytoskeleton
-              </div>
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;">
+            <div style="background:#faf0da;border:2px solid #dc9c34;border-radius:14px;padding:1rem;">
+              <div style="font-weight:700;font-size:.95rem;color:#b47000;margin-bottom:.6rem;">🦠 Prokaryote</div>
+              <ul style="margin:0;padding-left:1.1rem;font-size:.82rem;line-height:1.9;color:var(--ink);">
+                <li>NO membrane-bound nucleus</li><li>DNA = circular, in nucleoid region</li><li>NO membrane-bound organelles</li><li>Ribosomes: 70S (smaller)</li><li>Cell wall: peptidoglycan</li><li>Size: 1–10 µm</li><li>Divides by binary fission</li>
+              </ul>
             </div>
-            <div style="background:#dbe8fe;border:2px solid #2563eb;border-radius:16px;padding:1.1rem;">
-              <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:#1d4ed8;margin-bottom:.65rem;">🧬 Eukaryotic Cell</div>
-              <div style="font-size:.8rem;line-height:1.7;color:var(--ink);">
-                • True membrane-bound nucleus<br>• Linear DNA (multiple chromosomes)<br>• Membrane-bound organelles<br>• Ribosomes: 80S (larger)<br>• Cell wall: varies (cellulose/chitin/none)<br>• Size: 10–100 µm<br>• Examples: all plants, animals, fungi<br>• Reproduction: mitosis/meiosis<br>• Has cytoskeleton
-              </div>
+            <div style="background:#dbe8fe;border:2px solid #2563eb;border-radius:14px;padding:1rem;">
+              <div style="font-weight:700;font-size:.95rem;color:#1d4ed8;margin-bottom:.6rem;">🧬 Eukaryote</div>
+              <ul style="margin:0;padding-left:1.1rem;font-size:.82rem;line-height:1.9;color:var(--ink);">
+                <li>TRUE membrane-bound nucleus</li><li>DNA = linear, in chromosomes</li><li>Membrane-bound organelles</li><li>Ribosomes: 80S (larger)</li><li>Cell wall: cellulose/chitin/none</li><li>Size: 10–100 µm</li><li>Mitosis and meiosis</li>
+              </ul>
             </div>
           </div>
-          <div style="margin-top:.9rem;background:#eeebfb;border:2px solid #6e5ad8;border-radius:12px;padding:.85rem 1rem;">
-            <div style="font-weight:700;color:#6e5ad8;font-family:'Inter',sans-serif;font-size:.85rem;margin-bottom:.4rem;">🔑 Endosymbiotic Theory Evidence</div>
-            <div style="font-size:.82rem;color:var(--ink);line-height:1.65;">
-              Mitochondria &amp; chloroplasts were once free-living prokaryotes engulfed by a larger host cell:<br>
-              • Own circular DNA (like bacteria)<br>
-              • Own 70S ribosomes (like bacteria)<br>
-              • Reproduce by binary fission<br>
-              • Double membrane (outer = host membrane)
-            </div>
+          <div style="margin-top:.8rem;background:#eeebfb;border:2px solid #6e5ad8;border-radius:12px;padding:.85rem;">
+            <b style="color:#6e5ad8;font-size:.85rem;">🔑 Endosymbiotic Theory (Margulis)</b><br>
+            <span style="font-size:.82rem;line-height:1.7;color:var(--ink);">Mitochondria &amp; chloroplasts were once free-living bacteria engulfed by a larger cell. Evidence: they have their own <b>circular DNA</b>, their own <b>70S ribosomes</b>, and divide by <b>binary fission</b>.</span>
           </div>
         </div>`;
         lpSetContinueEnabled(true); return;
       }
 
-      // ── Cellular respiration stages visual ────────────────────────────────
+      // ── resp_stages: cellular respiration accordion ───────────────────────
       if(bioType==='resp_stages'){
+        const uid = 'rs'+Date.now();
+        const stages = [
+          {n:'1',title:'Glycolysis',loc:'Cytoplasm',noO2:true,color:'#2563eb',bg:'#dbe8fe',
+           bullets:['Splits 1 glucose (6C) → 2 pyruvate (3C each)','Net gain: 2 ATP + 2 NADH','No oxygen needed — happens in ALL cells','Ancient process present in nearly all life']},
+          {n:'2',title:'Pyruvate Oxidation',loc:'Mitochondrial matrix',noO2:false,color:'#dc9c34',bg:'#faf0da',
+           bullets:['Each pyruvate → Acetyl-CoA (2C) + CO₂','Produces 2 NADH per glucose total','Links glycolysis to the Krebs cycle','CO₂ released here (some of what you exhale)']},
+          {n:'3',title:'Krebs Cycle',loc:'Mitochondrial matrix',noO2:false,color:'#148a5c',bg:'#e3f5ee',
+           bullets:['Runs twice per glucose (once per acetyl-CoA)','Releases 4 CO₂, makes 2 ATP, 6 NADH, 2 FADH₂','Regenerates oxaloacetate to keep the cycle turning','NADH and FADH₂ carry energy to the ETC']},
+          {n:'4',title:'ETC + ATP Synthase',loc:'Inner mitochondrial membrane',noO2:false,color:'#6e5ad8',bg:'#eeebfb',
+           bullets:['NADH/FADH₂ donate electrons → released energy pumps H⁺','H⁺ flows back through ATP synthase → spins → makes ATP','O₂ is FINAL electron acceptor → combines with H⁺ → H₂O','Produces ~32–34 ATP — the bulk of the cell\'s energy']},
+        ];
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="display:flex;flex-direction:column;gap:.7rem;max-width:540px;margin:0 auto;">
-            ${[
-              {label:'Glycolysis',loc:'Cytoplasm',noO2:true,in:'1 Glucose',out:'2 Pyruvate + 2 ATP (net) + 2 NADH',color:'#2563eb',bg:'#dbe8fe'},
-              {label:'Pyruvate Oxidation',loc:'Mitochondrial matrix',noO2:false,in:'2 Pyruvate',out:'2 Acetyl-CoA + 2 CO₂ + 2 NADH',color:'#dc9c34',bg:'#faf0da'},
-              {label:'Krebs Cycle',loc:'Mitochondrial matrix',noO2:false,in:'2 Acetyl-CoA',out:'4 CO₂ + 2 ATP + 6 NADH + 2 FADH₂',color:'#148a5c',bg:'#e3f5ee'},
-              {label:'ETC + Oxidative Phosphorylation',loc:'Inner mitochondrial membrane',noO2:false,in:'10 NADH + 2 FADH₂ + O₂',out:'~32–34 ATP + H₂O',color:'#6e5ad8',bg:'#eeebfb'},
-            ].map((s,i)=>`
-              <div style="background:${s.bg};border:2px solid ${s.color};border-radius:14px;padding:.9rem 1.1rem;cursor:pointer;" onclick="var d=document.getElementById('rs-detail-${i}');d.style.display=d.style.display==='none'?'block':'none'">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <div>
-                    <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:.92rem;color:${s.color};">Stage ${i+1}: ${s.label}</div>
-                    <div style="font-size:.76rem;color:var(--ink-faint);">${s.loc} ${s.noO2?'· No O₂ required':''}</div>
-                  </div>
-                  <div style="font-size:1.2rem;">▾</div>
-                </div>
-                <div id="rs-detail-${i}" style="display:none;margin-top:.65rem;font-size:.82rem;line-height:1.7;border-top:1px solid ${s.color}40;padding-top:.55rem;">
-                  <div><b>Input:</b> ${s.in}</div>
-                  <div><b>Output:</b> ${s.out}</div>
-                </div>
-              </div>
-            `).join('')}
-            <div style="text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.95rem;color:var(--ink);padding:.6rem;background:var(--paper-2);border-radius:12px;">
-              Total: ~36–38 ATP per glucose molecule
-            </div>
-          </div>
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;" id="${uid}-list"></div>
+          <div style="text-align:center;padding:.6rem;background:var(--paper-2);border-radius:10px;margin-top:.5rem;font-weight:700;font-size:.88rem;color:var(--ink);">Total: ~36–38 ATP per glucose molecule</div>
         </div>`;
+        const list = slot.querySelector(`#${uid}-list`);
+        stages.forEach(s=>{
+          const wrap = document.createElement('div');
+          wrap.style.cssText=`background:${s.bg};border:2px solid ${s.color};border-radius:12px;overflow:hidden;`;
+          const hdr = document.createElement('div');
+          hdr.style.cssText='padding:.7rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;';
+          hdr.innerHTML=`<div><span style="font-weight:700;color:${s.color};font-size:.9rem;">Stage ${s.n}: ${s.title}</span><span style="font-size:.74rem;color:var(--ink-faint);margin-left:.5rem;">${s.loc}${s.noO2?' · No O₂':''}</span></div><span style="color:${s.color};">▾</span>`;
+          const body = document.createElement('div');
+          body.style.cssText='padding:0 1rem .8rem;display:none;';
+          body.innerHTML=`<ul style="margin:0;padding-left:1.1rem;font-size:.82rem;line-height:1.8;color:var(--ink);">${s.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+          hdr.onclick=()=>{ const open=body.style.display!=='none'; body.style.display=open?'none':'block'; hdr.querySelector('span:last-child').style.transform=open?'':'rotate(180deg)'; };
+          wrap.appendChild(hdr); wrap.appendChild(body);
+          list.appendChild(wrap);
+        });
         lpSetContinueEnabled(true); return;
       }
 
-      // ── ETC simulation ────────────────────────────────────────────────────
+      // ── etc_sim: ETC SVG diagram ──────────────────────────────────────────
       if(bioType==='etc_sim'){
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:14px;background:linear-gradient(180deg,#1e1040 0%,#1e3a5f 100%);">
-            <!-- Membrane -->
-            <text x="10" y="85" font-family="Inter,sans-serif" font-size="10" fill="#93c5fd" opacity=".7">Intermembrane space (high H⁺)</text>
-            <rect x="0" y="100" width="600" height="20" fill="#3b82f6" opacity=".4"/>
-            <text x="10" y="175" font-family="Inter,sans-serif" font-size="10" fill="#93c5fd" opacity=".7">Matrix (low H⁺)</text>
+          <div class="lp-check-q" style="margin-bottom:.75rem;">${safeHtml(bioPrompt)}</div>
+          <svg viewBox="0 0 580 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px;display:block;margin:0 auto;border-radius:14px;background:linear-gradient(180deg,#0f172a 0%,#1e3a5f 100%);">
+            <text x="20" y="30" font-family="Inter,sans-serif" font-size="9.5" fill="#93c5fd">Intermembrane space — HIGH H⁺</text>
+            <rect x="0" y="90" width="580" height="18" fill="#3b82f6" opacity=".35"/>
+            <text x="20" y="175" font-family="Inter,sans-serif" font-size="9.5" fill="#93c5fd">Mitochondrial matrix — LOW H⁺</text>
             <!-- Complex I -->
-            <rect x="40" y="80" width="60" height="60" rx="8" fill="#6e5ad8"/>
-            <text x="70" y="107" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">Complex</text>
-            <text x="70" y="118" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">I</text>
-            <text x="70" y="133" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#c4b5fd">NADH→NAD⁺</text>
-            <!-- Arrow along membrane -->
-            <path d="M110 113 L180 113" stroke="#fbbf24" stroke-width="3" marker-end="url(#etcarr)" stroke-dasharray="6,3"/>
+            <rect x="30" y="68" width="68" height="72" rx="8" fill="#6e5ad8"/>
+            <text x="64" y="96" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="white" font-weight="700">Complex I</text>
+            <text x="64" y="110" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#c4b5fd">NADH→NAD⁺</text>
+            <text x="64" y="58" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#fbbf24">H⁺↑</text>
+            <!-- electron carrier -->
+            <path d="M100 104 L165 104" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5,3"/>
+            <text x="133" y="98" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" fill="#fbbf24">e⁻</text>
             <!-- Complex III -->
-            <rect x="185" y="80" width="60" height="60" rx="8" fill="#6e5ad8"/>
-            <text x="215" y="107" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">Complex</text>
-            <text x="215" y="118" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">III</text>
-            <!-- Arrow -->
-            <path d="M255 113 L325 113" stroke="#fbbf24" stroke-width="3" stroke-dasharray="6,3"/>
+            <rect x="168" y="68" width="68" height="72" rx="8" fill="#6e5ad8"/>
+            <text x="202" y="96" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="white" font-weight="700">Complex III</text>
+            <text x="202" y="58" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#fbbf24">H⁺↑</text>
+            <path d="M238 104 L303 104" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5,3"/>
+            <text x="270" y="98" text-anchor="middle" font-family="Inter,sans-serif" font-size="7.5" fill="#fbbf24">e⁻</text>
             <!-- Complex IV -->
-            <rect x="330" y="80" width="60" height="60" rx="8" fill="#6e5ad8"/>
-            <text x="360" y="107" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">Complex</text>
-            <text x="360" y="118" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">IV</text>
-            <text x="360" y="133" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#c4b5fd">O₂→H₂O</text>
-            <!-- H+ arrows pumping up -->
-            <text x="70" y="70" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#fbbf24">H⁺↑</text>
-            <text x="215" y="70" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#fbbf24">H⁺↑</text>
-            <text x="360" y="70" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#fbbf24">H⁺↑</text>
+            <rect x="306" y="68" width="68" height="72" rx="8" fill="#6e5ad8"/>
+            <text x="340" y="96" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="white" font-weight="700">Complex IV</text>
+            <text x="340" y="110" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#c4b5fd">O₂→H₂O</text>
+            <text x="340" y="58" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#fbbf24">H⁺↑</text>
             <!-- ATP Synthase -->
-            <rect x="470" y="75" width="70" height="100" rx="10" fill="#148a5c"/>
-            <text x="505" y="108" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white" font-weight="700">ATP</text>
-            <text x="505" y="120" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white" font-weight="700">Synthase</text>
-            <text x="505" y="136" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white">ADP+Pi</text>
-            <text x="505" y="150" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#86efac">→ ATP</text>
-            <!-- H+ flowing down through synthase -->
-            <text x="505" y="72" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="#fbbf24">H⁺↓</text>
-            <!-- O2 final acceptor -->
-            <text x="410" y="140" font-family="Inter,sans-serif" font-size="10" fill="#fca5a5">O₂+4H⁺→2H₂O</text>
-            <defs><marker id="etcarr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0,0 8,4 0,8" fill="#fbbf24"/></marker></defs>
+            <rect x="450" y="55" width="72" height="108" rx="10" fill="#148a5c"/>
+            <text x="486" y="88" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white" font-weight="700">ATP</text>
+            <text x="486" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="white" font-weight="700">Synthase</text>
+            <text x="486" y="116" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#86efac">ADP+P→ATP</text>
+            <text x="486" y="46" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" fill="#fbbf24">H⁺↓</text>
+            <text x="486" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#86efac" font-weight="700">~32–34 ATP</text>
+            <!-- O2 label -->
+            <text x="395" y="148" font-family="Inter,sans-serif" font-size="9" fill="#fca5a5">O₂ + 4H⁺ → 2H₂O</text>
           </svg>
-          <p style="text-align:center;font-size:.8rem;color:var(--ink-soft);margin-top:.7rem;">H⁺ ions pumped into the intermembrane space flow back through ATP synthase, driving ATP production. O₂ is the final electron acceptor → water.</p>
+          <p style="font-size:.8rem;color:var(--ink-soft);margin-top:.65rem;text-align:center;">Electrons from NADH/FADH₂ flow through the complexes, pumping H⁺ into the intermembrane space. H⁺ flows back through ATP synthase, driving ATP production. O₂ accepts the final electrons → water.</p>
         </div>`;
         lpSetContinueEnabled(true); return;
       }
 
-      // ── Photosynthesis sim ────────────────────────────────────────────────
+      // ── photosynthesis_sim: two-slider rate sim ───────────────────────────
       if(bioType==='photosynthesis_sim'){
+        const uid = 'ps'+Date.now();
         slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <div style="max-width:560px;margin:0 auto;">
-            <div style="display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap;">
-              <div style="flex:1;min-width:140px;">
-                <label style="font-size:.8rem;font-weight:700;font-family:'Inter',sans-serif;">💡 Light intensity: <span id="ps-li-val">5</span></label>
-                <input type="range" id="ps-li" min="0" max="10" value="5" style="width:100%;" oninput="document.getElementById('ps-li-val').textContent=this.value;psUpdate()">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="background:linear-gradient(135deg,#14532d,#166534);border-radius:14px;padding:1.1rem;color:white;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.85rem;">
+              <div><label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.3rem;">💡 Light: <span id="${uid}-lv">5</span>/10</label>
+                <input type="range" id="${uid}-l" min="0" max="10" value="5" style="width:100%;accent-color:#fbbf24;"></div>
+              <div><label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.3rem;">🌬️ CO₂: <span id="${uid}-cv">5</span>/10</label>
+                <input type="range" id="${uid}-c" min="0" max="10" value="5" style="width:100%;accent-color:#86efac;"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;font-size:.8rem;">
+              <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:.65rem;">
+                <div style="font-weight:700;margin-bottom:.4rem;font-size:.82rem;">☀️ Light Reactions (thylakoid)</div>
+                <div id="${uid}-lr">O₂ released: ●●●●●○○○○○<br>ATP/NADPH: ●●●●●○○○○○</div>
               </div>
-              <div style="flex:1;min-width:140px;">
-                <label style="font-size:.8rem;font-weight:700;font-family:'Inter',sans-serif;">🌬️ CO₂ level: <span id="ps-co2-val">5</span></label>
-                <input type="range" id="ps-co2" min="0" max="10" value="5" style="width:100%;" oninput="document.getElementById('ps-co2-val').textContent=this.value;psUpdate()">
+              <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:.65rem;">
+                <div style="font-weight:700;margin-bottom:.4rem;font-size:.82rem;">🌿 Calvin Cycle (stroma)</div>
+                <div id="${uid}-cc">CO₂ fixed: ●●●●●○○○○○<br>G3P/Glucose: ●●●●●○○○○○</div>
               </div>
             </div>
-            <div style="background:linear-gradient(135deg,#166534,#15803d);border-radius:16px;padding:1.1rem;color:white;font-family:'Inter',sans-serif;">
-              <div style="font-weight:700;font-size:.9rem;margin-bottom:.7rem;">🍃 Chloroplast Activity</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;font-size:.8rem;">
-                <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:.55rem;">
-                  <div style="font-weight:700;margin-bottom:.25rem;">Light Reactions (thylakoid)</div>
-                  <div id="ps-lr">O₂ produced: ●●●●●<br>ATP made: ●●●●●<br>NADPH made: ●●●●●</div>
-                </div>
-                <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:.55rem;">
-                  <div style="font-weight:700;margin-bottom:.25rem;">Calvin Cycle (stroma)</div>
-                  <div id="ps-cc">CO₂ fixed: ●●●●●<br>G3P produced: ●●●●●<br>Glucose rate: ●●●●●</div>
-                </div>
-              </div>
-              <div id="ps-rate" style="margin-top:.7rem;text-align:center;font-weight:700;font-size:.95rem;">Photosynthesis rate: 5/10</div>
-            </div>
+            <div id="${uid}-rate" style="text-align:center;font-weight:700;font-size:.95rem;margin-top:.75rem;"></div>
           </div>
-          <script>
-          window.psUpdate=function(){
-            var li=+document.getElementById('ps-li').value;
-            var co2=+document.getElementById('ps-co2').value;
-            var rate=Math.min(li,co2);
-            var dots=function(n){return '●'.repeat(n)+'○'.repeat(10-n);};
-            var lr=document.getElementById('ps-lr');
-            var cc=document.getElementById('ps-cc');
-            var rs=document.getElementById('ps-rate');
-            if(lr) lr.innerHTML='O\u2082 produced: '+dots(li)+'<br>ATP made: '+dots(li)+'<br>NADPH made: '+dots(li);
-            if(cc) cc.innerHTML='CO\u2082 fixed: '+dots(co2)+'<br>G3P produced: '+dots(rate)+'<br>Glucose rate: '+dots(rate);
-            if(rs) rs.textContent='Photosynthesis rate: '+rate+'/10'+(rate<Math.max(li,co2)?' (limited by '+(li<co2?'light)':'CO\u2082)'):'');
-          };
-          psUpdate();
-          <\/script>
         </div>`;
+        const update = ()=>{
+          const l=+slot.querySelector(`#${uid}-l`).value, c=+slot.querySelector(`#${uid}-c`).value;
+          slot.querySelector(`#${uid}-lv`).textContent=l; slot.querySelector(`#${uid}-cv`).textContent=c;
+          const rate=Math.min(l,c);
+          const d=n=>'●'.repeat(n)+'○'.repeat(10-n);
+          slot.querySelector(`#${uid}-lr`).innerHTML=`O₂ released: ${d(l)}<br>ATP/NADPH: ${d(l)}`;
+          slot.querySelector(`#${uid}-cc`).innerHTML=`CO₂ fixed: ${d(c)}<br>G3P/Glucose: ${d(rate)}`;
+          const lim = rate<Math.max(l,c) ? ` (limited by ${l<c?'light':'CO₂'})` : '';
+          slot.querySelector(`#${uid}-rate`).textContent=`Overall rate: ${rate}/10${lim}`;
+        };
+        slot.querySelector(`#${uid}-l`).addEventListener('input',update);
+        slot.querySelector(`#${uid}-c`).addEventListener('input',update);
+        update();
         lpSetContinueEnabled(true); return;
       }
 
-      // ── taxonomy_sort: drag into hierarchy ────────────────────────────────
+      // ── taxonomy_sort: hierarchy display ─────────────────────────────────
       if(bioType==='taxonomy_sort'){
-        const levels = ['Domain','Kingdom','Phylum','Class','Order','Family','Genus','Species'];
-        const example = ['Eukarya','Animalia','Chordata','Mammalia','Primates','Hominidae','Homo','sapiens'];
-        slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;">
-          <div class="lp-check-q">${safeHtml(bioPrompt)}</div>
-          <p style="font-size:.83rem;color:var(--ink-soft);margin-bottom:.85rem;">The classification of <em>Homo sapiens</em> (humans) from broadest to most specific:</p>
-          <div style="display:flex;flex-direction:column;gap:.4rem;max-width:400px;margin:0 auto;">
-            ${levels.map((l,i)=>`
-              <div style="display:flex;align-items:center;gap:.6rem;">
-                <div style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--ink-faint);width:70px;text-align:right;">${l}</div>
-                <div style="flex:1;padding:.45rem .85rem;border-radius:10px;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;
-                  background:hsl(${220+i*10}deg,${70-i*5}%,${90-i*3}%);border:1.5px solid hsl(${220+i*10}deg,${50-i*4}%,${70-i*4}%);
-                  color:hsl(${220+i*10}deg,60%,${30-i*2}%);">
-                  ${example[i]}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-          <p style="text-align:center;font-size:.78rem;color:var(--ink-faint);margin-top:.85rem;">Mnemonic: <strong>D</strong>id <strong>K</strong>ing <strong>P</strong>hilip <strong>C</strong>ome <strong>O</strong>ver <strong>F</strong>or <strong>G</strong>ood <strong>S</strong>oup?</p>
+        const levels=['Domain','Kingdom','Phylum','Class','Order','Family','Genus','Species'];
+        const eg=['Eukarya','Animalia','Chordata','Mammalia','Primates','Hominidae','Homo','sapiens'];
+        const wide=['Domain — broadest; 3 exist (Bacteria, Archaea, Eukarya)','Kingdom — 6 kingdoms','Phylum — major body plan','Class','Order','Family','Genus','Species — narrowest; can interbreed'];
+        const uid='ts'+Date.now();
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <p style="font-size:.82rem;color:var(--ink-soft);margin-bottom:.85rem;">Tap any level to see what it means. Showing: <em>Homo sapiens</em></p>
+          <div style="display:flex;flex-direction:column;gap:.35rem;max-width:480px;margin:0 auto;" id="${uid}-list"></div>
+          <div style="text-align:center;font-size:.78rem;color:var(--ink-faint);margin-top:.85rem;font-family:Inter,sans-serif;"><b>Mnemonic:</b> <b>D</b>id <b>K</b>ing <b>P</b>hilip <b>C</b>ome <b>O</b>ver <b>F</b>or <b>G</b>ood <b>S</b>oup?</div>
+          <div id="${uid}-info" style="margin-top:.6rem;padding:.65rem .9rem;border-radius:10px;background:var(--paper-2);font-size:.82rem;display:none;color:var(--ink);"></div>
         </div>`;
+        const listEl=slot.querySelector(`#${uid}-list`), infoEl=slot.querySelector(`#${uid}-info`);
+        levels.forEach((l,i)=>{
+          const hue=220+i*8;
+          const row=document.createElement('div');
+          row.style.cssText=`display:flex;align-items:center;gap:.65rem;cursor:pointer;padding:.35rem .65rem;border-radius:10px;transition:background .15s;`;
+          row.innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--ink-faint);width:62px;text-align:right;flex-shrink:0;">${l}</div>
+            <div style="flex:1;padding:.38rem .8rem;border-radius:8px;font-family:Inter,sans-serif;font-weight:700;font-size:.87rem;
+              background:hsl(${hue}deg,65%,${90-i*3}%);border:1.5px solid hsl(${hue}deg,50%,${72-i*3}%);color:hsl(${hue}deg,55%,${28-i*2}%);">${eg[i]}</div>`;
+          row.addEventListener('click',()=>{
+            infoEl.style.display='block';
+            infoEl.innerHTML=`<b style="color:hsl(${hue}deg,55%,32%);">${l}: ${eg[i]}</b> — ${wide[i]}`;
+            listEl.querySelectorAll('div').forEach(r=>r.style.background='transparent');
+            row.style.background=`hsl(${hue}deg,60%,95%)`;
+          });
+          listEl.appendChild(row);
+        });
         lpSetContinueEnabled(true); return;
       }
 
-      // ── micro_kingdom, plant_evo, animal_phylo, natural_selection_sim, evo_evidence, popgen_sim, dna_builder, protein_synth, punnett_mono, blood_type_cross, cell_division, digestive_sys, circulatory_flow, action_potential, immune_sim ──
-      // For all remaining biology describe types, render an informative rich card
+      // ── natural_selection_sim: population allele frequency sim ────────────
+      if(bioType==='natural_selection_sim'){
+        const uid='ns'+Date.now();
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="background:linear-gradient(135deg,#1e3a5f,#14532d);border-radius:14px;padding:1.1rem;color:white;">
+            <div style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:.85rem;">
+              <div><label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.25rem;">🎯 Selection strength for trait A: <span id="${uid}-sv">5</span>/10</label>
+                <input type="range" id="${uid}-s" min="0" max="10" value="5" style="width:100%;accent-color:#fbbf24;"></div>
+              <div><label style="font-size:.8rem;font-weight:700;display:block;margin-bottom:.25rem;">👥 Starting frequency of allele A: <span id="${uid}-fv">50</span>%</label>
+                <input type="range" id="${uid}-f" min="5" max="95" value="50" style="width:100%;accent-color:#86efac;"></div>
+            </div>
+            <div id="${uid}-bars" style="font-size:.82rem;"></div>
+            <div id="${uid}-msg" style="margin-top:.65rem;font-size:.82rem;font-style:italic;color:rgba(255,255,255,.75);"></div>
+          </div>
+        </div>`;
+        const update=()=>{
+          const s=+slot.querySelector(`#${uid}-s`).value, f=+slot.querySelector(`#${uid}-f`).value;
+          slot.querySelector(`#${uid}-sv`).textContent=s; slot.querySelector(`#${uid}-fv`).textContent=f;
+          const gens=[0,5,10,20];
+          const freq=gen=>Math.min(99,Math.round(f+(100-f)*s/10*(1-Math.exp(-gen*s/80))));
+          const bars=slot.querySelector(`#${uid}-bars`);
+          bars.innerHTML=gens.map(g=>{const pct=freq(g);return`<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem;">
+            <span style="width:50px;font-size:.76rem;text-align:right;color:rgba(255,255,255,.6);">Gen ${g}</span>
+            <div style="flex:1;height:16px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:8px;transition:width .4s;"></div>
+            </div>
+            <span style="width:36px;font-size:.76rem;font-weight:700;color:#fbbf24;">${pct}%</span>
+          </div>`;}).join('');
+          const msg=s===0?'No selection — allele frequency stays the same (genetic drift only).':s<4?'Weak selection — slow change over many generations.':s<7?'Moderate selection — noticeable change within 20 generations.':'Strong selection — rapid spread of advantageous allele.';
+          slot.querySelector(`#${uid}-msg`).textContent=msg;
+        };
+        slot.querySelector(`#${uid}-s`).addEventListener('input',update);
+        slot.querySelector(`#${uid}-f`).addEventListener('input',update);
+        update();
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── dna_builder: base pair explorer ──────────────────────────────────
+      if(bioType==='dna_builder'){
+        const uid='db'+Date.now();
+        const bases={A:{pair:'T',color:'#2563eb',pColor:'#dc9c34',bonds:2},T:{pair:'A',color:'#dc9c34',pColor:'#2563eb',bonds:2},G:{pair:'C',color:'#148a5c',pColor:'#d1484d',bonds:3},C:{pair:'G',color:'#d1484d',pColor:'#148a5c',bonds:3}};
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <p style="font-size:.82rem;color:var(--ink-soft);margin-bottom:.75rem;">Click bases on the <b>template strand</b> to build the complement. A pairs with T (2 H-bonds); G pairs with C (3 H-bonds).</p>
+          <div style="display:flex;flex-direction:column;gap:.4rem;max-width:440px;margin:0 auto;" id="${uid}-pairs"></div>
+          <div id="${uid}-info" style="margin-top:.75rem;padding:.65rem 1rem;border-radius:10px;background:var(--paper-2);font-size:.84rem;color:var(--ink-soft);">Select a base on the left strand to see its complement.</div>
+        </div>`;
+        const template=['A','T','G','C','G','A','T','C'];
+        const pairsEl=slot.querySelector(`#${uid}-pairs`), infoEl=slot.querySelector(`#${uid}-info`);
+        template.forEach((b,i)=>{
+          const info=bases[b]; const row=document.createElement('div');
+          row.style.cssText='display:flex;align-items:center;gap:.5rem;';
+          row.innerHTML=`<button id="${uid}-b${i}" style="width:44px;height:36px;border-radius:8px;border:2px solid ${info.color};background:${info.color}22;color:${info.color};font-weight:800;font-family:'IBM Plex Mono',monospace;cursor:pointer;font-size:1rem;">${b}</button>
+            <div style="flex:1;height:4px;background:var(--rule);position:relative;" id="${uid}-line${i}"><div id="${uid}-bonds${i}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--ink-faint);"></div></div>
+            <div id="${uid}-comp${i}" style="width:44px;height:36px;border-radius:8px;border:2px dashed var(--rule);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:1rem;color:var(--ink-faint);">?</div>`;
+          row.querySelector(`#${uid}-b${i}`).addEventListener('click',()=>{
+            const comp=row.querySelector(`#${uid}-comp${i}`);
+            comp.textContent=info.pair; comp.style.border=`2px solid ${info.pColor}`; comp.style.background=`${info.pColor}22`; comp.style.color=info.pColor;
+            const bondsEl=row.querySelector(`#${uid}-bonds${i}`);
+            bondsEl.textContent='|'.repeat(info.bonds); bondsEl.style.color=info.bonds===3?'#148a5c':'#2563eb';
+            row.querySelector(`#${uid}-line${i}`).style.background=info.bonds===3?'#148a5c':'#2563eb';
+            infoEl.style.borderLeft=`3px solid ${info.color}`;
+            infoEl.innerHTML=`<b style="color:${info.color};">${b}</b> pairs with <b style="color:${info.pColor};">${info.pair}</b> — ${info.bonds} hydrogen bonds. ${info.bonds===3?'G-C pairs are stronger (3 bonds); higher G-C content = higher melting temperature.':'A-T pairs have 2 H-bonds; easier to separate during replication/transcription.'}`;
+          });
+          pairsEl.appendChild(row);
+        });
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── protein_synth: transcription + translation stepper ────────────────
+      if(bioType==='protein_synth'){
+        const uid='pr'+Date.now();
+        const codonTable={AUG:'Met (Start)',UUU:'Phe',UUC:'Phe',UUA:'Leu',UUG:'Leu',UCU:'Ser',UCC:'Ser',UCA:'Ser',UCG:'Ser',UAU:'Tyr',UAC:'Tyr',UAA:'STOP',UAG:'STOP',UGU:'Cys',UGC:'Cys',UGA:'STOP',UGG:'Trp',CUU:'Leu',CUC:'Leu',CUA:'Leu',CUG:'Leu',CCU:'Pro',CCC:'Pro',CCA:'Pro',CCG:'Pro',CAU:'His',CAC:'His',CAA:'Gln',CAG:'Gln',CGU:'Arg',CGC:'Arg',CGA:'Arg',CGG:'Arg',AUU:'Ile',AUC:'Ile',AUA:'Ile',ACU:'Thr',ACC:'Thr',ACA:'Thr',ACG:'Thr',AAU:'Asn',AAC:'Asn',AAA:'Lys',AAG:'Lys',AGU:'Ser',AGC:'Ser',AGA:'Arg',AGG:'Arg',GUU:'Val',GUC:'Val',GUA:'Val',GUG:'Val',GCU:'Ala',GCC:'Ala',GCA:'Ala',GCG:'Ala',GAU:'Asp',GAC:'Asp',GAA:'Glu',GAG:'Glu',GGU:'Gly',GGC:'Gly',GGA:'Gly',GGG:'Gly'};
+        const template='TACGAACCGATG'; // DNA template → AUG CUU GGC UAC (met-leu-gly-tyr)
+        const mRNA=template.split('').map(b=>({T:'A',A:'U',C:'G',G:'C'}[b])).join('');
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.8rem;">
+            <div style="background:#dbe8fe;border:2px solid #2563eb;border-radius:12px;padding:.85rem;">
+              <div style="font-weight:700;font-size:.82rem;color:#1d4ed8;margin-bottom:.4rem;">📍 DNA template strand (3'→5')</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.95rem;letter-spacing:2px;color:var(--ink);">${template}</div>
+            </div>
+            <div style="background:#e3f5ee;border:2px solid #148a5c;border-radius:12px;padding:.85rem;">
+              <div style="font-weight:700;font-size:.82rem;color:#148a5c;margin-bottom:.4rem;">📤 mRNA produced (5'→3')</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.95rem;letter-spacing:2px;color:var(--ink);">${mRNA}</div>
+            </div>
+          </div>
+          <div style="font-size:.82rem;color:var(--ink-soft);margin-bottom:.75rem;">Codons (3 bases each): <span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ink);">${mRNA.match(/.{1,3}/g).join(' ')}</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem;" id="${uid}-codons"></div>
+          <div id="${uid}-result" style="padding:.75rem 1rem;border-radius:12px;background:var(--paper-2);font-size:.85rem;min-height:52px;color:var(--ink-soft);">Click a codon to see which amino acid it codes for.</div>
+          <div style="margin-top:.65rem;font-size:.78rem;color:var(--ink-faint);">Remember: A-U-G is ALWAYS the start codon (Met). U-A-A, U-A-G, U-G-A are STOP codons — no amino acid added.</div>
+        </div>`;
+        const codons=mRNA.match(/.{1,3}/g)||[];
+        const codonsEl=slot.querySelector(`#${uid}-codons`), resEl=slot.querySelector(`#${uid}-result`);
+        const colors=['#2563eb','#148a5c','#6e5ad8','#dc9c34'];
+        codons.forEach((c,i)=>{
+          const btn=document.createElement('button');
+          const aa=codonTable[c]||'?'; const isStop=aa==='STOP'; const isStart=c==='AUG';
+          btn.textContent=c; btn.style.cssText=`padding:.38rem .8rem;border-radius:8px;border:2px solid ${colors[i%colors.length]};background:${colors[i%colors.length]}18;color:${colors[i%colors.length]};font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.88rem;cursor:pointer;`;
+          btn.onclick=()=>{
+            resEl.style.borderLeft=`3px solid ${colors[i%colors.length]}`;
+            resEl.innerHTML=`Codon <b style="color:${colors[i%colors.length]};">${c}</b> → <b>${aa}</b>${isStart?' 🟢 START codon — translation begins here':''}${isStop?' 🔴 STOP codon — ribosome releases the protein':''}<br><span style="font-size:.78rem;color:var(--ink-faint);">Each codon = 3 mRNA bases → 1 amino acid. The genetic code is the same in almost ALL life on Earth.</span>`;
+          };
+          codonsEl.appendChild(btn);
+        });
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── punnett_mono: interactive Punnett square ──────────────────────────
+      if(bioType==='punnett_mono'){
+        const uid='pu'+Date.now();
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.85rem;">
+            <div><label style="font-size:.82rem;font-weight:700;font-family:Inter,sans-serif;">Parent 1 genotype</label><br>
+              <select id="${uid}-p1" style="margin-top:.25rem;padding:.4rem .65rem;border-radius:8px;border:1.5px solid var(--rule);font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.95rem;background:var(--white);">
+                <option>BB</option><option selected>Bb</option><option>bb</option></select></div>
+            <div><label style="font-size:.82rem;font-weight:700;font-family:Inter,sans-serif;">Parent 2 genotype</label><br>
+              <select id="${uid}-p2" style="margin-top:.25rem;padding:.4rem .65rem;border-radius:8px;border:1.5px solid var(--rule);font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.95rem;background:var(--white);">
+                <option>BB</option><option selected>Bb</option><option>bb</option></select></div>
+          </div>
+          <div id="${uid}-grid" style="max-width:320px;"></div>
+          <div id="${uid}-ratios" style="margin-top:.75rem;padding:.65rem 1rem;border-radius:10px;background:var(--paper-2);font-size:.85rem;color:var(--ink);"></div>
+        </div>`;
+        const gametes=g=>g==='BB'?['B','B']:g==='Bb'?['B','b']:['b','b'];
+        const update=()=>{
+          const p1=slot.querySelector(`#${uid}-p1`).value, p2=slot.querySelector(`#${uid}-p2`).value;
+          const g1=gametes(p1), g2=gametes(p2);
+          const cells=[];
+          for(let a of g1) for(let b of g2){ const gt=[a,b].sort().join(''); cells.push({gt,dom:gt!=='bb'}); }
+          const dom=cells.filter(c=>c.dom).length, rec=cells.filter(c=>!c.dom).length;
+          const BB=cells.filter(c=>c.gt==='BB').length, Bb=cells.filter(c=>c.gt==='Bb').length, bb=cells.filter(c=>c.gt==='bb').length;
+          slot.querySelector(`#${uid}-grid`).innerHTML=`<table style="border-collapse:collapse;font-family:'IBM Plex Mono',monospace;">
+            <tr><td style="padding:.5rem;"></td><td style="padding:.5rem;text-align:center;font-weight:700;color:#2563eb;">${g2[0]}</td><td style="padding:.5rem;text-align:center;font-weight:700;color:#2563eb;">${g2[1]}</td></tr>
+            ${g1.map(a=>`<tr><td style="padding:.5rem;font-weight:700;color:#2563eb;">${a}</td>
+              ${g2.map(b=>{const gt=[a,b].sort().join('');const dom=gt!=='bb';return`<td style="padding:.65rem .9rem;border:2px solid var(--rule);border-radius:6px;text-align:center;font-weight:700;font-size:.95rem;background:${dom?'#dbe8fe':'#faf0da'};color:${dom?'#1d4ed8':'#b47000'};">${gt}</td>`;}).join('')}</tr>`).join('')}
+          </table>`;
+          slot.querySelector(`#${uid}-ratios`).innerHTML=`<b>Genotypic ratio:</b> BB:Bb:bb = ${BB}:${Bb}:${bb}<br><b>Phenotypic ratio:</b> Dominant (B_) : Recessive (bb) = ${dom}:${rec}<br><span style="font-size:.78rem;color:var(--ink-faint);">B = dominant allele (uppercase). Any cell with at least one B shows the dominant phenotype.</span>`;
+        };
+        slot.querySelector(`#${uid}-p1`).addEventListener('change',update);
+        slot.querySelector(`#${uid}-p2`).addEventListener('change',update);
+        update();
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── blood_type_cross: ABO blood type cross ────────────────────────────
+      if(bioType==='blood_type_cross'){
+        const uid='bt'+Date.now();
+        const alleles={'Type A':['IA','IA'],'Type A (carrier)':['IA','i'],'Type B':['IB','IB'],'Type B (carrier)':['IB','i'],'Type AB':['IA','IB'],'Type O':['i','i']};
+        const pheno=gt=>{if(gt.includes('IA')&&gt.includes('IB'))return'AB';if(gt.includes('IA'))return'A';if(gt.includes('IB'))return'B';return'O';};
+        const colors={A:'#2563eb',B:'#d1484d',AB:'#6e5ad8',O:'#148a5c'};
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:.85rem;">
+            <div><label style="font-size:.82rem;font-weight:700;">Parent 1</label><br>
+              <select id="${uid}-p1" style="margin-top:.25rem;padding:.4rem .65rem;border-radius:8px;border:1.5px solid var(--rule);font-size:.85rem;background:var(--white);">
+                ${Object.keys(alleles).map(k=>`<option>${k}</option>`).join('')}</select></div>
+            <div><label style="font-size:.82rem;font-weight:700;">Parent 2</label><br>
+              <select id="${uid}-p2" style="margin-top:.25rem;padding:.4rem .65rem;border-radius:8px;border:1.5px solid var(--rule);font-size:.85rem;background:var(--white);">
+                ${Object.keys(alleles).map((k,i)=>`<option${i===5?' selected':''}>${k}</option>`).join('')}</select></div>
+          </div>
+          <div id="${uid}-out" style="font-size:.85rem;"></div>
+        </div>`;
+        const update=()=>{
+          const p1=alleles[slot.querySelector(`#${uid}-p1`).value], p2=alleles[slot.querySelector(`#${uid}-p2`).value];
+          const results=[];
+          for(const a of p1) for(const b of p2){ results.push([a,b].sort((x,y)=>x==='IA'?-1:x==='IB'&&y!=='IA'?-1:1)); }
+          const out=slot.querySelector(`#${uid}-out`);
+          const counts={A:0,B:0,AB:0,O:0};
+          results.forEach(r=>counts[pheno(r)]++);
+          out.innerHTML=`<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.65rem;">
+            ${results.map(r=>{const p=pheno(r);const c=colors[p];return`<div style="padding:.35rem .7rem;border-radius:8px;border:2px solid ${c};background:${c}18;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.82rem;color:${c};">${r.join('')}<br><span style="font-size:.74rem;">Type ${p}</span></div>`;}).join('')}
+          </div>
+          <div style="font-size:.82rem;color:var(--ink);">${Object.entries(counts).filter(([,v])=>v>0).map(([k,v])=>`<b style="color:${colors[k]};">Type ${k}:</b> ${v}/4 chance`).join(' · ')}</div>`;
+        };
+        slot.querySelector(`#${uid}-p1`).addEventListener('change',update);
+        slot.querySelector(`#${uid}-p2`).addEventListener('change',update);
+        update();
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── cell_division: mitosis vs meiosis stepper ─────────────────────────
+      if(bioType==='cell_division'){
+        const uid='cd'+Date.now();
+        const phases=[
+          {name:'Interphase',color:'#64748b',desc:'Cell grows and replicates its DNA. Chromosomes are not yet visible. DNA replication: each chromosome is duplicated into two identical sister chromatids held together at the centromere.'},
+          {name:'Prophase',color:'#2563eb',desc:'Chromosomes condense and become visible. The nuclear envelope breaks down. Spindle fibres begin forming from centrioles (in animal cells). Homologous pairs undergo CROSSING OVER in meiosis I (increases genetic diversity).'},
+          {name:'Metaphase',color:'#6e5ad8',desc:'Chromosomes align at the cell\'s equator (metaphase plate). Spindle fibres attach to centromeres. In Meiosis I, HOMOLOGOUS PAIRS align (not individual chromosomes) — this is where independent assortment occurs.'},
+          {name:'Anaphase',color:'#dc9c34',desc:'Sister chromatids are pulled to opposite poles by spindle fibres. In Meiosis I, whole chromosomes (not chromatids) separate. The cell elongates.'},
+          {name:'Telophase + Cytokinesis',color:'#148a5c',desc:'Nuclear envelopes reform around each set of chromosomes. Chromosomes decondense. Cytokinesis divides the cytoplasm: cleavage furrow in animals, cell plate in plants.'},
+        ];
+        slot.innerHTML=`<div class="lp-block" style="padding:1.25rem;">
+          <div class="lp-check-q" style="margin-bottom:.85rem;">${safeHtml(bioPrompt)}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.85rem;">
+            <div style="background:#dbe8fe;border:2px solid #2563eb;border-radius:12px;padding:.85rem;font-size:.82rem;">
+              <b style="color:#1d4ed8;display:block;margin-bottom:.4rem;">🔵 Mitosis</b>
+              • 1 division<br>• 2 diploid (2n) daughter cells<br>• Genetically IDENTICAL<br>• Purpose: growth, repair, asexual reproduction<br>• Occurs in all body cells
+            </div>
+            <div style="background:#e3f5ee;border:2px solid #148a5c;border-radius:12px;padding:.85rem;font-size:.82rem;">
+              <b style="color:#148a5c;display:block;margin-bottom:.4rem;">🟢 Meiosis</b>
+              • 2 divisions (I + II)<br>• 4 haploid (n) daughter cells<br>• Genetically UNIQUE<br>• Purpose: gamete production<br>• Only in reproductive organs
+            </div>
+          </div>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem;" id="${uid}-tabs"></div>
+          <div id="${uid}-info" style="padding:.8rem 1rem;border-radius:12px;background:var(--paper-2);font-size:.85rem;line-height:1.65;color:var(--ink-soft);">Select a phase to learn what happens.</div>
+        </div>`;
+        const tabsEl=slot.querySelector(`#${uid}-tabs`), infoEl=slot.querySelector(`#${uid}-info`);
+        phases.forEach((p,i)=>{
+          const btn=document.createElement('button');
+          btn.textContent=p.name; btn.style.cssText=`padding:.32rem .75rem;border-radius:100px;border:2px solid ${p.color};color:${p.color};background:transparent;font-family:Inter,sans-serif;font-weight:700;font-size:.76rem;cursor:pointer;transition:all .15s;`;
+          btn.onclick=()=>{
+            infoEl.style.borderLeft=`4px solid ${p.color}`; infoEl.style.background=p.color+'12';
+            infoEl.innerHTML=`<b style="color:${p.color};">${p.name}</b><br>${p.desc}`;
+            tabsEl.querySelectorAll('button').forEach((b,j)=>{ b.style.background=j===i?p.color:'transparent'; b.style.color=j===i?'#fff':p.color; });
+          };
+          tabsEl.appendChild(btn);
+        });
+        lpSetContinueEnabled(true); return;
+      }
+
+      // ── All remaining bio visual types: rich info card ────────────────────
       const bioInfoMap = {
-        micro_kingdom: {title:'Bacteria, Protists & Fungi', icon:'🦠', color:'#148a5c', bg:'#e3f5ee', content:'Tap to explore the three kingdoms: Bacteria (prokaryotic, peptidoglycan wall), Protists (eukaryotic, diverse), and Fungi (eukaryotic, chitin wall, absorptive nutrition). Each plays critical roles in ecosystems.'},
-        plant_evo: {title:'Plant Evolution Explorer', icon:'🌿', color:'#15803d', bg:'#dcfce7', content:'The plant kingdom evolved in four major groups, each with key terrestrial adaptations: Bryophytes (no vascular tissue) → Pteridophytes (vascular, no seeds) → Gymnosperms (seeds, no fruit) → Angiosperms (flowers and fruit).'},
-        animal_phylo: {title:'Animal Phylogenetic Tree', icon:'🐾', color:'#6e5ad8', bg:'#eeebfb', content:'Animals share key body plan features: symmetry (radial vs bilateral), coelom type (acoelomate, pseudocoelomate, coelomate), and segmentation. Vertebrates form a subset of the chordate phylum.'},
-        natural_selection_sim: {title:'Natural Selection Simulator', icon:'🦋', color:'#2563eb', bg:'#dbe8fe', content:'Natural selection acts when: (1) variation exists in a population, (2) variation is heritable, (3) some variants reproduce more successfully. Over generations, adaptive traits become more common.'},
-        evo_evidence: {title:'Evidence for Evolution', icon:'🦴', color:'#dc9c34', bg:'#faf0da', content:'Lines of evidence: Fossil record (transitional fossils like Tiktaalik), Homologous structures (pentadactyl limb), Vestigial structures (whale pelvic bones), Comparative embryology, DNA/protein sequences, Biogeography, Direct observation.'},
-        popgen_sim: {title:'Population Genetics', icon:'📊', color:'#6e5ad8', bg:'#eeebfb', content:'Allele frequencies in populations change through: natural selection (directed), genetic drift (random — larger effect in small populations), mutation (source of new alleles), gene flow (migration between populations), and non-random mating.'},
-        dna_builder: {title:'DNA Structure Builder', icon:'🧬', color:'#2563eb', bg:'#dbe8fe', content:'DNA is a double helix with antiparallel strands. Each nucleotide has a deoxyribose sugar, phosphate group, and nitrogenous base. Base pairing: A-T (2 H-bonds), G-C (3 H-bonds). Replication is semi-conservative.'},
-        protein_synth: {title:'Protein Synthesis', icon:'⚙️', color:'#148a5c', bg:'#e3f5ee', content:'Transcription (nucleus): DNA template → mRNA (RNA polymerase, U replaces T). Translation (ribosome): mRNA codons (3 bases) → tRNA anticodons → amino acids joined by peptide bonds → polypeptide.'},
-        punnett_mono: {title:'Monohybrid Cross', icon:'🟢', color:'#148a5c', bg:'#e3f5ee', content:'Heterozygous cross (Aa × Aa): AA:Aa:aa = 1:2:1 genotypic ratio; dominant:recessive = 3:1 phenotypic ratio. Law of Segregation: alleles separate during gamete formation. Test cross (unknown × aa) reveals unknown genotype.'},
-        blood_type_cross: {title:'ABO Blood Type Genetics', icon:'🩸', color:'#d1484d', bg:'#fdecec', content:'ABO blood type uses multiple alleles: I^A (dominant, type A), I^B (dominant, type B), i (recessive, type O). Codominance: I^A I^B → type AB. To have type O (ii), you must inherit i allele from BOTH parents.'},
-        cell_division: {title:'Mitosis vs. Meiosis', icon:'🔬', color:'#6e5ad8', bg:'#eeebfb', content:'Mitosis: PMAT → 2 diploid identical cells (growth/repair). Meiosis: PMAT I + PMAT II → 4 haploid unique cells (gametes). Meiosis variation sources: crossing over (Prophase I) and independent assortment (Metaphase I).'},
-        digestive_sys: {title:'Human Digestive System', icon:'🫀', color:'#2563eb', bg:'#dbe8fe', content:'Path: Mouth (salivary amylase) → Esophagus (peristalsis) → Stomach (HCl, pepsin) → Small intestine (main digestion+absorption; bile, pancreatic enzymes; villi+microvilli) → Large intestine (water reabsorption).'},
-        circulatory_flow: {title:'Blood Flow Diagram', icon:'❤️', color:'#d1484d', bg:'#fdecec', content:'Double circuit: Pulmonary (right ventricle → lungs → gas exchange → left atrium) + Systemic (left ventricle → body → O₂ delivery, CO₂ pickup → right atrium). Arteries carry blood FROM heart; veins TOWARD heart.'},
-        action_potential: {title:'Action Potential', icon:'⚡', color:'#dc9c34', bg:'#faf0da', content:'Resting: -70 mV (K⁺ inside, Na⁺ outside maintained by Na⁺/K⁺ pump). Stimulus → Na⁺ channels open → Na⁺ in → depolarization (rises to +30 mV). K⁺ channels open → K⁺ out → repolarization. All-or-nothing principle.'},
-        immune_sim: {title:'Immune Response Simulation', icon:'🛡️', color:'#148a5c', bg:'#e3f5ee', content:'1st line: skin/mucous barriers. 2nd line: inflammation, fever, phagocytes (non-specific). 3rd line: B cells → antibodies (specific to antigen); T cells (helper, cytotoxic, memory). Memory cells → faster response on re-exposure = basis of vaccination.'},
+        digestive_sys: {icon:'🫀',color:'#2563eb',bg:'#dbe8fe',title:'Digestive System',
+          points:['Mouth: salivary amylase starts starch digestion; teeth mechanically break food','Esophagus: peristalsis (wave contractions) moves food — no digestion','Stomach: HCl (pH 2) denatures proteins; pepsin begins protein digestion; churning','Small intestine (duodenum): pancreatic enzymes (amylase, lipase, proteases) + bile from liver emulsifies fat','Small intestine (villi): absorption — villi + microvilli create huge surface area (~250 m²)','Large intestine: water reabsorption, gut microbiome, feces formation']},
+        circulatory_flow: {icon:'❤️',color:'#d1484d',bg:'#fdecec',title:'Circulatory System',
+          points:['Right ventricle → pulmonary artery → LUNGS (CO₂ out, O₂ in) → pulmonary vein → left atrium = PULMONARY CIRCUIT','Left ventricle → aorta → BODY (O₂ delivered, CO₂ picked up) → vena cava → right atrium = SYSTEMIC CIRCUIT','Arteries: thick elastic walls, carry blood AWAY from heart (high pressure)','Veins: thinner walls, valves, carry blood TOWARD heart','Capillaries: 1 cell thick — site of gas + nutrient exchange with tissues','Blood: RBCs (O₂ via hemoglobin), WBCs (immune), platelets (clotting), plasma (liquid)']},
+        action_potential: {icon:'⚡',color:'#dc9c34',bg:'#faf0da',title:'Action Potential',
+          points:['Resting potential: −70 mV inside (Na⁺/K⁺ pump maintains: 3 Na⁺ out, 2 K⁺ in per ATP)','Stimulus → Na⁺ channels open → Na⁺ rushes IN → inside becomes +30 mV (DEPOLARIZATION)','Na⁺ channels close; K⁺ channels open → K⁺ rushes OUT → returns to −70 mV (REPOLARIZATION)','ALL-OR-NOTHING: either threshold is reached (full AP fires) or nothing happens at all','Synapse: neurotransmitters released from presynaptic terminal → bind receptors → trigger next neuron','Myelin sheath (Schwann cells) insulates axon → saltatory conduction → much faster signal']},
+        immune_sim: {icon:'🛡️',color:'#148a5c',bg:'#e3f5ee',title:'Immune System',
+          points:['1st line (external): skin, mucous membranes, cilia, stomach acid, lysozyme in tears','2nd line (non-specific): inflammation, fever, phagocytes (macrophages engulf bacteria), natural killer cells','3rd line — B cells: activated → plasma cells → produce Y-shaped antibodies specific to ONE antigen','3rd line — T cells: helper T (orchestrate response); cytotoxic T (kill infected cells)','Memory B + T cells persist for life → FAST response on re-exposure (basis of immunity + vaccination)','Autoimmune disease: immune system attacks self (Type 1 diabetes, MS, rheumatoid arthritis)']},
+        micro_kingdom:{icon:'🦠',color:'#2563eb',bg:'#dbe8fe',title:'Bacteria, Protists & Fungi',
+          points:['Bacteria: prokaryotic, peptidoglycan wall, binary fission, ~1-10 µm — most abundant life on Earth','Protists: eukaryotic, NOT plants/animals/fungi — paraphyletic group of mostly unicellular organisms','Animal-like protists (protozoa): heterotrophs — Amoeba (pseudopods), Paramecium (cilia), Plasmodium (malaria)','Plant-like protists (algae): photosynthetic — diatoms (silica shells), kelp, Euglena','Fungi: eukaryotic, chitin cell wall, absorptive heterotrophs (secrete enzymes, absorb products), reproduce by spores','Fungal importance: decomposers (nutrient cycling), food production (bread/beer), medicine (penicillin), mycorrhizae']},
+        plant_evo:{icon:'🌿',color:'#15803d',bg:'#dcfce7',title:'Plant Evolution',
+          points:['Plants evolved from GREEN ALGAE ~450 million years ago','Bryophytes (mosses): no vascular tissue, no seeds, flagellated sperm need water, dominant GAMETOPHYTE','Pteridophytes (ferns): vascular tissue (xylem + phloem), no seeds, spore reproduction, dominant SPOROPHYTE','Gymnosperms (conifers): vascular, seeds on cone scales (naked seeds), no flowers, wind-pollinated','Angiosperms (flowering plants): vascular, seeds in fruit, flowers attract pollinators — MOST DIVERSE group','Key adaptations for land: cuticle (waxy), stomata, vascular tissue, seeds, pollen (no water for fertilisation)']},
+        animal_phylo:{icon:'🐾',color:'#6e5ad8',bg:'#eeebfb',title:'Animal Kingdom',
+          points:['Animals: multicellular, eukaryotic heterotrophs, no cell walls, motile at some stage','Symmetry: radial (jellyfish, starfish) vs bilateral (most animals including humans)','Coelom: acoelomate (flatworms) → pseudocoelomate (roundworms) → coelomate (annelids onwards)','Major phyla: Porifera → Cnidaria → Platyhelminthes → Nematoda → Annelida → Mollusca → Arthropoda → Echinodermata','Arthropoda: largest phylum — exoskeleton (chitin), jointed legs, includes insects, spiders, crustaceans','Vertebrates: Agnatha → Chondrichthyes → Osteichthyes → Amphibia → Reptilia → Aves → Mammalia']},
+        evo_evidence:{icon:'🦴',color:'#dc9c34',bg:'#faf0da',title:'Evidence for Evolution',
+          points:['Fossil record: shows gradual changes; transitional fossils (Tiktaalik: fish-to-tetrapod; Archaeopteryx: dino-to-bird)','Homologous structures: same bones, different functions (human arm/whale flipper/bat wing/cat foreleg) = common ancestor','Analogous structures: similar function, different structure (bird wing vs insect wing) = convergent evolution (NOT evidence of common ancestry)','Vestigial structures: non-functional remnants of ancestral structures (human appendix, whale pelvic bones)','Comparative embryology: vertebrate embryos (fish/reptile/human) strikingly similar in early stages','Molecular: human + chimp DNA ~98.7% identical; more similar sequence = more recent common ancestor','Direct observation: antibiotic resistance, Galápagos finch beak changes during drought measured in real time']},
+        popgen_sim:{icon:'📊',color:'#6e5ad8',bg:'#eeebfb',title:'Population Genetics & Mechanisms',
+          points:['Evolution = change in ALLELE FREQUENCIES in a population over time (not in an individual)','Natural selection: differential reproductive success — adaptive alleles become more common','Genetic drift: RANDOM changes in allele frequency — much stronger effect in SMALL populations','Bottleneck effect: population crash → survivors\' gene pool ≠ original → reduced diversity','Founder effect: small group founds new population → non-representative gene pool','Mutation: ultimate source of all new alleles — random changes in DNA','Gene flow (migration): alleles move between populations — reduces differences between them','Hardy-Weinberg equilibrium: p² + 2pq + q² = 1 — no evolution occurs if all 5 conditions met']},
       };
-      const info = bioInfoMap[bioType] || {title:bioType, icon:'🔬', color:'#2563eb', bg:'#dbe8fe', content:'Interactive biology visual for: '+bioType};
+      const info = bioInfoMap[bioType] || {icon:'🔬',color:'#2563eb',bg:'#dbe8fe',title:bioType,points:['Visual for: '+bioType]};
       slot.innerHTML = `<div class="lp-block" style="padding:1.25rem;background:${info.bg};border:2px solid ${info.color};border-radius:16px;">
-        <div style="font-size:2rem;margin-bottom:.5rem;">${info.icon}</div>
-        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.1rem;color:${info.color};margin-bottom:.6rem;">${info.title}</div>
-        <div class="lp-check-q" style="color:var(--ink);margin-bottom:.6rem;">${safeHtml(bioPrompt)}</div>
-        <div style="font-size:.87rem;line-height:1.65;color:var(--ink-soft);">${info.content}</div>
+        <div style="font-size:1.9rem;margin-bottom:.45rem;">${info.icon}</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:${info.color};margin-bottom:.65rem;">${info.title}</div>
+        <div class="lp-check-q" style="color:var(--ink);margin-bottom:.65rem;font-size:.9rem;">${safeHtml(bioPrompt)}</div>
+        <ul style="margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.4rem;">
+          ${info.points.map(p=>`<li style="font-size:.84rem;line-height:1.55;color:var(--ink);">${p}</li>`).join('')}
+        </ul>
       </div>`;
       lpSetContinueEnabled(true); return;
     }
