@@ -2077,11 +2077,13 @@
   #test-page.lp-mode #ember-dock .tutor-msg.bot,
   #test-page.lp-mode .tutor-msg.bot { background:rgba(255,255,255,.1); color:rgba(246,244,239,.92); }
   #test-page.lp-mode #ember-dock #tutor-input-row,
-  #test-page.lp-mode #tutor-input-row { background:rgba(255,255,255,.06); border-top-color:rgba(255,255,255,.1); }
+  #test-page.lp-mode #tutor-input-row { background:rgba(255,255,255,.09); border-top-color:rgba(255,255,255,.16); }
   #test-page.lp-mode #ember-dock #tutor-input,
-  #test-page.lp-mode #tutor-input { background:rgba(255,255,255,.08); color:rgba(246,244,239,.92); border-color:rgba(255,255,255,.12); }
+  #test-page.lp-mode #tutor-input { background:rgba(255,255,255,.13); color:rgba(246,244,239,.95); border-color:rgba(255,255,255,.22); }
+  #test-page.lp-mode #ember-dock #tutor-input::placeholder,
+  #test-page.lp-mode #tutor-input::placeholder { color:rgba(246,244,239,.4); }
   #test-page.lp-mode #ember-dock #tutor-input:focus,
-  #test-page.lp-mode #tutor-input:focus { border-color:var(--blue); }
+  #test-page.lp-mode #tutor-input:focus { border-color:var(--blue); background:rgba(255,255,255,.18); }
 
 
 
@@ -12387,7 +12389,7 @@ function renderLpBlockInner(){
             <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
               ${m.rows.map(([k,v])=>`<tr>
                 <td style="font-weight:700;color:${m.color};padding:.3rem .6rem .3rem 0;vertical-align:top;white-space:nowrap;width:90px;">${k}</td>
-                <td style="padding:.3rem 0;color:var(--ink);line-height:1.5;">${v}</td>
+                <td style="padding:.3rem 0;color:#1c1f2b;line-height:1.5;">${v}</td>
               </tr>`).join('')}
             </table>`;
           tabsEl.querySelectorAll('button').forEach((b,j)=>{
